@@ -1,0 +1,101 @@
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type UserProfileWithChangeStatus = 
+ record {
+   bio: text;
+   hasChangedName: bool;
+   name: text;
+ };
+type UserProfile = 
+ record {
+   bio: text;
+   name: text;
+ };
+type UserInfo = 
+ record {
+   approval: ApprovalStatus;
+   "principal": principal;
+   role: UserRole;
+ };
+type StreamingToken = 
+ record {
+   index: nat;
+   resource: text;
+ };
+type StreamingStrategy = variant {
+                           Callback:
+                            record {
+                              callback: StreamingCallback;
+                              token: StreamingToken;
+                            };};
+type StreamingCallbackHttpResponse = 
+ record {
+   body: blob;
+   token: opt StreamingToken;
+ };
+type StreamingCallback = func (StreamingToken) ->
+                          (StreamingCallbackHttpResponse) query;
+type HttpResponse = 
+ record {
+   body: blob;
+   headers: vec HeaderField;
+   status_code: nat16;
+   streaming_strategy: opt StreamingStrategy;
+ };
+type HttpRequest = 
+ record {
+   body: blob;
+   headers: vec HeaderField;
+   method: text;
+   url: text;
+ };
+type HeaderField = 
+ record {
+   text;
+   text;
+ };
+type FileMetadata = 
+ record {
+   mimeType: text;
+   path: text;
+   size: nat;
+ };
+type ApprovalStatus = 
+ variant {
+   approved;
+   pending;
+   rejected;
+ };
+service : {
+  assignRole: (user: principal, newRole: UserRole) -> ();
+  fileDelete: (path: text) -> ();
+  fileList: () -> (vec FileMetadata) query;
+  fileUpload: (path: text, mimeType: text, chunk: blob, complete: bool) -> ();
+  getApprovalStatus: (user: principal) -> (ApprovalStatus) query;
+  getCurrentUserApprovalStatus: () -> (ApprovalStatus) query;
+  getCurrentUserProfile: () -> (opt UserProfile) query;
+  getCurrentUserProfileWithChangeStatus: () ->
+   (opt UserProfileWithChangeStatus) query;
+  getCurrentUserRole: () -> (UserRole) query;
+  getLeaderboard: () -> (vec record {
+                               text;
+                               nat;
+                             }) query;
+  getUserProfile: (user: principal) -> (opt UserProfile) query;
+  getUserProfileWithChangeStatus: (user: principal) ->
+   (opt UserProfileWithChangeStatus) query;
+  httpStreamingCallback: (token: StreamingToken) ->
+   (StreamingCallbackHttpResponse) query;
+  http_request: (request: HttpRequest) -> (HttpResponse) query;
+  initializeAuth: () -> ();
+  isCurrentUserAdmin: () -> (bool) query;
+  listUsers: () -> (vec UserInfo) query;
+  saveCurrentUserProfile: (profile: UserProfile) -> ();
+  saveCurrentUserProfileWithChangeStatus: (profile:
+   UserProfileWithChangeStatus) -> ();
+  setApproval: (user: principal, approval: ApprovalStatus) -> ();
+}

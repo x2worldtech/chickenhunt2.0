@@ -1,0 +1,1201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 15 0 0;
+  --foreground: 95 0 0;
+  --card: 22 0 0;
+  --popover: 22 0 0;
+  --primary: 50 0.1 142;
+  --primary-foreground: 98 0 0;
+  --secondary: 60 0.1 38;
+  --secondary-foreground: 98 0 0;
+  --muted: 45 0 0;
+  --muted-foreground: 70 0 0;
+  --accent: 55 0.2 55;
+  --accent-foreground: 98 0 0;
+  --destructive: 50 0.2 15;
+  --destructive-foreground: 98 0 0;
+  --success: 60 0.15 130;
+  --success-foreground: 98 0 0;
+  --warning: 60 0.2 45;
+  --warning-foreground: 98 0 0;
+  --border: 30 0 0;
+  --input: 22 0 0;
+  --ring: 55 0.2 55;
+}
+
+.dark {
+  --background: 15 0 0;
+  --foreground: 95 0 0;
+  --card: 22 0 0;
+  --popover: 22 0 0;
+  --primary: 50 0.1 142;
+  --primary-foreground: 98 0 0;
+  --secondary: 60 0.1 38;
+  --secondary-foreground: 98 0 0;
+  --muted: 45 0 0;
+  --muted-foreground: 70 0 0;
+  --accent: 55 0.2 55;
+  --accent-foreground: 98 0 0;
+  --destructive: 50 0.2 15;
+  --destructive-foreground: 98 0 0;
+  --success: 60 0.15 130;
+  --success-foreground: 98 0 0;
+  --warning: 60 0.2 45;
+  --warning-foreground: 98 0 0;
+  --border: 30 0 0;
+  --input: 22 0 0;
+  --ring: 55 0.2 55;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: oklch(var(--background));
+  color: oklch(var(--foreground));
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* Game title styling with white fill and black outline */
+.game-title {
+  color: white;
+  text-shadow:
+    -4px -4px 0 #000,
+    4px -4px 0 #000,
+    -4px 4px 0 #000,
+    4px 4px 0 #000,
+    -4px 0 0 #000,
+    4px 0 0 #000,
+    0 -4px 0 #000,
+    0 4px 0 #000,
+    -3px -3px 0 #000,
+    3px -3px 0 #000,
+    -3px 3px 0 #000,
+    3px 3px 0 #000,
+    -2px -2px 0 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    2px 2px 0 #000;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+}
+
+/* World name title styling - Significantly larger, bold font with clean, smooth text outline */
+.world-name-title {
+  font-size: clamp(3.5rem, 12vw, 8rem);
+  font-weight: 900;
+  color: white;
+  -webkit-text-stroke: 6px #000;
+  paint-order: stroke fill;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fallback for browsers that don't support text-stroke */
+@supports not (-webkit-text-stroke: 6px #000) {
+  .world-name-title {
+    text-shadow:
+      -6px -6px 0 #000,
+      6px -6px 0 #000,
+      -6px 6px 0 #000,
+      6px 6px 0 #000,
+      -6px 0 0 #000,
+      6px 0 0 #000,
+      0 -6px 0 #000,
+      0 6px 0 #000,
+      -5px -5px 0 #000,
+      5px -5px 0 #000,
+      -5px 5px 0 #000,
+      5px 5px 0 #000,
+      -4px -4px 0 #000,
+      4px -4px 0 #000,
+      -4px 4px 0 #000,
+      4px 4px 0 #000,
+      -3px -3px 0 #000,
+      3px -3px 0 #000,
+      -3px 3px 0 #000,
+      3px 3px 0 #000,
+      -2px -2px 0 #000,
+      2px -2px 0 #000,
+      -2px 2px 0 #000,
+      2px 2px 0 #000,
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000;
+  }
+}
+
+/* World navigation button styling with thin black outline */
+.world-navigation-button {
+  border: 2px solid #000 !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), inset 0 0 0 1px
+    rgba(255, 255, 255, 0.2);
+}
+
+/* World navigation arrow styling with thin black stroke */
+.world-navigation-arrow {
+  -webkit-text-stroke: 1px #000;
+  paint-order: stroke fill;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fallback for browsers that don't support text-stroke on arrows */
+@supports not (-webkit-text-stroke: 1px #000) {
+  .world-navigation-arrow {
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0
+      #000, -1px 0 0 #000, 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000;
+  }
+}
+
+/* Timer container with fixed width to prevent horizontal jumping */
+.timer-container {
+  min-width: 120px; /* Fixed width to accommodate "60s" and single digits */
+  text-align: center; /* Center the text within the fixed width */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Compact timer container with reduced horizontal width */
+.timer-container-compact {
+  min-width: 80px; /* Reduced from 120px to 80px for more compact appearance */
+  text-align: center; /* Center the text within the fixed width */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Extra compact timer container with further reduced dimensions */
+.timer-container-extra-compact {
+  min-width: 65px; /* Further reduced for smaller appearance */
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Score container with 2mm longer width (approximately 7.5px at 96 DPI) */
+.score-container {
+  min-width: 155px; /* Increased from 148px to 155px (approximately 2mm longer) while still accommodating up to 4 digits comfortably */
+  text-align: center; /* Center the text within the fixed width */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Score container with left-aligned text for both label and value - 2mm longer */
+.score-container-left-aligned {
+  min-width: 155px; /* Increased from 148px to 155px (approximately 2mm longer) */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Left-align the content */
+  padding-left: 16px; /* Fixed left padding for consistent positioning */
+}
+
+.score-container-left-aligned span {
+  text-align: left; /* Ensure text is left-aligned */
+  white-space: nowrap; /* Prevent text wrapping */
+  display: block; /* Ensure consistent block-level behavior */
+}
+
+/* Compact score container with reduced dimensions - 2mm longer */
+.score-container-left-aligned-compact {
+  min-width: 127px; /* Increased from 120px to 127px (approximately 2mm longer) for more compact appearance */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 12px; /* Reduced padding for compact size */
+}
+
+.score-container-left-aligned-compact span {
+  text-align: left;
+  white-space: nowrap;
+  display: block;
+}
+
+/* End Game container with exact same size as score container (including 2mm increase) and proper alignment */
+.end-game-container-aligned {
+  min-width: 155px; /* Exact same width as updated score container (2mm longer) */
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center the button text */
+  height: auto; /* Match the height of score container */
+  padding: 8px 16px; /* Same padding as score container */
+}
+
+.end-game-container-aligned button {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Compact End Game container with reduced dimensions matching compact score container (including 2mm increase) */
+.end-game-container-aligned-compact {
+  min-width: 127px; /* Same width as compact score container (2mm longer) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+  padding: 6px 12px; /* Reduced padding for compact size */
+}
+
+.end-game-container-aligned-compact button {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Start Game Button - World-specific theming with prominent drop shadow and consistent black border */
+.start-game-button-original {
+  background: linear-gradient(135deg, #228b22, #32cd32);
+  box-shadow: 0 8px 24px rgba(34, 139, 34, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-original:hover {
+  background: linear-gradient(135deg, #32cd32, #228b22);
+  box-shadow: 0 12px 32px rgba(34, 139, 34, 0.8), 0 6px 16px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-volcano {
+  background: linear-gradient(135deg, #ff4500, #dc143c);
+  box-shadow: 0 8px 24px rgba(255, 69, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-volcano:hover {
+  background: linear-gradient(135deg, #dc143c, #ff4500);
+  box-shadow: 0 12px 32px rgba(255, 69, 0, 0.8), 0 6px 16px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-space {
+  background: linear-gradient(135deg, #191970, #4b0082);
+  box-shadow: 0 8px 24px rgba(75, 0, 130, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-space:hover {
+  background: linear-gradient(135deg, #4b0082, #191970);
+  box-shadow: 0 12px 32px rgba(75, 0, 130, 0.8), 0 6px 16px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-desert {
+  background: linear-gradient(135deg, #daa520, #f4a460);
+  box-shadow: 0 8px 24px rgba(218, 165, 32, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-desert:hover {
+  background: linear-gradient(135deg, #f4a460, #daa520);
+  box-shadow: 0 12px 32px rgba(218, 165, 32, 0.8), 0 6px 16px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-jungle {
+  background: linear-gradient(135deg, #228b22, #006400);
+  box-shadow: 0 8px 24px rgba(34, 139, 34, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-jungle:hover {
+  background: linear-gradient(135deg, #006400, #228b22);
+  box-shadow: 0 12px 32px rgba(34, 139, 34, 0.8), 0 6px 16px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-snowy {
+  background: linear-gradient(135deg, #4682b4, #b0e0e6);
+  box-shadow: 0 8px 24px rgba(70, 130, 180, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-snowy:hover {
+  background: linear-gradient(135deg, #b0e0e6, #4682b4);
+  box-shadow: 0 12px 32px rgba(70, 130, 180, 0.8), 0 6px 16px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-sky {
+  background: linear-gradient(135deg, #00bfff, #87ceeb);
+  box-shadow: 0 8px 24px rgba(0, 191, 255, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-sky:hover {
+  background: linear-gradient(135deg, #87ceeb, #00bfff);
+  box-shadow: 0 12px 32px rgba(0, 191, 255, 0.8), 0 6px 16px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  border: 4px solid #000 !important;
+}
+
+.start-game-button-cyberpunk {
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0d1b2a 100%);
+  color: #00ffff !important;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.5);
+  box-shadow: 0 8px 24px rgba(140, 0, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.6),
+    0 0 0 2px rgba(0, 255, 255, 0.4), inset 0 0 16px rgba(140, 0, 255, 0.15);
+  border: 4px solid #8c00ff !important;
+}
+
+.start-game-button-cyberpunk:hover {
+  background: linear-gradient(135deg, #1a0a2e 0%, #2a0a4e 50%, #0d2b3a 100%);
+  color: #00ffff !important;
+  text-shadow: 0 0 14px rgba(0, 255, 255, 1), 0 0 28px rgba(0, 255, 255, 0.7), 0
+    0 40px rgba(0, 255, 255, 0.4);
+  box-shadow:
+    0 12px 32px rgba(140, 0, 255, 0.7),
+    0 6px 16px rgba(0, 0, 0, 0.7),
+    0 0 0 2px rgba(0, 255, 255, 0.7),
+    0 0 20px rgba(0, 255, 255, 0.3),
+    inset 0 0 24px rgba(140, 0, 255, 0.25);
+  border: 4px solid #00ffff !important;
+}
+
+/* Tips container styling - Default for all worlds except snowy */
+.tips-container-default {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Tips container styling - Darker border for snowy world for better contrast */
+.tips-container-snowy {
+  border: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+/* Tip indicator dots styling - Black outline for snowy world */
+.tip-indicator-dot-snowy {
+  border: 1px solid #000;
+}
+
+/* Lightbulb icon animation - Subtle pulsing/glowing effect */
+.lightbulb-icon-container {
+  animation: lightbulbPulse 2.5s ease-in-out infinite;
+  position: relative;
+}
+
+@keyframes lightbulbPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(255, 165, 0, 0.4), 0 0 16px rgba(255, 165, 0, 0.2);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 12px rgba(255, 165, 0, 0.6), 0 0 24px rgba(255, 165, 0, 0.3),
+      0 0 32px rgba(255, 165, 0, 0.1);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(255, 165, 0, 0.4), 0 0 16px rgba(255, 165, 0, 0.2);
+  }
+}
+
+/* Additional subtle glow effect for the lightbulb icon */
+.lightbulb-icon-container::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.3) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  z-index: -1;
+  animation: lightbulbGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes lightbulbGlow {
+  0% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+}
+
+/* Modern 2x multiplier indicator */
+.multiplier-indicator {
+  position: absolute;
+  top: -8px;
+  right: -12px;
+  background: linear-gradient(135deg, #ffd700, #ffa500);
+  color: #000;
+  font-weight: 900;
+  font-size: 16px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 2px solid #ff8c00;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.6), 0 0 12px rgba(255, 215, 0, 0.4);
+  transform: rotate(-8deg) scale(1.1);
+  animation: multiplierBlink 0.8s infinite alternate ease-in-out;
+  z-index: 20;
+}
+
+@keyframes multiplierBlink {
+  0% {
+    opacity: 0.8;
+    transform: rotate(-8deg) scale(1.1);
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.6), 0 0 12px
+      rgba(255, 215, 0, 0.4);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-8deg) scale(1.15);
+    box-shadow: 0 3px 12px rgba(255, 215, 0, 0.8), 0 0 20px
+      rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.3);
+  }
+}
+
+/* Achievement milestone blinking animation */
+.milestone-blink {
+  animation: milestoneBlink 1.5s ease-in-out infinite;
+}
+
+@keyframes milestoneBlink {
+  0% {
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.6), 0 0 16px rgba(34, 197, 94, 0.4),
+      inset 0 0 8px rgba(34, 197, 94, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(34, 197, 94, 0.8), 0 0 32px rgba(34, 197, 94, 0.6),
+      0 0 48px rgba(34, 197, 94, 0.4), inset 0 0 16px rgba(34, 197, 94, 0.3);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.6), 0 0 16px rgba(34, 197, 94, 0.4),
+      inset 0 0 8px rgba(34, 197, 94, 0.2);
+  }
+}
+
+/* Milestone collect indicator styling - positioned outside milestone at bottom right */
+.milestone-collect-indicator {
+  font-size: 8px;
+  padding: 1px 3px;
+  border-radius: 8px;
+  line-height: 1;
+  min-height: auto;
+  height: auto;
+  white-space: nowrap;
+  transform: scale(0.8);
+  z-index: 10;
+}
+
+.milestone-collect-indicator .w-2 {
+  width: 6px;
+  height: 6px;
+}
+
+/* Game Over Window Positioning - Extra small and positioned higher */
+.game-over-window-extra-small {
+  /* Position higher than center for better visual balance */
+  /* Header area: approximately 80px from top */
+  /* Footer area: approximately 60px from bottom */
+  /* Position at about 35% from top instead of center (50%) */
+  margin-top: calc(35vh - 120px); /* Adjusted for higher positioning */
+  margin-bottom: auto;
+}
+
+/* Responsive adjustments for different screen sizes - Extra small window */
+@media (max-height: 600px) {
+  .game-over-window-extra-small {
+    margin-top: calc(30vh - 100px);
+    margin-bottom: auto;
+  }
+}
+
+@media (max-height: 500px) {
+  .game-over-window-extra-small {
+    margin-top: calc(25vh - 80px);
+    margin-bottom: auto;
+  }
+}
+
+@media (max-height: 400px) {
+  .game-over-window-extra-small {
+    margin-top: calc(20vh - 60px);
+    margin-bottom: auto;
+  }
+}
+
+/* Tips container animation and interaction styles */
+.tip-container {
+  min-height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease-out;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.tip-container p {
+  animation: tipFadeIn 0.5s ease-in-out;
+  pointer-events: none; /* Prevent text selection during drag */
+  /* Enhanced font weight and thicker black outline for improved readability and prominence */
+  font-weight: 600; /* Slightly bolder font weight */
+  -webkit-text-stroke: 2px #000; /* Thicker black outline */
+  paint-order: stroke fill;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fallback for browsers that don't support text-stroke on tips text - Enhanced with thicker outline */
+@supports not (-webkit-text-stroke: 2px #000) {
+  .tip-container p {
+    text-shadow:
+      -2px -2px 0 #000,
+      2px -2px 0 #000,
+      -2px 2px 0 #000,
+      2px 2px 0 #000,
+      -2px 0 0 #000,
+      2px 0 0 #000,
+      0 -2px 0 #000,
+      0 2px 0 #000,
+      -1.5px -1.5px 0 #000,
+      1.5px -1.5px 0 #000,
+      -1.5px 1.5px 0 #000,
+      1.5px 1.5px 0 #000,
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000;
+  }
+}
+
+/* Game Tips heading styling with thicker black outline matching the enhanced tips text */
+.game-tips-heading {
+  -webkit-text-stroke: 2px #000; /* Thicker black outline to match tips text */
+  paint-order: stroke fill;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fallback for browsers that don't support text-stroke on Game Tips heading - Enhanced with thicker outline */
+@supports not (-webkit-text-stroke: 2px #000) {
+  .game-tips-heading {
+    text-shadow:
+      -2px -2px 0 #000,
+      2px -2px 0 #000,
+      -2px 2px 0 #000,
+      2px 2px 0 #000,
+      -2px 0 0 #000,
+      2px 0 0 #000,
+      0 -2px 0 #000,
+      0 2px 0 #000,
+      -1.5px -1.5px 0 #000,
+      1.5px -1.5px 0 #000,
+      -1.5px 1.5px 0 #000,
+      1.5px 1.5px 0 #000,
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000;
+  }
+}
+
+.tip-container.cursor-grab {
+  cursor: grab;
+}
+
+.tip-container.cursor-grabbing,
+.tip-container:active {
+  cursor: grabbing;
+}
+
+/* Prevent text selection during drag operations */
+.tip-container:active,
+.tip-container:active * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+@keyframes tipFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced tip navigation arrows */
+.tip-navigation-arrow {
+  transition: all 0.2s ease-out;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.tip-navigation-arrow:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.tip-navigation-arrow:active {
+  transform: scale(0.95);
+}
+
+/* Tip indicator dots enhancement */
+.tip-indicator-dot {
+  transition: all 0.3s ease-out;
+  cursor: pointer;
+}
+
+.tip-indicator-dot:hover {
+  transform: scale(1.25);
+}
+
+.tip-indicator-dot.active {
+  background: linear-gradient(135deg, #ff8c00, #ff6347);
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.6);
+}
+
+/* Profile picture container styling for better visual feedback */
+.profile-picture-container {
+  position: relative;
+  transition: all 0.2s ease-out;
+}
+
+.profile-picture-container:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.profile-picture-container img {
+  transition: all 0.2s ease-out;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Ensure profile pictures always maintain aspect ratio and proper sizing with perfect centering */
+.profile-picture-container img {
+  width: 100%;
+  height: 100%;
+  min-width: 80px;
+  min-height: 80px;
+  max-width: 80px;
+  max-height: 80px;
+  /* Perfect centering for all images including default avatar */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Ensure the image fills the container properly */
+  object-fit: cover;
+  object-position: center center;
+}
+
+/* Enhanced default avatar centering - ensures perfect positioning regardless of device or container size */
+.profile-picture-container {
+  /* Ensure the container itself is perfectly centered and sized */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  /* Additional centering properties for maximum compatibility */
+  position: relative;
+}
+
+/* Additional centering for the image element within the container */
+.profile-picture-container img {
+  /* Force perfect centering using multiple methods for maximum compatibility */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  /* Ensure no margin or padding interferes with centering */
+  margin: 0;
+  padding: 0;
+  /* Additional properties to ensure consistent rendering */
+  vertical-align: middle;
+  text-align: center;
+}
+
+/* Fallback centering method using flexbox for maximum browser compatibility */
+.profile-picture-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-content: center !important;
+  flex-direction: column !important;
+}
+
+/* Profile information shifted 5mm higher on the y-axis */
+.profile-info-shifted {
+  transform: translateY(-18.9px); /* 5mm = approximately 18.9px at 96 DPI */
+}
+
+/* Profile Level Badge Styling */
+.profile-level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px; /* Appropriate spacing from username */
+  transition: all 0.3s ease-out;
+}
+
+.profile-level-badge span {
+  font-size: 0.75rem; /* Small, compact size */
+  font-weight: 700; /* Bold font weight */
+  padding: 4px 8px; /* Compact padding */
+  border-radius: 12px; /* Rounded pill shape */
+  background: linear-gradient(135deg, #f97316, #ea580c); /* Orange gradient matching theme */
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Subtle text shadow for depth */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for modern look */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border for definition */
+  letter-spacing: 0.025em; /* Slight letter spacing for clarity */
+  line-height: 1; /* Tight line height for compact appearance */
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.profile-level-badge:hover {
+  transform: scale(1.05); /* Subtle hover effect */
+}
+
+/* Level Badge Styling */
+.level-badge {
+  transition: all 0.3s ease-out;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.level-badge:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+
+/* Level badge animation for level-up */
+@keyframes levelBadgeUnlock {
+  0% {
+    transform: scale(0.8) rotate(-10deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(5deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.level-badge-unlock {
+  animation: levelBadgeUnlock 0.8s ease-out;
+}
+
+/* Badge glow effect for high-level badges */
+.level-badge-master {
+  animation: badgeGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes badgeGlow {
+  0% {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))
+      drop-shadow(0 0 8px rgba(255, 215, 0, 0.3));
+  }
+  100% {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))
+      drop-shadow(0 0 16px rgba(255, 215, 0, 0.6));
+  }
+}
+
+/* Disable text selection on all elements */
+::selection {
+  background: transparent;
+}
+
+::-moz-selection {
+  background: transparent;
+}
+
+/* Disable drag and drop */
+* {
+  -webkit-user-drag: none;
+}
+
+/* Disable context menu */
+* {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Prevent scrolling on touch devices */
+html {
+  touch-action: none;
+  -ms-touch-action: none;
+  background-color: oklch(var(--background));
+}
+
+body {
+  touch-action: none;
+  -ms-touch-action: none;
+  background-color: oklch(var(--background));
+}
+
+/* Allow scrolling only in specific views */
+.achievements-view,
+.profile-view {
+  touch-action: pan-y;
+  -ms-touch-action: pan-y;
+  overflow-y: auto;
+}
+
+/* Allow horizontal interaction for tips section */
+.tip-container {
+  touch-action: pan-x;
+  -ms-touch-action: pan-x;
+}
+
+/* Custom animations */
+@keyframes bounce {
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%,
+  43% {
+    transform: translate3d(0, -30px, 0);
+  }
+  70% {
+    transform: translate3d(0, -15px, 0);
+  }
+  90% {
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+/* Crosshair cursor enhancement */
+.cursor-crosshair {
+  cursor: crosshair;
+}
+
+/* Smooth transitions */
+* {
+  transition: transform 0.1s ease-out;
+}
+
+/* Button hover effects */
+button:active {
+  transform: scale(0.95);
+}
+
+/* Hit effect animations */
+.hit-effect-container {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hit-effect-burst {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.9) 0%,
+    rgba(255, 165, 0, 0.7) 30%,
+    rgba(255, 69, 0, 0.5) 60%,
+    rgba(255, 0, 0, 0.3) 80%,
+    transparent 100%
+  );
+  animation: hitBurst 0.6s ease-out forwards;
+  pointer-events: none;
+}
+
+.hit-effect-points {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(135deg, #ffd700, #ffa500);
+  color: #000;
+  font-weight: 900;
+  font-size: 18px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 2px solid #000;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  animation: hitPoints 1.5s ease-out forwards;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Special styling for miss effects (negative points) */
+.hit-effect-points.miss-effect {
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  color: #fff;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+  border-color: #8b0000;
+  box-shadow: 0 4px 8px rgba(255, 68, 68, 0.4);
+}
+
+/* Miss effect burst animation - red colors */
+.miss-effect .hit-effect-burst {
+  background: radial-gradient(
+    circle,
+    rgba(255, 68, 68, 0.9) 0%,
+    rgba(255, 0, 0, 0.7) 30%,
+    rgba(204, 0, 0, 0.5) 60%,
+    rgba(139, 0, 0, 0.3) 80%,
+    transparent 100%
+  );
+}
+
+@keyframes hitBurst {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes hitPoints {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-10px) scale(1.2);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-20px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-40px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Reward notification animations - compact version */
+.reward-notification-compact {
+  animation: rewardBounceCompact 1.5s ease-out forwards;
+}
+
+@keyframes rewardBounceCompact {
+  0% {
+    transform: translateY(-10px) scale(0.8);
+    opacity: 0;
+  }
+  10% {
+    transform: translateY(0) scale(1.05);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-3px) scale(1);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-5px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+/* Legacy reward notification animations (kept for compatibility) */
+.reward-notification {
+  animation: rewardBounce 3s ease-out forwards;
+}
+
+@keyframes rewardBounce {
+  0% {
+    transform: translateY(-20px) scale(0.8);
+    opacity: 0;
+  }
+  10% {
+    transform: translateY(0) scale(1.1);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-5px) scale(1);
+    opacity: 1;
+  }
+  90% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+/* Prevent any form of scrolling on game view */
+html,
+body,
+#root {
+  scroll-behavior: auto !important;
+}
+
+/* Additional scroll prevention for game view */
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Bottom menu styling */
+.bottom-menu {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Ensure bottom menu is always on top */
+.bottom-menu {
+  z-index: 1000;
+}
+
+/* Custom scrollbar for achievement and profile views */
+.achievements-view::-webkit-scrollbar,
+.profile-view::-webkit-scrollbar {
+  width: 8px;
+}
+
+.achievements-view::-webkit-scrollbar-track,
+.profile-view::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.achievements-view::-webkit-scrollbar-thumb,
+.profile-view::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.achievements-view::-webkit-scrollbar-thumb:hover,
+.profile-view::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Ensure proper spacing for bottom menu - increased padding for achievements view */
+.achievements-view {
+  padding-bottom: 120px;
+}
+
+.profile-view {
+  padding-bottom: 70px;
+}

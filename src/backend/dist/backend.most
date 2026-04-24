@@ -1,0 +1,69 @@
+// Version: 1.0.0
+type ApprovalStatus__1030066916 = {#approved; #pending; #rejected};
+type Asset__642177888 = {chunks : [Blob]; mimeType : Text};
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type GameStatistics__205091857 =
+  {
+    bestConsecutiveHits : Nat;
+    bestSessionChickens : Nat;
+    currentAccuracy : Float;
+    fastChickensShot : Nat;
+    goldenChickensShot : Nat;
+    highestScore : Nat;
+    largeChickensShot : Nat;
+    level : Nat;
+    mediumChickensShot : Nat;
+    perfectAccuracySessions : Nat;
+    smallChickensShot : Nat;
+    totalChickensShot : Nat;
+    totalMissedShots : Nat;
+    totalPlayTimeMinutes : Nat;
+    totalScore : Nat;
+    totalShotsFired : Nat
+  };
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type Map__158565046<K, V> = Map__297112838<K, V>;
+type Map__297112838<K, V> =
+  {var root : Node__46230540<K, V>; var size : Nat__490723111};
+type Map__605269027<K, V> = Map__158565046<K, V>;
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type UserProfileWithChangeStatus__67597737 =
+  {bio : Text; hasChangedName : Bool; name : Text};
+type UserProfile__491224006 = {bio : Text; name : Text};
+type UserRole__465239019 = {#admin; #guest; #user};
+actor {
+  stable gameStatistics :
+    {
+      var root : Node__46230540<Principal, GameStatistics__205091857>;
+      var size : Nat__490723111
+    };
+  stable multiUserState :
+    {
+      var adminAssigned : Bool;
+      var approvalStatus :
+        Map__605269027<Principal, ApprovalStatus__1030066916>;
+      var userRoles : Map__605269027<Principal, UserRole__465239019>
+    };
+  stable storage :
+    {
+      var assets : Map__605269027<Text, Asset__642177888>;
+      var pending : Map__605269027<Text, Asset__642177888>
+    };
+  stable userProfiles :
+    {
+      var root : Node__46230540<Principal, UserProfile__491224006>;
+      var size : Nat__490723111
+    };
+  stable userProfilesWithChangeStatus :
+    {
+      var root :
+        Node__46230540<Principal, UserProfileWithChangeStatus__67597737>;
+      var size : Nat__490723111
+    }
+};
