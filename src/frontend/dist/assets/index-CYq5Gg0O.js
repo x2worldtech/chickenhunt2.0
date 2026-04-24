@@ -27446,6 +27446,7 @@ const ClanSummary = Record({
   "name": Text,
   "memberCount": Nat,
   "description": Text,
+  "maxMembers": Nat,
   "emblemId": Nat
 });
 const ApprovalStatus = Variant({
@@ -27467,7 +27468,9 @@ const ClanDetails = Record({
   "joinMode": JoinMode$1,
   "name": Text,
   "createdAt": Int,
+  "memberCount": Nat,
   "description": Text,
+  "maxMembers": Nat,
   "emblemId": Nat
 });
 const ClanMessage = Record({
@@ -27685,6 +27688,7 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "name": IDL2.Text,
     "memberCount": IDL2.Nat,
     "description": IDL2.Text,
+    "maxMembers": IDL2.Nat,
     "emblemId": IDL2.Nat
   });
   const ApprovalStatus2 = IDL2.Variant({
@@ -27706,7 +27710,9 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "joinMode": JoinMode2,
     "name": IDL2.Text,
     "createdAt": IDL2.Int,
+    "memberCount": IDL2.Nat,
     "description": IDL2.Text,
+    "maxMembers": IDL2.Nat,
     "emblemId": IDL2.Nat
   });
   const ClanMessage2 = IDL2.Record({
@@ -28523,7 +28529,9 @@ function from_candid_record_n16(_uploadFile, _downloadFile, value) {
     joinMode: from_candid_JoinMode_n10(_uploadFile, _downloadFile, value.joinMode),
     name: value.name,
     createdAt: value.createdAt,
+    memberCount: value.memberCount,
     description: value.description,
+    maxMembers: value.maxMembers,
     emblemId: value.emblemId
   };
 }
@@ -28572,6 +28580,7 @@ function from_candid_record_n9(_uploadFile, _downloadFile, value) {
     name: value.name,
     memberCount: value.memberCount,
     description: value.description,
+    maxMembers: value.maxMembers,
     emblemId: value.emblemId
   };
 }
@@ -39720,7 +39729,7 @@ const ClanCard = ({
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500 flex items-center gap-1", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 10 }),
               clan.memberCount.toString(),
-              " Members"
+              "/50 Members"
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "span",
@@ -39904,7 +39913,7 @@ const SearchClansSection = ({
       {
         className: "text-xs text-red-500 text-center font-medium",
         "data-ocid": "socials.clan_search.error_state",
-        children: joinClan.error instanceof Error ? joinClan.error.message : "Error joining"
+        children: joinClan.error instanceof Error && joinClan.error.message.toLowerCase().includes("clanfull") ? "This clan is full (50/50 members)." : joinClan.error instanceof Error ? joinClan.error.message : "Error joining"
       }
     )
   ] });
@@ -40134,7 +40143,7 @@ const ClanDetailsView = ({
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 11 }),
                 clan.members.length,
-                " Members"
+                "/50 Members"
               ] }),
               isOwner && clan.pendingCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1 text-orange-600 font-bold", children: [
                 clan.pendingCount.toString(),
@@ -40206,7 +40215,7 @@ const ClanDetailsView = ({
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-1", children: [
           "Members (",
           clan.members.length,
-          ")"
+          "/50)"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "div",
@@ -40480,7 +40489,12 @@ const InlineClanChat = ({
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-9 h-9 rounded-xl overflow-hidden border border-orange-200 shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(chatEmblem.Svg, { size: 36 }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-base font-black text-white truncate", children: clan.name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500", children: "Clan Chat" })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-gray-500", children: [
+          "Clan Chat ·",
+          " ",
+          "members" in clan ? clan.members.length : clan.memberCount.toString(),
+          "/50 members"
+        ] })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(

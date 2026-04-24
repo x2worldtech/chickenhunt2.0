@@ -103,6 +103,7 @@ type ClanSummary =
    emblemId: nat;
    id: nat;
    joinMode: JoinMode;
+   maxMembers: nat;
    memberCount: nat;
    name: text;
    ownerId: principal;
@@ -122,6 +123,8 @@ type ClanDetails =
    emblemId: nat;
    id: nat;
    joinMode: JoinMode;
+   maxMembers: nat;
+   memberCount: nat;
    members: vec PrincipalInfo;
    name: text;
    ownerId: principal;

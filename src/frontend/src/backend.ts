@@ -102,6 +102,7 @@ export interface ClanSummary {
     name: string;
     memberCount: bigint;
     description: string;
+    maxMembers: bigint;
     emblemId: bigint;
 }
 export interface FileMetadata {
@@ -138,7 +139,9 @@ export interface ClanDetails {
     joinMode: JoinMode;
     name: string;
     createdAt: bigint;
+    memberCount: bigint;
     description: string;
+    maxMembers: bigint;
     emblemId: bigint;
 }
 export type StreamingStrategy = {
@@ -983,7 +986,9 @@ function from_candid_record_n16(_uploadFile: (file: ExternalBlob) => Promise<Uin
     joinMode: _JoinMode;
     name: string;
     createdAt: bigint;
+    memberCount: bigint;
     description: string;
+    maxMembers: bigint;
     emblemId: bigint;
 }): {
     id: bigint;
@@ -993,7 +998,9 @@ function from_candid_record_n16(_uploadFile: (file: ExternalBlob) => Promise<Uin
     joinMode: JoinMode;
     name: string;
     createdAt: bigint;
+    memberCount: bigint;
     description: string;
+    maxMembers: bigint;
     emblemId: bigint;
 } {
     return {
@@ -1004,7 +1011,9 @@ function from_candid_record_n16(_uploadFile: (file: ExternalBlob) => Promise<Uin
         joinMode: from_candid_JoinMode_n10(_uploadFile, _downloadFile, value.joinMode),
         name: value.name,
         createdAt: value.createdAt,
+        memberCount: value.memberCount,
         description: value.description,
+        maxMembers: value.maxMembers,
         emblemId: value.emblemId
     };
 }
@@ -1096,6 +1105,7 @@ function from_candid_record_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint
     name: string;
     memberCount: bigint;
     description: string;
+    maxMembers: bigint;
     emblemId: bigint;
 }): {
     id: bigint;
@@ -1104,6 +1114,7 @@ function from_candid_record_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint
     name: string;
     memberCount: bigint;
     description: string;
+    maxMembers: bigint;
     emblemId: bigint;
 } {
     return {
@@ -1113,6 +1124,7 @@ function from_candid_record_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint
         name: value.name,
         memberCount: value.memberCount,
         description: value.description,
+        maxMembers: value.maxMembers,
         emblemId: value.emblemId
     };
 }

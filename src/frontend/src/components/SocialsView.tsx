@@ -490,7 +490,7 @@ const ClanCard: React.FC<ClanCardProps> = ({
         <div className="flex items-center gap-2 mt-0.5">
           <span className="text-xs text-gray-500 flex items-center gap-1">
             <Users size={10} />
-            {clan.memberCount.toString()} Members
+            {clan.memberCount.toString()}/50 Members
           </span>
           <span
             className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
@@ -703,9 +703,12 @@ const SearchClansSection: React.FC<SearchClansProps> = ({
           className="text-xs text-red-500 text-center font-medium"
           data-ocid="socials.clan_search.error_state"
         >
-          {joinClan.error instanceof Error
-            ? joinClan.error.message
-            : "Error joining"}
+          {joinClan.error instanceof Error &&
+          joinClan.error.message.toLowerCase().includes("clanfull")
+            ? "This clan is full (50/50 members)."
+            : joinClan.error instanceof Error
+              ? joinClan.error.message
+              : "Error joining"}
         </div>
       )}
     </div>
@@ -985,7 +988,7 @@ const ClanDetailsView: React.FC<ClanDetailsViewProps> = ({
               <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
                 <span className="flex items-center gap-1">
                   <Users size={11} />
-                  {clan.members.length} Members
+                  {clan.members.length}/50 Members
                 </span>
                 {isOwner && clan.pendingCount > 0 && (
                   <span className="flex items-center gap-1 text-orange-600 font-bold">
@@ -1051,7 +1054,7 @@ const ClanDetailsView: React.FC<ClanDetailsViewProps> = ({
         {/* Members */}
         <div className="mt-3">
           <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-1">
-            Members ({clan.members.length})
+            Members ({clan.members.length}/50)
           </h3>
           <div
             className="flex flex-col gap-1.5"
@@ -1400,7 +1403,13 @@ const InlineClanChat: React.FC<InlineClanChatProps> = ({
           <h1 className="text-base font-black text-white truncate">
             {clan.name}
           </h1>
-          <p className="text-xs text-gray-500">Clan Chat</p>
+          <p className="text-xs text-gray-500">
+            Clan Chat ·{" "}
+            {"members" in clan
+              ? (clan as ClanDetails).members.length
+              : (clan as ClanSummary).memberCount.toString()}
+            /50 members
+          </p>
         </div>
       </div>
 

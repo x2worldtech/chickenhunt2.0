@@ -50,6 +50,7 @@ module {
       name = clan.name;
       description = clan.description;
       memberCount = clan.memberIds.size();
+      maxMembers = 50;
       joinMode = clan.joinMode;
       ownerId = clan.ownerId;
       emblemId = clan.emblemId;
@@ -72,6 +73,8 @@ module {
       ownerId = clan.ownerId;
       joinMode = clan.joinMode;
       members;
+      memberCount = clan.memberIds.size();
+      maxMembers = 50;
       pendingCount = clan.pendingRequestIds.size();
       createdAt = clan.createdAt;
       emblemId = clan.emblemId;
@@ -149,6 +152,7 @@ module {
         if (clan.memberIds.contains(caller)) return #err("Already a member");
         switch (clan.joinMode) {
           case (#open) {
+            if (clan.memberIds.size() >= 50) return #err("Clan is full (50/50)");
             clan.pendingRequestIds.remove(caller);
             clan.memberIds.add(caller);
             #ok("Joined clan successfully");
@@ -228,6 +232,7 @@ module {
       case (?clan) {
         if (not Principal.equal(clan.ownerId, caller)) return #err("Not authorized");
         if (not clan.pendingRequestIds.contains(userId)) return #err("No pending request from this user");
+        if (clan.memberIds.size() >= 50) return #err("Clan is full (50/50)");
         clan.pendingRequestIds.remove(userId);
         clan.memberIds.add(userId);
         #ok("Join request approved");

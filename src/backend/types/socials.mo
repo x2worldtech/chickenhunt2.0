@@ -47,6 +47,7 @@ module {
     name : Text;
     description : Text;
     memberCount : Nat;
+    maxMembers : Nat;
     joinMode : JoinMode;
     ownerId : Principal;
     emblemId : Nat;
@@ -59,6 +60,8 @@ module {
     ownerId : Principal;
     joinMode : JoinMode;
     members : [PrincipalInfo];
+    memberCount : Nat;
+    maxMembers : Nat;
     pendingCount : Nat;
     createdAt : Int;
     emblemId : Nat;

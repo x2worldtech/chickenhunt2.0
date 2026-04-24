@@ -29,6 +29,7 @@ export const ClanSummary = IDL.Record({
   'name' : IDL.Text,
   'memberCount' : IDL.Nat,
   'description' : IDL.Text,
+  'maxMembers' : IDL.Nat,
   'emblemId' : IDL.Nat,
 });
 export const ApprovalStatus = IDL.Variant({
@@ -50,7 +51,9 @@ export const ClanDetails = IDL.Record({
   'joinMode' : JoinMode,
   'name' : IDL.Text,
   'createdAt' : IDL.Int,
+  'memberCount' : IDL.Nat,
   'description' : IDL.Text,
+  'maxMembers' : IDL.Nat,
   'emblemId' : IDL.Nat,
 });
 export const ClanMessage = IDL.Record({
@@ -272,6 +275,7 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
     'memberCount' : IDL.Nat,
     'description' : IDL.Text,
+    'maxMembers' : IDL.Nat,
     'emblemId' : IDL.Nat,
   });
   const ApprovalStatus = IDL.Variant({
@@ -293,7 +297,9 @@ export const idlFactory = ({ IDL }) => {
     'joinMode' : JoinMode,
     'name' : IDL.Text,
     'createdAt' : IDL.Int,
+    'memberCount' : IDL.Nat,
     'description' : IDL.Text,
+    'maxMembers' : IDL.Nat,
     'emblemId' : IDL.Nat,
   });
   const ClanMessage = IDL.Record({

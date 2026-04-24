@@ -20,6 +20,7 @@ export interface ClanSummary {
     name: string;
     memberCount: bigint;
     description: string;
+    maxMembers: bigint;
     emblemId: bigint;
 }
 export interface FileMetadata {
@@ -56,7 +57,9 @@ export interface ClanDetails {
     joinMode: JoinMode;
     name: string;
     createdAt: bigint;
+    memberCount: bigint;
     description: string;
+    maxMembers: bigint;
     emblemId: bigint;
 }
 export type StreamingStrategy = {

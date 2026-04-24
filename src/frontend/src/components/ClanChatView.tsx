@@ -372,7 +372,7 @@ const ClanChatView: React.FC<ClanChatViewProps> = ({ clan, onBack }) => {
             {clan.name}
           </h2>
           <p className="text-gray-500 text-xs">
-            {Number(clan.members.length)} Members
+            {Number(clan.members.length)}/50 Members
           </p>
         </div>
       </div>
