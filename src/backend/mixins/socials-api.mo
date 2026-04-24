@@ -21,8 +21,9 @@ mixin (
     name : Text,
     description : Text,
     joinMode : JoinMode,
+    emblemId : Nat,
   ) : async { #ok : Nat; #err : Text } {
-    SocialsLib.createClan(socialsState, caller, name, description, joinMode);
+    SocialsLib.createClan(socialsState, caller, name, description, joinMode, emblemId);
   };
 
   public query func searchClans(q : Text) : async [ClanSummary] {

@@ -20,6 +20,7 @@ export interface ClanSummary {
     name: string;
     memberCount: bigint;
     description: string;
+    emblemId: bigint;
 }
 export interface FileMetadata {
     path: string;
@@ -56,6 +57,7 @@ export interface ClanDetails {
     name: string;
     createdAt: bigint;
     description: string;
+    emblemId: bigint;
 }
 export type StreamingStrategy = {
     __kind__: "Callback";
@@ -103,6 +105,8 @@ export interface GameStatistics {
 export interface UserProfile {
     bio: string;
     name: string;
+    profilePictureUrl?: string;
+    bannerImageUrl?: string;
 }
 export enum ApprovalStatus {
     pending = "pending",
@@ -134,7 +138,7 @@ export interface backendInterface {
         err: string;
     }>;
     assignRole(user: Principal, newRole: UserRole): Promise<void>;
-    createClan(name: string, description: string, joinMode: JoinMode): Promise<{
+    createClan(name: string, description: string, joinMode: JoinMode, emblemId: bigint): Promise<{
         __kind__: "ok";
         ok: bigint;
     } | {

@@ -22,6 +22,7 @@ export interface ClanDetails {
   'name' : string,
   'createdAt' : bigint,
   'description' : string,
+  'emblemId' : bigint,
 }
 export interface ClanMessage {
   'id' : bigint,
@@ -37,6 +38,7 @@ export interface ClanSummary {
   'name' : string,
   'memberCount' : bigint,
   'description' : string,
+  'emblemId' : bigint,
 }
 export interface FileMetadata {
   'path' : string,
@@ -99,7 +101,12 @@ export interface UserInfo {
   'role' : UserRole,
   'approval' : ApprovalStatus,
 }
-export interface UserProfile { 'bio' : string, 'name' : string }
+export interface UserProfile {
+  'bio' : string,
+  'name' : string,
+  'profilePictureUrl' : [] | [string],
+  'bannerImageUrl' : [] | [string],
+}
 export interface UserProfileWithChangeStatus {
   'bio' : string,
   'name' : string,
@@ -121,7 +128,7 @@ export interface _SERVICE {
   >,
   'assignRole' : ActorMethod<[Principal, UserRole], undefined>,
   'createClan' : ActorMethod<
-    [string, string, JoinMode],
+    [string, string, JoinMode, bigint],
     { 'ok' : bigint } |
       { 'err' : string }
   >,

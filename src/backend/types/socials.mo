@@ -18,6 +18,7 @@ module {
     var description : Text;
     ownerId : Principal;
     var joinMode : JoinMode;
+    var emblemId : Nat;
     memberIds : Set.Set<Principal>;
     pendingRequestIds : Set.Set<Principal>;
     createdAt : Int;
@@ -48,6 +49,7 @@ module {
     memberCount : Nat;
     joinMode : JoinMode;
     ownerId : Principal;
+    emblemId : Nat;
   };
 
   public type ClanDetails = {
@@ -59,6 +61,7 @@ module {
     members : [PrincipalInfo];
     pendingCount : Nat;
     createdAt : Int;
+    emblemId : Nat;
   };
 
   // ── State containers ───────────────────────────────────────────────────────

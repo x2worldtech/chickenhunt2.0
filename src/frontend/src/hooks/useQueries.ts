@@ -28,13 +28,32 @@ export type {
 };
 export { ApprovalStatus, UserRole, JoinMode };
 
+/**
+ * Extended UserProfile that includes optional image URL fields.
+ * These fields are added by the backend migration; older records
+ * will simply not have them (undefined / empty string).
+ */
+export interface UserProfileExtended extends UserProfile {
+  profilePictureUrl?: string;
+  bannerImageUrl?: string;
+}
+
+/**
+ * Extended UserProfileWithChangeStatus that includes optional image URL fields.
+ */
+export interface UserProfileWithChangeStatusExtended
+  extends UserProfileWithChangeStatus {
+  profilePictureUrl?: string;
+  bannerImageUrl?: string;
+}
+
 export function useUserProfile() {
   const { actor, isFetching } = useActor(createActor);
-  return useQuery<UserProfile | null>({
+  return useQuery<UserProfileExtended | null>({
     queryKey: ["userProfile"],
     queryFn: async () => {
       if (!actor) return null;
-      return actor.getCurrentUserProfile();
+      return actor.getCurrentUserProfile() as Promise<UserProfileExtended | null>;
     },
     enabled: !!actor && !isFetching,
   });
@@ -42,11 +61,11 @@ export function useUserProfile() {
 
 export function useUserProfileWithChangeStatus() {
   const { actor, isFetching } = useActor(createActor);
-  return useQuery<UserProfileWithChangeStatus | null>({
+  return useQuery<UserProfileWithChangeStatusExtended | null>({
     queryKey: ["userProfileWithChangeStatus"],
     queryFn: async () => {
       if (!actor) return null;
-      return actor.getCurrentUserProfileWithChangeStatus();
+      return actor.getCurrentUserProfileWithChangeStatus() as Promise<UserProfileWithChangeStatusExtended | null>;
     },
     enabled: !!actor && !isFetching,
   });
@@ -57,9 +76,9 @@ export function useSaveCurrentUserProfile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (profile: UserProfile) => {
+    mutationFn: async (profile: UserProfileExtended) => {
       if (!actor) throw new Error("No actor");
-      return actor.saveCurrentUserProfile(profile);
+      return actor.saveCurrentUserProfile(profile as UserProfile);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
@@ -72,9 +91,11 @@ export function useSaveCurrentUserProfileWithChangeStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (profile: UserProfileWithChangeStatus) => {
+    mutationFn: async (profile: UserProfileWithChangeStatusExtended) => {
       if (!actor) throw new Error("No actor");
-      return actor.saveCurrentUserProfileWithChangeStatus(profile);
+      return actor.saveCurrentUserProfileWithChangeStatus(
+        profile as UserProfileWithChangeStatus,
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -308,9 +329,20 @@ export function useCreateClan() {
       name,
       description,
       joinMode,
-    }: { name: string; description: string; joinMode: JoinMode }) => {
+      emblemId,
+    }: {
+      name: string;
+      description: string;
+      joinMode: JoinMode;
+      emblemId: number;
+    }) => {
       if (!actor) throw new Error("No actor");
-      const res = await actor.createClan(name, description, joinMode);
+      const res = await actor.createClan(
+        name,
+        description,
+        joinMode,
+        BigInt(emblemId),
+      );
       if (res.__kind__ === "ok") return res.ok;
       throw new Error(res.err);
     },
@@ -518,11 +550,11 @@ export function useRemoveFriend() {
 
 export function useGetUserProfile(user: Principal | null) {
   const { actor, isFetching } = useActor(createActor);
-  return useQuery<UserProfile | null>({
+  return useQuery<UserProfileExtended | null>({
     queryKey: ["userProfileOf", user?.toText()],
     queryFn: async () => {
       if (!actor || !user) return null;
-      return actor.getUserProfile(user);
+      return actor.getUserProfile(user) as Promise<UserProfileExtended | null>;
     },
     enabled: !!actor && !isFetching && user !== null,
   });
@@ -540,63 +572,32 @@ export function useGetUserGameStats(userId: Principal | null) {
   });
 }
 
-// ─── Leaderboard with principals ───────────────────────────────────────────────
+// ─── Leaderboard entry type ────────────────────────────────────────────────────
 
-export interface LeaderboardEntryWithPrincipal {
+export interface LeaderboardEntry {
   username: string;
   highestScore: number;
   level: number;
   key: string;
-  principal: Principal | null;
 }
 
 /**
- * Returns leaderboard entries enriched with principal IDs.
- * Cross-references leaderboard names against user profiles via listUsers.
- * principal is null when no match could be found.
+ * Returns leaderboard entries derived from getLeaderboard().
+ * Does NOT call listUsers() (admin-only) — principal enrichment is skipped.
  */
-export function useLeaderboardWithPrincipals() {
+export function useLeaderboardEntries() {
   const { actor, isFetching } = useActor(createActor);
-  return useQuery<LeaderboardEntryWithPrincipal[]>({
-    queryKey: ["leaderboardWithPrincipals"],
+  return useQuery<LeaderboardEntry[]>({
+    queryKey: ["leaderboardEntries"],
     queryFn: async () => {
       if (!actor) return [];
-      const [leaderboard, allUsers] = await Promise.all([
-        actor.getLeaderboard(),
-        actor.listUsers(),
-      ]);
-
-      if (leaderboard.length === 0) return [];
-
-      // Batch-fetch profiles for all users (cap at 100 to avoid overload)
-      const usersToFetch = allUsers.slice(0, 100);
-      const profiles = await Promise.allSettled(
-        usersToFetch.map(async (u) => {
-          const profile = await actor.getUserProfile(u.principal);
-          return { principal: u.principal, name: profile?.name?.trim() ?? "" };
-        }),
-      );
-
-      // Build name → principal map (first match wins)
-      const nameMap = new Map<string, Principal>();
-      for (const result of profiles) {
-        if (result.status === "fulfilled" && result.value.name) {
-          const { name, principal } = result.value;
-          if (!nameMap.has(name)) {
-            nameMap.set(name, principal);
-          }
-        }
-      }
-
-      return leaderboard
-        .map(([username, score, level], index) => ({
-          username,
-          highestScore: Number(score),
-          level: Number(level),
-          key: `lb-${index}-${username}`,
-          principal: nameMap.get(username) ?? null,
-        }))
-        .sort((a, b) => b.highestScore - a.highestScore);
+      const leaderboard = await actor.getLeaderboard();
+      return leaderboard.map(([username, score, level], index) => ({
+        username,
+        highestScore: Number(score),
+        level: Number(level),
+        key: `lb-${index}-${username}`,
+      }));
     },
     enabled: !!actor && !isFetching,
   });

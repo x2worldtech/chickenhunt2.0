@@ -4,9 +4,9 @@
  *   banner → circular avatar → name + level badge → title → bio → XP bar → stats grid
  * Used everywhere a player's profile is shown (leaderboard, clan chat, socials).
  *
- * Note: Other players' custom profile pictures and banners are stored only on their
- * own devices (localStorage), so we show the default avatar and gradient banner
- * for other players — keeping the visual layout identical to ProfileView.
+ * Profile picture, banner, and bio are loaded from the backend UserProfile,
+ * which stores the file paths in profilePictureUrl / bannerImageUrl fields.
+ * Falls back to default avatar and gradient banner when no images are stored.
  */
 import type { Principal } from "@icp-sdk/core/principal";
 import {
@@ -24,6 +24,7 @@ import {
   Zap,
 } from "lucide-react";
 import type React from "react";
+import { useFileUrl } from "../file-storage/FileList";
 import type { GameStatistics } from "../hooks/useQueries";
 import {
   useAddFriend,
@@ -247,6 +248,16 @@ const PlayerProfileScreen: React.FC<PlayerProfileScreenProps> = ({
   const addFriend = useAddFriend();
   const removeFriend = useRemoveFriend();
 
+  // Resolve image paths stored in the backend profile to displayable URLs
+  const profilePicturePath =
+    (profile as { profilePictureUrl?: string } | null | undefined)
+      ?.profilePictureUrl ?? "";
+  const bannerImagePath =
+    (profile as { bannerImageUrl?: string } | null | undefined)
+      ?.bannerImageUrl ?? "";
+  const { data: profilePictureUrl } = useFileUrl(profilePicturePath);
+  const { data: bannerImageUrl } = useFileUrl(bannerImagePath);
+
   const displayName =
     profile?.name?.trim() ||
     fallbackName?.trim() ||
@@ -260,6 +271,23 @@ const PlayerProfileScreen: React.FC<PlayerProfileScreenProps> = ({
   const xpForLevel = (lvl: number) => Math.floor(100 * lvl ** 1.5);
   const currentXP = highestScore % Math.max(1, xpForLevel(level));
   const requiredXP = xpForLevel(level);
+
+  const getAvatarSrc = () =>
+    profilePictureUrl?.trim() ? profilePictureUrl : DEFAULT_AVATAR_SVG;
+
+  const getBannerStyle = (): React.CSSProperties =>
+    bannerImageUrl?.trim()
+      ? {
+          backgroundImage: `url(${bannerImageUrl})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }
+      : {};
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = DEFAULT_AVATAR_SVG;
+  };
 
   return (
     <div
@@ -287,14 +315,18 @@ const PlayerProfileScreen: React.FC<PlayerProfileScreenProps> = ({
       <div className="flex-1 overflow-y-auto bg-black pb-4">
         {/* Profile card — mirrors ProfileView.tsx structure */}
         <div className="mx-4 mt-4 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
-          {/* Banner (gradient fallback — player images are stored locally, not in backend) */}
-          <div className="h-28 relative bg-gradient-to-br from-orange-900 via-orange-700 to-black">
+          {/* Banner — uses backend bannerImageUrl if available, falls back to gradient */}
+          <div
+            className="h-28 relative bg-gradient-to-br from-orange-900 via-orange-700 to-black"
+            style={getBannerStyle()}
+          >
             {/* Circular avatar overlapping banner */}
             <div className="absolute left-6 bottom-0 translate-y-1/2 w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg bg-orange-100">
               <img
-                src={DEFAULT_AVATAR_SVG}
+                src={getAvatarSrc()}
                 alt={`${displayName}'s avatar`}
                 className="w-full h-full object-cover"
+                onError={handleImageError}
               />
             </div>
           </div>

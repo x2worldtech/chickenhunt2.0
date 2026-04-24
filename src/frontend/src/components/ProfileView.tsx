@@ -24,9 +24,11 @@ import { useFileUrl } from "../file-storage/FileList";
 import { useFileUpload } from "../file-storage/FileUpload";
 import {
   useListUsers,
+  useSaveCurrentUserProfile,
   useSaveCurrentUserProfileWithChangeStatus,
   useUserProfileWithChangeStatus,
 } from "../hooks/useQueries";
+import { compressImage } from "../utils/imageUtils";
 
 interface PlayerData {
   level: number;
@@ -218,6 +220,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   const { data: userProfile } = useUserProfileWithChangeStatus();
   const { data: allUsers = [] } = useListUsers();
   const saveProfileMutation = useSaveCurrentUserProfileWithChangeStatus();
+  const saveImagesMutation = useSaveCurrentUserProfile();
   const { uploadFile, isUploading } = useFileUpload();
   const queryClient = useQueryClient();
   const profileFileInputRef = useRef<HTMLInputElement>(null);
@@ -283,17 +286,28 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     setEditedBio(userProfile?.bio ?? "");
   }, [userProfile]);
 
-  // Load image paths from storage
+  // Load image paths from storage (backend takes priority over localStorage)
   useEffect(() => {
     if (isAuthenticated && identity) {
       const p = identity.getPrincipal().toString();
-      setProfilePicturePath(localStorage.getItem(`profilePicture_${p}`));
-      setHeaderImagePath(localStorage.getItem(`headerImage_${p}`));
+      // Prefer backend-stored URLs if available (cast for extended fields)
+      const backendProfilePic = (
+        userProfile as { profilePictureUrl?: string } | null | undefined
+      )?.profilePictureUrl;
+      const backendBanner = (
+        userProfile as { bannerImageUrl?: string } | null | undefined
+      )?.bannerImageUrl;
+      setProfilePicturePath(
+        backendProfilePic || localStorage.getItem(`profilePicture_${p}`),
+      );
+      setHeaderImagePath(
+        backendBanner || localStorage.getItem(`headerImage_${p}`),
+      );
     } else {
       setProfilePicturePath(sessionStorage.getItem("profilePicture_guest"));
       setHeaderImagePath(sessionStorage.getItem("headerImage_guest"));
     }
-  }, [isAuthenticated, identity]);
+  }, [isAuthenticated, identity, userProfile]);
 
   // Hide header symbol when clicking outside
   useEffect(() => {
@@ -442,10 +456,11 @@ const ProfileView: React.FC<ProfileViewProps> = ({
       return;
     }
     try {
-      const data = new Uint8Array(await file.arrayBuffer());
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `${folder}/${prefix}_${Date.now()}.${ext}`;
-      await uploadFile(path, file.type, data);
+      // Compress silently in background — max 1200px, JPEG 0.75
+      const compressed = await compressImage(file);
+      const data = new Uint8Array(await compressed.blob.arrayBuffer());
+      const path = `${folder}/${prefix}_${Date.now()}.jpg`;
+      await uploadFile(path, "image/jpeg", data);
       onPathSaved(path);
     } catch {
       alert("Failed to upload image. Please try again.");
@@ -464,6 +479,17 @@ const ProfileView: React.FC<ProfileViewProps> = ({
           `profilePicture_${identity.getPrincipal().toString()}`,
           path,
         );
+        // Persist to backend so other players can see it
+        saveImagesMutation.mutate({
+          name: userProfile?.name ?? "",
+          bio: userProfile?.bio ?? "",
+          profilePictureUrl: path,
+          bannerImageUrl:
+            (userProfile as { bannerImageUrl?: string } | null | undefined)
+              ?.bannerImageUrl ??
+            headerImagePath ??
+            "",
+        });
       } else {
         sessionStorage.setItem("profilePicture_guest", path);
       }
@@ -483,6 +509,17 @@ const ProfileView: React.FC<ProfileViewProps> = ({
           `headerImage_${identity.getPrincipal().toString()}`,
           path,
         );
+        // Persist to backend so other players can see it
+        saveImagesMutation.mutate({
+          name: userProfile?.name ?? "",
+          bio: userProfile?.bio ?? "",
+          profilePictureUrl:
+            (userProfile as { profilePictureUrl?: string } | null | undefined)
+              ?.profilePictureUrl ??
+            profilePicturePath ??
+            "",
+          bannerImageUrl: path,
+        });
       } else {
         sessionStorage.setItem("headerImage_guest", path);
       }

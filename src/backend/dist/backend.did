@@ -12,8 +12,10 @@ type UserProfileWithChangeStatus =
  };
 type UserProfile = 
  record {
+   bannerImageUrl: opt text;
    bio: text;
    name: text;
+   profilePictureUrl: opt text;
  };
 type UserInfo = 
  record {
@@ -98,6 +100,7 @@ type FileMetadata =
 type ClanSummary = 
  record {
    description: text;
+   emblemId: nat;
    id: nat;
    joinMode: JoinMode;
    memberCount: nat;
@@ -116,6 +119,7 @@ type ClanDetails =
  record {
    createdAt: int;
    description: text;
+   emblemId: nat;
    id: nat;
    joinMode: JoinMode;
    members: vec PrincipalInfo;
@@ -140,11 +144,11 @@ service : {
       ok: text;
     });
   assignRole: (user: principal, newRole: UserRole) -> ();
-  createClan: (name: text, description: text, joinMode: JoinMode) ->
-   (variant {
-      err: text;
-      ok: nat;
-    });
+  createClan: (name: text, description: text, joinMode: JoinMode, emblemId:
+   nat) -> (variant {
+              err: text;
+              ok: nat;
+            });
   declineJoinRequest: (clanId: nat, userId: principal) ->
    (variant {
       err: text;

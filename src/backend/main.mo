@@ -7,6 +7,8 @@ import Http "file-storage/http";
 import SocialsLib "lib/socials";
 import SocialsApi "mixins/socials-api";
 
+
+
 persistent actor {
     // ── Auth state ──────────────────────────────────────────────────────────
     let multiUserState = MultiUserSystem.initState();
@@ -50,6 +52,8 @@ persistent actor {
     public type UserProfile = {
         name : Text;
         bio : Text;
+        profilePictureUrl : ?Text;
+        bannerImageUrl : ?Text;
     };
 
     let userProfiles = Map.empty<Principal, UserProfile>();
@@ -116,6 +120,9 @@ persistent actor {
     let gameStatistics = Map.empty<Principal, GameStatistics>();
 
     public shared ({ caller }) func saveGameStatistics(stats : GameStatistics) : async () {
+        if (caller.isAnonymous()) {
+            Runtime.trap("Anonymous callers cannot save game statistics.");
+        };
         let existing = gameStatistics.get(caller);
         let updatedHighScore = switch (existing) {
             case null stats.highestScore;
@@ -136,8 +143,14 @@ persistent actor {
     // Name is taken from UserProfileWithChangeStatus; falls back to principal text.
     public query func getLeaderboard() : async [(Text, Nat, Nat)] {
         let entries : [(Principal, GameStatistics)] = gameStatistics.entries().toArray();
+        // Filter out anonymous principals — only authenticated players appear on the leaderboard
+        let authenticated = entries.filter(
+            func((principal, _stats) : (Principal, GameStatistics)) : Bool {
+                not principal.isAnonymous()
+            }
+        );
         // Sort descending by highestScore
-        let sorted = entries.sort(
+        let sorted = authenticated.sort(
             func(a : (Principal, GameStatistics), b : (Principal, GameStatistics)) : { #less; #equal; #greater } {
                 let aScore = a.1.highestScore;
                 let bScore = b.1.highestScore;
@@ -192,7 +205,12 @@ persistent actor {
         };
     };
 
-    func _getAvatarUrl(_p : Principal) : ?Text { null };
+    func _getAvatarUrl(p : Principal) : ?Text {
+        switch (userProfiles.get(p)) {
+            case (?prof) prof.profilePictureUrl;
+            case null null;
+        };
+    };
 
     func _getLevel(p : Principal) : Nat {
         switch (gameStatistics.get(p)) {

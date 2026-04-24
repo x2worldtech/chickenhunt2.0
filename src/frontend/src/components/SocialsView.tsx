@@ -17,7 +17,8 @@ import {
   X,
 } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CLAN_EMBLEMS, getEmblem } from "../data/clanEmblems";
 import { buildFileUrl } from "../file-storage/FileList";
 import { useFileUpload } from "../file-storage/FileUpload";
 import {
@@ -25,6 +26,7 @@ import {
   type ClanSummary,
   JoinMode,
   type PrincipalInfo,
+  useAllClans,
   useApproveJoinRequest,
   useClanDetails,
   useClanMessages,
@@ -464,8 +466,8 @@ const ClanCard: React.FC<ClanCardProps> = ({
   const isOwner = myPrincipal
     ? clan.ownerId.toText() === myPrincipal.toText()
     : false;
-  const initials = clan.name.slice(0, 2).toUpperCase();
   const isOpen = clan.joinMode === JoinMode.open;
+  const emblem = getEmblem(clan.emblemId);
 
   return (
     <button
@@ -475,8 +477,8 @@ const ClanCard: React.FC<ClanCardProps> = ({
       onClick={onClick}
       aria-label={`Open clan ${clan.name}`}
     >
-      <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-orange-100 text-orange-600 font-black text-sm shrink-0 border border-orange-200">
-        {initials}
+      <div className="flex items-center justify-center w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-orange-200">
+        <emblem.Svg size={44} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
@@ -532,6 +534,17 @@ interface SearchClansProps {
   onOpenClan: (id: bigint) => void;
 }
 
+const BROWSE_MAX = 30;
+
+function getRandomSample(arr: ClanSummary[], n: number): ClanSummary[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, n).sort((a, b) => a.name.localeCompare(b.name));
+}
+
 const SearchClansSection: React.FC<SearchClansProps> = ({
   myPrincipal,
   onOpenClan,
@@ -540,18 +553,34 @@ const SearchClansSection: React.FC<SearchClansProps> = ({
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const joinClan = useJoinClan();
   const { data: userClans } = useUserClans(myPrincipal);
+  const { data: allClans, isLoading: allClansLoading } = useAllClans();
+
+  // Random seed fixed on mount — re-randomises each time the component mounts
+  const mountSeed = useRef(Math.random());
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query), 350);
     return () => clearTimeout(t);
   }, [query]);
 
-  const { data: searchResults, isLoading } = useSearchClans(debouncedQuery);
+  const { data: searchResults, isLoading: searchLoading } =
+    useSearchClans(debouncedQuery);
+
   const memberClanIds = new Set((userClans ?? []).map((c) => c.id.toString()));
-  const results = debouncedQuery.trim().length > 0 ? (searchResults ?? []) : [];
+  const isSearching = debouncedQuery.trim().length > 0;
+
+  // Stable random sample, recomputed only when allClans data arrives.
+  // mountSeed.current is captured once so the sample stays fixed while browsing.
+  const browseClansSample = useMemo(() => {
+    if (!allClans || allClans.length === 0) return [];
+    void mountSeed.current; // captured once on mount; stable across re-renders
+    return getRandomSample(allClans, BROWSE_MAX);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allClans]);
 
   return (
     <div className="flex flex-col gap-3 pt-2">
+      {/* Search input */}
       <div className="relative">
         <Search
           size={15}
@@ -564,52 +593,111 @@ const SearchClansSection: React.FC<SearchClansProps> = ({
           onChange={(e) => setQuery(e.target.value)}
           data-ocid="socials.clan_search_input"
           className="w-full pl-9 pr-4 py-3 rounded-xl bg-white border border-gray-200 text-black placeholder-gray-400 text-sm focus:outline-none focus:border-orange-400 transition-colors shadow-sm"
+          style={{ fontSize: "16px" }}
         />
       </div>
 
-      {debouncedQuery.trim().length === 0 ? (
-        <div className="text-center py-8 text-gray-500 text-sm">
-          Type to search clans…
-        </div>
-      ) : isLoading ? (
-        <div
-          className="flex flex-col gap-2"
-          data-ocid="socials.clan_search.loading_state"
-        >
-          {[1, 2, 3].map((i) => (
+      {/* ── Browse Clans (shown when search bar is empty) ── */}
+      {!isSearching &&
+        (allClansLoading ? (
+          <div
+            className="flex flex-col gap-2"
+            data-ocid="socials.clan_browse.loading_state"
+          >
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-20 rounded-xl bg-white border border-gray-200 animate-pulse"
+              />
+            ))}
+          </div>
+        ) : browseClansSample.length === 0 ? (
+          <div
+            className="text-center py-8 text-gray-500 text-sm"
+            data-ocid="socials.clan_browse.empty_state"
+          >
+            No clans yet — be the first to create one!
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 px-1">
+              <Hash size={12} className="text-gray-500 shrink-0" />
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Discover Clans
+                {allClans && allClans.length > BROWSE_MAX && (
+                  <span className="ml-1 font-normal normal-case tracking-normal">
+                    — showing {BROWSE_MAX} of {allClans.length} randomly
+                  </span>
+                )}
+              </span>
+            </div>
             <div
-              key={i}
-              className="h-20 rounded-xl bg-white border border-gray-200 animate-pulse"
-            />
-          ))}
-        </div>
-      ) : results.length === 0 ? (
-        <div
-          className="text-center py-8 text-gray-500 text-sm"
-          data-ocid="socials.clan_search.empty_state"
-        >
-          No clan found
-        </div>
-      ) : (
-        <div
-          className="flex flex-col gap-2"
-          data-ocid="socials.clan_search.list"
-        >
-          {results.map((clan, i) => (
-            <ClanCard
-              key={clan.id.toString()}
-              clan={clan}
-              index={i + 1}
-              myPrincipal={myPrincipal}
-              onClick={() => onOpenClan(clan.id)}
-              actionLabel={clan.joinMode === JoinMode.open ? "Join" : "Request"}
-              isMember={memberClanIds.has(clan.id.toString())}
-              actionLoading={joinClan.isPending}
-              onAction={() => joinClan.mutate(clan.id)}
-            />
-          ))}
-        </div>
-      )}
+              className="flex flex-col gap-2"
+              data-ocid="socials.clan_browse.list"
+            >
+              {browseClansSample.map((clan, i) => (
+                <ClanCard
+                  key={clan.id.toString()}
+                  clan={clan}
+                  index={i + 1}
+                  myPrincipal={myPrincipal}
+                  onClick={() => onOpenClan(clan.id)}
+                  actionLabel={
+                    clan.joinMode === JoinMode.open ? "Join" : "Request"
+                  }
+                  isMember={memberClanIds.has(clan.id.toString())}
+                  actionLoading={joinClan.isPending}
+                  onAction={() => joinClan.mutate(clan.id)}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+
+      {/* ── Search Results (shown when query is typed) ── */}
+      {isSearching &&
+        (searchLoading ? (
+          <div
+            className="flex flex-col gap-2"
+            data-ocid="socials.clan_search.loading_state"
+          >
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-20 rounded-xl bg-white border border-gray-200 animate-pulse"
+              />
+            ))}
+          </div>
+        ) : !searchResults || searchResults.length === 0 ? (
+          <div
+            className="text-center py-8 text-gray-500 text-sm"
+            data-ocid="socials.clan_search.empty_state"
+          >
+            No clan found
+          </div>
+        ) : (
+          <div
+            className="flex flex-col gap-2"
+            data-ocid="socials.clan_search.list"
+          >
+            {searchResults.map((clan, i) => (
+              <ClanCard
+                key={clan.id.toString()}
+                clan={clan}
+                index={i + 1}
+                myPrincipal={myPrincipal}
+                onClick={() => onOpenClan(clan.id)}
+                actionLabel={
+                  clan.joinMode === JoinMode.open ? "Join" : "Request"
+                }
+                isMember={memberClanIds.has(clan.id.toString())}
+                actionLoading={joinClan.isPending}
+                onAction={() => joinClan.mutate(clan.id)}
+              />
+            ))}
+          </div>
+        ))}
+
       {joinClan.isError && (
         <div
           className="text-xs text-red-500 text-center font-medium"
@@ -632,17 +720,24 @@ const CreateClanSection: React.FC<{ onCreated: () => void }> = ({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [joinMode, setJoinMode] = useState<JoinMode>(JoinMode.open);
+  const [selectedEmblemId, setSelectedEmblemId] = useState(1);
   const createClan = useCreateClan();
   const canSubmit = name.trim().length >= 3;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
     createClan.mutate(
-      { name: name.trim(), description: description.trim(), joinMode },
+      {
+        name: name.trim(),
+        description: description.trim(),
+        joinMode,
+        emblemId: selectedEmblemId,
+      },
       {
         onSuccess: () => {
           setName("");
           setDescription("");
+          setSelectedEmblemId(1);
           onCreated();
         },
       },
@@ -658,6 +753,47 @@ const CreateClanSection: React.FC<{ onCreated: () => void }> = ({
           </div>
           <h3 className="text-black font-black text-base">Create New Clan</h3>
         </div>
+
+        {/* Emblem Picker */}
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+            Choose Your Clan Emblem
+          </p>
+          <div
+            className="grid grid-cols-5 gap-2"
+            data-ocid="socials.create_clan.emblem_picker"
+          >
+            {CLAN_EMBLEMS.map((emblem) => {
+              const isSelected = emblem.id === selectedEmblemId;
+              return (
+                <button
+                  key={emblem.id}
+                  type="button"
+                  data-ocid={`socials.create_clan.emblem_${emblem.id}`}
+                  onClick={() => setSelectedEmblemId(emblem.id)}
+                  aria-label={`Select ${emblem.name} emblem`}
+                  className={`relative flex items-center justify-center rounded-xl overflow-hidden transition-all duration-200 aspect-square ${
+                    isSelected
+                      ? "ring-2 ring-orange-500 scale-105 shadow-lg shadow-orange-200"
+                      : "hover:scale-105 hover:ring-2 hover:ring-orange-300 opacity-70 hover:opacity-100"
+                  }`}
+                >
+                  <emblem.Svg size={56} />
+                  {isSelected && (
+                    <div className="absolute inset-0 rounded-xl ring-2 ring-orange-500 pointer-events-none" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-xs text-gray-500 text-center">
+            Selected:{" "}
+            <span className="text-orange-600 font-semibold">
+              {getEmblem(selectedEmblemId).name}
+            </span>
+          </p>
+        </div>
+
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="create-clan-name"
@@ -816,6 +952,7 @@ const ClanDetailsView: React.FC<ClanDetailsViewProps> = ({
   const isOwner = clan.ownerId.toText() === myText;
   const isMember = clan.members.some((m) => m.principal.toText() === myText);
   const isOpen = clan.joinMode === JoinMode.open;
+  const detailEmblem = getEmblem(clan.emblemId);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -824,8 +961,8 @@ const ClanDetailsView: React.FC<ClanDetailsViewProps> = ({
         {/* Clan Info Card */}
         <div className="mt-3 rounded-xl bg-white border border-gray-200 shadow-xl p-4">
           <div className="flex items-start gap-3">
-            <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-orange-100 text-orange-600 font-black text-lg shrink-0 border border-orange-200">
-              {clan.name.slice(0, 2).toUpperCase()}
+            <div className="flex items-center justify-center w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-orange-200">
+              <detailEmblem.Svg size={56} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -1096,6 +1233,7 @@ const InlineClanChat: React.FC<InlineClanChatProps> = ({
   onOpenMemberProfile,
 }) => {
   const clanId = clan.id;
+  const chatEmblem = getEmblem((clan as { emblemId?: bigint }).emblemId);
   const { data: messages } = useClanMessages(clanId);
   const sendMessage = useSendClanMessage();
   const { uploadFile } = useFileUpload();
@@ -1255,8 +1393,8 @@ const InlineClanChat: React.FC<InlineClanChatProps> = ({
         >
           <ArrowLeft size={18} />
         </button>
-        <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-orange-100 text-orange-600 font-black text-sm border border-orange-200 shrink-0">
-          {clan.name.slice(0, 2).toUpperCase()}
+        <div className="flex items-center justify-center w-9 h-9 rounded-xl overflow-hidden border border-orange-200 shrink-0">
+          <chatEmblem.Svg size={36} />
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="text-base font-black text-white truncate">

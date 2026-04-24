@@ -4306,7 +4306,7 @@ var g = /* @__PURE__ */ ((t) => (t[t.False = 20] = "False", t[t.True = 21] = "Tr
 const z = 23, Y = 255, G = 65535, P = 4294967295, H = BigInt("0xffffffffffffffff");
 var d = /* @__PURE__ */ ((t) => (t[t.Value = 23] = "Value", t[t.OneByte = 24] = "OneByte", t[t.TwoBytes = 25] = "TwoBytes", t[t.FourBytes = 26] = "FourBytes", t[t.EightBytes = 27] = "EightBytes", t[t.Indefinite = 31] = "Indefinite", t))(d || {});
 const h = false;
-function W(t) {
+function W$1(t) {
   return t == null;
 }
 function R(t, n) {
@@ -4350,7 +4350,7 @@ function B(t) {
 }
 function N() {
   const t = A.at(a);
-  if (W(t))
+  if (W$1(t))
     throw new w("Provided CBOR data is empty");
   const n = Z(t), e = q(t);
   return a++, [n, e];
@@ -4453,7 +4453,7 @@ const p = 2 * 1024, C = 100, v = new TextEncoder();
 function S(t) {
   return t << 5;
 }
-let o = new Uint8Array(p), r = new DataView(o.buffer), s = 0, O = [];
+let o = new Uint8Array(p), r = new DataView(o.buffer), s = 0, O$1 = [];
 function dt(t, n) {
   s = 0;
   const e = (n == null ? void 0 : n(t)) ?? t;
@@ -4496,7 +4496,7 @@ function tt(t, n) {
   });
 }
 function nt(t, n) {
-  O = Object.entries(t), I(c.Map, O.length), O.forEach(([e, i]) => {
+  O$1 = Object.entries(t), I(c.Map, O$1.length), O$1.forEach(([e, i]) => {
     X$1(e), _((n == null ? void 0 : n(i, e)) ?? i, n);
   });
 }
@@ -27445,7 +27445,8 @@ const ClanSummary = Record({
   "joinMode": JoinMode$1,
   "name": Text,
   "memberCount": Nat,
-  "description": Text
+  "description": Text,
+  "emblemId": Nat
 });
 const ApprovalStatus = Variant({
   "pending": Null,
@@ -27466,7 +27467,8 @@ const ClanDetails = Record({
   "joinMode": JoinMode$1,
   "name": Text,
   "createdAt": Int,
-  "description": Text
+  "description": Text,
+  "emblemId": Nat
 });
 const ClanMessage = Record({
   "id": Nat,
@@ -27475,7 +27477,12 @@ const ClanMessage = Record({
   "timestamp": Int,
   "senderId": Principal2
 });
-const UserProfile = Record({ "bio": Text, "name": Text });
+const UserProfile = Record({
+  "bio": Text,
+  "name": Text,
+  "profilePictureUrl": Opt(Text),
+  "bannerImageUrl": Opt(Text)
+});
 const UserProfileWithChangeStatus = Record({
   "bio": Text,
   "name": Text,
@@ -27549,7 +27556,7 @@ Service({
   ),
   "assignRole": Func([Principal2, UserRole], [], []),
   "createClan": Func(
-    [Text, Text, JoinMode$1],
+    [Text, Text, JoinMode$1, Nat],
     [Variant({ "ok": Nat, "err": Text })],
     []
   ),
@@ -27677,7 +27684,8 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "joinMode": JoinMode2,
     "name": IDL2.Text,
     "memberCount": IDL2.Nat,
-    "description": IDL2.Text
+    "description": IDL2.Text,
+    "emblemId": IDL2.Nat
   });
   const ApprovalStatus2 = IDL2.Variant({
     "pending": IDL2.Null,
@@ -27698,7 +27706,8 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "joinMode": JoinMode2,
     "name": IDL2.Text,
     "createdAt": IDL2.Int,
-    "description": IDL2.Text
+    "description": IDL2.Text,
+    "emblemId": IDL2.Nat
   });
   const ClanMessage2 = IDL2.Record({
     "id": IDL2.Nat,
@@ -27707,7 +27716,12 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "timestamp": IDL2.Int,
     "senderId": IDL2.Principal
   });
-  const UserProfile2 = IDL2.Record({ "bio": IDL2.Text, "name": IDL2.Text });
+  const UserProfile2 = IDL2.Record({
+    "bio": IDL2.Text,
+    "name": IDL2.Text,
+    "profilePictureUrl": IDL2.Opt(IDL2.Text),
+    "bannerImageUrl": IDL2.Opt(IDL2.Text)
+  });
   const UserProfileWithChangeStatus2 = IDL2.Record({
     "bio": IDL2.Text,
     "name": IDL2.Text,
@@ -27781,7 +27795,7 @@ const idlFactory = ({ IDL: IDL2 }) => {
     ),
     "assignRole": IDL2.Func([IDL2.Principal, UserRole2], [], []),
     "createClan": IDL2.Func(
-      [IDL2.Text, IDL2.Text, JoinMode2],
+      [IDL2.Text, IDL2.Text, JoinMode2, IDL2.Nat],
       [IDL2.Variant({ "ok": IDL2.Nat, "err": IDL2.Text })],
       []
     ),
@@ -27958,17 +27972,17 @@ class Backend {
       return result;
     }
   }
-  async createClan(arg0, arg1, arg2) {
+  async createClan(arg0, arg1, arg2, arg3) {
     if (this.processError) {
       try {
-        const result = await this.actor.createClan(arg0, arg1, to_candid_JoinMode_n4(this._uploadFile, this._downloadFile, arg2));
+        const result = await this.actor.createClan(arg0, arg1, to_candid_JoinMode_n4(this._uploadFile, this._downloadFile, arg2), arg3);
         return from_candid_variant_n6(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.createClan(arg0, arg1, to_candid_JoinMode_n4(this._uploadFile, this._downloadFile, arg2));
+      const result = await this.actor.createClan(arg0, arg1, to_candid_JoinMode_n4(this._uploadFile, this._downloadFile, arg2), arg3);
       return from_candid_variant_n6(this._uploadFile, this._downloadFile, result);
     }
   }
@@ -28130,28 +28144,28 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.getCurrentUserProfileWithChangeStatus();
-        return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
+        return from_candid_opt_n26(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getCurrentUserProfileWithChangeStatus();
-      return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
+      return from_candid_opt_n26(this._uploadFile, this._downloadFile, result);
     }
   }
   async getCurrentUserRole() {
     if (this.processError) {
       try {
         const result = await this.actor.getCurrentUserRole();
-        return from_candid_UserRole_n25(this._uploadFile, this._downloadFile, result);
+        return from_candid_UserRole_n27(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getCurrentUserRole();
-      return from_candid_UserRole_n25(this._uploadFile, this._downloadFile, result);
+      return from_candid_UserRole_n27(this._uploadFile, this._downloadFile, result);
     }
   }
   async getFriends() {
@@ -28186,28 +28200,28 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.getPendingJoinRequests(arg0);
-        return from_candid_variant_n27(this._uploadFile, this._downloadFile, result);
+        return from_candid_variant_n29(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getPendingJoinRequests(arg0);
-      return from_candid_variant_n27(this._uploadFile, this._downloadFile, result);
+      return from_candid_variant_n29(this._uploadFile, this._downloadFile, result);
     }
   }
   async getUserGameStats(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.getUserGameStats(arg0);
-        return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+        return from_candid_opt_n30(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getUserGameStats(arg0);
-      return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+      return from_candid_opt_n30(this._uploadFile, this._downloadFile, result);
     }
   }
   async getUserProfile(arg0) {
@@ -28228,42 +28242,42 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.getUserProfileWithChangeStatus(arg0);
-        return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
+        return from_candid_opt_n26(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getUserProfileWithChangeStatus(arg0);
-      return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
+      return from_candid_opt_n26(this._uploadFile, this._downloadFile, result);
     }
   }
   async httpStreamingCallback(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.httpStreamingCallback(arg0);
-        return from_candid_StreamingCallbackHttpResponse_n29(this._uploadFile, this._downloadFile, result);
+        return from_candid_StreamingCallbackHttpResponse_n31(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.httpStreamingCallback(arg0);
-      return from_candid_StreamingCallbackHttpResponse_n29(this._uploadFile, this._downloadFile, result);
+      return from_candid_StreamingCallbackHttpResponse_n31(this._uploadFile, this._downloadFile, result);
     }
   }
   async http_request(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.http_request(arg0);
-        return from_candid_HttpResponse_n32(this._uploadFile, this._downloadFile, result);
+        return from_candid_HttpResponse_n34(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.http_request(arg0);
-      return from_candid_HttpResponse_n32(this._uploadFile, this._downloadFile, result);
+      return from_candid_HttpResponse_n34(this._uploadFile, this._downloadFile, result);
     }
   }
   async initializeAuth() {
@@ -28340,14 +28354,14 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.listUsers();
-        return from_candid_vec_n37(this._uploadFile, this._downloadFile, result);
+        return from_candid_vec_n39(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.listUsers();
-      return from_candid_vec_n37(this._uploadFile, this._downloadFile, result);
+      return from_candid_vec_n39(this._uploadFile, this._downloadFile, result);
     }
   }
   async removeFriend(arg0) {
@@ -28367,14 +28381,14 @@ class Backend {
   async saveCurrentUserProfile(arg0) {
     if (this.processError) {
       try {
-        const result = await this.actor.saveCurrentUserProfile(arg0);
+        const result = await this.actor.saveCurrentUserProfile(to_candid_UserProfile_n42(this._uploadFile, this._downloadFile, arg0));
         return result;
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.saveCurrentUserProfile(arg0);
+      const result = await this.actor.saveCurrentUserProfile(to_candid_UserProfile_n42(this._uploadFile, this._downloadFile, arg0));
       return result;
     }
   }
@@ -28424,27 +28438,27 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.sendClanMessage(arg0, arg1);
-        return from_candid_variant_n40(this._uploadFile, this._downloadFile, result);
+        return from_candid_variant_n44(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.sendClanMessage(arg0, arg1);
-      return from_candid_variant_n40(this._uploadFile, this._downloadFile, result);
+      return from_candid_variant_n44(this._uploadFile, this._downloadFile, result);
     }
   }
   async setApproval(arg0, arg1) {
     if (this.processError) {
       try {
-        const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n41(this._uploadFile, this._downloadFile, arg1));
+        const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n45(this._uploadFile, this._downloadFile, arg1));
         return result;
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n41(this._uploadFile, this._downloadFile, arg1));
+      const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n45(this._uploadFile, this._downloadFile, arg1));
       return result;
     }
   }
@@ -28458,8 +28472,8 @@ function from_candid_ClanDetails_n15(_uploadFile, _downloadFile, value) {
 function from_candid_ClanSummary_n8(_uploadFile, _downloadFile, value) {
   return from_candid_record_n9(_uploadFile, _downloadFile, value);
 }
-function from_candid_HttpResponse_n32(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n33(_uploadFile, _downloadFile, value);
+function from_candid_HttpResponse_n34(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n35(_uploadFile, _downloadFile, value);
 }
 function from_candid_JoinMode_n10(_uploadFile, _downloadFile, value) {
   return from_candid_variant_n11(_uploadFile, _downloadFile, value);
@@ -28467,35 +28481,38 @@ function from_candid_JoinMode_n10(_uploadFile, _downloadFile, value) {
 function from_candid_PrincipalInfo_n18(_uploadFile, _downloadFile, value) {
   return from_candid_record_n19(_uploadFile, _downloadFile, value);
 }
-function from_candid_StreamingCallbackHttpResponse_n29(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n30(_uploadFile, _downloadFile, value);
+function from_candid_StreamingCallbackHttpResponse_n31(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n32(_uploadFile, _downloadFile, value);
 }
-function from_candid_StreamingStrategy_n35(_uploadFile, _downloadFile, value) {
-  return from_candid_variant_n36(_uploadFile, _downloadFile, value);
+function from_candid_StreamingStrategy_n37(_uploadFile, _downloadFile, value) {
+  return from_candid_variant_n38(_uploadFile, _downloadFile, value);
 }
-function from_candid_UserInfo_n38(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n39(_uploadFile, _downloadFile, value);
+function from_candid_UserInfo_n40(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n41(_uploadFile, _downloadFile, value);
 }
-function from_candid_UserRole_n25(_uploadFile, _downloadFile, value) {
-  return from_candid_variant_n26(_uploadFile, _downloadFile, value);
+function from_candid_UserProfile_n24(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n25(_uploadFile, _downloadFile, value);
+}
+function from_candid_UserRole_n27(_uploadFile, _downloadFile, value) {
+  return from_candid_variant_n28(_uploadFile, _downloadFile, value);
 }
 function from_candid_opt_n20(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : value[0];
 }
 function from_candid_opt_n23(_uploadFile, _downloadFile, value) {
+  return value.length === 0 ? null : from_candid_UserProfile_n24(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n26(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n24(_uploadFile, _downloadFile, value) {
+function from_candid_opt_n30(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n28(_uploadFile, _downloadFile, value) {
+function from_candid_opt_n33(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n31(_uploadFile, _downloadFile, value) {
-  return value.length === 0 ? null : value[0];
-}
-function from_candid_opt_n34(_uploadFile, _downloadFile, value) {
-  return value.length === 0 ? null : from_candid_StreamingStrategy_n35(_uploadFile, _downloadFile, value[0]);
+function from_candid_opt_n36(_uploadFile, _downloadFile, value) {
+  return value.length === 0 ? null : from_candid_StreamingStrategy_n37(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_record_n16(_uploadFile, _downloadFile, value) {
   return {
@@ -28506,7 +28523,8 @@ function from_candid_record_n16(_uploadFile, _downloadFile, value) {
     joinMode: from_candid_JoinMode_n10(_uploadFile, _downloadFile, value.joinMode),
     name: value.name,
     createdAt: value.createdAt,
-    description: value.description
+    description: value.description,
+    emblemId: value.emblemId
   };
 }
 function from_candid_record_n19(_uploadFile, _downloadFile, value) {
@@ -28517,24 +28535,32 @@ function from_candid_record_n19(_uploadFile, _downloadFile, value) {
     avatarUrl: record_opt_to_undefined(from_candid_opt_n20(_uploadFile, _downloadFile, value.avatarUrl))
   };
 }
-function from_candid_record_n30(_uploadFile, _downloadFile, value) {
+function from_candid_record_n25(_uploadFile, _downloadFile, value) {
   return {
-    token: record_opt_to_undefined(from_candid_opt_n31(_uploadFile, _downloadFile, value.token)),
+    bio: value.bio,
+    name: value.name,
+    profilePictureUrl: record_opt_to_undefined(from_candid_opt_n20(_uploadFile, _downloadFile, value.profilePictureUrl)),
+    bannerImageUrl: record_opt_to_undefined(from_candid_opt_n20(_uploadFile, _downloadFile, value.bannerImageUrl))
+  };
+}
+function from_candid_record_n32(_uploadFile, _downloadFile, value) {
+  return {
+    token: record_opt_to_undefined(from_candid_opt_n33(_uploadFile, _downloadFile, value.token)),
     body: value.body
   };
 }
-function from_candid_record_n33(_uploadFile, _downloadFile, value) {
+function from_candid_record_n35(_uploadFile, _downloadFile, value) {
   return {
     body: value.body,
     headers: value.headers,
-    streaming_strategy: record_opt_to_undefined(from_candid_opt_n34(_uploadFile, _downloadFile, value.streaming_strategy)),
+    streaming_strategy: record_opt_to_undefined(from_candid_opt_n36(_uploadFile, _downloadFile, value.streaming_strategy)),
     status_code: value.status_code
   };
 }
-function from_candid_record_n39(_uploadFile, _downloadFile, value) {
+function from_candid_record_n41(_uploadFile, _downloadFile, value) {
   return {
     principal: value.principal,
-    role: from_candid_UserRole_n25(_uploadFile, _downloadFile, value.role),
+    role: from_candid_UserRole_n27(_uploadFile, _downloadFile, value.role),
     approval: from_candid_ApprovalStatus_n12(_uploadFile, _downloadFile, value.approval)
   };
 }
@@ -28545,7 +28571,8 @@ function from_candid_record_n9(_uploadFile, _downloadFile, value) {
     joinMode: from_candid_JoinMode_n10(_uploadFile, _downloadFile, value.joinMode),
     name: value.name,
     memberCount: value.memberCount,
-    description: value.description
+    description: value.description,
+    emblemId: value.emblemId
   };
 }
 function from_candid_variant_n1(_uploadFile, _downloadFile, value) {
@@ -28581,10 +28608,10 @@ function from_candid_variant_n22(_uploadFile, _downloadFile, value) {
     err: value.err
   } : value;
 }
-function from_candid_variant_n26(_uploadFile, _downloadFile, value) {
+function from_candid_variant_n28(_uploadFile, _downloadFile, value) {
   return "admin" in value ? "admin" : "user" in value ? "user" : "guest" in value ? "guest" : value;
 }
-function from_candid_variant_n27(_uploadFile, _downloadFile, value) {
+function from_candid_variant_n29(_uploadFile, _downloadFile, value) {
   return "ok" in value ? {
     __kind__: "ok",
     ok: from_candid_vec_n17(_uploadFile, _downloadFile, value.ok)
@@ -28593,13 +28620,13 @@ function from_candid_variant_n27(_uploadFile, _downloadFile, value) {
     err: value.err
   } : value;
 }
-function from_candid_variant_n36(_uploadFile, _downloadFile, value) {
+function from_candid_variant_n38(_uploadFile, _downloadFile, value) {
   return "Callback" in value ? {
     __kind__: "Callback",
     Callback: value.Callback
   } : value;
 }
-function from_candid_variant_n40(_uploadFile, _downloadFile, value) {
+function from_candid_variant_n44(_uploadFile, _downloadFile, value) {
   return "ok" in value ? {
     __kind__: "ok",
     ok: value.ok
@@ -28620,23 +28647,34 @@ function from_candid_variant_n6(_uploadFile, _downloadFile, value) {
 function from_candid_vec_n17(_uploadFile, _downloadFile, value) {
   return value.map((x2) => from_candid_PrincipalInfo_n18(_uploadFile, _downloadFile, x2));
 }
-function from_candid_vec_n37(_uploadFile, _downloadFile, value) {
-  return value.map((x2) => from_candid_UserInfo_n38(_uploadFile, _downloadFile, x2));
+function from_candid_vec_n39(_uploadFile, _downloadFile, value) {
+  return value.map((x2) => from_candid_UserInfo_n40(_uploadFile, _downloadFile, x2));
 }
 function from_candid_vec_n7(_uploadFile, _downloadFile, value) {
   return value.map((x2) => from_candid_ClanSummary_n8(_uploadFile, _downloadFile, x2));
 }
-function to_candid_ApprovalStatus_n41(_uploadFile, _downloadFile, value) {
-  return to_candid_variant_n42(_uploadFile, _downloadFile, value);
+function to_candid_ApprovalStatus_n45(_uploadFile, _downloadFile, value) {
+  return to_candid_variant_n46(_uploadFile, _downloadFile, value);
 }
 function to_candid_JoinMode_n4(_uploadFile, _downloadFile, value) {
   return to_candid_variant_n5(_uploadFile, _downloadFile, value);
+}
+function to_candid_UserProfile_n42(_uploadFile, _downloadFile, value) {
+  return to_candid_record_n43(_uploadFile, _downloadFile, value);
 }
 function to_candid_UserRole_n2(_uploadFile, _downloadFile, value) {
   return to_candid_variant_n3(_uploadFile, _downloadFile, value);
 }
 function to_candid_opt_n21(_uploadFile, _downloadFile, value) {
   return value === null ? candid_none() : candid_some(value);
+}
+function to_candid_record_n43(_uploadFile, _downloadFile, value) {
+  return {
+    bio: value.bio,
+    name: value.name,
+    profilePictureUrl: value.profilePictureUrl ? candid_some(value.profilePictureUrl) : candid_none(),
+    bannerImageUrl: value.bannerImageUrl ? candid_some(value.bannerImageUrl) : candid_none()
+  };
 }
 function to_candid_variant_n3(_uploadFile, _downloadFile, value) {
   return value == "admin" ? {
@@ -28647,7 +28685,7 @@ function to_candid_variant_n3(_uploadFile, _downloadFile, value) {
     guest: null
   } : value;
 }
-function to_candid_variant_n42(_uploadFile, _downloadFile, value) {
+function to_candid_variant_n46(_uploadFile, _downloadFile, value) {
   return value == "pending" ? {
     pending: null
   } : value == "approved" ? {
@@ -28688,13 +28726,28 @@ function useUserProfileWithChangeStatus() {
     enabled: !!actor && !isFetching
   });
 }
+function useSaveCurrentUserProfile() {
+  const { actor } = useActor(createActor);
+  const queryClient2 = useQueryClient();
+  return useMutation({
+    mutationFn: async (profile) => {
+      if (!actor) throw new Error("No actor");
+      return actor.saveCurrentUserProfile(profile);
+    },
+    onSuccess: () => {
+      queryClient2.invalidateQueries({ queryKey: ["userProfile"] });
+    }
+  });
+}
 function useSaveCurrentUserProfileWithChangeStatus() {
   const { actor } = useActor(createActor);
   const queryClient2 = useQueryClient();
   return useMutation({
     mutationFn: async (profile) => {
       if (!actor) throw new Error("No actor");
-      return actor.saveCurrentUserProfileWithChangeStatus(profile);
+      return actor.saveCurrentUserProfileWithChangeStatus(
+        profile
+      );
     },
     onSuccess: () => {
       queryClient2.invalidateQueries({
@@ -28735,6 +28788,17 @@ function useListUsers() {
     queryFn: async () => {
       if (!actor) return [];
       return actor.listUsers();
+    },
+    enabled: !!actor && !isFetching
+  });
+}
+function useAllClans() {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery({
+    queryKey: ["allClans"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllClans();
     },
     enabled: !!actor && !isFetching
   });
@@ -28819,10 +28883,16 @@ function useCreateClan() {
     mutationFn: async ({
       name,
       description,
-      joinMode
+      joinMode,
+      emblemId
     }) => {
       if (!actor) throw new Error("No actor");
-      const res = await actor.createClan(name, description, joinMode);
+      const res = await actor.createClan(
+        name,
+        description,
+        joinMode,
+        BigInt(emblemId)
+      );
       if (res.__kind__ === "ok") return res.ok;
       throw new Error(res.err);
     },
@@ -29026,41 +29096,19 @@ function useGetUserGameStats(userId) {
     enabled: !!actor && !isFetching && userId !== null
   });
 }
-function useLeaderboardWithPrincipals() {
+function useLeaderboardEntries() {
   const { actor, isFetching } = useActor(createActor);
   return useQuery({
-    queryKey: ["leaderboardWithPrincipals"],
+    queryKey: ["leaderboardEntries"],
     queryFn: async () => {
       if (!actor) return [];
-      const [leaderboard, allUsers] = await Promise.all([
-        actor.getLeaderboard(),
-        actor.listUsers()
-      ]);
-      if (leaderboard.length === 0) return [];
-      const usersToFetch = allUsers.slice(0, 100);
-      const profiles = await Promise.allSettled(
-        usersToFetch.map(async (u) => {
-          var _a3;
-          const profile = await actor.getUserProfile(u.principal);
-          return { principal: u.principal, name: ((_a3 = profile == null ? void 0 : profile.name) == null ? void 0 : _a3.trim()) ?? "" };
-        })
-      );
-      const nameMap = /* @__PURE__ */ new Map();
-      for (const result of profiles) {
-        if (result.status === "fulfilled" && result.value.name) {
-          const { name, principal } = result.value;
-          if (!nameMap.has(name)) {
-            nameMap.set(name, principal);
-          }
-        }
-      }
+      const leaderboard = await actor.getLeaderboard();
       return leaderboard.map(([username, score, level], index2) => ({
         username,
         highestScore: Number(score),
         level: Number(level),
-        key: `lb-${index2}-${username}`,
-        principal: nameMap.get(username) ?? null
-      })).sort((a2, b2) => b2.highestScore - a2.highestScore);
+        key: `lb-${index2}-${username}`
+      }));
     },
     enabled: !!actor && !isFetching
   });
@@ -29290,7 +29338,7 @@ const __iconNode$v = [
   ],
   ["path", { d: "M5 21h14", key: "11awu3" }]
 ];
-const Crown = createLucideIcon("crown", __iconNode$v);
+const Crown$1 = createLucideIcon("crown", __iconNode$v);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -29883,7 +29931,7 @@ const AchievementsView = ({
       id: "golden-chickens",
       title: "Golden Hunter",
       description: "Golden chickens shot",
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Crown, { className: "w-5 h-5" }),
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Crown$1, { className: "w-5 h-5" }),
       milestones: createMilestones([5, 25, 100, 250, 500]),
       currentProgress: gameStatistics.goldenChickensShot,
       category: "Special"
@@ -36580,335 +36628,14 @@ const GameOverWindow = ({
     }
   );
 };
-const DEFAULT_AVATAR_SVG$1 = `data:image/svg+xml,${encodeURIComponent(`
-  <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
-      </linearGradient>
-      <linearGradient id="bg2" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.95" />
-        <stop offset="100%" style="stop-color:#f3f4f6;stop-opacity:0.95" />
-      </linearGradient>
-    </defs>
-    <circle cx="40" cy="40" r="40" fill="url(#ag)"/>
-    <circle cx="40" cy="40" r="36" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-    <circle cx="40" cy="30" r="12" fill="url(#bg2)" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-    <path d="M22 62 Q22 50 40 50 Q58 50 58 62 Q58 66 40 66 Q22 66 22 62 Z" fill="url(#bg2)" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-    <circle cx="40" cy="40" r="40" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
-  </svg>
-`)}`;
-const getPlayerTitle$1 = (level) => {
-  if (level >= 95) return "Eggsplosion Master";
-  if (level >= 90) return "Hen House Hero";
-  if (level >= 85) return "Rooster Ruler";
-  if (level >= 80) return "Coop Conqueror";
-  if (level >= 75) return "Cluck Commander";
-  if (level >= 70) return "Ultimate Chicken Champion";
-  if (level >= 65) return "Chicken Dragon Tamer";
-  if (level >= 60) return "Master of Molt";
-  if (level >= 55) return "Feather Curse Slayer";
-  if (level >= 50) return "Galactic Rooster Hunter";
-  if (level >= 45) return "Egg Exterminator";
-  if (level >= 40) return "Poultry Destroyer";
-  if (level >= 35) return "King of Chickens";
-  if (level >= 30) return "Turbo Tractorman";
-  if (level >= 25) return "Wing Hunter";
-  if (level >= 20) return "Roasted Hen Tamer";
-  if (level >= 15) return "Corn Massacre";
-  if (level >= 10) return "Feather Catcher";
-  if (level >= 5) return "Egg Breaker";
-  return "Chick Warrior";
-};
-const formatPlayTime$1 = (minutes) => {
-  if (minutes < 60) return `${minutes}m`;
-  const hours = Math.floor(minutes / 60);
-  const rem = minutes % 60;
-  return rem > 0 ? `${hours}h ${rem}m` : `${hours}h`;
-};
-const STAT_ITEMS$1 = [
-  {
-    key: "totalChickensShot",
-    label: "Total Chickens",
-    icon: Target,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "highestScore",
-    label: "Best Score",
-    icon: Trophy,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "currentAccuracy",
-    label: "Accuracy",
-    icon: TrendingUp,
-    format: (v2) => `${v2.toFixed(1)}%`
-  },
-  {
-    key: "totalPlayTimeMinutes",
-    label: "Play Time",
-    icon: Clock,
-    format: (v2) => formatPlayTime$1(v2)
-  },
-  {
-    key: "totalMissedShots",
-    label: "Missed Shots",
-    icon: X,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "goldenChickensShot",
-    label: "Golden Chickens",
-    icon: Star,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "fastChickensShot",
-    label: "Fast Chickens",
-    icon: Zap,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "smallChickensShot",
-    label: "Small Chickens",
-    icon: Target,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "mediumChickensShot",
-    label: "Medium Chickens",
-    icon: Target,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "largeChickensShot",
-    label: "Large Chickens",
-    icon: Target,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "bestConsecutiveHits",
-    label: "Best Streak",
-    icon: TrendingUp,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "perfectAccuracySessions",
-    label: "Perfect Sessions",
-    icon: Award,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "totalScore",
-    label: "Total Score",
-    icon: Star,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "totalShotsFired",
-    label: "Total Shots",
-    icon: Target,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "bestSessionChickens",
-    label: "Best Session",
-    icon: Trophy,
-    format: (v2) => v2.toLocaleString()
-  }
-];
-const StatSkeleton = () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 md:grid-cols-3 gap-3", children: Array.from({ length: 6 }, (_2, i) => `skel-${i}`).map((id) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-  "div",
-  {
-    className: "h-16 rounded-lg bg-muted border border-border animate-pulse"
-  },
-  id
-)) });
-const PlayerProfileScreen = ({
-  principal,
-  fallbackName,
-  fallbackLevel = 1,
-  isOwnProfile = false,
-  onBack
-}) => {
-  var _a3, _b3;
-  const { data: profile, isLoading: profileLoading } = useGetUserProfile(principal);
-  const { data: gameStats, isLoading: statsLoading } = useGetUserGameStats(principal);
-  const { data: isFriend, isLoading: friendLoading } = useIsFriend(
-    isOwnProfile ? null : principal
-  );
-  const addFriend = useAddFriend();
-  const removeFriend = useRemoveFriend();
-  const displayName = ((_a3 = profile == null ? void 0 : profile.name) == null ? void 0 : _a3.trim()) || (fallbackName == null ? void 0 : fallbackName.trim()) || `${principal.toText().slice(0, 10)}…`;
-  const level = gameStats ? Number(gameStats.level) : fallbackLevel;
-  const currentTitle = getPlayerTitle$1(level);
-  const highestScore = gameStats ? Number(gameStats.highestScore) : 0;
-  const xpForLevel = (lvl) => Math.floor(100 * lvl ** 1.5);
-  const currentXP = highestScore % Math.max(1, xpForLevel(level));
-  const requiredXP = xpForLevel(level);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "div",
-    {
-      className: "flex flex-col overflow-hidden",
-      style: { height: "100%", width: "100%" },
-      "data-ocid": "player_profile.page",
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 px-4 pt-4 pb-3 border-b border-gray-800 shrink-0 bg-black", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              type: "button",
-              "data-ocid": "player_profile.back_button",
-              onClick: onBack,
-              className: "flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-gray-200 text-black hover:border-orange-400 transition-colors shadow-sm shrink-0",
-              "aria-label": "Back",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 18 })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg font-black text-white truncate flex-1", children: "Player Profile" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto bg-black pb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-4 mt-4 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-28 relative bg-gradient-to-br from-orange-900 via-orange-700 to-black", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute left-6 bottom-0 translate-y-1/2 w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg bg-orange-100", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "img",
-            {
-              src: DEFAULT_AVATAR_SVG$1,
-              alt: `${displayName}'s avatar`,
-              className: "w-full h-full object-cover"
-            }
-          ) }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-6 pt-14", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-2", children: profileLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-40 bg-gray-200 rounded animate-pulse mb-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center flex-wrap gap-2 mb-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold text-black", children: displayName }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 px-2 py-1 rounded-full shadow-sm", children: [
-                "Lv.",
-                level
-              ] })
-            ] }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4", children: profileLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-4 w-full bg-gray-100 rounded animate-pulse" }) : ((_b3 = profile == null ? void 0 : profile.bio) == null ? void 0 : _b3.trim()) ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-700 whitespace-pre-wrap break-words", children: profile.bio.trim() }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-400 italic", children: "No bio set." }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center mb-5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg px-3 py-1.5 shadow-md", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-4 h-4 mr-2 text-yellow-300" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-sm", children: currentTitle })
-            ] }) }),
-            level < 100 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between text-xs font-medium text-gray-600 mb-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                  "Level ",
-                  level
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                  currentXP.toLocaleString(),
-                  " / ",
-                  requiredXP.toLocaleString(),
-                  " ",
-                  "XP"
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full bg-gray-200 rounded-full h-2 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "h-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full transition-all duration-500",
-                  style: {
-                    width: `${Math.min(100, currentXP / Math.max(1, requiredXP) * 100)}%`
-                  }
-                }
-              ) })
-            ] }),
-            !isOwnProfile && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-5", children: [
-              friendLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "w-full h-11 rounded-xl bg-gray-100 border border-gray-200 animate-pulse",
-                  "data-ocid": "player_profile.friend_button.loading_state"
-                }
-              ) : isFriend ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  type: "button",
-                  "data-ocid": "player_profile.remove_friend_button",
-                  disabled: removeFriend.isPending,
-                  onClick: () => removeFriend.mutate(principal),
-                  className: "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 font-bold text-sm hover:bg-red-50 transition-colors disabled:opacity-40 shadow-sm",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(UserMinus, { size: 16 }),
-                    removeFriend.isPending ? "Removing…" : "Remove Friend"
-                  ]
-                }
-              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  type: "button",
-                  "data-ocid": "player_profile.add_friend_button",
-                  disabled: addFriend.isPending,
-                  onClick: () => addFriend.mutate(principal),
-                  className: "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 shadow-md",
-                  children: addFriend.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-white" }),
-                    "Adding…"
-                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { size: 16 }),
-                    "Add Friend"
-                  ] })
-                }
-              ),
-              addFriend.isSuccess && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center gap-1.5 mt-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 14, className: "text-green-600" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-green-600 font-medium", children: "You are now friends!" })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-gray-200 pt-5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-lg font-black text-black flex items-center mb-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-5 h-5 mr-2 text-orange-500" }),
-                "Statistics Overview"
-              ] }),
-              statsLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(StatSkeleton, {}) : !gameStats ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "text-center py-6 text-gray-400 text-sm",
-                  "data-ocid": "player_profile.stats.empty_state",
-                  children: "No statistics yet"
-                }
-              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "grid grid-cols-2 md:grid-cols-3 gap-4",
-                  "data-ocid": "player_profile.stats.list",
-                  children: STAT_ITEMS$1.map(({ key, label, icon: Icon2, format }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "div",
-                    {
-                      className: "bg-gray-50 rounded-lg p-3 border border-gray-200",
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center mb-2", children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-4 h-4 text-orange-500 mr-2" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium text-gray-600 truncate", children: label })
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-lg font-black text-gray-700", children: format(Number(gameStats[key] ?? 0)) })
-                      ]
-                    },
-                    key
-                  ))
-                }
-              )
-            ] })
-          ] })
-        ] }) })
-      ]
-    }
-  );
-};
 const LeaderboardView = ({
   currentPlayerScore: _currentPlayerScore = 0,
   isAuthenticated
 }) => {
-  const { identity, login, loginStatus } = useInternetIdentity();
-  const { data: leaderboardRich, isLoading: richLoading } = useLeaderboardWithPrincipals();
-  const { data: backendLeaderboard = [] } = useLeaderboard();
+  const { login, loginStatus } = useInternetIdentity();
+  const { data: entries = [], isLoading } = useLeaderboardEntries();
+  const { data: previewData = [] } = useLeaderboard();
   const queryClient2 = useQueryClient();
-  const [viewingPrincipal, setViewingPrincipal] = reactExports.useState(
-    null
-  );
-  const [viewingName, setViewingName] = reactExports.useState("");
   const handleLogin = async () => {
     try {
       await login();
@@ -36918,52 +36645,46 @@ const LeaderboardView = ({
     }
   };
   const getRankIcon = (index2) => {
-    if (index2 === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Crown, { className: "w-5 h-5 text-yellow-500" });
-    if (index2 === 1) return /* @__PURE__ */ jsxRuntimeExports.jsx(Medal, { className: "w-5 h-5 text-gray-400" });
-    if (index2 === 2) return /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-5 h-5 text-amber-600" });
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Star, { className: "w-4 h-4 text-gray-500" });
+    if (index2 === 0)
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(Crown$1, { className: "w-5 h-5", style: { color: "#f59e0b" } });
+    if (index2 === 1)
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(Medal, { className: "w-5 h-5", style: { color: "#9ca3af" } });
+    if (index2 === 2)
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-5 h-5", style: { color: "#d97706" } });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Star, { className: "w-4 h-4", style: { color: "#6b7280" } });
   };
-  const getRankStyling = (index2, clickable) => {
-    const base = `flex items-center justify-between p-4 rounded-lg transition-all duration-200 ${clickable ? "cursor-pointer hover:scale-[1.01] active:scale-[0.99]" : ""} `;
+  const getRankStyling = (index2) => {
+    const base = "flex items-center justify-between p-4 rounded-lg transition-all duration-200 ";
     if (index2 === 0)
       return `${base}bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 border border-yellow-500/30`;
     if (index2 === 1)
       return `${base}bg-gradient-to-r from-gray-400/20 to-gray-500/20 border border-gray-400/30`;
     if (index2 === 2)
       return `${base}bg-gradient-to-r from-amber-600/20 to-amber-700/20 border border-amber-600/30`;
-    return `${base}bg-white/10 border border-white/20 hover:bg-white/15`;
+    return `${base}bg-white/10 border border-white/20`;
   };
   const isLoggingIn = loginStatus === "logging-in";
-  const myPrincipalStr = (identity == null ? void 0 : identity.getPrincipal().toString()) ?? "";
-  const handleRowClick = (entry) => {
-    if (!entry.principal) return;
-    setViewingName(entry.username);
-    setViewingPrincipal(entry.principal);
-  };
-  if (viewingPrincipal) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-black pb-20", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-      PlayerProfileScreen,
-      {
-        principal: viewingPrincipal,
-        fallbackName: viewingName,
-        isOwnProfile: viewingPrincipal.toText() === myPrincipalStr,
-        onBack: () => setViewingPrincipal(null)
-      }
-    ) });
-  }
   if (!isAuthenticated) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-black overflow-y-auto pb-32", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "container mx-auto px-4 py-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl p-4 shadow-xl border border-gray-200 opacity-60 blur-sm", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 mr-4 shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Medal, { className: "w-6 h-6 text-white" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl md:text-4xl font-black text-black tracking-tight", children: "LEADERBOARD" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 font-medium", children: "Players ranked by highest score achieved" }) })
-      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: "bg-white rounded-xl p-4 shadow-xl border border-gray-200 opacity-60",
+          style: { filter: "blur(2px)" },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 mr-4 shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Medal, { className: "w-6 h-6 text-white" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl md:text-4xl font-black text-black tracking-tight", children: "LEADERBOARD" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center text-gray-600 font-medium", children: "Players ranked by highest score achieved" })
+          ]
+        }
+      ) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "div",
         {
-          className: "fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4",
+          className: "fixed inset-0 flex items-center justify-center z-50 px-4",
+          style: { background: "rgba(0,0,0,0.55)" },
           "data-ocid": "leaderboard.login_prompt",
           children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl border border-gray-200 w-full max-w-md mx-auto", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center p-6 border-b border-gray-200", children: [
@@ -36971,14 +36692,17 @@ const LeaderboardView = ({
               /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-black text-black", children: "LEADERBOARD" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center mb-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 text-lg leading-relaxed", children: "Login required to access the leaderboard and compete with other players globally." }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 text-lg leading-relaxed text-center mb-6", children: "Sign in to view the global rankings and compete with other players." }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "button",
                 {
                   type: "button",
                   onClick: handleLogin,
                   disabled: isLoggingIn,
-                  className: "w-full flex items-center justify-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none",
+                  className: "w-full flex items-center justify-center font-bold py-3 px-4 rounded-lg transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-white",
+                  style: {
+                    background: isLoggingIn ? "#ea580c" : "linear-gradient(to right, #f97316, #ea580c)"
+                  },
                   "data-ocid": "leaderboard.login_button",
                   children: isLoggingIn ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3" }),
@@ -36993,48 +36717,54 @@ const LeaderboardView = ({
           ] })
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-4xl mx-auto space-y-3 opacity-30 blur-sm pointer-events-none", children: backendLeaderboard.slice(0, 5).map(([username, score, level], index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
         "div",
         {
-          className: getRankStyling(index2, false),
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-full bg-white/20", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-black text-lg", children: [
-                "#",
-                index2 + 1
-              ] }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-8 h-8", children: getRankIcon(index2) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-lg text-white", children: [
-                  username,
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-normal text-white/60 ml-2", children: [
-                    "Lv.",
-                    Number(level)
+          className: "max-w-4xl mx-auto space-y-3 pointer-events-none",
+          style: { opacity: 0.25, filter: "blur(2px)" },
+          children: previewData.slice(0, 5).map(([username, score, level], index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: getRankStyling(index2),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-full bg-white/20", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-black text-lg", children: [
+                    "#",
+                    index2 + 1
+                  ] }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-8 h-8", children: getRankIcon(index2) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-lg text-white", children: [
+                      username,
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-normal text-white/60 ml-2", children: [
+                        "Lv.",
+                        Number(level)
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white/70 text-sm font-medium", children: "Personal Best" })
                   ] })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white/70 text-sm font-medium", children: "Personal Best" })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-black text-white", children: Number(score).toLocaleString() }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-white/50 text-xs font-medium", children: "POINTS" })
-            ] })
-          ]
-        },
-        `preview-${index2}`
-      )) })
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-black text-white", children: Number(score).toLocaleString() }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-white/50 text-xs font-medium", children: "POINTS" })
+                ] })
+              ]
+            },
+            `preview-${index2}`
+          ))
+        }
+      )
     ] }) });
   }
-  const leaderboardData = leaderboardRich ?? [];
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-black overflow-y-auto pb-32", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "container mx-auto px-4 py-6", "data-ocid": "leaderboard.page", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl p-4 shadow-xl border border-gray-200", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center mb-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 mr-4 shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Medal, { className: "w-6 h-6 text-white" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl md:text-4xl font-black text-black tracking-tight", children: "LEADERBOARD" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 font-medium", children: "Players ranked by highest score achieved" }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center text-gray-600 font-medium", children: "Players ranked by highest score achieved" })
     ] }) }),
-    richLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
       {
         className: "max-w-4xl mx-auto space-y-3",
@@ -37048,58 +36778,45 @@ const LeaderboardView = ({
         ))
       }
     ),
-    !richLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    !isLoading && entries.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
       {
         className: "max-w-4xl mx-auto space-y-3",
         "data-ocid": "leaderboard.list",
-        children: leaderboardData.map((entry, index2) => {
-          var _a3;
-          const isClickable = !!entry.principal;
-          const isMe = ((_a3 = entry.principal) == null ? void 0 : _a3.toText()) === myPrincipalStr;
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              role: isClickable ? "button" : void 0,
-              tabIndex: isClickable ? 0 : void 0,
-              onClick: () => handleRowClick(entry),
-              onKeyDown: isClickable ? (e) => e.key === "Enter" && handleRowClick(entry) : void 0,
-              className: getRankStyling(index2, isClickable),
-              "data-ocid": `leaderboard.item.${index2 + 1}`,
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-black text-lg", children: [
-                    "#",
-                    index2 + 1
-                  ] }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-8 h-8", children: getRankIcon(index2) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-lg text-white flex items-center gap-2 flex-wrap", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: entry.username }),
-                      isMe && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold bg-orange-500 text-white px-2 py-0.5 rounded-full shrink-0", children: "You" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-normal text-white/60 shrink-0", children: [
-                        "Lv.",
-                        entry.level
-                      ] })
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white/70 text-sm font-medium", children: "Personal Best" })
-                  ] })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-black text-white", children: entry.highestScore.toLocaleString() }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-white/50 text-xs font-medium", children: "POINTS" })
+        children: entries.map((entry, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: getRankStyling(index2),
+            "data-ocid": `leaderboard.item.${index2 + 1}`,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-black text-lg", children: [
+                  "#",
+                  index2 + 1
+                ] }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-8 h-8", children: getRankIcon(index2) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-lg text-white flex items-center gap-2 flex-wrap", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: entry.username }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-normal text-white/60 shrink-0", children: [
+                      "Lv.",
+                      entry.level
+                    ] })
                   ] }),
-                  isClickable && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-5 h-5 text-white/40 shrink-0" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white/70 text-sm font-medium", children: "Personal Best" })
                 ] })
-              ]
-            },
-            entry.key
-          );
-        })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-black text-white", children: entry.highestScore.toLocaleString() }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-white/50 text-xs font-medium", children: "POINTS" })
+              ] })
+            ]
+          },
+          entry.key
+        ))
       }
     ),
-    !richLoading && leaderboardData.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    !isLoading && entries.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
       {
         className: "max-w-4xl mx-auto",
@@ -37107,7 +36824,7 @@ const LeaderboardView = ({
         children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white/10 backdrop-blur-sm rounded-xl p-8 text-center border border-white/20", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Medal, { className: "w-16 h-16 text-white/50 mx-auto mb-4" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xl font-bold text-white mb-2", children: "No Scores Yet" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white/70", children: "Play some games to see your scores on the leaderboard!" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white/70", children: "No scores yet — be the first to play!" })
         ] })
       }
     )
@@ -37183,7 +36900,54 @@ const useFileUpload = () => {
   };
   return { uploadFile, isUploading };
 };
-const getPlayerTitle = (level) => {
+const MAX_IMG_DIMENSION$1 = 1200;
+const IMG_QUALITY$1 = 0.75;
+async function compressImage$1(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      var _a3;
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > MAX_IMG_DIMENSION$1 || height > MAX_IMG_DIMENSION$1) {
+          const ratio = Math.min(
+            MAX_IMG_DIMENSION$1 / width,
+            MAX_IMG_DIMENSION$1 / height
+          );
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Canvas not available"));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/jpeg", IMG_QUALITY$1);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error("Blob conversion failed"));
+              return;
+            }
+            resolve({ blob, dataUrl });
+          },
+          "image/jpeg",
+          IMG_QUALITY$1
+        );
+      };
+      img.onerror = reject;
+      img.src = (_a3 = e.target) == null ? void 0 : _a3.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+const getPlayerTitle$1 = (level) => {
   if (level >= 95) return "Eggsplosion Master";
   if (level >= 90) return "Hen House Hero";
   if (level >= 85) return "Rooster Ruler";
@@ -37205,7 +36969,7 @@ const getPlayerTitle = (level) => {
   if (level >= 5) return "Egg Breaker";
   return "Chick Warrior";
 };
-const formatPlayTime = (minutes) => {
+const formatPlayTime$1 = (minutes) => {
   if (minutes < 60) return `${minutes}m`;
   const hours = Math.floor(minutes / 60);
   const rem = minutes % 60;
@@ -37215,7 +36979,7 @@ const truncatePrincipal = (id) => {
   if (id.length <= 20) return id;
   return `${id.substring(0, 10)}...${id.substring(id.length - 10)}`;
 };
-const DEFAULT_AVATAR_SVG = `data:image/svg+xml,${encodeURIComponent(`
+const DEFAULT_AVATAR_SVG$1 = `data:image/svg+xml,${encodeURIComponent(`
   <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -37234,7 +36998,7 @@ const DEFAULT_AVATAR_SVG = `data:image/svg+xml,${encodeURIComponent(`
     <circle cx="40" cy="40" r="40" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
   </svg>
 `)}`;
-const STAT_ITEMS = [
+const STAT_ITEMS$1 = [
   {
     key: "totalChickensShot",
     label: "Total Chickens",
@@ -37257,7 +37021,7 @@ const STAT_ITEMS = [
     key: "totalPlayTimeMinutes",
     label: "Play Time",
     icon: Clock,
-    format: (v2) => formatPlayTime(v2)
+    format: (v2) => formatPlayTime$1(v2)
   },
   {
     key: "totalMissedShots",
@@ -37336,6 +37100,7 @@ const ProfileView = ({
   const { data: userProfile } = useUserProfileWithChangeStatus();
   const { data: allUsers = [] } = useListUsers();
   const saveProfileMutation = useSaveCurrentUserProfileWithChangeStatus();
+  const saveImagesMutation = useSaveCurrentUserProfile();
   const { uploadFile, isUploading } = useFileUpload();
   const queryClient2 = useQueryClient();
   const profileFileInputRef = reactExports.useRef(null);
@@ -37395,13 +37160,19 @@ const ProfileView = ({
   reactExports.useEffect(() => {
     if (isAuthenticated && identity) {
       const p2 = identity.getPrincipal().toString();
-      setProfilePicturePath(localStorage.getItem(`profilePicture_${p2}`));
-      setHeaderImagePath(localStorage.getItem(`headerImage_${p2}`));
+      const backendProfilePic = userProfile == null ? void 0 : userProfile.profilePictureUrl;
+      const backendBanner = userProfile == null ? void 0 : userProfile.bannerImageUrl;
+      setProfilePicturePath(
+        backendProfilePic || localStorage.getItem(`profilePicture_${p2}`)
+      );
+      setHeaderImagePath(
+        backendBanner || localStorage.getItem(`headerImage_${p2}`)
+      );
     } else {
       setProfilePicturePath(sessionStorage.getItem("profilePicture_guest"));
       setHeaderImagePath(sessionStorage.getItem("headerImage_guest"));
     }
-  }, [isAuthenticated, identity]);
+  }, [isAuthenticated, identity, userProfile]);
   reactExports.useEffect(() => {
     if (!headerSymbolVisible) return;
     const handler = (e) => {
@@ -37517,10 +37288,10 @@ const ProfileView = ({
       return;
     }
     try {
-      const data = new Uint8Array(await file.arrayBuffer());
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `${folder}/${prefix2}_${Date.now()}.${ext}`;
-      await uploadFile(path, file.type, data);
+      const compressed = await compressImage$1(file);
+      const data = new Uint8Array(await compressed.blob.arrayBuffer());
+      const path = `${folder}/${prefix2}_${Date.now()}.jpg`;
+      await uploadFile(path, "image/jpeg", data);
       onPathSaved(path);
     } catch {
       alert("Failed to upload image. Please try again.");
@@ -37537,6 +37308,12 @@ const ProfileView = ({
           `profilePicture_${identity.getPrincipal().toString()}`,
           path
         );
+        saveImagesMutation.mutate({
+          name: (userProfile == null ? void 0 : userProfile.name) ?? "",
+          bio: (userProfile == null ? void 0 : userProfile.bio) ?? "",
+          profilePictureUrl: path,
+          bannerImageUrl: (userProfile == null ? void 0 : userProfile.bannerImageUrl) ?? headerImagePath ?? ""
+        });
       } else {
         sessionStorage.setItem("profilePicture_guest", path);
       }
@@ -37554,13 +37331,19 @@ const ProfileView = ({
           `headerImage_${identity.getPrincipal().toString()}`,
           path
         );
+        saveImagesMutation.mutate({
+          name: (userProfile == null ? void 0 : userProfile.name) ?? "",
+          bio: (userProfile == null ? void 0 : userProfile.bio) ?? "",
+          profilePictureUrl: (userProfile == null ? void 0 : userProfile.profilePictureUrl) ?? profilePicturePath ?? "",
+          bannerImageUrl: path
+        });
       } else {
         sessionStorage.setItem("headerImage_guest", path);
       }
     });
     if (headerFileInputRef.current) headerFileInputRef.current.value = "";
   };
-  const getProfileImageSrc = () => (profilePictureUrl == null ? void 0 : profilePictureUrl.trim()) ? profilePictureUrl : DEFAULT_AVATAR_SVG;
+  const getProfileImageSrc = () => (profilePictureUrl == null ? void 0 : profilePictureUrl.trim()) ? profilePictureUrl : DEFAULT_AVATAR_SVG$1;
   const getHeaderStyle = () => (headerImageUrl == null ? void 0 : headerImageUrl.trim()) ? {
     backgroundImage: `url(${headerImageUrl})`,
     backgroundSize: "cover",
@@ -37568,13 +37351,13 @@ const ProfileView = ({
     backgroundRepeat: "no-repeat"
   } : {};
   const handleImageError = (e) => {
-    e.currentTarget.src = DEFAULT_AVATAR_SVG;
+    e.currentTarget.src = DEFAULT_AVATAR_SVG$1;
   };
   const displayName = getDisplayUsername();
   const displayBio = getDisplayBio();
   const principalId = (identity == null ? void 0 : identity.getPrincipal().toString()) ?? "";
   const isLoggingIn = loginStatus === "logging-in";
-  const currentTitle = getPlayerTitle(playerData.level);
+  const currentTitle = getPlayerTitle$1(playerData.level);
   if (!isAuthenticated) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-black overflow-y-auto pb-20", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "container mx-auto px-4 py-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-3xl mx-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-xl border border-gray-200 opacity-60 blur-sm overflow-hidden", children: [
@@ -37586,7 +37369,7 @@ const ProfileView = ({
             children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute left-6 top-12 w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "img",
               {
-                src: DEFAULT_AVATAR_SVG,
+                src: DEFAULT_AVATAR_SVG$1,
                 alt: "Default Avatar",
                 className: "w-full h-full object-cover"
               }
@@ -37886,7 +37669,7 @@ const ProfileView = ({
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-5 h-5 mr-2 text-orange-500" }),
                 "Statistics Overview"
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 md:grid-cols-3 gap-4", children: STAT_ITEMS.map(({ key, label, icon: Icon2, format }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 md:grid-cols-3 gap-4", children: STAT_ITEMS$1.map(({ key, label, icon: Icon2, format }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "div",
                 {
                   className: "bg-gray-50 rounded-lg p-3 border border-gray-200",
@@ -38110,6 +37893,1464 @@ const SettingsView = ({
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center text-gray-700 text-xs pt-2 font-medium", children: "ChickenHunt — Settings are saved automatically" })
         ] })
+      ]
+    }
+  );
+};
+const BG = "#1a1a1a";
+const W = "white";
+const O = "#f97316";
+const Eagle = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M8 44 Q20 20 40 38 Q60 20 72 44 Q60 48 52 38 Q40 50 28 38 Q20 48 8 44Z",
+          fill: W
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "48", rx: "10", ry: "13", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "30", r: "9", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M40 35 L44 38 L40 40Z", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "43", cy: "28", r: "2.5", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "44", cy: "27.5", r: "0.8", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M33 60 L30 68 M36 62 L34 70 M44 62 L46 70 M47 60 L50 68",
+          stroke: W,
+          strokeWidth: "2",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M34 60 L28 72 M40 62 L40 74 M46 60 L52 72",
+          stroke: O,
+          strokeWidth: "1.5",
+          strokeLinecap: "round"
+        }
+      )
+    ]
+  }
+);
+const Lion = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "40",
+          y1: "40",
+          x2: 40 + 22 * Math.cos(a2 * Math.PI / 180),
+          y2: 40 + 22 * Math.sin(a2 * Math.PI / 180),
+          stroke: O,
+          strokeWidth: "4",
+          strokeLinecap: "round"
+        },
+        a2
+      )),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "40", r: "16", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "34", cy: "37", rx: "3", ry: "3.5", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "46", cy: "37", rx: "3", ry: "3.5", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "35", cy: "36", r: "1", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "47", cy: "36", r: "1", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M37 44 L40 47 L43 44 Q40 42 37 44Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M36 47 Q40 52 44 47",
+          stroke: BG,
+          strokeWidth: "1.5",
+          fill: "none",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "24",
+          y1: "43",
+          x2: "34",
+          y2: "45",
+          stroke: BG,
+          strokeWidth: "1",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "24",
+          y1: "46",
+          x2: "34",
+          y2: "47",
+          stroke: BG,
+          strokeWidth: "1",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "56",
+          y1: "43",
+          x2: "46",
+          y2: "45",
+          stroke: BG,
+          strokeWidth: "1",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "56",
+          y1: "46",
+          x2: "46",
+          y2: "47",
+          stroke: BG,
+          strokeWidth: "1",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M26 26 L22 18 L32 24Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M54 26 L58 18 L48 24Z", fill: O })
+    ]
+  }
+);
+const Dragon = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M10 35 Q14 20 26 28 Q18 35 22 45Z", fill: O, opacity: "0.8" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M70 35 Q66 20 54 28 Q62 35 58 45Z", fill: O, opacity: "0.8" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "52", rx: "14", ry: "18", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M30 44 Q40 40 50 44", stroke: O, strokeWidth: "1.2", fill: "none" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M28 50 Q40 46 52 50", stroke: O, strokeWidth: "1.2", fill: "none" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M29 56 Q40 52 51 56", stroke: O, strokeWidth: "1.2", fill: "none" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "28", rx: "12", ry: "11", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M32 20 L28 10 L34 18Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M48 20 L52 10 L46 18Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "35", cy: "27", rx: "3.5", ry: "4", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "45", cy: "27", rx: "3.5", ry: "4", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "35", cy: "27", rx: "1.5", ry: "2", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "45", cy: "27", rx: "1.5", ry: "2", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "37", cy: "33", r: "1.5", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "43", cy: "33", r: "1.5", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M46 68 Q55 74 62 68 Q58 76 50 70Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M30 66 L26 72 M33 68 L30 74 M46 68 L50 74 M50 66 L54 72",
+          stroke: W,
+          strokeWidth: "1.8",
+          strokeLinecap: "round"
+        }
+      )
+    ]
+  }
+);
+const Wolf = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 22 L14 8 L30 20Z", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M22 22 L16 10 L28 20Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M60 22 L66 8 L50 20Z", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M58 22 L64 10 L52 20Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "38", rx: "20", ry: "22", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "52", rx: "10", ry: "8", fill: "#e5e5e5" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "32", cy: "35", rx: "4", ry: "4.5", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "48", cy: "35", rx: "4", ry: "4.5", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "32", cy: "34", rx: "1.8", ry: "2", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "48", cy: "34", rx: "1.8", ry: "2", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "33", cy: "33", r: "0.8", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "49", cy: "33", r: "0.8", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M36 48 Q40 46 44 48 L43 52 Q40 54 37 52Z", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M36 52 Q40 57 44 52",
+          stroke: BG,
+          strokeWidth: "1.5",
+          fill: "none",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "22",
+          y1: "50",
+          x2: "34",
+          y2: "50",
+          stroke: BG,
+          strokeWidth: "1",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "22",
+          y1: "53",
+          x2: "34",
+          y2: "52",
+          stroke: BG,
+          strokeWidth: "1",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "58",
+          y1: "50",
+          x2: "46",
+          y2: "50",
+          stroke: BG,
+          strokeWidth: "1",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "58",
+          y1: "53",
+          x2: "46",
+          y2: "52",
+          stroke: BG,
+          strokeWidth: "1",
+          strokeLinecap: "round"
+        }
+      )
+    ]
+  }
+);
+const Phoenix = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 72 Q24 56 28 40 Q32 52 40 46 Q48 52 52 40 Q56 56 40 72Z",
+          fill: O
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 42 Q18 30 10 12 Q22 18 28 32 Q16 24 20 36 Q28 30 40 42Z",
+          fill: O
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 42 Q62 30 70 12 Q58 18 52 32 Q64 24 60 36 Q52 30 40 42Z",
+          fill: O
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "42", rx: "10", ry: "14", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "26", r: "9", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M36 18 L33 10 L37 16Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M40 17 L40 8 L42 16Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M44 18 L47 10 L43 16Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "43", cy: "25", r: "3", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "44", cy: "24", r: "1", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M40 29 L45 32 L40 33Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M34 54 L26 70",
+          stroke: O,
+          strokeWidth: "2.5",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M38 56 L34 72", stroke: W, strokeWidth: "2", strokeLinecap: "round" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M42 56 L46 72", stroke: W, strokeWidth: "2", strokeLinecap: "round" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M46 54 L54 70",
+          stroke: O,
+          strokeWidth: "2.5",
+          strokeLinecap: "round"
+        }
+      )
+    ]
+  }
+);
+const ShieldEmblem = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M40 10 L68 22 L68 44 Q68 62 40 72 Q12 62 12 44 L12 22Z", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 16 L62 26 L62 44 Q62 58 40 66 Q18 58 18 44 L18 26Z",
+          fill: BG
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M40 16 L40 66", stroke: O, strokeWidth: "2" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M18 40 L62 40", stroke: O, strokeWidth: "2" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M22 28 L36 28 M29 22 L29 36",
+          stroke: W,
+          strokeWidth: "3",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M51 22 L53 28 L59 28 L54 32 L56 38 L51 34 L46 38 L48 32 L43 28 L49 28Z",
+          fill: O
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M22 44 L29 52 L36 44",
+          stroke: O,
+          strokeWidth: "2.5",
+          fill: "none",
+          strokeLinecap: "round",
+          strokeLinejoin: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "51", cy: "52", r: "6", stroke: W, strokeWidth: "2", fill: "none" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "51", cy: "52", r: "2.5", fill: O })
+    ]
+  }
+);
+const Crown = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M10 56 L10 36 L22 50 L40 24 L58 50 L70 36 L70 56Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "10", y: "56", width: "60", height: "10", rx: "3", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "25", cy: "61", r: "4", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "61", r: "4", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "55", cy: "61", r: "4", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "25", cy: "61", r: "2", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "61", r: "2", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "55", cy: "61", r: "2", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "10", cy: "36", r: "5", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "10", cy: "36", r: "2.5", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "24", r: "6", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "24", r: "3", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "70", cy: "36", r: "5", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "70", cy: "36", r: "2.5", fill: O })
+    ]
+  }
+);
+const Sword = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M40 8 L44 56 L40 60 L36 56Z", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M40 8 L43 54", stroke: O, strokeWidth: "0.8", opacity: "0.6" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "24", y: "56", width: "32", height: "7", rx: "3", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "30", cy: "59.5", r: "3", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "50", cy: "59.5", r: "3", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "30", cy: "59.5", r: "1.5", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "50", cy: "59.5", r: "1.5", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "36", y: "63", width: "8", height: "14", rx: "3", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "36", y1: "66", x2: "44", y2: "66", stroke: O, strokeWidth: "1" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "36", y1: "69", x2: "44", y2: "69", stroke: O, strokeWidth: "1" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "36", y1: "72", x2: "44", y2: "72", stroke: O, strokeWidth: "1" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "77", rx: "6", ry: "3.5", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M38 12 L40 8 L40 16 Z", fill: O, opacity: "0.7" })
+    ]
+  }
+);
+const Anchor = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "16", r: "8", stroke: W, strokeWidth: "3", fill: "none" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "40",
+          y1: "24",
+          x2: "40",
+          y2: "64",
+          stroke: W,
+          strokeWidth: "4",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "18",
+          y1: "32",
+          x2: "62",
+          y2: "32",
+          stroke: O,
+          strokeWidth: "4",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "18", cy: "32", r: "3.5", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "62", cy: "32", r: "3.5", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M22 60 Q40 74 58 60",
+          stroke: W,
+          strokeWidth: "4",
+          fill: "none",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "64", r: "4", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "22", cy: "60", r: "4", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "58", cy: "60", r: "4", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "36", y1: "38", x2: "44", y2: "38", stroke: O, strokeWidth: "1.5" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "36", y1: "44", x2: "44", y2: "44", stroke: O, strokeWidth: "1.5" })
+    ]
+  }
+);
+const Flame = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 8 Q52 18 54 32 Q60 24 58 36 Q66 30 62 46 Q60 62 40 72 Q20 62 18 46 Q14 30 22 36 Q20 24 26 32 Q28 18 40 8Z",
+          fill: O
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 20 Q48 28 50 38 Q54 32 52 42 Q58 36 54 50 Q50 62 40 66 Q30 62 26 50 Q22 36 28 42 Q26 32 30 38 Q32 28 40 20Z",
+          fill: W,
+          opacity: "0.9"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 32 Q44 38 44 46 Q46 42 44 50 Q42 58 40 60 Q38 58 36 50 Q34 42 36 46 Q36 38 40 32Z",
+          fill: O
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "52", rx: "5", ry: "7", fill: W })
+    ]
+  }
+);
+const StarEmblem = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "circle",
+        {
+          cx: "40",
+          cy: "40",
+          r: "32",
+          stroke: O,
+          strokeWidth: "1",
+          opacity: "0.3",
+          fill: "none"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "circle",
+        {
+          cx: "40",
+          cy: "40",
+          r: "28",
+          stroke: O,
+          strokeWidth: "0.5",
+          opacity: "0.2",
+          fill: "none"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 8 L44 30 L64 24 L48 40 L64 56 L44 50 L40 72 L36 50 L16 56 L32 40 L16 24 L36 30Z",
+          fill: O
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 18 L43 32 L56 28 L46 40 L56 52 L43 48 L40 62 L37 48 L24 52 L34 40 L24 28 L37 32Z",
+          fill: W,
+          opacity: "0.6"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "40", r: "8", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "40", r: "5", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "38", cy: "38", r: "2", fill: W, opacity: "0.8" })
+    ]
+  }
+);
+const Skull = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M16 42 Q16 16 40 14 Q64 16 64 42 Q64 54 56 58 L56 66 Q56 68 54 68 L26 68 Q24 68 24 66 L24 58 Q16 54 16 42Z",
+          fill: W
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "30", cy: "38", rx: "8", ry: "9", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "50", cy: "38", rx: "8", ry: "9", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "32", cy: "35", r: "2.5", fill: O, opacity: "0.6" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "52", cy: "35", r: "2.5", fill: O, opacity: "0.6" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M37 50 L40 54 L43 50 Q40 48 37 50Z", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "24", y: "60", width: "7", height: "9", rx: "1", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "33", y: "60", width: "7", height: "9", rx: "1", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "42", y: "60", width: "7", height: "9", rx: "1", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "51", y: "60", width: "7", height: "9", rx: "1", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 14 L38 28 L42 34 L38 42",
+          stroke: O,
+          strokeWidth: "1.5",
+          fill: "none",
+          strokeLinecap: "round",
+          strokeLinejoin: "round"
+        }
+      )
+    ]
+  }
+);
+const Bear = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "24", cy: "22", r: "10", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "56", cy: "22", r: "10", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "24", cy: "22", r: "6", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "56", cy: "22", r: "6", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "46", rx: "22", ry: "24", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "58", rx: "12", ry: "9", fill: "#e8e8e8" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "32", cy: "42", r: "5", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "48", cy: "42", r: "5", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "33", cy: "41", r: "2", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "49", cy: "41", r: "2", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "54", rx: "6", ry: "4", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "53", rx: "3", ry: "2", fill: W, opacity: "0.3" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M36 57 Q40 62 44 57",
+          stroke: BG,
+          strokeWidth: "1.5",
+          fill: "none",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "20", cy: "68", r: "3", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "27", cy: "72", r: "2.5", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "34", cy: "74", r: "2", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "60", cy: "68", r: "3", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "53", cy: "72", r: "2.5", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "46", cy: "74", r: "2", fill: O })
+    ]
+  }
+);
+const Serpent = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 70 Q16 64 18 44 Q20 24 40 28 Q60 32 58 50 Q56 66 40 64 Q26 62 28 50 Q30 38 40 40 Q50 42 48 50 Q46 58 40 56",
+          stroke: O,
+          strokeWidth: "7",
+          fill: "none",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 70 Q16 64 18 44 Q20 24 40 28 Q60 32 58 50 Q56 66 40 64 Q26 62 28 50 Q30 38 40 40 Q50 42 48 50 Q46 58 40 56",
+          stroke: W,
+          strokeWidth: "3.5",
+          fill: "none",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "ellipse",
+        {
+          cx: "40",
+          cy: "14",
+          rx: "11",
+          ry: "9",
+          fill: O,
+          transform: "rotate(-10,40,14)"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "ellipse",
+        {
+          cx: "40",
+          cy: "14",
+          rx: "8",
+          ry: "6.5",
+          fill: W,
+          transform: "rotate(-10,40,14)"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "44", cy: "11", rx: "2.5", ry: "3", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "44", cy: "11", rx: "1", ry: "1.5", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 20 L40 26 L37 30 M40 26 L43 30",
+          stroke: O,
+          strokeWidth: "1.5",
+          strokeLinecap: "round"
+        }
+      )
+    ]
+  }
+);
+const Axe = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "37", y: "38", width: "6", height: "36", rx: "3", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "37", y: "44", width: "6", height: "3", rx: "1", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "37", y: "50", width: "6", height: "3", rx: "1", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "37", y: "56", width: "6", height: "3", rx: "1", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "37", y: "62", width: "6", height: "3", rx: "1", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "74", rx: "6", ry: "4", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M20 10 Q16 22 20 34 L40 38 L56 32 Q62 20 56 10 Q46 6 40 10 Q36 6 20 10Z",
+          fill: O
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 10 Q14 22 20 34 L26 30 Q22 22 24 12Z", fill: W, opacity: "0.5" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M22 12 Q18 22 22 32 L24 30 Q20 22 23 13Z", fill: W, opacity: "0.3" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "44", cy: "24", rx: "6", ry: "5", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "44", cy: "24", rx: "4", ry: "3", fill: O, opacity: "0.4" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "44", cy: "24", r: "2", fill: W, opacity: "0.3" })
+    ]
+  }
+);
+const Bow = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "12",
+          y1: "66",
+          x2: "68",
+          y2: "14",
+          stroke: W,
+          strokeWidth: "2.5",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M68 14 L60 18 L64 22Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M12 66 L8 60 L14 62Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M12 66 L14 72 L18 68Z", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M16 72 Q4 40 16 8",
+          stroke: O,
+          strokeWidth: "5",
+          fill: "none",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "16",
+          y1: "72",
+          x2: "16",
+          y2: "8",
+          stroke: W,
+          strokeWidth: "1.5",
+          strokeDasharray: "2,2"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "16", cy: "40", r: "4", fill: BG, stroke: O, strokeWidth: "2" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "16", cy: "40", r: "1.5", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "12", y1: "36", x2: "20", y2: "36", stroke: W, strokeWidth: "1.5" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "12", y1: "40", x2: "20", y2: "40", stroke: W, strokeWidth: "1.5" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "12", y1: "44", x2: "20", y2: "44", stroke: W, strokeWidth: "1.5" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "40", r: "3", fill: O })
+    ]
+  }
+);
+const Castle = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "12", y: "36", width: "56", height: "36", rx: "2", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M30 72 L30 56 Q40 48 50 56 L50 72Z", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "20", y: "46", width: "8", height: "10", rx: "1", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "52", y: "46", width: "8", height: "10", rx: "1", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "12", y: "28", width: "8", height: "10", rx: "1", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "24", y: "28", width: "8", height: "10", rx: "1", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "36", y: "28", width: "8", height: "10", rx: "1", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "48", y: "28", width: "8", height: "10", rx: "1", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "60", y: "28", width: "8", height: "10", rx: "1", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "26", y: "10", width: "28", height: "28", rx: "2", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "26", y: "8", width: "6", height: "6", rx: "1", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "35", y: "8", width: "6", height: "6", rx: "1", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "44", y: "8", width: "6", height: "6", rx: "1", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M34 18 L34 30 Q40 24 46 30 L46 18 Q40 14 34 18Z", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "40", y1: "8", x2: "40", y2: "2", stroke: O, strokeWidth: "1.5" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M40 2 L52 5 L40 8Z", fill: O })
+    ]
+  }
+);
+const Moon = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      [
+        [18, 14],
+        [62, 18],
+        [70, 46],
+        [58, 68],
+        [22, 66],
+        [10, 36],
+        [50, 10],
+        [30, 8]
+      ].map(([x2, y2]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "circle",
+        {
+          cx: x2,
+          cy: y2,
+          r: y2 < 20 || y2 > 60 ? 1.5 : 1,
+          fill: W,
+          opacity: "0.7"
+        },
+        `${x2}-${y2}`
+      )),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M46 10 Q70 24 68 48 Q66 68 44 72 Q62 60 62 40 Q62 20 46 10Z",
+          fill: O
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M44 12 Q66 26 64 50 Q62 68 44 72 Q60 60 60 40 Q60 20 44 12Z",
+          fill: W,
+          opacity: "0.15"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "circle",
+        {
+          cx: "56",
+          cy: "26",
+          r: "4",
+          stroke: W,
+          strokeWidth: "1",
+          fill: "none",
+          opacity: "0.4"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "circle",
+        {
+          cx: "62",
+          cy: "44",
+          r: "3",
+          stroke: W,
+          strokeWidth: "1",
+          fill: "none",
+          opacity: "0.3"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "circle",
+        {
+          cx: "52",
+          cy: "58",
+          r: "5",
+          stroke: W,
+          strokeWidth: "1",
+          fill: "none",
+          opacity: "0.35"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M22 40 L24 34 L26 40 L32 40 L27 44 L29 50 L24 46 L19 50 L21 44 L16 40Z",
+          fill: W,
+          opacity: "0.8"
+        }
+      )
+    ]
+  }
+);
+const Lightning = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M50 8 L28 42 L42 42 L30 72 L58 34 L44 34Z",
+          fill: O,
+          opacity: "0.2",
+          transform: "scale(1.08) translate(-3,-3)"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M50 8 L28 42 L42 42 L30 72 L58 34 L44 34Z", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M48 14 L32 42 L44 42 L34 64 L52 36 L40 36Z",
+          fill: W,
+          opacity: "0.4"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M46 18 L36 40 L46 40 L38 56",
+          stroke: W,
+          strokeWidth: "2",
+          fill: "none",
+          opacity: "0.6",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "56",
+          y1: "20",
+          x2: "64",
+          y2: "16",
+          stroke: O,
+          strokeWidth: "2",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "58",
+          y1: "28",
+          x2: "68",
+          y2: "26",
+          stroke: O,
+          strokeWidth: "1.5",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "22",
+          y1: "56",
+          x2: "14",
+          y2: "58",
+          stroke: O,
+          strokeWidth: "2",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "24",
+          y1: "64",
+          x2: "16",
+          y2: "68",
+          stroke: O,
+          strokeWidth: "1.5",
+          strokeLinecap: "round"
+        }
+      )
+    ]
+  }
+);
+const Tree = ({ size = 80 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    "aria-hidden": "true",
+    viewBox: "0 0 80 80",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    width: size,
+    height: size,
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "80", height: "80", rx: "14", fill: BG }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "33", y: "58", width: "14", height: "16", rx: "3", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "37",
+          y1: "58",
+          x2: "37",
+          y2: "74",
+          stroke: BG,
+          strokeWidth: "0.8",
+          opacity: "0.4"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "line",
+        {
+          x1: "43",
+          y1: "58",
+          x2: "43",
+          y2: "74",
+          stroke: BG,
+          strokeWidth: "0.8",
+          opacity: "0.4"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "74", rx: "16", ry: "4", fill: O, opacity: "0.4" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M16 58 L40 30 L64 58Z", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 46 L40 18 L60 46Z", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M26 34 L40 10 L54 34Z", fill: W }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "10", r: "4", fill: O }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "28", cy: "34", r: "3", fill: O, opacity: "0.7" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "52", cy: "34", r: "3", fill: O, opacity: "0.7" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "22", cy: "48", r: "2.5", fill: O, opacity: "0.6" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "40", cy: "44", r: "2.5", fill: O, opacity: "0.6" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "58", cy: "48", r: "2.5", fill: O, opacity: "0.6" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M40 6 L41.5 9 L45 9 L42.5 11 L43.5 14 L40 12 L36.5 14 L37.5 11 L35 9 L38.5 9Z",
+          fill: W
+        }
+      )
+    ]
+  }
+);
+const CLAN_EMBLEMS = [
+  { id: 1, name: "Eagle", Svg: Eagle },
+  { id: 2, name: "Lion", Svg: Lion },
+  { id: 3, name: "Dragon", Svg: Dragon },
+  { id: 4, name: "Wolf", Svg: Wolf },
+  { id: 5, name: "Phoenix", Svg: Phoenix },
+  { id: 6, name: "Shield", Svg: ShieldEmblem },
+  { id: 7, name: "Crown", Svg: Crown },
+  { id: 8, name: "Sword", Svg: Sword },
+  { id: 9, name: "Anchor", Svg: Anchor },
+  { id: 10, name: "Flame", Svg: Flame },
+  { id: 11, name: "Star", Svg: StarEmblem },
+  { id: 12, name: "Skull", Svg: Skull },
+  { id: 13, name: "Bear", Svg: Bear },
+  { id: 14, name: "Serpent", Svg: Serpent },
+  { id: 15, name: "Axe", Svg: Axe },
+  { id: 16, name: "Bow", Svg: Bow },
+  { id: 17, name: "Castle", Svg: Castle },
+  { id: 18, name: "Moon", Svg: Moon },
+  { id: 19, name: "Lightning", Svg: Lightning },
+  { id: 20, name: "Tree", Svg: Tree }
+];
+function getEmblem(emblemId) {
+  const id = Number(emblemId ?? 1);
+  return CLAN_EMBLEMS.find((e) => e.id === id) ?? CLAN_EMBLEMS[0];
+}
+const DEFAULT_AVATAR_SVG = `data:image/svg+xml,${encodeURIComponent(`
+  <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="bg2" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.95" />
+        <stop offset="100%" style="stop-color:#f3f4f6;stop-opacity:0.95" />
+      </linearGradient>
+    </defs>
+    <circle cx="40" cy="40" r="40" fill="url(#ag)"/>
+    <circle cx="40" cy="40" r="36" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    <circle cx="40" cy="30" r="12" fill="url(#bg2)" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+    <path d="M22 62 Q22 50 40 50 Q58 50 58 62 Q58 66 40 66 Q22 66 22 62 Z" fill="url(#bg2)" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+    <circle cx="40" cy="40" r="40" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+  </svg>
+`)}`;
+const getPlayerTitle = (level) => {
+  if (level >= 95) return "Eggsplosion Master";
+  if (level >= 90) return "Hen House Hero";
+  if (level >= 85) return "Rooster Ruler";
+  if (level >= 80) return "Coop Conqueror";
+  if (level >= 75) return "Cluck Commander";
+  if (level >= 70) return "Ultimate Chicken Champion";
+  if (level >= 65) return "Chicken Dragon Tamer";
+  if (level >= 60) return "Master of Molt";
+  if (level >= 55) return "Feather Curse Slayer";
+  if (level >= 50) return "Galactic Rooster Hunter";
+  if (level >= 45) return "Egg Exterminator";
+  if (level >= 40) return "Poultry Destroyer";
+  if (level >= 35) return "King of Chickens";
+  if (level >= 30) return "Turbo Tractorman";
+  if (level >= 25) return "Wing Hunter";
+  if (level >= 20) return "Roasted Hen Tamer";
+  if (level >= 15) return "Corn Massacre";
+  if (level >= 10) return "Feather Catcher";
+  if (level >= 5) return "Egg Breaker";
+  return "Chick Warrior";
+};
+const formatPlayTime = (minutes) => {
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  const rem = minutes % 60;
+  return rem > 0 ? `${hours}h ${rem}m` : `${hours}h`;
+};
+const STAT_ITEMS = [
+  {
+    key: "totalChickensShot",
+    label: "Total Chickens",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "highestScore",
+    label: "Best Score",
+    icon: Trophy,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "currentAccuracy",
+    label: "Accuracy",
+    icon: TrendingUp,
+    format: (v2) => `${v2.toFixed(1)}%`
+  },
+  {
+    key: "totalPlayTimeMinutes",
+    label: "Play Time",
+    icon: Clock,
+    format: (v2) => formatPlayTime(v2)
+  },
+  {
+    key: "totalMissedShots",
+    label: "Missed Shots",
+    icon: X,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "goldenChickensShot",
+    label: "Golden Chickens",
+    icon: Star,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "fastChickensShot",
+    label: "Fast Chickens",
+    icon: Zap,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "smallChickensShot",
+    label: "Small Chickens",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "mediumChickensShot",
+    label: "Medium Chickens",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "largeChickensShot",
+    label: "Large Chickens",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "bestConsecutiveHits",
+    label: "Best Streak",
+    icon: TrendingUp,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "perfectAccuracySessions",
+    label: "Perfect Sessions",
+    icon: Award,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "totalScore",
+    label: "Total Score",
+    icon: Star,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "totalShotsFired",
+    label: "Total Shots",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "bestSessionChickens",
+    label: "Best Session",
+    icon: Trophy,
+    format: (v2) => v2.toLocaleString()
+  }
+];
+const StatSkeleton = () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 md:grid-cols-3 gap-3", children: Array.from({ length: 6 }, (_2, i) => `skel-${i}`).map((id) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  "div",
+  {
+    className: "h-16 rounded-lg bg-muted border border-border animate-pulse"
+  },
+  id
+)) });
+const PlayerProfileScreen = ({
+  principal,
+  fallbackName,
+  fallbackLevel = 1,
+  isOwnProfile = false,
+  onBack
+}) => {
+  var _a3, _b3;
+  const { data: profile, isLoading: profileLoading } = useGetUserProfile(principal);
+  const { data: gameStats, isLoading: statsLoading } = useGetUserGameStats(principal);
+  const { data: isFriend, isLoading: friendLoading } = useIsFriend(
+    isOwnProfile ? null : principal
+  );
+  const addFriend = useAddFriend();
+  const removeFriend = useRemoveFriend();
+  const profilePicturePath = (profile == null ? void 0 : profile.profilePictureUrl) ?? "";
+  const bannerImagePath = (profile == null ? void 0 : profile.bannerImageUrl) ?? "";
+  const { data: profilePictureUrl } = useFileUrl(profilePicturePath);
+  const { data: bannerImageUrl } = useFileUrl(bannerImagePath);
+  const displayName = ((_a3 = profile == null ? void 0 : profile.name) == null ? void 0 : _a3.trim()) || (fallbackName == null ? void 0 : fallbackName.trim()) || `${principal.toText().slice(0, 10)}…`;
+  const level = gameStats ? Number(gameStats.level) : fallbackLevel;
+  const currentTitle = getPlayerTitle(level);
+  const highestScore = gameStats ? Number(gameStats.highestScore) : 0;
+  const xpForLevel = (lvl) => Math.floor(100 * lvl ** 1.5);
+  const currentXP = highestScore % Math.max(1, xpForLevel(level));
+  const requiredXP = xpForLevel(level);
+  const getAvatarSrc = () => (profilePictureUrl == null ? void 0 : profilePictureUrl.trim()) ? profilePictureUrl : DEFAULT_AVATAR_SVG;
+  const getBannerStyle = () => (bannerImageUrl == null ? void 0 : bannerImageUrl.trim()) ? {
+    backgroundImage: `url(${bannerImageUrl})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat"
+  } : {};
+  const handleImageError = (e) => {
+    e.currentTarget.src = DEFAULT_AVATAR_SVG;
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "flex flex-col overflow-hidden",
+      style: { height: "100%", width: "100%" },
+      "data-ocid": "player_profile.page",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 px-4 pt-4 pb-3 border-b border-gray-800 shrink-0 bg-black", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              "data-ocid": "player_profile.back_button",
+              onClick: onBack,
+              className: "flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-gray-200 text-black hover:border-orange-400 transition-colors shadow-sm shrink-0",
+              "aria-label": "Back",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 18 })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg font-black text-white truncate flex-1", children: "Player Profile" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto bg-black pb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-4 mt-4 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "h-28 relative bg-gradient-to-br from-orange-900 via-orange-700 to-black",
+              style: getBannerStyle(),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute left-6 bottom-0 translate-y-1/2 w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg bg-orange-100", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "img",
+                {
+                  src: getAvatarSrc(),
+                  alt: `${displayName}'s avatar`,
+                  className: "w-full h-full object-cover",
+                  onError: handleImageError
+                }
+              ) })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-6 pt-14", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-2", children: profileLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-40 bg-gray-200 rounded animate-pulse mb-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center flex-wrap gap-2 mb-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold text-black", children: displayName }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 px-2 py-1 rounded-full shadow-sm", children: [
+                "Lv.",
+                level
+              ] })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4", children: profileLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-4 w-full bg-gray-100 rounded animate-pulse" }) : ((_b3 = profile == null ? void 0 : profile.bio) == null ? void 0 : _b3.trim()) ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-700 whitespace-pre-wrap break-words", children: profile.bio.trim() }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-400 italic", children: "No bio set." }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center mb-5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg px-3 py-1.5 shadow-md", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-4 h-4 mr-2 text-yellow-300" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-sm", children: currentTitle })
+            ] }) }),
+            level < 100 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between text-xs font-medium text-gray-600 mb-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  "Level ",
+                  level
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  currentXP.toLocaleString(),
+                  " / ",
+                  requiredXP.toLocaleString(),
+                  " ",
+                  "XP"
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full bg-gray-200 rounded-full h-2 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "h-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full transition-all duration-500",
+                  style: {
+                    width: `${Math.min(100, currentXP / Math.max(1, requiredXP) * 100)}%`
+                  }
+                }
+              ) })
+            ] }),
+            !isOwnProfile && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-5", children: [
+              friendLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "w-full h-11 rounded-xl bg-gray-100 border border-gray-200 animate-pulse",
+                  "data-ocid": "player_profile.friend_button.loading_state"
+                }
+              ) : isFriend ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  "data-ocid": "player_profile.remove_friend_button",
+                  disabled: removeFriend.isPending,
+                  onClick: () => removeFriend.mutate(principal),
+                  className: "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 font-bold text-sm hover:bg-red-50 transition-colors disabled:opacity-40 shadow-sm",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(UserMinus, { size: 16 }),
+                    removeFriend.isPending ? "Removing…" : "Remove Friend"
+                  ]
+                }
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  "data-ocid": "player_profile.add_friend_button",
+                  disabled: addFriend.isPending,
+                  onClick: () => addFriend.mutate(principal),
+                  className: "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 shadow-md",
+                  children: addFriend.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-white" }),
+                    "Adding…"
+                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { size: 16 }),
+                    "Add Friend"
+                  ] })
+                }
+              ),
+              addFriend.isSuccess && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center gap-1.5 mt-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 14, className: "text-green-600" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-green-600 font-medium", children: "You are now friends!" })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-gray-200 pt-5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-lg font-black text-black flex items-center mb-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-5 h-5 mr-2 text-orange-500" }),
+                "Statistics Overview"
+              ] }),
+              statsLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(StatSkeleton, {}) : !gameStats ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "text-center py-6 text-gray-400 text-sm",
+                  "data-ocid": "player_profile.stats.empty_state",
+                  children: "No statistics yet"
+                }
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "grid grid-cols-2 md:grid-cols-3 gap-4",
+                  "data-ocid": "player_profile.stats.list",
+                  children: STAT_ITEMS.map(({ key, label, icon: Icon2, format }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "div",
+                    {
+                      className: "bg-gray-50 rounded-lg p-3 border border-gray-200",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center mb-2", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-4 h-4 text-orange-500 mr-2" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium text-gray-600 truncate", children: label })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-lg font-black text-gray-700", children: format(Number(gameStats[key] ?? 0)) })
+                      ]
+                    },
+                    key
+                  ))
+                }
+              )
+            ] })
+          ] })
+        ] }) })
       ]
     }
   );
@@ -38458,8 +39699,8 @@ const ClanCard = ({
   isMember
 }) => {
   const isOwner = myPrincipal ? clan.ownerId.toText() === myPrincipal.toText() : false;
-  const initials = clan.name.slice(0, 2).toUpperCase();
   const isOpen = clan.joinMode === JoinMode.open;
+  const emblem = getEmblem(clan.emblemId);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "button",
     {
@@ -38469,11 +39710,11 @@ const ClanCard = ({
       onClick,
       "aria-label": `Open clan ${clan.name}`,
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-11 h-11 rounded-xl bg-orange-100 text-orange-600 font-black text-sm shrink-0 border border-orange-200", children: initials }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-orange-200", children: /* @__PURE__ */ jsxRuntimeExports.jsx(emblem.Svg, { size: 44 }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-black text-sm truncate", children: clan.name }),
-            isOwner && /* @__PURE__ */ jsxRuntimeExports.jsx(Crown, { size: 11, className: "text-orange-500 shrink-0" })
+            isOwner && /* @__PURE__ */ jsxRuntimeExports.jsx(Crown$1, { size: 11, className: "text-orange-500 shrink-0" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-0.5", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500 flex items-center gap-1", children: [
@@ -38508,6 +39749,15 @@ const ClanCard = ({
     }
   );
 };
+const BROWSE_MAX = 30;
+function getRandomSample(arr, n) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j2 = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j2]] = [copy[j2], copy[i]];
+  }
+  return copy.slice(0, n).sort((a2, b2) => a2.name.localeCompare(b2.name));
+}
 const SearchClansSection = ({
   myPrincipal,
   onOpenClan
@@ -38516,13 +39766,20 @@ const SearchClansSection = ({
   const [debouncedQuery, setDebouncedQuery] = reactExports.useState("");
   const joinClan = useJoinClan();
   const { data: userClans } = useUserClans(myPrincipal);
+  const { data: allClans, isLoading: allClansLoading } = useAllClans();
+  const mountSeed = reactExports.useRef(Math.random());
   reactExports.useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query), 350);
     return () => clearTimeout(t);
   }, [query]);
-  const { data: searchResults, isLoading } = useSearchClans(debouncedQuery);
+  const { data: searchResults, isLoading: searchLoading } = useSearchClans(debouncedQuery);
   const memberClanIds = new Set((userClans ?? []).map((c2) => c2.id.toString()));
-  const results = debouncedQuery.trim().length > 0 ? searchResults ?? [] : [];
+  const isSearching = debouncedQuery.trim().length > 0;
+  const browseClansSample = reactExports.useMemo(() => {
+    if (!allClans || allClans.length === 0) return [];
+    void mountSeed.current;
+    return getRandomSample(allClans, BROWSE_MAX);
+  }, [allClans]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3 pt-2", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -38540,11 +39797,68 @@ const SearchClansSection = ({
           value: query,
           onChange: (e) => setQuery(e.target.value),
           "data-ocid": "socials.clan_search_input",
-          className: "w-full pl-9 pr-4 py-3 rounded-xl bg-white border border-gray-200 text-black placeholder-gray-400 text-sm focus:outline-none focus:border-orange-400 transition-colors shadow-sm"
+          className: "w-full pl-9 pr-4 py-3 rounded-xl bg-white border border-gray-200 text-black placeholder-gray-400 text-sm focus:outline-none focus:border-orange-400 transition-colors shadow-sm",
+          style: { fontSize: "16px" }
         }
       )
     ] }),
-    debouncedQuery.trim().length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-8 text-gray-500 text-sm", children: "Type to search clans…" }) : isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+    !isSearching && (allClansLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "flex flex-col gap-2",
+        "data-ocid": "socials.clan_browse.loading_state",
+        children: [1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "h-20 rounded-xl bg-white border border-gray-200 animate-pulse"
+          },
+          i
+        ))
+      }
+    ) : browseClansSample.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "text-center py-8 text-gray-500 text-sm",
+        "data-ocid": "socials.clan_browse.empty_state",
+        children: "No clans yet — be the first to create one!"
+      }
+    ) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 px-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Hash2, { size: 12, className: "text-gray-500 shrink-0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold text-gray-500 uppercase tracking-wider", children: [
+          "Discover Clans",
+          allClans && allClans.length > BROWSE_MAX && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 font-normal normal-case tracking-normal", children: [
+            "— showing ",
+            BROWSE_MAX,
+            " of ",
+            allClans.length,
+            " randomly"
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "flex flex-col gap-2",
+          "data-ocid": "socials.clan_browse.list",
+          children: browseClansSample.map((clan, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ClanCard,
+            {
+              clan,
+              index: i + 1,
+              myPrincipal,
+              onClick: () => onOpenClan(clan.id),
+              actionLabel: clan.joinMode === JoinMode.open ? "Join" : "Request",
+              isMember: memberClanIds.has(clan.id.toString()),
+              actionLoading: joinClan.isPending,
+              onAction: () => joinClan.mutate(clan.id)
+            },
+            clan.id.toString()
+          ))
+        }
+      )
+    ] })),
+    isSearching && (searchLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
       {
         className: "flex flex-col gap-2",
@@ -38557,7 +39871,7 @@ const SearchClansSection = ({
           i
         ))
       }
-    ) : results.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+    ) : !searchResults || searchResults.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
       {
         className: "text-center py-8 text-gray-500 text-sm",
@@ -38569,7 +39883,7 @@ const SearchClansSection = ({
       {
         className: "flex flex-col gap-2",
         "data-ocid": "socials.clan_search.list",
-        children: results.map((clan, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        children: searchResults.map((clan, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           ClanCard,
           {
             clan,
@@ -38584,7 +39898,7 @@ const SearchClansSection = ({
           clan.id.toString()
         ))
       }
-    ),
+    )),
     joinClan.isError && /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
       {
@@ -38601,16 +39915,23 @@ const CreateClanSection = ({
   const [name, setName] = reactExports.useState("");
   const [description, setDescription] = reactExports.useState("");
   const [joinMode, setJoinMode] = reactExports.useState(JoinMode.open);
+  const [selectedEmblemId, setSelectedEmblemId] = reactExports.useState(1);
   const createClan = useCreateClan();
   const canSubmit = name.trim().length >= 3;
   const handleSubmit = () => {
     if (!canSubmit) return;
     createClan.mutate(
-      { name: name.trim(), description: description.trim(), joinMode },
+      {
+        name: name.trim(),
+        description: description.trim(),
+        joinMode,
+        emblemId: selectedEmblemId
+      },
       {
         onSuccess: () => {
           setName("");
           setDescription("");
+          setSelectedEmblemId(1);
           onCreated();
         }
       }
@@ -38620,6 +39941,39 @@ const CreateClanSection = ({
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 18, className: "text-white" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-black font-black text-base", children: "Create New Clan" })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-bold text-gray-600 uppercase tracking-wider", children: "Choose Your Clan Emblem" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "grid grid-cols-5 gap-2",
+          "data-ocid": "socials.create_clan.emblem_picker",
+          children: CLAN_EMBLEMS.map((emblem) => {
+            const isSelected = emblem.id === selectedEmblemId;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                "data-ocid": `socials.create_clan.emblem_${emblem.id}`,
+                onClick: () => setSelectedEmblemId(emblem.id),
+                "aria-label": `Select ${emblem.name} emblem`,
+                className: `relative flex items-center justify-center rounded-xl overflow-hidden transition-all duration-200 aspect-square ${isSelected ? "ring-2 ring-orange-500 scale-105 shadow-lg shadow-orange-200" : "hover:scale-105 hover:ring-2 hover:ring-orange-300 opacity-70 hover:opacity-100"}`,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(emblem.Svg, { size: 56 }),
+                  isSelected && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 rounded-xl ring-2 ring-orange-500 pointer-events-none" })
+                ]
+              },
+              emblem.id
+            );
+          })
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-gray-500 text-center", children: [
+        "Selected:",
+        " ",
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-orange-600 font-semibold", children: getEmblem(selectedEmblemId).name })
+      ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1.5", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -38757,12 +40111,13 @@ const ClanDetailsView = ({
   const isOwner = clan.ownerId.toText() === myText;
   const isMember = clan.members.some((m2) => m2.principal.toText() === myText);
   const isOpen = clan.joinMode === JoinMode.open;
+  const detailEmblem = getEmblem(clan.emblemId);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(ScreenHeader, { title: clan.name, onBack }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto px-4 pb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 rounded-xl bg-white border border-gray-200 shadow-xl p-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-14 h-14 rounded-xl bg-orange-100 text-orange-600 font-black text-lg shrink-0 border border-orange-200", children: clan.name.slice(0, 2).toUpperCase() }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-orange-200", children: /* @__PURE__ */ jsxRuntimeExports.jsx(detailEmblem.Svg, { size: 56 }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-black font-black text-lg", children: clan.name }),
@@ -38895,7 +40250,7 @@ const MemberRow = ({
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-black text-sm font-bold truncate", children: member.name || "Unknown" }),
-            isOwner && /* @__PURE__ */ jsxRuntimeExports.jsx(Crown, { size: 11, className: "text-orange-500 shrink-0" })
+            isOwner && /* @__PURE__ */ jsxRuntimeExports.jsx(Crown$1, { size: 11, className: "text-orange-500 shrink-0" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500", children: [
             "Level ",
@@ -38998,6 +40353,7 @@ const InlineClanChat = ({
   onOpenMemberProfile
 }) => {
   const clanId = clan.id;
+  const chatEmblem = getEmblem(clan.emblemId);
   const { data: messages } = useClanMessages(clanId);
   const sendMessage = useSendClanMessage();
   const { uploadFile } = useFileUpload();
@@ -39121,7 +40477,7 @@ const InlineClanChat = ({
           children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 18 })
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-9 h-9 rounded-xl bg-orange-100 text-orange-600 font-black text-sm border border-orange-200 shrink-0", children: clan.name.slice(0, 2).toUpperCase() }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-9 h-9 rounded-xl overflow-hidden border border-orange-200 shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(chatEmblem.Svg, { size: 36 }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-base font-black text-white truncate", children: clan.name }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500", children: "Clan Chat" })

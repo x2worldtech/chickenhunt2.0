@@ -29,6 +29,7 @@ export const ClanSummary = IDL.Record({
   'name' : IDL.Text,
   'memberCount' : IDL.Nat,
   'description' : IDL.Text,
+  'emblemId' : IDL.Nat,
 });
 export const ApprovalStatus = IDL.Variant({
   'pending' : IDL.Null,
@@ -50,6 +51,7 @@ export const ClanDetails = IDL.Record({
   'name' : IDL.Text,
   'createdAt' : IDL.Int,
   'description' : IDL.Text,
+  'emblemId' : IDL.Nat,
 });
 export const ClanMessage = IDL.Record({
   'id' : IDL.Nat,
@@ -58,7 +60,12 @@ export const ClanMessage = IDL.Record({
   'timestamp' : IDL.Int,
   'senderId' : IDL.Principal,
 });
-export const UserProfile = IDL.Record({ 'bio' : IDL.Text, 'name' : IDL.Text });
+export const UserProfile = IDL.Record({
+  'bio' : IDL.Text,
+  'name' : IDL.Text,
+  'profilePictureUrl' : IDL.Opt(IDL.Text),
+  'bannerImageUrl' : IDL.Opt(IDL.Text),
+});
 export const UserProfileWithChangeStatus = IDL.Record({
   'bio' : IDL.Text,
   'name' : IDL.Text,
@@ -133,7 +140,7 @@ export const idlService = IDL.Service({
     ),
   'assignRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'createClan' : IDL.Func(
-      [IDL.Text, IDL.Text, JoinMode],
+      [IDL.Text, IDL.Text, JoinMode, IDL.Nat],
       [IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text })],
       [],
     ),
@@ -265,6 +272,7 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
     'memberCount' : IDL.Nat,
     'description' : IDL.Text,
+    'emblemId' : IDL.Nat,
   });
   const ApprovalStatus = IDL.Variant({
     'pending' : IDL.Null,
@@ -286,6 +294,7 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
     'createdAt' : IDL.Int,
     'description' : IDL.Text,
+    'emblemId' : IDL.Nat,
   });
   const ClanMessage = IDL.Record({
     'id' : IDL.Nat,
@@ -294,7 +303,12 @@ export const idlFactory = ({ IDL }) => {
     'timestamp' : IDL.Int,
     'senderId' : IDL.Principal,
   });
-  const UserProfile = IDL.Record({ 'bio' : IDL.Text, 'name' : IDL.Text });
+  const UserProfile = IDL.Record({
+    'bio' : IDL.Text,
+    'name' : IDL.Text,
+    'profilePictureUrl' : IDL.Opt(IDL.Text),
+    'bannerImageUrl' : IDL.Opt(IDL.Text),
+  });
   const UserProfileWithChangeStatus = IDL.Record({
     'bio' : IDL.Text,
     'name' : IDL.Text,
@@ -369,7 +383,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'assignRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'createClan' : IDL.Func(
-        [IDL.Text, IDL.Text, JoinMode],
+        [IDL.Text, IDL.Text, JoinMode, IDL.Nat],
         [IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text })],
         [],
       ),

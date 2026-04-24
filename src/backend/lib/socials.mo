@@ -52,6 +52,7 @@ module {
       memberCount = clan.memberIds.size();
       joinMode = clan.joinMode;
       ownerId = clan.ownerId;
+      emblemId = clan.emblemId;
     };
   };
 
@@ -73,6 +74,7 @@ module {
       members;
       pendingCount = clan.pendingRequestIds.size();
       createdAt = clan.createdAt;
+      emblemId = clan.emblemId;
     };
   };
 
@@ -84,18 +86,21 @@ module {
     name : Text,
     description : Text,
     joinMode : JoinMode,
+    emblemId : Nat,
   ) : { #ok : Nat; #err : Text } {
     if (name.size() == 0) return #err("Clan name cannot be empty");
     let id = state.nextClanId;
     state.nextClanId += 1;
     let members = Set.empty<Principal>();
     members.add(caller);
+    let resolvedEmblemId = if (emblemId == 0) 1 else emblemId;
     let clan : Clan = {
       id;
       var name;
       var description;
       ownerId = caller;
       var joinMode;
+      var emblemId = resolvedEmblemId;
       memberIds = members;
       pendingRequestIds = Set.empty<Principal>();
       createdAt = Time.now();

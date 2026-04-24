@@ -13,6 +13,7 @@ type Clan__97583336 =
   {
     createdAt : Int;
     var description : Text;
+    var emblemId : Nat;
     id : Nat;
     var joinMode : JoinMode__231934398;
     memberIds : Set__532252804<Principal>;
@@ -71,7 +72,13 @@ type Set__710576254<T> =
   {var root : Node__92254746<T>; var size : Nat__490723111};
 type UserProfileWithChangeStatus__67597737 =
   {bio : Text; hasChangedName : Bool; name : Text};
-type UserProfile__491224006 = {bio : Text; name : Text};
+type UserProfile__491224006 =
+  {
+    bannerImageUrl : ?Text;
+    bio : Text;
+    name : Text;
+    profilePictureUrl : ?Text
+  };
 type UserRole__465239019 = {#admin; #guest; #user};
 actor {
   stable gameStatistics :
