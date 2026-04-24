@@ -1,7 +1,6 @@
 import { useInternetIdentity } from "@caffeineai/core-infrastructure";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft,
   LogIn,
   LogOut,
   Minus,
@@ -25,7 +24,7 @@ interface SettingsViewProps {
 }
 
 const SettingsView: React.FC<SettingsViewProps> = ({
-  onClose,
+  onClose: _onClose,
   zIndex = 40,
 }) => {
   const [settings, setSettings] = useState<SettingsData>({
@@ -100,17 +99,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
       style={{ zIndex, paddingBottom: "60px" }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-gray-200 text-black hover:border-orange-400 transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm"
-          aria-label="Back"
-          data-ocid="settings.close_button"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-
+      <div className="flex items-center justify-center px-5 py-4 border-b border-gray-800 shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg">
             <SettingsIcon className="w-5 h-5 text-white" />
@@ -119,8 +108,6 @@ const SettingsView: React.FC<SettingsViewProps> = ({
             SETTINGS
           </h2>
         </div>
-
-        <div className="w-10" />
       </div>
 
       {/* Scrollable Content */}

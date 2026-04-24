@@ -37804,7 +37804,7 @@ const ProfileView = ({
   );
 };
 const SettingsView = ({
-  onClose,
+  onClose: _onClose,
   zIndex = 40
 }) => {
   const [settings, setSettings] = reactExports.useState({
@@ -37869,24 +37869,10 @@ const SettingsView = ({
       "data-ocid": "settings.dialog",
       style: { zIndex, paddingBottom: "60px" },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              type: "button",
-              onClick: onClose,
-              className: "flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-gray-200 text-black hover:border-orange-400 transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm",
-              "aria-label": "Back",
-              "data-ocid": "settings.close_button",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { className: "w-5 h-5" })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { className: "w-5 h-5 text-white" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-black text-white tracking-tight", children: "SETTINGS" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-10" })
-        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center px-5 py-4 border-b border-gray-800 shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { className: "w-5 h-5 text-white" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-black text-white tracking-tight", children: "SETTINGS" })
+        ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto px-5 py-5 space-y-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-white border border-gray-200 shadow-xl p-5", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 mb-4", children: [
