@@ -10,6 +10,7 @@ import GameOverWindow from "./GameOverWindow";
 import LeaderboardView from "./LeaderboardView";
 import ProfileView from "./ProfileView";
 import SettingsView from "./SettingsView";
+import SocialsView from "./SocialsView";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -124,6 +125,7 @@ type GameView =
   | "profile"
   | "settings"
   | "leaderboard"
+  | "socials"
   | "login-prompt";
 
 interface GameScreenProps {
@@ -180,6 +182,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
   const backgroundMusicGainRef = useRef<GainNode | null>(null);
   const rainSoundGainRef = useRef<GainNode | null>(null);
   const rainSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const aiSoundGainRef = useRef<GainNode | null>(null);
+  const aiSoundSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const touchTrackersRef = useRef<Map<number, TouchTracker>>(new Map());
 
   const gameStateRef = useRef({
@@ -441,6 +445,112 @@ const GameScreen: React.FC<GameScreenProps> = ({
       if (rainSourceRef.current) {
         const src = rainSourceRef.current;
         rainSourceRef.current = null;
+        setTimeout(() => {
+          try {
+            src.stop();
+          } catch {
+            /* ignore */
+          }
+        }, 900);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const createAISound = useCallback(() => {
+    const audioContext = audioContextRef.current;
+    if (!audioContext) return;
+    try {
+      if (audioContext.state === "suspended") audioContext.resume();
+      if (aiSoundSourceRef.current) {
+        try {
+          aiSoundSourceRef.current.stop();
+        } catch {
+          /* ignore */
+        }
+        aiSoundSourceRef.current = null;
+      }
+      if (!aiSoundGainRef.current) {
+        const gainNode = audioContext.createGain();
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(
+          0.12,
+          audioContext.currentTime + 2.0,
+        );
+        gainNode.connect(audioContext.destination);
+        aiSoundGainRef.current = gainNode;
+      } else {
+        aiSoundGainRef.current.gain.setValueAtTime(0, audioContext.currentTime);
+        aiSoundGainRef.current.gain.linearRampToValueAtTime(
+          0.12,
+          audioContext.currentTime + 2.0,
+        );
+      }
+      // Subtle high-frequency electronic hum via filtered noise
+      const bufferSize = audioContext.sampleRate * 3;
+      const noiseBuffer = audioContext.createBuffer(
+        1,
+        bufferSize,
+        audioContext.sampleRate,
+      );
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.4;
+      }
+      const noiseSource = audioContext.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+      noiseSource.loop = true;
+      // Narrow bandpass at high freq for electronic hum
+      const highpass = audioContext.createBiquadFilter();
+      highpass.type = "highpass";
+      highpass.frequency.setValueAtTime(2400, audioContext.currentTime);
+      const bandpass = audioContext.createBiquadFilter();
+      bandpass.type = "bandpass";
+      bandpass.frequency.setValueAtTime(4800, audioContext.currentTime);
+      bandpass.Q.setValueAtTime(2.0, audioContext.currentTime);
+      noiseSource.connect(highpass);
+      highpass.connect(bandpass);
+      bandpass.connect(aiSoundGainRef.current);
+      // Low drone oscillator for AI ambience
+      const droneOsc = audioContext.createOscillator();
+      droneOsc.type = "sine";
+      droneOsc.frequency.setValueAtTime(55, audioContext.currentTime);
+      droneOsc.frequency.linearRampToValueAtTime(
+        58,
+        audioContext.currentTime + 4,
+      );
+      droneOsc.frequency.linearRampToValueAtTime(
+        55,
+        audioContext.currentTime + 8,
+      );
+      const droneGain = audioContext.createGain();
+      droneGain.gain.setValueAtTime(0.35, audioContext.currentTime);
+      droneOsc.connect(droneGain);
+      droneGain.connect(aiSoundGainRef.current);
+      noiseSource.start();
+      droneOsc.start();
+      aiSoundSourceRef.current = noiseSource;
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const stopAISound = useCallback(() => {
+    try {
+      if (aiSoundGainRef.current && audioContextRef.current) {
+        aiSoundGainRef.current.gain.setValueAtTime(
+          aiSoundGainRef.current.gain.value,
+          audioContextRef.current.currentTime,
+        );
+        aiSoundGainRef.current.gain.linearRampToValueAtTime(
+          0,
+          audioContextRef.current.currentTime + 0.8,
+        );
+      }
+      if (aiSoundSourceRef.current) {
+        const src = aiSoundSourceRef.current;
+        aiSoundSourceRef.current = null;
         setTimeout(() => {
           try {
             src.stop();
@@ -1512,6 +1622,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
     setGameEnded(true);
     stopBackgroundMusic();
     stopRainSound();
+    stopAISound();
     setScoreMultiplier({ isActive: false, endTime: 0 });
     touchTrackersRef.current.clear();
     const durationMin = Math.round(
@@ -1561,6 +1672,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
   }, [
     stopBackgroundMusic,
     stopRainSound,
+    stopAISound,
     sessionStats,
     gameStatistics,
     updateStatistics,
@@ -1756,6 +1868,23 @@ const GameScreen: React.FC<GameScreenProps> = ({
     };
   }, [selectedWorld, currentView, createRainSound, stopRainSound]);
 
+  // ─── CaffeineAI ambient sound effect ─────────────────────────────────────────
+
+  useEffect(() => {
+    const isGameActive =
+      currentView === "game" &&
+      gameStateRef.current.isRunning &&
+      !gameStateRef.current.gameEnded;
+    if (selectedWorld === "caffeineai" && isGameActive) {
+      createAISound();
+    } else {
+      stopAISound();
+    }
+    return () => {
+      stopAISound();
+    };
+  }, [selectedWorld, currentView, createAISound, stopAISound]);
+
   // ─── Canvas setup / init ─────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -1813,6 +1942,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
       touchTrackersRef.current.clear();
       stopBackgroundMusic();
       stopRainSound();
+      stopAISound();
     };
   }, [
     gameLoop,
@@ -1820,6 +1950,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
     initializeAudio,
     stopBackgroundMusic,
     stopRainSound,
+    stopAISound,
     generateGoldenChickenSpawnTimes,
   ]);
 
@@ -1926,34 +2057,53 @@ const GameScreen: React.FC<GameScreenProps> = ({
         data-ocid="game.canvas_target"
       />
 
-      {/* Views */}
+      {/* Views — wrapped with paddingBottom:60px so content never overlaps the bottom bar */}
       {currentView === "achievements" && (
-        <AchievementsView
-          gameStatistics={gameStatistics}
-          isAuthenticated={isAuthenticated}
-          addXP={addXP}
-          playerLevel={playerData.level}
-        />
+        <div className="fixed inset-0 z-40" style={{ paddingBottom: "60px" }}>
+          <AchievementsView
+            gameStatistics={gameStatistics}
+            isAuthenticated={isAuthenticated}
+            addXP={addXP}
+            playerLevel={playerData.level}
+          />
+        </div>
       )}
       {currentView === "profile" && (
-        <ProfileView
-          score={score}
-          playerData={playerData}
-          isAuthenticated={isAuthenticated}
-          gameStatistics={gameStatistics}
-        />
+        <div className="fixed inset-0 z-40" style={{ paddingBottom: "60px" }}>
+          <ProfileView
+            score={score}
+            playerData={playerData}
+            isAuthenticated={isAuthenticated}
+            gameStatistics={gameStatistics}
+          />
+        </div>
       )}
       {currentView === "leaderboard" && (
-        <LeaderboardView
-          currentPlayerScore={gameStatistics.highestScore}
-          isAuthenticated={isAuthenticated}
-        />
+        <div className="fixed inset-0 z-40" style={{ paddingBottom: "60px" }}>
+          <LeaderboardView
+            currentPlayerScore={gameStatistics.highestScore}
+            isAuthenticated={isAuthenticated}
+          />
+        </div>
       )}
       {currentView === "settings" && (
-        <SettingsView onClose={() => setCurrentView("game")} />
+        <div className="fixed inset-0 z-40" style={{ paddingBottom: "60px" }}>
+          <SettingsView onClose={() => setCurrentView("game")} />
+        </div>
+      )}
+      {currentView === "socials" && (
+        <div className="fixed inset-0 z-40" style={{ paddingBottom: "60px" }}>
+          <SocialsView isAuthenticated={isAuthenticated} />
+        </div>
       )}
 
-      <BottomMenu currentView={currentView} onViewChange={setCurrentView} />
+      <BottomMenu
+        currentView={currentView}
+        onViewChange={(view) => {
+          if (view !== "worldSelection") setCurrentView(view);
+        }}
+        zIndex={50}
+      />
     </div>
   );
 };

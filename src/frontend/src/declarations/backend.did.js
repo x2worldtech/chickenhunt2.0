@@ -13,21 +13,74 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const JoinMode = IDL.Variant({
+  'open' : IDL.Null,
+  'requestRequired' : IDL.Null,
+});
 export const FileMetadata = IDL.Record({
   'path' : IDL.Text,
   'size' : IDL.Nat,
   'mimeType' : IDL.Text,
+});
+export const ClanSummary = IDL.Record({
+  'id' : IDL.Nat,
+  'ownerId' : IDL.Principal,
+  'joinMode' : JoinMode,
+  'name' : IDL.Text,
+  'memberCount' : IDL.Nat,
+  'description' : IDL.Text,
 });
 export const ApprovalStatus = IDL.Variant({
   'pending' : IDL.Null,
   'approved' : IDL.Null,
   'rejected' : IDL.Null,
 });
+export const PrincipalInfo = IDL.Record({
+  'principal' : IDL.Principal,
+  'name' : IDL.Text,
+  'level' : IDL.Nat,
+  'avatarUrl' : IDL.Opt(IDL.Text),
+});
+export const ClanDetails = IDL.Record({
+  'id' : IDL.Nat,
+  'pendingCount' : IDL.Nat,
+  'members' : IDL.Vec(PrincipalInfo),
+  'ownerId' : IDL.Principal,
+  'joinMode' : JoinMode,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'description' : IDL.Text,
+});
+export const ClanMessage = IDL.Record({
+  'id' : IDL.Nat,
+  'clanId' : IDL.Nat,
+  'text' : IDL.Text,
+  'timestamp' : IDL.Int,
+  'senderId' : IDL.Principal,
+});
 export const UserProfile = IDL.Record({ 'bio' : IDL.Text, 'name' : IDL.Text });
 export const UserProfileWithChangeStatus = IDL.Record({
   'bio' : IDL.Text,
   'name' : IDL.Text,
   'hasChangedName' : IDL.Bool,
+});
+export const GameStatistics = IDL.Record({
+  'totalShotsFired' : IDL.Nat,
+  'totalChickensShot' : IDL.Nat,
+  'bestSessionChickens' : IDL.Nat,
+  'bestConsecutiveHits' : IDL.Nat,
+  'highestScore' : IDL.Nat,
+  'perfectAccuracySessions' : IDL.Nat,
+  'smallChickensShot' : IDL.Nat,
+  'totalPlayTimeMinutes' : IDL.Nat,
+  'level' : IDL.Nat,
+  'totalScore' : IDL.Nat,
+  'fastChickensShot' : IDL.Nat,
+  'largeChickensShot' : IDL.Nat,
+  'totalMissedShots' : IDL.Nat,
+  'mediumChickensShot' : IDL.Nat,
+  'currentAccuracy' : IDL.Float64,
+  'goldenChickensShot' : IDL.Nat,
 });
 export const StreamingToken = IDL.Record({
   'resource' : IDL.Text,
@@ -66,27 +119,34 @@ export const UserInfo = IDL.Record({
   'role' : UserRole,
   'approval' : ApprovalStatus,
 });
-export const GameStatistics = IDL.Record({
-  'totalShotsFired' : IDL.Nat,
-  'totalChickensShot' : IDL.Nat,
-  'bestSessionChickens' : IDL.Nat,
-  'bestConsecutiveHits' : IDL.Nat,
-  'highestScore' : IDL.Nat,
-  'perfectAccuracySessions' : IDL.Nat,
-  'smallChickensShot' : IDL.Nat,
-  'totalPlayTimeMinutes' : IDL.Nat,
-  'level' : IDL.Nat,
-  'totalScore' : IDL.Nat,
-  'fastChickensShot' : IDL.Nat,
-  'largeChickensShot' : IDL.Nat,
-  'totalMissedShots' : IDL.Nat,
-  'mediumChickensShot' : IDL.Nat,
-  'currentAccuracy' : IDL.Float64,
-  'goldenChickensShot' : IDL.Nat,
-});
 
 export const idlService = IDL.Service({
+  'addFriend' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+      [],
+    ),
+  'approveJoinRequest' : IDL.Func(
+      [IDL.Nat, IDL.Principal],
+      [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+      [],
+    ),
   'assignRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'createClan' : IDL.Func(
+      [IDL.Text, IDL.Text, JoinMode],
+      [IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text })],
+      [],
+    ),
+  'declineJoinRequest' : IDL.Func(
+      [IDL.Nat, IDL.Principal],
+      [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+      [],
+    ),
+  'deleteClan' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+      [],
+    ),
   'fileDelete' : IDL.Func([IDL.Text], [], []),
   'fileList' : IDL.Func([], [IDL.Vec(FileMetadata)], ['query']),
   'fileUpload' : IDL.Func(
@@ -94,7 +154,18 @@ export const idlService = IDL.Service({
       [],
       [],
     ),
+  'getAllClans' : IDL.Func([], [IDL.Vec(ClanSummary)], ['query']),
   'getApprovalStatus' : IDL.Func([IDL.Principal], [ApprovalStatus], ['query']),
+  'getClan' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Variant({ 'ok' : ClanDetails, 'err' : IDL.Text })],
+      ['query'],
+    ),
+  'getClanMessages' : IDL.Func(
+      [IDL.Nat, IDL.Nat, IDL.Opt(IDL.Nat)],
+      [IDL.Variant({ 'ok' : IDL.Vec(ClanMessage), 'err' : IDL.Text })],
+      ['query'],
+    ),
   'getCurrentUserApprovalStatus' : IDL.Func([], [ApprovalStatus], ['query']),
   'getCurrentUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCurrentUserProfileWithChangeStatus' : IDL.Func(
@@ -103,9 +174,20 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getCurrentUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getFriends' : IDL.Func([], [IDL.Vec(PrincipalInfo)], ['query']),
   'getLeaderboard' : IDL.Func(
       [],
       [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat, IDL.Nat))],
+      ['query'],
+    ),
+  'getPendingJoinRequests' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Variant({ 'ok' : IDL.Vec(PrincipalInfo), 'err' : IDL.Text })],
+      [],
+    ),
+  'getUserGameStats' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(GameStatistics)],
       ['query'],
     ),
   'getUserProfile' : IDL.Func(
@@ -126,7 +208,23 @@ export const idlService = IDL.Service({
   'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
   'initializeAuth' : IDL.Func([], [], []),
   'isCurrentUserAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'isFriend' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
+  'joinClan' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+      [],
+    ),
+  'leaveClan' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+      [],
+    ),
   'listUsers' : IDL.Func([], [IDL.Vec(UserInfo)], ['query']),
+  'removeFriend' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+      [],
+    ),
   'saveCurrentUserProfile' : IDL.Func([UserProfile], [], []),
   'saveCurrentUserProfileWithChangeStatus' : IDL.Func(
       [UserProfileWithChangeStatus],
@@ -134,6 +232,12 @@ export const idlService = IDL.Service({
       [],
     ),
   'saveGameStatistics' : IDL.Func([GameStatistics], [], []),
+  'searchClans' : IDL.Func([IDL.Text], [IDL.Vec(ClanSummary)], ['query']),
+  'sendClanMessage' : IDL.Func(
+      [IDL.Nat, IDL.Text],
+      [IDL.Variant({ 'ok' : ClanMessage, 'err' : IDL.Text })],
+      [],
+    ),
   'setApproval' : IDL.Func([IDL.Principal, ApprovalStatus], [], []),
 });
 
@@ -145,21 +249,74 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const JoinMode = IDL.Variant({
+    'open' : IDL.Null,
+    'requestRequired' : IDL.Null,
+  });
   const FileMetadata = IDL.Record({
     'path' : IDL.Text,
     'size' : IDL.Nat,
     'mimeType' : IDL.Text,
+  });
+  const ClanSummary = IDL.Record({
+    'id' : IDL.Nat,
+    'ownerId' : IDL.Principal,
+    'joinMode' : JoinMode,
+    'name' : IDL.Text,
+    'memberCount' : IDL.Nat,
+    'description' : IDL.Text,
   });
   const ApprovalStatus = IDL.Variant({
     'pending' : IDL.Null,
     'approved' : IDL.Null,
     'rejected' : IDL.Null,
   });
+  const PrincipalInfo = IDL.Record({
+    'principal' : IDL.Principal,
+    'name' : IDL.Text,
+    'level' : IDL.Nat,
+    'avatarUrl' : IDL.Opt(IDL.Text),
+  });
+  const ClanDetails = IDL.Record({
+    'id' : IDL.Nat,
+    'pendingCount' : IDL.Nat,
+    'members' : IDL.Vec(PrincipalInfo),
+    'ownerId' : IDL.Principal,
+    'joinMode' : JoinMode,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'description' : IDL.Text,
+  });
+  const ClanMessage = IDL.Record({
+    'id' : IDL.Nat,
+    'clanId' : IDL.Nat,
+    'text' : IDL.Text,
+    'timestamp' : IDL.Int,
+    'senderId' : IDL.Principal,
+  });
   const UserProfile = IDL.Record({ 'bio' : IDL.Text, 'name' : IDL.Text });
   const UserProfileWithChangeStatus = IDL.Record({
     'bio' : IDL.Text,
     'name' : IDL.Text,
     'hasChangedName' : IDL.Bool,
+  });
+  const GameStatistics = IDL.Record({
+    'totalShotsFired' : IDL.Nat,
+    'totalChickensShot' : IDL.Nat,
+    'bestSessionChickens' : IDL.Nat,
+    'bestConsecutiveHits' : IDL.Nat,
+    'highestScore' : IDL.Nat,
+    'perfectAccuracySessions' : IDL.Nat,
+    'smallChickensShot' : IDL.Nat,
+    'totalPlayTimeMinutes' : IDL.Nat,
+    'level' : IDL.Nat,
+    'totalScore' : IDL.Nat,
+    'fastChickensShot' : IDL.Nat,
+    'largeChickensShot' : IDL.Nat,
+    'totalMissedShots' : IDL.Nat,
+    'mediumChickensShot' : IDL.Nat,
+    'currentAccuracy' : IDL.Float64,
+    'goldenChickensShot' : IDL.Nat,
   });
   const StreamingToken = IDL.Record({
     'resource' : IDL.Text,
@@ -198,27 +355,34 @@ export const idlFactory = ({ IDL }) => {
     'role' : UserRole,
     'approval' : ApprovalStatus,
   });
-  const GameStatistics = IDL.Record({
-    'totalShotsFired' : IDL.Nat,
-    'totalChickensShot' : IDL.Nat,
-    'bestSessionChickens' : IDL.Nat,
-    'bestConsecutiveHits' : IDL.Nat,
-    'highestScore' : IDL.Nat,
-    'perfectAccuracySessions' : IDL.Nat,
-    'smallChickensShot' : IDL.Nat,
-    'totalPlayTimeMinutes' : IDL.Nat,
-    'level' : IDL.Nat,
-    'totalScore' : IDL.Nat,
-    'fastChickensShot' : IDL.Nat,
-    'largeChickensShot' : IDL.Nat,
-    'totalMissedShots' : IDL.Nat,
-    'mediumChickensShot' : IDL.Nat,
-    'currentAccuracy' : IDL.Float64,
-    'goldenChickensShot' : IDL.Nat,
-  });
   
   return IDL.Service({
+    'addFriend' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+        [],
+      ),
+    'approveJoinRequest' : IDL.Func(
+        [IDL.Nat, IDL.Principal],
+        [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+        [],
+      ),
     'assignRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'createClan' : IDL.Func(
+        [IDL.Text, IDL.Text, JoinMode],
+        [IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text })],
+        [],
+      ),
+    'declineJoinRequest' : IDL.Func(
+        [IDL.Nat, IDL.Principal],
+        [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+        [],
+      ),
+    'deleteClan' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+        [],
+      ),
     'fileDelete' : IDL.Func([IDL.Text], [], []),
     'fileList' : IDL.Func([], [IDL.Vec(FileMetadata)], ['query']),
     'fileUpload' : IDL.Func(
@@ -226,9 +390,20 @@ export const idlFactory = ({ IDL }) => {
         [],
         [],
       ),
+    'getAllClans' : IDL.Func([], [IDL.Vec(ClanSummary)], ['query']),
     'getApprovalStatus' : IDL.Func(
         [IDL.Principal],
         [ApprovalStatus],
+        ['query'],
+      ),
+    'getClan' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Variant({ 'ok' : ClanDetails, 'err' : IDL.Text })],
+        ['query'],
+      ),
+    'getClanMessages' : IDL.Func(
+        [IDL.Nat, IDL.Nat, IDL.Opt(IDL.Nat)],
+        [IDL.Variant({ 'ok' : IDL.Vec(ClanMessage), 'err' : IDL.Text })],
         ['query'],
       ),
     'getCurrentUserApprovalStatus' : IDL.Func([], [ApprovalStatus], ['query']),
@@ -239,9 +414,20 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getCurrentUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getFriends' : IDL.Func([], [IDL.Vec(PrincipalInfo)], ['query']),
     'getLeaderboard' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat, IDL.Nat))],
+        ['query'],
+      ),
+    'getPendingJoinRequests' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Variant({ 'ok' : IDL.Vec(PrincipalInfo), 'err' : IDL.Text })],
+        [],
+      ),
+    'getUserGameStats' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(GameStatistics)],
         ['query'],
       ),
     'getUserProfile' : IDL.Func(
@@ -262,7 +448,23 @@ export const idlFactory = ({ IDL }) => {
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'initializeAuth' : IDL.Func([], [], []),
     'isCurrentUserAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'isFriend' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
+    'joinClan' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+        [],
+      ),
+    'leaveClan' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+        [],
+      ),
     'listUsers' : IDL.Func([], [IDL.Vec(UserInfo)], ['query']),
+    'removeFriend' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+        [],
+      ),
     'saveCurrentUserProfile' : IDL.Func([UserProfile], [], []),
     'saveCurrentUserProfileWithChangeStatus' : IDL.Func(
         [UserProfileWithChangeStatus],
@@ -270,6 +472,12 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'saveGameStatistics' : IDL.Func([GameStatistics], [], []),
+    'searchClans' : IDL.Func([IDL.Text], [IDL.Vec(ClanSummary)], ['query']),
+    'sendClanMessage' : IDL.Func(
+        [IDL.Nat, IDL.Text],
+        [IDL.Variant({ 'ok' : ClanMessage, 'err' : IDL.Text })],
+        [],
+      ),
     'setApproval' : IDL.Func([IDL.Principal, ApprovalStatus], [], []),
   });
 };

@@ -13,6 +13,31 @@ import type { Principal } from '@icp-sdk/core/principal';
 export type ApprovalStatus = { 'pending' : null } |
   { 'approved' : null } |
   { 'rejected' : null };
+export interface ClanDetails {
+  'id' : bigint,
+  'pendingCount' : bigint,
+  'members' : Array<PrincipalInfo>,
+  'ownerId' : Principal,
+  'joinMode' : JoinMode,
+  'name' : string,
+  'createdAt' : bigint,
+  'description' : string,
+}
+export interface ClanMessage {
+  'id' : bigint,
+  'clanId' : bigint,
+  'text' : string,
+  'timestamp' : bigint,
+  'senderId' : Principal,
+}
+export interface ClanSummary {
+  'id' : bigint,
+  'ownerId' : Principal,
+  'joinMode' : JoinMode,
+  'name' : string,
+  'memberCount' : bigint,
+  'description' : string,
+}
 export interface FileMetadata {
   'path' : string,
   'size' : bigint,
@@ -49,6 +74,14 @@ export interface HttpResponse {
   'streaming_strategy' : [] | [StreamingStrategy],
   'status_code' : number,
 }
+export type JoinMode = { 'open' : null } |
+  { 'requestRequired' : null };
+export interface PrincipalInfo {
+  'principal' : Principal,
+  'name' : string,
+  'level' : bigint,
+  'avatarUrl' : [] | [string],
+}
 export type StreamingCallback = ActorMethod<
   [StreamingToken],
   StreamingCallbackHttpResponse
@@ -76,11 +109,43 @@ export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
 export interface _SERVICE {
+  'addFriend' : ActorMethod<
+    [Principal],
+    { 'ok' : string } |
+      { 'err' : string }
+  >,
+  'approveJoinRequest' : ActorMethod<
+    [bigint, Principal],
+    { 'ok' : string } |
+      { 'err' : string }
+  >,
   'assignRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'createClan' : ActorMethod<
+    [string, string, JoinMode],
+    { 'ok' : bigint } |
+      { 'err' : string }
+  >,
+  'declineJoinRequest' : ActorMethod<
+    [bigint, Principal],
+    { 'ok' : string } |
+      { 'err' : string }
+  >,
+  'deleteClan' : ActorMethod<[bigint], { 'ok' : string } | { 'err' : string }>,
   'fileDelete' : ActorMethod<[string], undefined>,
   'fileList' : ActorMethod<[], Array<FileMetadata>>,
   'fileUpload' : ActorMethod<[string, string, Uint8Array, boolean], undefined>,
+  'getAllClans' : ActorMethod<[], Array<ClanSummary>>,
   'getApprovalStatus' : ActorMethod<[Principal], ApprovalStatus>,
+  'getClan' : ActorMethod<
+    [bigint],
+    { 'ok' : ClanDetails } |
+      { 'err' : string }
+  >,
+  'getClanMessages' : ActorMethod<
+    [bigint, bigint, [] | [bigint]],
+    { 'ok' : Array<ClanMessage> } |
+      { 'err' : string }
+  >,
   'getCurrentUserApprovalStatus' : ActorMethod<[], ApprovalStatus>,
   'getCurrentUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCurrentUserProfileWithChangeStatus' : ActorMethod<
@@ -88,7 +153,14 @@ export interface _SERVICE {
     [] | [UserProfileWithChangeStatus]
   >,
   'getCurrentUserRole' : ActorMethod<[], UserRole>,
+  'getFriends' : ActorMethod<[], Array<PrincipalInfo>>,
   'getLeaderboard' : ActorMethod<[], Array<[string, bigint, bigint]>>,
+  'getPendingJoinRequests' : ActorMethod<
+    [bigint],
+    { 'ok' : Array<PrincipalInfo> } |
+      { 'err' : string }
+  >,
+  'getUserGameStats' : ActorMethod<[Principal], [] | [GameStatistics]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'getUserProfileWithChangeStatus' : ActorMethod<
     [Principal],
@@ -101,13 +173,27 @@ export interface _SERVICE {
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'initializeAuth' : ActorMethod<[], undefined>,
   'isCurrentUserAdmin' : ActorMethod<[], boolean>,
+  'isFriend' : ActorMethod<[Principal], boolean>,
+  'joinClan' : ActorMethod<[bigint], { 'ok' : string } | { 'err' : string }>,
+  'leaveClan' : ActorMethod<[bigint], { 'ok' : string } | { 'err' : string }>,
   'listUsers' : ActorMethod<[], Array<UserInfo>>,
+  'removeFriend' : ActorMethod<
+    [Principal],
+    { 'ok' : string } |
+      { 'err' : string }
+  >,
   'saveCurrentUserProfile' : ActorMethod<[UserProfile], undefined>,
   'saveCurrentUserProfileWithChangeStatus' : ActorMethod<
     [UserProfileWithChangeStatus],
     undefined
   >,
   'saveGameStatistics' : ActorMethod<[GameStatistics], undefined>,
+  'searchClans' : ActorMethod<[string], Array<ClanSummary>>,
+  'sendClanMessage' : ActorMethod<
+    [bigint, string],
+    { 'ok' : ClanMessage } |
+      { 'err' : string }
+  >,
   'setApproval' : ActorMethod<[Principal, ApprovalStatus], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

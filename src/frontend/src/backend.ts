@@ -95,6 +95,14 @@ export interface HttpRequest {
     body: Uint8Array;
     headers: Array<HeaderField>;
 }
+export interface ClanSummary {
+    id: bigint;
+    ownerId: Principal;
+    joinMode: JoinMode;
+    name: string;
+    memberCount: bigint;
+    description: string;
+}
 export interface FileMetadata {
     path: string;
     size: bigint;
@@ -109,10 +117,27 @@ export interface StreamingCallbackHttpResponse {
     body: Uint8Array;
 }
 export type StreamingCallback = (arg0: StreamingToken) => Promise<StreamingCallbackHttpResponse>;
+export interface ClanMessage {
+    id: bigint;
+    clanId: bigint;
+    text: string;
+    timestamp: bigint;
+    senderId: Principal;
+}
 export interface UserInfo {
     principal: Principal;
     role: UserRole;
     approval: ApprovalStatus;
+}
+export interface ClanDetails {
+    id: bigint;
+    pendingCount: bigint;
+    members: Array<PrincipalInfo>;
+    ownerId: Principal;
+    joinMode: JoinMode;
+    name: string;
+    createdAt: bigint;
+    description: string;
 }
 export type StreamingStrategy = {
     __kind__: "Callback";
@@ -131,6 +156,12 @@ export interface HttpResponse {
     headers: Array<HeaderField>;
     streaming_strategy?: StreamingStrategy;
     status_code: number;
+}
+export interface PrincipalInfo {
+    principal: Principal;
+    name: string;
+    level: bigint;
+    avatarUrl?: string;
 }
 export type HeaderField = [string, string];
 export interface GameStatistics {
@@ -160,49 +191,242 @@ export enum ApprovalStatus {
     approved = "approved",
     rejected = "rejected"
 }
+export enum JoinMode {
+    open = "open",
+    requestRequired = "requestRequired"
+}
 export enum UserRole {
     admin = "admin",
     user = "user",
     guest = "guest"
 }
 export interface backendInterface {
+    addFriend(userId: Principal): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
+    approveJoinRequest(clanId: bigint, userId: Principal): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     assignRole(user: Principal, newRole: UserRole): Promise<void>;
+    createClan(name: string, description: string, joinMode: JoinMode): Promise<{
+        __kind__: "ok";
+        ok: bigint;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
+    declineJoinRequest(clanId: bigint, userId: Principal): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
+    deleteClan(clanId: bigint): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     fileDelete(path: string): Promise<void>;
     fileList(): Promise<Array<FileMetadata>>;
     fileUpload(path: string, mimeType: string, chunk: Uint8Array, complete: boolean): Promise<void>;
+    getAllClans(): Promise<Array<ClanSummary>>;
     getApprovalStatus(user: Principal): Promise<ApprovalStatus>;
+    getClan(clanId: bigint): Promise<{
+        __kind__: "ok";
+        ok: ClanDetails;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
+    getClanMessages(clanId: bigint, limit: bigint, before: bigint | null): Promise<{
+        __kind__: "ok";
+        ok: Array<ClanMessage>;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     getCurrentUserApprovalStatus(): Promise<ApprovalStatus>;
     getCurrentUserProfile(): Promise<UserProfile | null>;
     getCurrentUserProfileWithChangeStatus(): Promise<UserProfileWithChangeStatus | null>;
     getCurrentUserRole(): Promise<UserRole>;
+    getFriends(): Promise<Array<PrincipalInfo>>;
     getLeaderboard(): Promise<Array<[string, bigint, bigint]>>;
+    getPendingJoinRequests(clanId: bigint): Promise<{
+        __kind__: "ok";
+        ok: Array<PrincipalInfo>;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
+    getUserGameStats(userId: Principal): Promise<GameStatistics | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     getUserProfileWithChangeStatus(user: Principal): Promise<UserProfileWithChangeStatus | null>;
     httpStreamingCallback(token: StreamingToken): Promise<StreamingCallbackHttpResponse>;
     http_request(request: HttpRequest): Promise<HttpResponse>;
     initializeAuth(): Promise<void>;
     isCurrentUserAdmin(): Promise<boolean>;
+    isFriend(userId: Principal): Promise<boolean>;
+    joinClan(clanId: bigint): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
+    leaveClan(clanId: bigint): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     listUsers(): Promise<Array<UserInfo>>;
+    removeFriend(userId: Principal): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     saveCurrentUserProfile(profile: UserProfile): Promise<void>;
     saveCurrentUserProfileWithChangeStatus(profile: UserProfileWithChangeStatus): Promise<void>;
     saveGameStatistics(stats: GameStatistics): Promise<void>;
+    searchClans(q: string): Promise<Array<ClanSummary>>;
+    sendClanMessage(clanId: bigint, text: string): Promise<{
+        __kind__: "ok";
+        ok: ClanMessage;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     setApproval(user: Principal, approval: ApprovalStatus): Promise<void>;
 }
-import type { ApprovalStatus as _ApprovalStatus, HeaderField as _HeaderField, HttpResponse as _HttpResponse, StreamingCallbackHttpResponse as _StreamingCallbackHttpResponse, StreamingStrategy as _StreamingStrategy, StreamingToken as _StreamingToken, UserInfo as _UserInfo, UserProfile as _UserProfile, UserProfileWithChangeStatus as _UserProfileWithChangeStatus, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
+import type { ApprovalStatus as _ApprovalStatus, ClanDetails as _ClanDetails, ClanMessage as _ClanMessage, ClanSummary as _ClanSummary, GameStatistics as _GameStatistics, HeaderField as _HeaderField, HttpResponse as _HttpResponse, JoinMode as _JoinMode, PrincipalInfo as _PrincipalInfo, StreamingCallbackHttpResponse as _StreamingCallbackHttpResponse, StreamingStrategy as _StreamingStrategy, StreamingToken as _StreamingToken, UserInfo as _UserInfo, UserProfile as _UserProfile, UserProfileWithChangeStatus as _UserProfileWithChangeStatus, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
+    async addFriend(arg0: Principal): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addFriend(arg0);
+                return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addFriend(arg0);
+            return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async approveJoinRequest(arg0: bigint, arg1: Principal): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.approveJoinRequest(arg0, arg1);
+                return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.approveJoinRequest(arg0, arg1);
+            return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async assignRole(arg0: Principal, arg1: UserRole): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.assignRole(arg0, to_candid_UserRole_n1(this._uploadFile, this._downloadFile, arg1));
+                const result = await this.actor.assignRole(arg0, to_candid_UserRole_n2(this._uploadFile, this._downloadFile, arg1));
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.assignRole(arg0, to_candid_UserRole_n1(this._uploadFile, this._downloadFile, arg1));
+            const result = await this.actor.assignRole(arg0, to_candid_UserRole_n2(this._uploadFile, this._downloadFile, arg1));
             return result;
+        }
+    }
+    async createClan(arg0: string, arg1: string, arg2: JoinMode): Promise<{
+        __kind__: "ok";
+        ok: bigint;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createClan(arg0, arg1, to_candid_JoinMode_n4(this._uploadFile, this._downloadFile, arg2));
+                return from_candid_variant_n6(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createClan(arg0, arg1, to_candid_JoinMode_n4(this._uploadFile, this._downloadFile, arg2));
+            return from_candid_variant_n6(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async declineJoinRequest(arg0: bigint, arg1: Principal): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.declineJoinRequest(arg0, arg1);
+                return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.declineJoinRequest(arg0, arg1);
+            return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async deleteClan(arg0: bigint): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteClan(arg0);
+                return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteClan(arg0);
+            return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
         }
     }
     async fileDelete(arg0: string): Promise<void> {
@@ -247,74 +471,142 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getAllClans(): Promise<Array<ClanSummary>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllClans();
+                return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllClans();
+            return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getApprovalStatus(arg0: Principal): Promise<ApprovalStatus> {
         if (this.processError) {
             try {
                 const result = await this.actor.getApprovalStatus(arg0);
-                return from_candid_ApprovalStatus_n3(this._uploadFile, this._downloadFile, result);
+                return from_candid_ApprovalStatus_n12(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getApprovalStatus(arg0);
-            return from_candid_ApprovalStatus_n3(this._uploadFile, this._downloadFile, result);
+            return from_candid_ApprovalStatus_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getClan(arg0: bigint): Promise<{
+        __kind__: "ok";
+        ok: ClanDetails;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getClan(arg0);
+                return from_candid_variant_n14(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getClan(arg0);
+            return from_candid_variant_n14(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getClanMessages(arg0: bigint, arg1: bigint, arg2: bigint | null): Promise<{
+        __kind__: "ok";
+        ok: Array<ClanMessage>;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getClanMessages(arg0, arg1, to_candid_opt_n21(this._uploadFile, this._downloadFile, arg2));
+                return from_candid_variant_n22(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getClanMessages(arg0, arg1, to_candid_opt_n21(this._uploadFile, this._downloadFile, arg2));
+            return from_candid_variant_n22(this._uploadFile, this._downloadFile, result);
         }
     }
     async getCurrentUserApprovalStatus(): Promise<ApprovalStatus> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCurrentUserApprovalStatus();
-                return from_candid_ApprovalStatus_n3(this._uploadFile, this._downloadFile, result);
+                return from_candid_ApprovalStatus_n12(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCurrentUserApprovalStatus();
-            return from_candid_ApprovalStatus_n3(this._uploadFile, this._downloadFile, result);
+            return from_candid_ApprovalStatus_n12(this._uploadFile, this._downloadFile, result);
         }
     }
     async getCurrentUserProfile(): Promise<UserProfile | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCurrentUserProfile();
-                return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n23(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCurrentUserProfile();
-            return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n23(this._uploadFile, this._downloadFile, result);
         }
     }
     async getCurrentUserProfileWithChangeStatus(): Promise<UserProfileWithChangeStatus | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCurrentUserProfileWithChangeStatus();
-                return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCurrentUserProfileWithChangeStatus();
-            return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
         }
     }
     async getCurrentUserRole(): Promise<UserRole> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCurrentUserRole();
-                return from_candid_UserRole_n7(this._uploadFile, this._downloadFile, result);
+                return from_candid_UserRole_n25(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCurrentUserRole();
-            return from_candid_UserRole_n7(this._uploadFile, this._downloadFile, result);
+            return from_candid_UserRole_n25(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getFriends(): Promise<Array<PrincipalInfo>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getFriends();
+                return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getFriends();
+            return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
         }
     }
     async getLeaderboard(): Promise<Array<[string, bigint, bigint]>> {
@@ -331,60 +623,94 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getPendingJoinRequests(arg0: bigint): Promise<{
+        __kind__: "ok";
+        ok: Array<PrincipalInfo>;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getPendingJoinRequests(arg0);
+                return from_candid_variant_n27(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getPendingJoinRequests(arg0);
+            return from_candid_variant_n27(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getUserGameStats(arg0: Principal): Promise<GameStatistics | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUserGameStats(arg0);
+                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUserGameStats(arg0);
+            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getUserProfile(arg0);
-                return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n23(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getUserProfile(arg0);
-            return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n23(this._uploadFile, this._downloadFile, result);
         }
     }
     async getUserProfileWithChangeStatus(arg0: Principal): Promise<UserProfileWithChangeStatus | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getUserProfileWithChangeStatus(arg0);
-                return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getUserProfileWithChangeStatus(arg0);
-            return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
         }
     }
     async httpStreamingCallback(arg0: StreamingToken): Promise<StreamingCallbackHttpResponse> {
         if (this.processError) {
             try {
                 const result = await this.actor.httpStreamingCallback(arg0);
-                return from_candid_StreamingCallbackHttpResponse_n9(this._uploadFile, this._downloadFile, result);
+                return from_candid_StreamingCallbackHttpResponse_n29(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.httpStreamingCallback(arg0);
-            return from_candid_StreamingCallbackHttpResponse_n9(this._uploadFile, this._downloadFile, result);
+            return from_candid_StreamingCallbackHttpResponse_n29(this._uploadFile, this._downloadFile, result);
         }
     }
     async http_request(arg0: HttpRequest): Promise<HttpResponse> {
         if (this.processError) {
             try {
                 const result = await this.actor.http_request(arg0);
-                return from_candid_HttpResponse_n12(this._uploadFile, this._downloadFile, result);
+                return from_candid_HttpResponse_n32(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.http_request(arg0);
-            return from_candid_HttpResponse_n12(this._uploadFile, this._downloadFile, result);
+            return from_candid_HttpResponse_n32(this._uploadFile, this._downloadFile, result);
         }
     }
     async initializeAuth(): Promise<void> {
@@ -415,18 +741,92 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async isFriend(arg0: Principal): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.isFriend(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.isFriend(arg0);
+            return result;
+        }
+    }
+    async joinClan(arg0: bigint): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.joinClan(arg0);
+                return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.joinClan(arg0);
+            return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async leaveClan(arg0: bigint): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.leaveClan(arg0);
+                return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.leaveClan(arg0);
+            return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async listUsers(): Promise<Array<UserInfo>> {
         if (this.processError) {
             try {
                 const result = await this.actor.listUsers();
-                return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n37(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.listUsers();
-            return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n37(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async removeFriend(arg0: Principal): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.removeFriend(arg0);
+                return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.removeFriend(arg0);
+            return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
         }
     }
     async saveCurrentUserProfile(arg0: UserProfile): Promise<void> {
@@ -471,52 +871,152 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async searchClans(arg0: string): Promise<Array<ClanSummary>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.searchClans(arg0);
+                return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.searchClans(arg0);
+            return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async sendClanMessage(arg0: bigint, arg1: string): Promise<{
+        __kind__: "ok";
+        ok: ClanMessage;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.sendClanMessage(arg0, arg1);
+                return from_candid_variant_n40(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.sendClanMessage(arg0, arg1);
+            return from_candid_variant_n40(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async setApproval(arg0: Principal, arg1: ApprovalStatus): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n20(this._uploadFile, this._downloadFile, arg1));
+                const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n41(this._uploadFile, this._downloadFile, arg1));
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n20(this._uploadFile, this._downloadFile, arg1));
+            const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n41(this._uploadFile, this._downloadFile, arg1));
             return result;
         }
     }
 }
-function from_candid_ApprovalStatus_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ApprovalStatus): ApprovalStatus {
-    return from_candid_variant_n4(_uploadFile, _downloadFile, value);
+function from_candid_ApprovalStatus_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ApprovalStatus): ApprovalStatus {
+    return from_candid_variant_n13(_uploadFile, _downloadFile, value);
 }
-function from_candid_HttpResponse_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _HttpResponse): HttpResponse {
-    return from_candid_record_n13(_uploadFile, _downloadFile, value);
+function from_candid_ClanDetails_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ClanDetails): ClanDetails {
+    return from_candid_record_n16(_uploadFile, _downloadFile, value);
 }
-function from_candid_StreamingCallbackHttpResponse_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _StreamingCallbackHttpResponse): StreamingCallbackHttpResponse {
-    return from_candid_record_n10(_uploadFile, _downloadFile, value);
+function from_candid_ClanSummary_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ClanSummary): ClanSummary {
+    return from_candid_record_n9(_uploadFile, _downloadFile, value);
 }
-function from_candid_StreamingStrategy_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _StreamingStrategy): StreamingStrategy {
-    return from_candid_variant_n16(_uploadFile, _downloadFile, value);
+function from_candid_HttpResponse_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _HttpResponse): HttpResponse {
+    return from_candid_record_n33(_uploadFile, _downloadFile, value);
 }
-function from_candid_UserInfo_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserInfo): UserInfo {
+function from_candid_JoinMode_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _JoinMode): JoinMode {
+    return from_candid_variant_n11(_uploadFile, _downloadFile, value);
+}
+function from_candid_PrincipalInfo_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PrincipalInfo): PrincipalInfo {
     return from_candid_record_n19(_uploadFile, _downloadFile, value);
 }
-function from_candid_UserRole_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
-    return from_candid_variant_n8(_uploadFile, _downloadFile, value);
+function from_candid_StreamingCallbackHttpResponse_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _StreamingCallbackHttpResponse): StreamingCallbackHttpResponse {
+    return from_candid_record_n30(_uploadFile, _downloadFile, value);
 }
-function from_candid_opt_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_StreamingToken]): StreamingToken | null {
+function from_candid_StreamingStrategy_n35(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _StreamingStrategy): StreamingStrategy {
+    return from_candid_variant_n36(_uploadFile, _downloadFile, value);
+}
+function from_candid_UserInfo_n38(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserInfo): UserInfo {
+    return from_candid_record_n39(_uploadFile, _downloadFile, value);
+}
+function from_candid_UserRole_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
+    return from_candid_variant_n26(_uploadFile, _downloadFile, value);
+}
+function from_candid_opt_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_StreamingStrategy]): StreamingStrategy | null {
-    return value.length === 0 ? null : from_candid_StreamingStrategy_n15(_uploadFile, _downloadFile, value[0]);
-}
-function from_candid_opt_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+function from_candid_opt_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfileWithChangeStatus]): UserProfileWithChangeStatus | null {
+function from_candid_opt_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfileWithChangeStatus]): UserProfileWithChangeStatus | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_record_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_opt_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_GameStatistics]): GameStatistics | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_StreamingToken]): StreamingToken | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n34(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_StreamingStrategy]): StreamingStrategy | null {
+    return value.length === 0 ? null : from_candid_StreamingStrategy_n35(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_record_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    pendingCount: bigint;
+    members: Array<_PrincipalInfo>;
+    ownerId: Principal;
+    joinMode: _JoinMode;
+    name: string;
+    createdAt: bigint;
+    description: string;
+}): {
+    id: bigint;
+    pendingCount: bigint;
+    members: Array<PrincipalInfo>;
+    ownerId: Principal;
+    joinMode: JoinMode;
+    name: string;
+    createdAt: bigint;
+    description: string;
+} {
+    return {
+        id: value.id,
+        pendingCount: value.pendingCount,
+        members: from_candid_vec_n17(_uploadFile, _downloadFile, value.members),
+        ownerId: value.ownerId,
+        joinMode: from_candid_JoinMode_n10(_uploadFile, _downloadFile, value.joinMode),
+        name: value.name,
+        createdAt: value.createdAt,
+        description: value.description
+    };
+}
+function from_candid_record_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    principal: Principal;
+    name: string;
+    level: bigint;
+    avatarUrl: [] | [string];
+}): {
+    principal: Principal;
+    name: string;
+    level: bigint;
+    avatarUrl?: string;
+} {
+    return {
+        principal: value.principal,
+        name: value.name,
+        level: value.level,
+        avatarUrl: record_opt_to_undefined(from_candid_opt_n20(_uploadFile, _downloadFile, value.avatarUrl))
+    };
+}
+function from_candid_record_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     token: [] | [_StreamingToken];
     body: Uint8Array;
 }): {
@@ -524,11 +1024,11 @@ function from_candid_record_n10(_uploadFile: (file: ExternalBlob) => Promise<Uin
     body: Uint8Array;
 } {
     return {
-        token: record_opt_to_undefined(from_candid_opt_n11(_uploadFile, _downloadFile, value.token)),
+        token: record_opt_to_undefined(from_candid_opt_n31(_uploadFile, _downloadFile, value.token)),
         body: value.body
     };
 }
-function from_candid_record_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_record_n33(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     body: Uint8Array;
     headers: Array<_HeaderField>;
     streaming_strategy: [] | [_StreamingStrategy];
@@ -542,11 +1042,11 @@ function from_candid_record_n13(_uploadFile: (file: ExternalBlob) => Promise<Uin
     return {
         body: value.body,
         headers: value.headers,
-        streaming_strategy: record_opt_to_undefined(from_candid_opt_n14(_uploadFile, _downloadFile, value.streaming_strategy)),
+        streaming_strategy: record_opt_to_undefined(from_candid_opt_n34(_uploadFile, _downloadFile, value.streaming_strategy)),
         status_code: value.status_code
     };
 }
-function from_candid_record_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_record_n39(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     principal: Principal;
     role: _UserRole;
     approval: _ApprovalStatus;
@@ -557,11 +1057,136 @@ function from_candid_record_n19(_uploadFile: (file: ExternalBlob) => Promise<Uin
 } {
     return {
         principal: value.principal,
-        role: from_candid_UserRole_n7(_uploadFile, _downloadFile, value.role),
-        approval: from_candid_ApprovalStatus_n3(_uploadFile, _downloadFile, value.approval)
+        role: from_candid_UserRole_n25(_uploadFile, _downloadFile, value.role),
+        approval: from_candid_ApprovalStatus_n12(_uploadFile, _downloadFile, value.approval)
     };
 }
-function from_candid_variant_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_record_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    ownerId: Principal;
+    joinMode: _JoinMode;
+    name: string;
+    memberCount: bigint;
+    description: string;
+}): {
+    id: bigint;
+    ownerId: Principal;
+    joinMode: JoinMode;
+    name: string;
+    memberCount: bigint;
+    description: string;
+} {
+    return {
+        id: value.id,
+        ownerId: value.ownerId,
+        joinMode: from_candid_JoinMode_n10(_uploadFile, _downloadFile, value.joinMode),
+        name: value.name,
+        memberCount: value.memberCount,
+        description: value.description
+    };
+}
+function from_candid_variant_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    ok: string;
+} | {
+    err: string;
+}): {
+    __kind__: "ok";
+    ok: string;
+} | {
+    __kind__: "err";
+    err: string;
+} {
+    return "ok" in value ? {
+        __kind__: "ok",
+        ok: value.ok
+    } : "err" in value ? {
+        __kind__: "err",
+        err: value.err
+    } : value;
+}
+function from_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    open: null;
+} | {
+    requestRequired: null;
+}): JoinMode {
+    return "open" in value ? JoinMode.open : "requestRequired" in value ? JoinMode.requestRequired : value;
+}
+function from_candid_variant_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    pending: null;
+} | {
+    approved: null;
+} | {
+    rejected: null;
+}): ApprovalStatus {
+    return "pending" in value ? ApprovalStatus.pending : "approved" in value ? ApprovalStatus.approved : "rejected" in value ? ApprovalStatus.rejected : value;
+}
+function from_candid_variant_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    ok: _ClanDetails;
+} | {
+    err: string;
+}): {
+    __kind__: "ok";
+    ok: ClanDetails;
+} | {
+    __kind__: "err";
+    err: string;
+} {
+    return "ok" in value ? {
+        __kind__: "ok",
+        ok: from_candid_ClanDetails_n15(_uploadFile, _downloadFile, value.ok)
+    } : "err" in value ? {
+        __kind__: "err",
+        err: value.err
+    } : value;
+}
+function from_candid_variant_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    ok: Array<_ClanMessage>;
+} | {
+    err: string;
+}): {
+    __kind__: "ok";
+    ok: Array<ClanMessage>;
+} | {
+    __kind__: "err";
+    err: string;
+} {
+    return "ok" in value ? {
+        __kind__: "ok",
+        ok: value.ok
+    } : "err" in value ? {
+        __kind__: "err",
+        err: value.err
+    } : value;
+}
+function from_candid_variant_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+}): UserRole {
+    return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
+}
+function from_candid_variant_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    ok: Array<_PrincipalInfo>;
+} | {
+    err: string;
+}): {
+    __kind__: "ok";
+    ok: Array<PrincipalInfo>;
+} | {
+    __kind__: "err";
+    err: string;
+} {
+    return "ok" in value ? {
+        __kind__: "ok",
+        ok: from_candid_vec_n17(_uploadFile, _downloadFile, value.ok)
+    } : "err" in value ? {
+        __kind__: "err",
+        err: value.err
+    } : value;
+}
+function from_candid_variant_n36(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     Callback: {
         token: _StreamingToken;
         callback: [Principal, string];
@@ -578,34 +1203,66 @@ function from_candid_variant_n16(_uploadFile: (file: ExternalBlob) => Promise<Ui
         Callback: value.Callback
     } : value;
 }
-function from_candid_variant_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    pending: null;
+function from_candid_variant_n40(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    ok: _ClanMessage;
 } | {
-    approved: null;
+    err: string;
+}): {
+    __kind__: "ok";
+    ok: ClanMessage;
 } | {
-    rejected: null;
-}): ApprovalStatus {
-    return "pending" in value ? ApprovalStatus.pending : "approved" in value ? ApprovalStatus.approved : "rejected" in value ? ApprovalStatus.rejected : value;
+    __kind__: "err";
+    err: string;
+} {
+    return "ok" in value ? {
+        __kind__: "ok",
+        ok: value.ok
+    } : "err" in value ? {
+        __kind__: "err",
+        err: value.err
+    } : value;
 }
-function from_candid_variant_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    admin: null;
+function from_candid_variant_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    ok: bigint;
 } | {
-    user: null;
+    err: string;
+}): {
+    __kind__: "ok";
+    ok: bigint;
 } | {
-    guest: null;
-}): UserRole {
-    return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
+    __kind__: "err";
+    err: string;
+} {
+    return "ok" in value ? {
+        __kind__: "ok",
+        ok: value.ok
+    } : "err" in value ? {
+        __kind__: "err",
+        err: value.err
+    } : value;
 }
-function from_candid_vec_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_UserInfo>): Array<UserInfo> {
-    return value.map((x)=>from_candid_UserInfo_n18(_uploadFile, _downloadFile, x));
+function from_candid_vec_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_PrincipalInfo>): Array<PrincipalInfo> {
+    return value.map((x)=>from_candid_PrincipalInfo_n18(_uploadFile, _downloadFile, x));
 }
-function to_candid_ApprovalStatus_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ApprovalStatus): _ApprovalStatus {
-    return to_candid_variant_n21(_uploadFile, _downloadFile, value);
+function from_candid_vec_n37(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_UserInfo>): Array<UserInfo> {
+    return value.map((x)=>from_candid_UserInfo_n38(_uploadFile, _downloadFile, x));
 }
-function to_candid_UserRole_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
-    return to_candid_variant_n2(_uploadFile, _downloadFile, value);
+function from_candid_vec_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_ClanSummary>): Array<ClanSummary> {
+    return value.map((x)=>from_candid_ClanSummary_n8(_uploadFile, _downloadFile, x));
 }
-function to_candid_variant_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {
+function to_candid_ApprovalStatus_n41(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ApprovalStatus): _ApprovalStatus {
+    return to_candid_variant_n42(_uploadFile, _downloadFile, value);
+}
+function to_candid_JoinMode_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: JoinMode): _JoinMode {
+    return to_candid_variant_n5(_uploadFile, _downloadFile, value);
+}
+function to_candid_UserRole_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
+    return to_candid_variant_n3(_uploadFile, _downloadFile, value);
+}
+function to_candid_opt_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: bigint | null): [] | [bigint] {
+    return value === null ? candid_none() : candid_some(value);
+}
+function to_candid_variant_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {
     admin: null;
 } | {
     user: null;
@@ -620,7 +1277,7 @@ function to_candid_variant_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8
         guest: null
     } : value;
 }
-function to_candid_variant_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ApprovalStatus): {
+function to_candid_variant_n42(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ApprovalStatus): {
     pending: null;
 } | {
     approved: null;
@@ -633,6 +1290,17 @@ function to_candid_variant_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint
         approved: null
     } : value == ApprovalStatus.rejected ? {
         rejected: null
+    } : value;
+}
+function to_candid_variant_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: JoinMode): {
+    open: null;
+} | {
+    requestRequired: null;
+} {
+    return value == JoinMode.open ? {
+        open: null
+    } : value == JoinMode.requestRequired ? {
+        requestRequired: null
     } : value;
 }
 export interface CreateActorOptions {

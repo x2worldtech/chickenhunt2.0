@@ -1,27 +1,23 @@
 {
-  "overview": "ChickenHunt is a fast-paced browser-based shooting game where players tap chickens across 6 themed worlds. Features level progression, achievements, leaderboards, and synthesized audio — fully rebuilt on the current Caffeine platform for stability.",
+  "overview": "ChickenHunt is a fast-paced chicken shooting game on the Internet Computer with 9 unique worlds, a full social system with clans, clan chat, and a friend list.",
   "features": [
-    "Canvas-based chicken shooting game with 60-second rounds",
-    "6 themed worlds: Meadow, Volcano, Space, Desert, Jungle, Snowy",
-    "Level progression system (1-100) with XP rewards",
-    "Golden chickens with score multiplier bonus",
-    "Stopwatch power-up that extends round time",
-    "15+ tracked game statistics",
-    "Achievement system with Bronze/Silver/Gold/Diamond/Master tiers",
-    "Global leaderboard with correct score sorting",
-    "Profile with editable name and picture upload",
-    "Synthesized background music and sound effects",
-    "Internet Identity login for saving progress"
+    "9 animated worlds with unique visuals and sounds",
+    "Clan system: create, search, join clans",
+    "Telegram-style clan group chat with optimistic UI",
+    "Friend system: add/remove friends from profiles",
+    "User profiles with all game statistics",
+    "Global leaderboard and achievement system",
+    "Level and XP progression (levels 1–100)",
+    "Internet Identity login"
   ],
-  "category": "game",
+  "category": "games",
   "tags": [
     "game",
-    "shooting",
-    "casual",
-    "canvas",
-    "chickens",
-    "leaderboard",
-    "achievements"
+    "social",
+    "clans",
+    "chat",
+    "internet-computer",
+    "chicken"
   ],
-  "last_updated": "2026-04-24T05:58:06.314Z"
+  "last_updated": "2026-04-24T15:16:57.493Z"
 }

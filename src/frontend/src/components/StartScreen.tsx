@@ -1,14 +1,29 @@
+import { useInternetIdentity } from "@caffeineai/core-infrastructure";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { BackgroundWorld, GameView } from "../App";
+import type { BackgroundWorld, GameStatisticsLocal, PlayerData } from "../App";
+import AchievementsView from "./AchievementsView";
 import BackgroundRenderer from "./BackgroundRenderer";
 import BottomMenu from "./BottomMenu";
+import LeaderboardView from "./LeaderboardView";
+import ProfileView from "./ProfileView";
+import SettingsView from "./SettingsView";
+import SocialsView from "./SocialsView";
+
+type OverlayView =
+  | "achievements"
+  | "profile"
+  | "leaderboard"
+  | "settings"
+  | "socials";
 
 interface StartScreenProps {
   onStartGame: () => void;
-  onNavigateToView: (view: GameView) => void;
   selectedWorld: BackgroundWorld;
   onWorldChange: (world: BackgroundWorld) => void;
+  playerData: PlayerData;
+  gameStatistics: GameStatisticsLocal;
+  addXP: (xpAmount: number) => void;
 }
 
 interface StartChicken {
@@ -52,6 +67,7 @@ const WORLDS: { id: BackgroundWorld; name: string }[] = [
   { id: "snowy", name: "Snowy" },
   { id: "sky", name: "Heaven" },
   { id: "cyberpunk", name: "Cyberpunk City" },
+  { id: "caffeineai", name: "CaffeineAI" },
 ];
 
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
@@ -65,14 +81,19 @@ const START_BUTTON_CLASSES: Record<BackgroundWorld, string> = {
   snowy: "start-game-button-snowy",
   sky: "start-game-button-sky",
   cyberpunk: "start-game-button-cyberpunk",
+  caffeineai: "start-game-button-caffeineai",
 };
 
 const StartScreen: React.FC<StartScreenProps> = ({
   onStartGame,
-  onNavigateToView,
   selectedWorld,
   onWorldChange,
+  playerData,
+  gameStatistics,
+  addXP,
 }) => {
+  const { isAuthenticated } = useInternetIdentity();
+  const [overlayView, setOverlayView] = useState<OverlayView | null>(null);
   const [worldIndex, setWorldIndex] = useState(() => {
     const idx = WORLDS.findIndex((w) => w.id === selectedWorld);
     return idx >= 0 ? idx : 0;
@@ -571,16 +592,67 @@ const StartScreen: React.FC<StartScreenProps> = ({
         </div>
       </div>
 
-      {/* Bottom navigation — same as in-game */}
+      {/* Overlay views — each opens as its own full-screen panel, never navigates to game */}
+      {overlayView === "achievements" && (
+        <div className="fixed inset-0 z-40" style={{ paddingBottom: "60px" }}>
+          <AchievementsView
+            gameStatistics={gameStatistics}
+            isAuthenticated={isAuthenticated}
+            addXP={addXP}
+            playerLevel={playerData.level}
+          />
+        </div>
+      )}
+      {overlayView === "profile" && (
+        <div className="fixed inset-0 z-40" style={{ paddingBottom: "60px" }}>
+          <ProfileView
+            score={0}
+            playerData={playerData}
+            isAuthenticated={isAuthenticated}
+            gameStatistics={gameStatistics}
+          />
+        </div>
+      )}
+      {overlayView === "leaderboard" && (
+        <div className="fixed inset-0 z-40" style={{ paddingBottom: "60px" }}>
+          <LeaderboardView
+            currentPlayerScore={gameStatistics.highestScore}
+            isAuthenticated={isAuthenticated}
+          />
+        </div>
+      )}
+      {/* Settings — fullscreen above bottom menu, same pattern as other overlays */}
+      {overlayView === "settings" && (
+        <div className="fixed inset-0 z-40" style={{ paddingBottom: "60px" }}>
+          <SettingsView onClose={() => setOverlayView(null)} />
+        </div>
+      )}
+      {overlayView === "socials" && (
+        <div className="fixed inset-0 z-40" style={{ paddingBottom: "60px" }}>
+          <SocialsView isAuthenticated={isAuthenticated} />
+        </div>
+      )}
+
+      {/* Bottom navigation — always visible, above all overlay content */}
       <BottomMenu
-        currentView="game"
+        currentView={overlayView ?? "worldSelection"}
+        context="worldSelection"
         onViewChange={(view) => {
-          if (view === "game") {
-            onStartGame();
-          } else {
-            onNavigateToView(view);
+          if (
+            view === "achievements" ||
+            view === "profile" ||
+            view === "leaderboard" ||
+            view === "settings" ||
+            view === "socials"
+          ) {
+            setOverlayView(view);
+          } else if (view === "worldSelection") {
+            // Globe/world tab clicked — close any open overlay, stay in world selection
+            setOverlayView(null);
           }
+          // Never navigate to game from here — only "Start Game" does that
         }}
+        zIndex={50}
       />
     </div>
   );

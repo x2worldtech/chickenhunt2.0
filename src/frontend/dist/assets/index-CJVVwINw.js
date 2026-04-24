@@ -588,8 +588,8 @@ function concatBytes(...arrays) {
   }
   return res;
 }
-class Hash {
-}
+let Hash$1 = class Hash {
+};
 function createHasher$1(hashCons) {
   const hashC = (msg) => hashCons().update(toBytes(msg)).digest();
   const tmp = hashCons();
@@ -625,7 +625,7 @@ function Chi(a2, b2, c2) {
 function Maj(a2, b2, c2) {
   return a2 & b2 ^ a2 & c2 ^ b2 & c2;
 }
-class HashMD extends Hash {
+class HashMD extends Hash$1 {
   constructor(blockLen, outputLen, padOffset, isLE) {
     super();
     this.finished = false;
@@ -27430,21 +27430,74 @@ const UserRole = Variant({
   "user": Null,
   "guest": Null
 });
+const JoinMode$1 = Variant({
+  "open": Null,
+  "requestRequired": Null
+});
 const FileMetadata = Record({
   "path": Text,
   "size": Nat,
   "mimeType": Text
+});
+const ClanSummary = Record({
+  "id": Nat,
+  "ownerId": Principal2,
+  "joinMode": JoinMode$1,
+  "name": Text,
+  "memberCount": Nat,
+  "description": Text
 });
 const ApprovalStatus = Variant({
   "pending": Null,
   "approved": Null,
   "rejected": Null
 });
+const PrincipalInfo = Record({
+  "principal": Principal2,
+  "name": Text,
+  "level": Nat,
+  "avatarUrl": Opt(Text)
+});
+const ClanDetails = Record({
+  "id": Nat,
+  "pendingCount": Nat,
+  "members": Vec(PrincipalInfo),
+  "ownerId": Principal2,
+  "joinMode": JoinMode$1,
+  "name": Text,
+  "createdAt": Int,
+  "description": Text
+});
+const ClanMessage = Record({
+  "id": Nat,
+  "clanId": Nat,
+  "text": Text,
+  "timestamp": Int,
+  "senderId": Principal2
+});
 const UserProfile = Record({ "bio": Text, "name": Text });
 const UserProfileWithChangeStatus = Record({
   "bio": Text,
   "name": Text,
   "hasChangedName": Bool
+});
+const GameStatistics = Record({
+  "totalShotsFired": Nat,
+  "totalChickensShot": Nat,
+  "bestSessionChickens": Nat,
+  "bestConsecutiveHits": Nat,
+  "highestScore": Nat,
+  "perfectAccuracySessions": Nat,
+  "smallChickensShot": Nat,
+  "totalPlayTimeMinutes": Nat,
+  "level": Nat,
+  "totalScore": Nat,
+  "fastChickensShot": Nat,
+  "largeChickensShot": Nat,
+  "totalMissedShots": Nat,
+  "mediumChickensShot": Nat,
+  "currentAccuracy": Float64,
+  "goldenChickensShot": Nat
 });
 const StreamingToken = Record({
   "resource": Text,
@@ -27483,26 +27536,33 @@ const UserInfo = Record({
   "role": UserRole,
   "approval": ApprovalStatus
 });
-const GameStatistics = Record({
-  "totalShotsFired": Nat,
-  "totalChickensShot": Nat,
-  "bestSessionChickens": Nat,
-  "bestConsecutiveHits": Nat,
-  "highestScore": Nat,
-  "perfectAccuracySessions": Nat,
-  "smallChickensShot": Nat,
-  "totalPlayTimeMinutes": Nat,
-  "level": Nat,
-  "totalScore": Nat,
-  "fastChickensShot": Nat,
-  "largeChickensShot": Nat,
-  "totalMissedShots": Nat,
-  "mediumChickensShot": Nat,
-  "currentAccuracy": Float64,
-  "goldenChickensShot": Nat
-});
 Service({
+  "addFriend": Func(
+    [Principal2],
+    [Variant({ "ok": Text, "err": Text })],
+    []
+  ),
+  "approveJoinRequest": Func(
+    [Nat, Principal2],
+    [Variant({ "ok": Text, "err": Text })],
+    []
+  ),
   "assignRole": Func([Principal2, UserRole], [], []),
+  "createClan": Func(
+    [Text, Text, JoinMode$1],
+    [Variant({ "ok": Nat, "err": Text })],
+    []
+  ),
+  "declineJoinRequest": Func(
+    [Nat, Principal2],
+    [Variant({ "ok": Text, "err": Text })],
+    []
+  ),
+  "deleteClan": Func(
+    [Nat],
+    [Variant({ "ok": Text, "err": Text })],
+    []
+  ),
   "fileDelete": Func([Text], [], []),
   "fileList": Func([], [Vec(FileMetadata)], ["query"]),
   "fileUpload": Func(
@@ -27510,7 +27570,18 @@ Service({
     [],
     []
   ),
+  "getAllClans": Func([], [Vec(ClanSummary)], ["query"]),
   "getApprovalStatus": Func([Principal2], [ApprovalStatus], ["query"]),
+  "getClan": Func(
+    [Nat],
+    [Variant({ "ok": ClanDetails, "err": Text })],
+    ["query"]
+  ),
+  "getClanMessages": Func(
+    [Nat, Nat, Opt(Nat)],
+    [Variant({ "ok": Vec(ClanMessage), "err": Text })],
+    ["query"]
+  ),
   "getCurrentUserApprovalStatus": Func([], [ApprovalStatus], ["query"]),
   "getCurrentUserProfile": Func([], [Opt(UserProfile)], ["query"]),
   "getCurrentUserProfileWithChangeStatus": Func(
@@ -27519,9 +27590,20 @@ Service({
     ["query"]
   ),
   "getCurrentUserRole": Func([], [UserRole], ["query"]),
+  "getFriends": Func([], [Vec(PrincipalInfo)], ["query"]),
   "getLeaderboard": Func(
     [],
     [Vec(Tuple(Text, Nat, Nat))],
+    ["query"]
+  ),
+  "getPendingJoinRequests": Func(
+    [Nat],
+    [Variant({ "ok": Vec(PrincipalInfo), "err": Text })],
+    []
+  ),
+  "getUserGameStats": Func(
+    [Principal2],
+    [Opt(GameStatistics)],
     ["query"]
   ),
   "getUserProfile": Func(
@@ -27542,7 +27624,23 @@ Service({
   "http_request": Func([HttpRequest], [HttpResponse], ["query"]),
   "initializeAuth": Func([], [], []),
   "isCurrentUserAdmin": Func([], [Bool], ["query"]),
+  "isFriend": Func([Principal2], [Bool], ["query"]),
+  "joinClan": Func(
+    [Nat],
+    [Variant({ "ok": Text, "err": Text })],
+    []
+  ),
+  "leaveClan": Func(
+    [Nat],
+    [Variant({ "ok": Text, "err": Text })],
+    []
+  ),
   "listUsers": Func([], [Vec(UserInfo)], ["query"]),
+  "removeFriend": Func(
+    [Principal2],
+    [Variant({ "ok": Text, "err": Text })],
+    []
+  ),
   "saveCurrentUserProfile": Func([UserProfile], [], []),
   "saveCurrentUserProfileWithChangeStatus": Func(
     [UserProfileWithChangeStatus],
@@ -27550,6 +27648,12 @@ Service({
     []
   ),
   "saveGameStatistics": Func([GameStatistics], [], []),
+  "searchClans": Func([Text], [Vec(ClanSummary)], ["query"]),
+  "sendClanMessage": Func(
+    [Nat, Text],
+    [Variant({ "ok": ClanMessage, "err": Text })],
+    []
+  ),
   "setApproval": Func([Principal2, ApprovalStatus], [], [])
 });
 const idlFactory = ({ IDL: IDL2 }) => {
@@ -27558,21 +27662,74 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "user": IDL2.Null,
     "guest": IDL2.Null
   });
+  const JoinMode2 = IDL2.Variant({
+    "open": IDL2.Null,
+    "requestRequired": IDL2.Null
+  });
   const FileMetadata2 = IDL2.Record({
     "path": IDL2.Text,
     "size": IDL2.Nat,
     "mimeType": IDL2.Text
+  });
+  const ClanSummary2 = IDL2.Record({
+    "id": IDL2.Nat,
+    "ownerId": IDL2.Principal,
+    "joinMode": JoinMode2,
+    "name": IDL2.Text,
+    "memberCount": IDL2.Nat,
+    "description": IDL2.Text
   });
   const ApprovalStatus2 = IDL2.Variant({
     "pending": IDL2.Null,
     "approved": IDL2.Null,
     "rejected": IDL2.Null
   });
+  const PrincipalInfo2 = IDL2.Record({
+    "principal": IDL2.Principal,
+    "name": IDL2.Text,
+    "level": IDL2.Nat,
+    "avatarUrl": IDL2.Opt(IDL2.Text)
+  });
+  const ClanDetails2 = IDL2.Record({
+    "id": IDL2.Nat,
+    "pendingCount": IDL2.Nat,
+    "members": IDL2.Vec(PrincipalInfo2),
+    "ownerId": IDL2.Principal,
+    "joinMode": JoinMode2,
+    "name": IDL2.Text,
+    "createdAt": IDL2.Int,
+    "description": IDL2.Text
+  });
+  const ClanMessage2 = IDL2.Record({
+    "id": IDL2.Nat,
+    "clanId": IDL2.Nat,
+    "text": IDL2.Text,
+    "timestamp": IDL2.Int,
+    "senderId": IDL2.Principal
+  });
   const UserProfile2 = IDL2.Record({ "bio": IDL2.Text, "name": IDL2.Text });
   const UserProfileWithChangeStatus2 = IDL2.Record({
     "bio": IDL2.Text,
     "name": IDL2.Text,
     "hasChangedName": IDL2.Bool
+  });
+  const GameStatistics2 = IDL2.Record({
+    "totalShotsFired": IDL2.Nat,
+    "totalChickensShot": IDL2.Nat,
+    "bestSessionChickens": IDL2.Nat,
+    "bestConsecutiveHits": IDL2.Nat,
+    "highestScore": IDL2.Nat,
+    "perfectAccuracySessions": IDL2.Nat,
+    "smallChickensShot": IDL2.Nat,
+    "totalPlayTimeMinutes": IDL2.Nat,
+    "level": IDL2.Nat,
+    "totalScore": IDL2.Nat,
+    "fastChickensShot": IDL2.Nat,
+    "largeChickensShot": IDL2.Nat,
+    "totalMissedShots": IDL2.Nat,
+    "mediumChickensShot": IDL2.Nat,
+    "currentAccuracy": IDL2.Float64,
+    "goldenChickensShot": IDL2.Nat
   });
   const StreamingToken2 = IDL2.Record({
     "resource": IDL2.Text,
@@ -27611,26 +27768,33 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "role": UserRole2,
     "approval": ApprovalStatus2
   });
-  const GameStatistics2 = IDL2.Record({
-    "totalShotsFired": IDL2.Nat,
-    "totalChickensShot": IDL2.Nat,
-    "bestSessionChickens": IDL2.Nat,
-    "bestConsecutiveHits": IDL2.Nat,
-    "highestScore": IDL2.Nat,
-    "perfectAccuracySessions": IDL2.Nat,
-    "smallChickensShot": IDL2.Nat,
-    "totalPlayTimeMinutes": IDL2.Nat,
-    "level": IDL2.Nat,
-    "totalScore": IDL2.Nat,
-    "fastChickensShot": IDL2.Nat,
-    "largeChickensShot": IDL2.Nat,
-    "totalMissedShots": IDL2.Nat,
-    "mediumChickensShot": IDL2.Nat,
-    "currentAccuracy": IDL2.Float64,
-    "goldenChickensShot": IDL2.Nat
-  });
   return IDL2.Service({
+    "addFriend": IDL2.Func(
+      [IDL2.Principal],
+      [IDL2.Variant({ "ok": IDL2.Text, "err": IDL2.Text })],
+      []
+    ),
+    "approveJoinRequest": IDL2.Func(
+      [IDL2.Nat, IDL2.Principal],
+      [IDL2.Variant({ "ok": IDL2.Text, "err": IDL2.Text })],
+      []
+    ),
     "assignRole": IDL2.Func([IDL2.Principal, UserRole2], [], []),
+    "createClan": IDL2.Func(
+      [IDL2.Text, IDL2.Text, JoinMode2],
+      [IDL2.Variant({ "ok": IDL2.Nat, "err": IDL2.Text })],
+      []
+    ),
+    "declineJoinRequest": IDL2.Func(
+      [IDL2.Nat, IDL2.Principal],
+      [IDL2.Variant({ "ok": IDL2.Text, "err": IDL2.Text })],
+      []
+    ),
+    "deleteClan": IDL2.Func(
+      [IDL2.Nat],
+      [IDL2.Variant({ "ok": IDL2.Text, "err": IDL2.Text })],
+      []
+    ),
     "fileDelete": IDL2.Func([IDL2.Text], [], []),
     "fileList": IDL2.Func([], [IDL2.Vec(FileMetadata2)], ["query"]),
     "fileUpload": IDL2.Func(
@@ -27638,9 +27802,20 @@ const idlFactory = ({ IDL: IDL2 }) => {
       [],
       []
     ),
+    "getAllClans": IDL2.Func([], [IDL2.Vec(ClanSummary2)], ["query"]),
     "getApprovalStatus": IDL2.Func(
       [IDL2.Principal],
       [ApprovalStatus2],
+      ["query"]
+    ),
+    "getClan": IDL2.Func(
+      [IDL2.Nat],
+      [IDL2.Variant({ "ok": ClanDetails2, "err": IDL2.Text })],
+      ["query"]
+    ),
+    "getClanMessages": IDL2.Func(
+      [IDL2.Nat, IDL2.Nat, IDL2.Opt(IDL2.Nat)],
+      [IDL2.Variant({ "ok": IDL2.Vec(ClanMessage2), "err": IDL2.Text })],
       ["query"]
     ),
     "getCurrentUserApprovalStatus": IDL2.Func([], [ApprovalStatus2], ["query"]),
@@ -27651,9 +27826,20 @@ const idlFactory = ({ IDL: IDL2 }) => {
       ["query"]
     ),
     "getCurrentUserRole": IDL2.Func([], [UserRole2], ["query"]),
+    "getFriends": IDL2.Func([], [IDL2.Vec(PrincipalInfo2)], ["query"]),
     "getLeaderboard": IDL2.Func(
       [],
       [IDL2.Vec(IDL2.Tuple(IDL2.Text, IDL2.Nat, IDL2.Nat))],
+      ["query"]
+    ),
+    "getPendingJoinRequests": IDL2.Func(
+      [IDL2.Nat],
+      [IDL2.Variant({ "ok": IDL2.Vec(PrincipalInfo2), "err": IDL2.Text })],
+      []
+    ),
+    "getUserGameStats": IDL2.Func(
+      [IDL2.Principal],
+      [IDL2.Opt(GameStatistics2)],
       ["query"]
     ),
     "getUserProfile": IDL2.Func(
@@ -27674,7 +27860,23 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "http_request": IDL2.Func([HttpRequest2], [HttpResponse2], ["query"]),
     "initializeAuth": IDL2.Func([], [], []),
     "isCurrentUserAdmin": IDL2.Func([], [IDL2.Bool], ["query"]),
+    "isFriend": IDL2.Func([IDL2.Principal], [IDL2.Bool], ["query"]),
+    "joinClan": IDL2.Func(
+      [IDL2.Nat],
+      [IDL2.Variant({ "ok": IDL2.Text, "err": IDL2.Text })],
+      []
+    ),
+    "leaveClan": IDL2.Func(
+      [IDL2.Nat],
+      [IDL2.Variant({ "ok": IDL2.Text, "err": IDL2.Text })],
+      []
+    ),
     "listUsers": IDL2.Func([], [IDL2.Vec(UserInfo2)], ["query"]),
+    "removeFriend": IDL2.Func(
+      [IDL2.Principal],
+      [IDL2.Variant({ "ok": IDL2.Text, "err": IDL2.Text })],
+      []
+    ),
     "saveCurrentUserProfile": IDL2.Func([UserProfile2], [], []),
     "saveCurrentUserProfileWithChangeStatus": IDL2.Func(
       [UserProfileWithChangeStatus2],
@@ -27682,12 +27884,31 @@ const idlFactory = ({ IDL: IDL2 }) => {
       []
     ),
     "saveGameStatistics": IDL2.Func([GameStatistics2], [], []),
+    "searchClans": IDL2.Func([IDL2.Text], [IDL2.Vec(ClanSummary2)], ["query"]),
+    "sendClanMessage": IDL2.Func(
+      [IDL2.Nat, IDL2.Text],
+      [IDL2.Variant({ "ok": ClanMessage2, "err": IDL2.Text })],
+      []
+    ),
     "setApproval": IDL2.Func([IDL2.Principal, ApprovalStatus2], [], [])
   });
 };
+function candid_some(value) {
+  return [
+    value
+  ];
+}
+function candid_none() {
+  return [];
+}
 function record_opt_to_undefined(arg) {
   return arg == null ? void 0 : arg;
 }
+var JoinMode = /* @__PURE__ */ ((JoinMode2) => {
+  JoinMode2["open"] = "open";
+  JoinMode2["requestRequired"] = "requestRequired";
+  return JoinMode2;
+})(JoinMode || {});
 class Backend {
   constructor(actor, _uploadFile, _downloadFile, processError2) {
     this.actor = actor;
@@ -27695,18 +27916,88 @@ class Backend {
     this._downloadFile = _downloadFile;
     this.processError = processError2;
   }
+  async addFriend(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.addFriend(arg0);
+        return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.addFriend(arg0);
+      return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async approveJoinRequest(arg0, arg1) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.approveJoinRequest(arg0, arg1);
+        return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.approveJoinRequest(arg0, arg1);
+      return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+    }
+  }
   async assignRole(arg0, arg1) {
     if (this.processError) {
       try {
-        const result = await this.actor.assignRole(arg0, to_candid_UserRole_n1(this._uploadFile, this._downloadFile, arg1));
+        const result = await this.actor.assignRole(arg0, to_candid_UserRole_n2(this._uploadFile, this._downloadFile, arg1));
         return result;
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.assignRole(arg0, to_candid_UserRole_n1(this._uploadFile, this._downloadFile, arg1));
+      const result = await this.actor.assignRole(arg0, to_candid_UserRole_n2(this._uploadFile, this._downloadFile, arg1));
       return result;
+    }
+  }
+  async createClan(arg0, arg1, arg2) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.createClan(arg0, arg1, to_candid_JoinMode_n4(this._uploadFile, this._downloadFile, arg2));
+        return from_candid_variant_n6(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.createClan(arg0, arg1, to_candid_JoinMode_n4(this._uploadFile, this._downloadFile, arg2));
+      return from_candid_variant_n6(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async declineJoinRequest(arg0, arg1) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.declineJoinRequest(arg0, arg1);
+        return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.declineJoinRequest(arg0, arg1);
+      return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async deleteClan(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.deleteClan(arg0);
+        return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.deleteClan(arg0);
+      return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
     }
   }
   async fileDelete(arg0) {
@@ -27751,74 +28042,130 @@ class Backend {
       return result;
     }
   }
+  async getAllClans() {
+    if (this.processError) {
+      try {
+        const result = await this.actor.getAllClans();
+        return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.getAllClans();
+      return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+    }
+  }
   async getApprovalStatus(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.getApprovalStatus(arg0);
-        return from_candid_ApprovalStatus_n3(this._uploadFile, this._downloadFile, result);
+        return from_candid_ApprovalStatus_n12(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getApprovalStatus(arg0);
-      return from_candid_ApprovalStatus_n3(this._uploadFile, this._downloadFile, result);
+      return from_candid_ApprovalStatus_n12(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async getClan(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.getClan(arg0);
+        return from_candid_variant_n14(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.getClan(arg0);
+      return from_candid_variant_n14(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async getClanMessages(arg0, arg1, arg2) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.getClanMessages(arg0, arg1, to_candid_opt_n21(this._uploadFile, this._downloadFile, arg2));
+        return from_candid_variant_n22(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.getClanMessages(arg0, arg1, to_candid_opt_n21(this._uploadFile, this._downloadFile, arg2));
+      return from_candid_variant_n22(this._uploadFile, this._downloadFile, result);
     }
   }
   async getCurrentUserApprovalStatus() {
     if (this.processError) {
       try {
         const result = await this.actor.getCurrentUserApprovalStatus();
-        return from_candid_ApprovalStatus_n3(this._uploadFile, this._downloadFile, result);
+        return from_candid_ApprovalStatus_n12(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getCurrentUserApprovalStatus();
-      return from_candid_ApprovalStatus_n3(this._uploadFile, this._downloadFile, result);
+      return from_candid_ApprovalStatus_n12(this._uploadFile, this._downloadFile, result);
     }
   }
   async getCurrentUserProfile() {
     if (this.processError) {
       try {
         const result = await this.actor.getCurrentUserProfile();
-        return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+        return from_candid_opt_n23(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getCurrentUserProfile();
-      return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+      return from_candid_opt_n23(this._uploadFile, this._downloadFile, result);
     }
   }
   async getCurrentUserProfileWithChangeStatus() {
     if (this.processError) {
       try {
         const result = await this.actor.getCurrentUserProfileWithChangeStatus();
-        return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
+        return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getCurrentUserProfileWithChangeStatus();
-      return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
+      return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
     }
   }
   async getCurrentUserRole() {
     if (this.processError) {
       try {
         const result = await this.actor.getCurrentUserRole();
-        return from_candid_UserRole_n7(this._uploadFile, this._downloadFile, result);
+        return from_candid_UserRole_n25(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getCurrentUserRole();
-      return from_candid_UserRole_n7(this._uploadFile, this._downloadFile, result);
+      return from_candid_UserRole_n25(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async getFriends() {
+    if (this.processError) {
+      try {
+        const result = await this.actor.getFriends();
+        return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.getFriends();
+      return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
     }
   }
   async getLeaderboard() {
@@ -27835,60 +28182,88 @@ class Backend {
       return result;
     }
   }
+  async getPendingJoinRequests(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.getPendingJoinRequests(arg0);
+        return from_candid_variant_n27(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.getPendingJoinRequests(arg0);
+      return from_candid_variant_n27(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async getUserGameStats(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.getUserGameStats(arg0);
+        return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.getUserGameStats(arg0);
+      return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+    }
+  }
   async getUserProfile(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.getUserProfile(arg0);
-        return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+        return from_candid_opt_n23(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getUserProfile(arg0);
-      return from_candid_opt_n5(this._uploadFile, this._downloadFile, result);
+      return from_candid_opt_n23(this._uploadFile, this._downloadFile, result);
     }
   }
   async getUserProfileWithChangeStatus(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.getUserProfileWithChangeStatus(arg0);
-        return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
+        return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getUserProfileWithChangeStatus(arg0);
-      return from_candid_opt_n6(this._uploadFile, this._downloadFile, result);
+      return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
     }
   }
   async httpStreamingCallback(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.httpStreamingCallback(arg0);
-        return from_candid_StreamingCallbackHttpResponse_n9(this._uploadFile, this._downloadFile, result);
+        return from_candid_StreamingCallbackHttpResponse_n29(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.httpStreamingCallback(arg0);
-      return from_candid_StreamingCallbackHttpResponse_n9(this._uploadFile, this._downloadFile, result);
+      return from_candid_StreamingCallbackHttpResponse_n29(this._uploadFile, this._downloadFile, result);
     }
   }
   async http_request(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.http_request(arg0);
-        return from_candid_HttpResponse_n12(this._uploadFile, this._downloadFile, result);
+        return from_candid_HttpResponse_n32(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.http_request(arg0);
-      return from_candid_HttpResponse_n12(this._uploadFile, this._downloadFile, result);
+      return from_candid_HttpResponse_n32(this._uploadFile, this._downloadFile, result);
     }
   }
   async initializeAuth() {
@@ -27919,18 +28294,74 @@ class Backend {
       return result;
     }
   }
+  async isFriend(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.isFriend(arg0);
+        return result;
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.isFriend(arg0);
+      return result;
+    }
+  }
+  async joinClan(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.joinClan(arg0);
+        return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.joinClan(arg0);
+      return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async leaveClan(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.leaveClan(arg0);
+        return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.leaveClan(arg0);
+      return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+    }
+  }
   async listUsers() {
     if (this.processError) {
       try {
         const result = await this.actor.listUsers();
-        return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
+        return from_candid_vec_n37(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.listUsers();
-      return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
+      return from_candid_vec_n37(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async removeFriend(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.removeFriend(arg0);
+        return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.removeFriend(arg0);
+      return from_candid_variant_n1(this._uploadFile, this._downloadFile, result);
     }
   }
   async saveCurrentUserProfile(arg0) {
@@ -27975,94 +28406,239 @@ class Backend {
       return result;
     }
   }
+  async searchClans(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.searchClans(arg0);
+        return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.searchClans(arg0);
+      return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async sendClanMessage(arg0, arg1) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.sendClanMessage(arg0, arg1);
+        return from_candid_variant_n40(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.sendClanMessage(arg0, arg1);
+      return from_candid_variant_n40(this._uploadFile, this._downloadFile, result);
+    }
+  }
   async setApproval(arg0, arg1) {
     if (this.processError) {
       try {
-        const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n20(this._uploadFile, this._downloadFile, arg1));
+        const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n41(this._uploadFile, this._downloadFile, arg1));
         return result;
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n20(this._uploadFile, this._downloadFile, arg1));
+      const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n41(this._uploadFile, this._downloadFile, arg1));
       return result;
     }
   }
 }
-function from_candid_ApprovalStatus_n3(_uploadFile, _downloadFile, value) {
-  return from_candid_variant_n4(_uploadFile, _downloadFile, value);
+function from_candid_ApprovalStatus_n12(_uploadFile, _downloadFile, value) {
+  return from_candid_variant_n13(_uploadFile, _downloadFile, value);
 }
-function from_candid_HttpResponse_n12(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n13(_uploadFile, _downloadFile, value);
+function from_candid_ClanDetails_n15(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n16(_uploadFile, _downloadFile, value);
 }
-function from_candid_StreamingCallbackHttpResponse_n9(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n10(_uploadFile, _downloadFile, value);
+function from_candid_ClanSummary_n8(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n9(_uploadFile, _downloadFile, value);
 }
-function from_candid_StreamingStrategy_n15(_uploadFile, _downloadFile, value) {
-  return from_candid_variant_n16(_uploadFile, _downloadFile, value);
+function from_candid_HttpResponse_n32(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n33(_uploadFile, _downloadFile, value);
 }
-function from_candid_UserInfo_n18(_uploadFile, _downloadFile, value) {
+function from_candid_JoinMode_n10(_uploadFile, _downloadFile, value) {
+  return from_candid_variant_n11(_uploadFile, _downloadFile, value);
+}
+function from_candid_PrincipalInfo_n18(_uploadFile, _downloadFile, value) {
   return from_candid_record_n19(_uploadFile, _downloadFile, value);
 }
-function from_candid_UserRole_n7(_uploadFile, _downloadFile, value) {
-  return from_candid_variant_n8(_uploadFile, _downloadFile, value);
+function from_candid_StreamingCallbackHttpResponse_n29(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n30(_uploadFile, _downloadFile, value);
 }
-function from_candid_opt_n11(_uploadFile, _downloadFile, value) {
+function from_candid_StreamingStrategy_n35(_uploadFile, _downloadFile, value) {
+  return from_candid_variant_n36(_uploadFile, _downloadFile, value);
+}
+function from_candid_UserInfo_n38(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n39(_uploadFile, _downloadFile, value);
+}
+function from_candid_UserRole_n25(_uploadFile, _downloadFile, value) {
+  return from_candid_variant_n26(_uploadFile, _downloadFile, value);
+}
+function from_candid_opt_n20(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n14(_uploadFile, _downloadFile, value) {
-  return value.length === 0 ? null : from_candid_StreamingStrategy_n15(_uploadFile, _downloadFile, value[0]);
-}
-function from_candid_opt_n5(_uploadFile, _downloadFile, value) {
+function from_candid_opt_n23(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n6(_uploadFile, _downloadFile, value) {
+function from_candid_opt_n24(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : value[0];
 }
-function from_candid_record_n10(_uploadFile, _downloadFile, value) {
+function from_candid_opt_n28(_uploadFile, _downloadFile, value) {
+  return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n31(_uploadFile, _downloadFile, value) {
+  return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n34(_uploadFile, _downloadFile, value) {
+  return value.length === 0 ? null : from_candid_StreamingStrategy_n35(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_record_n16(_uploadFile, _downloadFile, value) {
   return {
-    token: record_opt_to_undefined(from_candid_opt_n11(_uploadFile, _downloadFile, value.token)),
-    body: value.body
-  };
-}
-function from_candid_record_n13(_uploadFile, _downloadFile, value) {
-  return {
-    body: value.body,
-    headers: value.headers,
-    streaming_strategy: record_opt_to_undefined(from_candid_opt_n14(_uploadFile, _downloadFile, value.streaming_strategy)),
-    status_code: value.status_code
+    id: value.id,
+    pendingCount: value.pendingCount,
+    members: from_candid_vec_n17(_uploadFile, _downloadFile, value.members),
+    ownerId: value.ownerId,
+    joinMode: from_candid_JoinMode_n10(_uploadFile, _downloadFile, value.joinMode),
+    name: value.name,
+    createdAt: value.createdAt,
+    description: value.description
   };
 }
 function from_candid_record_n19(_uploadFile, _downloadFile, value) {
   return {
     principal: value.principal,
-    role: from_candid_UserRole_n7(_uploadFile, _downloadFile, value.role),
-    approval: from_candid_ApprovalStatus_n3(_uploadFile, _downloadFile, value.approval)
+    name: value.name,
+    level: value.level,
+    avatarUrl: record_opt_to_undefined(from_candid_opt_n20(_uploadFile, _downloadFile, value.avatarUrl))
   };
 }
-function from_candid_variant_n16(_uploadFile, _downloadFile, value) {
+function from_candid_record_n30(_uploadFile, _downloadFile, value) {
+  return {
+    token: record_opt_to_undefined(from_candid_opt_n31(_uploadFile, _downloadFile, value.token)),
+    body: value.body
+  };
+}
+function from_candid_record_n33(_uploadFile, _downloadFile, value) {
+  return {
+    body: value.body,
+    headers: value.headers,
+    streaming_strategy: record_opt_to_undefined(from_candid_opt_n34(_uploadFile, _downloadFile, value.streaming_strategy)),
+    status_code: value.status_code
+  };
+}
+function from_candid_record_n39(_uploadFile, _downloadFile, value) {
+  return {
+    principal: value.principal,
+    role: from_candid_UserRole_n25(_uploadFile, _downloadFile, value.role),
+    approval: from_candid_ApprovalStatus_n12(_uploadFile, _downloadFile, value.approval)
+  };
+}
+function from_candid_record_n9(_uploadFile, _downloadFile, value) {
+  return {
+    id: value.id,
+    ownerId: value.ownerId,
+    joinMode: from_candid_JoinMode_n10(_uploadFile, _downloadFile, value.joinMode),
+    name: value.name,
+    memberCount: value.memberCount,
+    description: value.description
+  };
+}
+function from_candid_variant_n1(_uploadFile, _downloadFile, value) {
+  return "ok" in value ? {
+    __kind__: "ok",
+    ok: value.ok
+  } : "err" in value ? {
+    __kind__: "err",
+    err: value.err
+  } : value;
+}
+function from_candid_variant_n11(_uploadFile, _downloadFile, value) {
+  return "open" in value ? "open" : "requestRequired" in value ? "requestRequired" : value;
+}
+function from_candid_variant_n13(_uploadFile, _downloadFile, value) {
+  return "pending" in value ? "pending" : "approved" in value ? "approved" : "rejected" in value ? "rejected" : value;
+}
+function from_candid_variant_n14(_uploadFile, _downloadFile, value) {
+  return "ok" in value ? {
+    __kind__: "ok",
+    ok: from_candid_ClanDetails_n15(_uploadFile, _downloadFile, value.ok)
+  } : "err" in value ? {
+    __kind__: "err",
+    err: value.err
+  } : value;
+}
+function from_candid_variant_n22(_uploadFile, _downloadFile, value) {
+  return "ok" in value ? {
+    __kind__: "ok",
+    ok: value.ok
+  } : "err" in value ? {
+    __kind__: "err",
+    err: value.err
+  } : value;
+}
+function from_candid_variant_n26(_uploadFile, _downloadFile, value) {
+  return "admin" in value ? "admin" : "user" in value ? "user" : "guest" in value ? "guest" : value;
+}
+function from_candid_variant_n27(_uploadFile, _downloadFile, value) {
+  return "ok" in value ? {
+    __kind__: "ok",
+    ok: from_candid_vec_n17(_uploadFile, _downloadFile, value.ok)
+  } : "err" in value ? {
+    __kind__: "err",
+    err: value.err
+  } : value;
+}
+function from_candid_variant_n36(_uploadFile, _downloadFile, value) {
   return "Callback" in value ? {
     __kind__: "Callback",
     Callback: value.Callback
   } : value;
 }
-function from_candid_variant_n4(_uploadFile, _downloadFile, value) {
-  return "pending" in value ? "pending" : "approved" in value ? "approved" : "rejected" in value ? "rejected" : value;
+function from_candid_variant_n40(_uploadFile, _downloadFile, value) {
+  return "ok" in value ? {
+    __kind__: "ok",
+    ok: value.ok
+  } : "err" in value ? {
+    __kind__: "err",
+    err: value.err
+  } : value;
 }
-function from_candid_variant_n8(_uploadFile, _downloadFile, value) {
-  return "admin" in value ? "admin" : "user" in value ? "user" : "guest" in value ? "guest" : value;
+function from_candid_variant_n6(_uploadFile, _downloadFile, value) {
+  return "ok" in value ? {
+    __kind__: "ok",
+    ok: value.ok
+  } : "err" in value ? {
+    __kind__: "err",
+    err: value.err
+  } : value;
 }
 function from_candid_vec_n17(_uploadFile, _downloadFile, value) {
-  return value.map((x2) => from_candid_UserInfo_n18(_uploadFile, _downloadFile, x2));
+  return value.map((x2) => from_candid_PrincipalInfo_n18(_uploadFile, _downloadFile, x2));
 }
-function to_candid_ApprovalStatus_n20(_uploadFile, _downloadFile, value) {
-  return to_candid_variant_n21(_uploadFile, _downloadFile, value);
+function from_candid_vec_n37(_uploadFile, _downloadFile, value) {
+  return value.map((x2) => from_candid_UserInfo_n38(_uploadFile, _downloadFile, x2));
 }
-function to_candid_UserRole_n1(_uploadFile, _downloadFile, value) {
-  return to_candid_variant_n2(_uploadFile, _downloadFile, value);
+function from_candid_vec_n7(_uploadFile, _downloadFile, value) {
+  return value.map((x2) => from_candid_ClanSummary_n8(_uploadFile, _downloadFile, x2));
 }
-function to_candid_variant_n2(_uploadFile, _downloadFile, value) {
+function to_candid_ApprovalStatus_n41(_uploadFile, _downloadFile, value) {
+  return to_candid_variant_n42(_uploadFile, _downloadFile, value);
+}
+function to_candid_JoinMode_n4(_uploadFile, _downloadFile, value) {
+  return to_candid_variant_n5(_uploadFile, _downloadFile, value);
+}
+function to_candid_UserRole_n2(_uploadFile, _downloadFile, value) {
+  return to_candid_variant_n3(_uploadFile, _downloadFile, value);
+}
+function to_candid_opt_n21(_uploadFile, _downloadFile, value) {
+  return value === null ? candid_none() : candid_some(value);
+}
+function to_candid_variant_n3(_uploadFile, _downloadFile, value) {
   return value == "admin" ? {
     admin: null
   } : value == "user" ? {
@@ -28071,13 +28647,20 @@ function to_candid_variant_n2(_uploadFile, _downloadFile, value) {
     guest: null
   } : value;
 }
-function to_candid_variant_n21(_uploadFile, _downloadFile, value) {
+function to_candid_variant_n42(_uploadFile, _downloadFile, value) {
   return value == "pending" ? {
     pending: null
   } : value == "approved" ? {
     approved: null
   } : value == "rejected" ? {
     rejected: null
+  } : value;
+}
+function to_candid_variant_n5(_uploadFile, _downloadFile, value) {
+  return value == "open" ? {
+    open: null
+  } : value == "requestRequired" ? {
+    requestRequired: null
   } : value;
 }
 function createActor(canisterId, _uploadFile, _downloadFile, options = {}) {
@@ -28154,6 +28737,293 @@ function useListUsers() {
       return actor.listUsers();
     },
     enabled: !!actor && !isFetching
+  });
+}
+function useUserClans(myPrincipal) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery({
+    queryKey: ["userClans", myPrincipal == null ? void 0 : myPrincipal.toText()],
+    queryFn: async () => {
+      if (!actor || !myPrincipal) return [];
+      const all = await actor.getAllClans();
+      if (all.length === 0) return [];
+      const myText = myPrincipal.toText();
+      const ownedIds = new Set(
+        all.filter((c2) => c2.ownerId.toText() === myText).map((c2) => c2.id.toString())
+      );
+      const detailResults = await Promise.allSettled(
+        all.filter((c2) => !ownedIds.has(c2.id.toString())).map(async (c2) => {
+          const res = await actor.getClan(c2.id);
+          if (res.__kind__ === "ok") {
+            const isMember = res.ok.members.some(
+              (m2) => m2.principal.toText() === myText
+            );
+            return isMember ? c2.id.toString() : null;
+          }
+          return null;
+        })
+      );
+      const memberIds = new Set(
+        detailResults.filter(
+          (r2) => r2.status === "fulfilled"
+        ).map((r2) => r2.value).filter((id) => id !== null)
+      );
+      return all.filter(
+        (c2) => ownedIds.has(c2.id.toString()) || memberIds.has(c2.id.toString())
+      );
+    },
+    enabled: !!actor && !isFetching && myPrincipal !== null
+  });
+}
+function useSearchClans(q2) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery({
+    queryKey: ["searchClans", q2],
+    queryFn: async () => {
+      if (!actor || q2.trim().length === 0) return [];
+      return actor.searchClans(q2);
+    },
+    enabled: !!actor && !isFetching
+  });
+}
+function useClanDetails(clanId) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery({
+    queryKey: ["clan", clanId == null ? void 0 : clanId.toString()],
+    queryFn: async () => {
+      if (!actor || clanId === null) return null;
+      const res = await actor.getClan(clanId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    enabled: !!actor && !isFetching && clanId !== null
+  });
+}
+function usePendingJoinRequests(clanId) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery({
+    queryKey: ["pendingRequests", clanId == null ? void 0 : clanId.toString()],
+    queryFn: async () => {
+      if (!actor || clanId === null) return [];
+      const res = await actor.getPendingJoinRequests(clanId);
+      if (res.__kind__ === "ok") return res.ok;
+      return [];
+    },
+    enabled: !!actor && !isFetching && clanId !== null
+  });
+}
+function useCreateClan() {
+  const { actor } = useActor(createActor);
+  const queryClient2 = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      name,
+      description,
+      joinMode
+    }) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.createClan(name, description, joinMode);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: () => {
+      queryClient2.invalidateQueries({ queryKey: ["allClans"] });
+    }
+  });
+}
+function useJoinClan() {
+  const { actor } = useActor(createActor);
+  const queryClient2 = useQueryClient();
+  return useMutation({
+    mutationFn: async (clanId) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.joinClan(clanId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: () => {
+      queryClient2.invalidateQueries({ queryKey: ["allClans"] });
+      queryClient2.invalidateQueries({ queryKey: ["searchClans"] });
+    }
+  });
+}
+function useLeaveClan() {
+  const { actor } = useActor(createActor);
+  const queryClient2 = useQueryClient();
+  return useMutation({
+    mutationFn: async (clanId) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.leaveClan(clanId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: (_2, clanId) => {
+      queryClient2.invalidateQueries({ queryKey: ["allClans"] });
+      queryClient2.invalidateQueries({ queryKey: ["clan", clanId.toString()] });
+    }
+  });
+}
+function useDeleteClan() {
+  const { actor } = useActor(createActor);
+  const queryClient2 = useQueryClient();
+  return useMutation({
+    mutationFn: async (clanId) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.deleteClan(clanId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: () => {
+      queryClient2.invalidateQueries({ queryKey: ["allClans"] });
+    }
+  });
+}
+function useApproveJoinRequest() {
+  const { actor } = useActor(createActor);
+  const queryClient2 = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      clanId,
+      userId
+    }) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.approveJoinRequest(clanId, userId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: (_2, { clanId }) => {
+      queryClient2.invalidateQueries({
+        queryKey: ["pendingRequests", clanId.toString()]
+      });
+      queryClient2.invalidateQueries({ queryKey: ["clan", clanId.toString()] });
+    }
+  });
+}
+function useDeclineJoinRequest() {
+  const { actor } = useActor(createActor);
+  const queryClient2 = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      clanId,
+      userId
+    }) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.declineJoinRequest(clanId, userId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: (_2, { clanId }) => {
+      queryClient2.invalidateQueries({
+        queryKey: ["pendingRequests", clanId.toString()]
+      });
+    }
+  });
+}
+function useClanMessages(clanId) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery({
+    queryKey: ["clanMessages", clanId == null ? void 0 : clanId.toString()],
+    queryFn: async () => {
+      if (!actor || clanId === null) return [];
+      const res = await actor.getClanMessages(clanId, BigInt(50), null);
+      if (res.__kind__ === "ok") return res.ok;
+      return [];
+    },
+    enabled: !!actor && !isFetching && clanId !== null,
+    refetchInterval: 3e3
+  });
+}
+function useSendClanMessage() {
+  const { actor } = useActor(createActor);
+  const queryClient2 = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ clanId, text }) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.sendClanMessage(clanId, text);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: (_2, { clanId }) => {
+      queryClient2.invalidateQueries({
+        queryKey: ["clanMessages", clanId.toString()]
+      });
+    }
+  });
+}
+function useGetFriends() {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery({
+    queryKey: ["friends"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getFriends();
+    },
+    enabled: !!actor && !isFetching
+  });
+}
+function useIsFriend(userId) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery({
+    queryKey: ["isFriend", userId == null ? void 0 : userId.toText()],
+    queryFn: async () => {
+      if (!actor || !userId) return false;
+      return actor.isFriend(userId);
+    },
+    enabled: !!actor && !isFetching && userId !== null
+  });
+}
+function useAddFriend() {
+  const { actor } = useActor(createActor);
+  const queryClient2 = useQueryClient();
+  return useMutation({
+    mutationFn: async (userId) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.addFriend(userId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: () => {
+      queryClient2.invalidateQueries({ queryKey: ["friends"] });
+      queryClient2.invalidateQueries({ queryKey: ["isFriend"] });
+    }
+  });
+}
+function useRemoveFriend() {
+  const { actor } = useActor(createActor);
+  const queryClient2 = useQueryClient();
+  return useMutation({
+    mutationFn: async (userId) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.removeFriend(userId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: () => {
+      queryClient2.invalidateQueries({ queryKey: ["friends"] });
+      queryClient2.invalidateQueries({ queryKey: ["isFriend"] });
+    }
+  });
+}
+function useGetUserProfile(user) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery({
+    queryKey: ["userProfileOf", user == null ? void 0 : user.toText()],
+    queryFn: async () => {
+      if (!actor || !user) return null;
+      return actor.getUserProfile(user);
+    },
+    enabled: !!actor && !isFetching && user !== null
+  });
+}
+function useGetUserGameStats(userId) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery({
+    queryKey: ["userGameStats", userId == null ? void 0 : userId.toText()],
+    queryFn: async () => {
+      if (!actor || !userId) return null;
+      return actor.getUserGameStats(userId);
+    },
+    enabled: !!actor && !isFetching && userId !== null
   });
 }
 /**
@@ -28261,7 +29131,18 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$t = [
+const __iconNode$E = [
+  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
+  ["path", { d: "M19 12H5", key: "x3x0zl" }]
+];
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$E);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$D = [
   [
     "path",
     {
@@ -28271,14 +29152,14 @@ const __iconNode$t = [
   ],
   ["circle", { cx: "12", cy: "8", r: "6", key: "1vp47v" }]
 ];
-const Award = createLucideIcon("award", __iconNode$t);
+const Award = createLucideIcon("award", __iconNode$D);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$s = [
+const __iconNode$C = [
   [
     "path",
     {
@@ -28288,71 +29169,79 @@ const __iconNode$s = [
   ],
   ["circle", { cx: "12", cy: "13", r: "3", key: "1vg3eu" }]
 ];
-const Camera = createLucideIcon("camera", __iconNode$s);
+const Camera = createLucideIcon("camera", __iconNode$C);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$r = [
+const __iconNode$B = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$r);
+const ChartColumn = createLucideIcon("chart-column", __iconNode$B);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$q = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$q);
+const __iconNode$A = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$A);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$p = [
+const __iconNode$z = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$z);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$y = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$p);
+const Clock = createLucideIcon("clock", __iconNode$y);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$o = [
+const __iconNode$x = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$o);
+const Copy = createLucideIcon("copy", __iconNode$x);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$n = [
+const __iconNode$w = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "22", x2: "18", y1: "12", y2: "12", key: "l9bcsi" }],
   ["line", { x1: "6", x2: "2", y1: "12", y2: "12", key: "13hhkx" }],
   ["line", { x1: "12", x2: "12", y1: "6", y2: "2", key: "10w3f3" }],
   ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
 ];
-const Crosshair = createLucideIcon("crosshair", __iconNode$n);
+const Crosshair = createLucideIcon("crosshair", __iconNode$w);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$m = [
+const __iconNode$v = [
   [
     "path",
     {
@@ -28362,14 +29251,14 @@ const __iconNode$m = [
   ],
   ["path", { d: "M5 21h14", key: "11awu3" }]
 ];
-const Crown = createLucideIcon("crown", __iconNode$m);
+const Crown = createLucideIcon("crown", __iconNode$v);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$l = [
+const __iconNode$u = [
   [
     "path",
     {
@@ -28379,14 +29268,14 @@ const __iconNode$l = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$l);
+const Eye = createLucideIcon("eye", __iconNode$u);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$k = [
+const __iconNode$t = [
   ["rect", { x: "3", y: "8", width: "18", height: "4", rx: "1", key: "bkv52" }],
   ["path", { d: "M12 8v13", key: "1c76mn" }],
   ["path", { d: "M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7", key: "6wjy6b" }],
@@ -28398,14 +29287,39 @@ const __iconNode$k = [
     }
   ]
 ];
-const Gift = createLucideIcon("gift", __iconNode$k);
+const Gift = createLucideIcon("gift", __iconNode$t);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$j = [
+const __iconNode$s = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
+  ["path", { d: "M2 12h20", key: "9i4pu4" }]
+];
+const Globe = createLucideIcon("globe", __iconNode$s);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$r = [
+  ["line", { x1: "4", x2: "20", y1: "9", y2: "9", key: "4lhtct" }],
+  ["line", { x1: "4", x2: "20", y1: "15", y2: "15", key: "vyu0kd" }],
+  ["line", { x1: "10", x2: "8", y1: "3", y2: "21", key: "1ggp8o" }],
+  ["line", { x1: "16", x2: "14", y1: "3", y2: "21", key: "weycgp" }]
+];
+const Hash2 = createLucideIcon("hash", __iconNode$r);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$q = [
   ["path", { d: "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8", key: "5wwlr5" }],
   [
     "path",
@@ -28415,50 +29329,50 @@ const __iconNode$j = [
     }
   ]
 ];
-const House = createLucideIcon("house", __iconNode$j);
+const House = createLucideIcon("house", __iconNode$q);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$i = [
+const __iconNode$p = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$i);
+const Image$1 = createLucideIcon("image", __iconNode$p);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$h = [
+const __iconNode$o = [
   ["path", { d: "m10 17 5-5-5-5", key: "1bsop3" }],
   ["path", { d: "M15 12H3", key: "6jk70r" }],
   ["path", { d: "M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4", key: "u53s6r" }]
 ];
-const LogIn = createLucideIcon("log-in", __iconNode$h);
+const LogIn = createLucideIcon("log-in", __iconNode$o);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$g = [
+const __iconNode$n = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$g);
+const LogOut = createLucideIcon("log-out", __iconNode$n);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$f = [
+const __iconNode$m = [
   [
     "path",
     {
@@ -28472,34 +29386,44 @@ const __iconNode$f = [
   ["circle", { cx: "12", cy: "17", r: "5", key: "qbz8iq" }],
   ["path", { d: "M12 18v-2h-.5", key: "fawc4q" }]
 ];
-const Medal = createLucideIcon("medal", __iconNode$f);
+const Medal = createLucideIcon("medal", __iconNode$m);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$e = [["path", { d: "M5 12h14", key: "1ays0h" }]];
-const Minus = createLucideIcon("minus", __iconNode$e);
+const __iconNode$l = [
+  ["path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", key: "1lielz" }]
+];
+const MessageSquare = createLucideIcon("message-square", __iconNode$l);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$d = [
+const __iconNode$k = [["path", { d: "M5 12h14", key: "1ays0h" }]];
+const Minus = createLucideIcon("minus", __iconNode$k);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$j = [
   ["path", { d: "M9 18V5l12-2v13", key: "1jmyc2" }],
   ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
   ["circle", { cx: "18", cy: "16", r: "3", key: "1hluhg" }]
 ];
-const Music = createLucideIcon("music", __iconNode$d);
+const Music = createLucideIcon("music", __iconNode$j);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$c = [
+const __iconNode$i = [
   ["path", { d: "M12 20h9", key: "t2du7b" }],
   [
     "path",
@@ -28509,36 +29433,47 @@ const __iconNode$c = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$c);
+const PenLine = createLucideIcon("pen-line", __iconNode$i);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$b = [
+const __iconNode$h = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ];
-const Plus = createLucideIcon("plus", __iconNode$b);
+const Plus = createLucideIcon("plus", __iconNode$h);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$a = [
+const __iconNode$g = [
   ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
   ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$a);
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$g);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$9 = [
+const __iconNode$f = [
+  ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
+  ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
+];
+const Search = createLucideIcon("search", __iconNode$f);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$e = [
   [
     "path",
     {
@@ -28548,14 +29483,30 @@ const __iconNode$9 = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Settings = createLucideIcon("settings", __iconNode$9);
+const Settings = createLucideIcon("settings", __iconNode$e);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$8 = [
+const __iconNode$d = [
+  [
+    "path",
+    {
+      d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
+      key: "oel41y"
+    }
+  ]
+];
+const Shield = createLucideIcon("shield", __iconNode$d);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$c = [
   [
     "path",
     {
@@ -28564,37 +29515,51 @@ const __iconNode$8 = [
     }
   ]
 ];
-const Star = createLucideIcon("star", __iconNode$8);
+const Star = createLucideIcon("star", __iconNode$c);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$7 = [
+const __iconNode$b = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["circle", { cx: "12", cy: "12", r: "6", key: "1vlfrh" }],
   ["circle", { cx: "12", cy: "12", r: "2", key: "1c9p78" }]
 ];
-const Target = createLucideIcon("target", __iconNode$7);
+const Target = createLucideIcon("target", __iconNode$b);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$6 = [
+const __iconNode$a = [
+  ["path", { d: "M3 6h18", key: "d0wm0j" }],
+  ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }],
+  ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }],
+  ["line", { x1: "10", x2: "10", y1: "11", y2: "17", key: "1uufr5" }],
+  ["line", { x1: "14", x2: "14", y1: "11", y2: "17", key: "xtxkd" }]
+];
+const Trash2 = createLucideIcon("trash-2", __iconNode$a);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$9 = [
   ["path", { d: "M16 7h6v6", key: "box55l" }],
   ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
 ];
-const TrendingUp = createLucideIcon("trending-up", __iconNode$6);
+const TrendingUp = createLucideIcon("trending-up", __iconNode$9);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$5 = [
+const __iconNode$8 = [
   ["path", { d: "M6 9H4.5a2.5 2.5 0 0 1 0-5H6", key: "17hqa7" }],
   ["path", { d: "M18 9h1.5a2.5 2.5 0 0 0 0-5H18", key: "lmptdp" }],
   ["path", { d: "M4 22h16", key: "57wxv0" }],
@@ -28602,7 +29567,43 @@ const __iconNode$5 = [
   ["path", { d: "M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22", key: "1np0yb" }],
   ["path", { d: "M18 2H6v7a6 6 0 0 0 12 0V2Z", key: "u46fv3" }]
 ];
-const Trophy = createLucideIcon("trophy", __iconNode$5);
+const Trophy = createLucideIcon("trophy", __iconNode$8);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$7 = [
+  ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
+  ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }],
+  ["line", { x1: "22", x2: "16", y1: "11", y2: "11", key: "1shjgl" }]
+];
+const UserMinus = createLucideIcon("user-minus", __iconNode$7);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$6 = [
+  ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
+  ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }],
+  ["line", { x1: "19", x2: "19", y1: "8", y2: "14", key: "1bvyxn" }],
+  ["line", { x1: "22", x2: "16", y1: "11", y2: "11", key: "1shjgl" }]
+];
+const UserPlus = createLucideIcon("user-plus", __iconNode$6);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$5 = [
+  ["path", { d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2", key: "975kel" }],
+  ["circle", { cx: "12", cy: "7", r: "4", key: "17ys0d" }]
+];
+const User = createLucideIcon("user", __iconNode$5);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -28610,10 +29611,12 @@ const Trophy = createLucideIcon("trophy", __iconNode$5);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$4 = [
-  ["path", { d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2", key: "975kel" }],
-  ["circle", { cx: "12", cy: "7", r: "4", key: "17ys0d" }]
+  ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
+  ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }],
+  ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87", key: "kshegd" }],
+  ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
 ];
-const User = createLucideIcon("user", __iconNode$4);
+const Users = createLucideIcon("users", __iconNode$4);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -34351,6 +35354,781 @@ const BackgroundRenderer = ({ world }) => {
       ]
     }
   );
+  const renderCaffeineAIWorld = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      role: "img",
+      "aria-label": "CaffeineAI world background",
+      className: "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+      viewBox: "0 0 1200 800",
+      preserveAspectRatio: "xMidYMid slice",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("defs", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: `
+          @keyframes aiRainFall0 {
+            0%   { transform: translateY(-900px); opacity: 0; }
+            3%   { opacity: 0.9; }
+            92%  { opacity: 0.85; }
+            100% { transform: translateY(900px); opacity: 0; }
+          }
+          @keyframes aiRainFall1 {
+            0%   { transform: translateY(-900px); opacity: 0; }
+            5%   { opacity: 0.7; }
+            90%  { opacity: 0.65; }
+            100% { transform: translateY(900px); opacity: 0; }
+          }
+          @keyframes aiRainFall2 {
+            0%   { transform: translateY(-900px); opacity: 0; }
+            4%   { opacity: 0.5; }
+            88%  { opacity: 0.45; }
+            100% { transform: translateY(900px); opacity: 0; }
+          }
+          .ai-rain-0 { animation: aiRainFall0 linear infinite; }
+          .ai-rain-1 { animation: aiRainFall1 linear infinite; }
+          .ai-rain-2 { animation: aiRainFall2 linear infinite; }
+        ` }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "#000000" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "g",
+          {
+            fill: "#CCFF00",
+            fontSize: "13",
+            fontFamily: "monospace",
+            fontWeight: "bold",
+            className: "ai-rain-0",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "22",
+                  y: "0",
+                  style: { animationDuration: "2.1s", animationDelay: "0.0s" },
+                  children: "AI"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "62",
+                  y: "0",
+                  style: { animationDuration: "1.8s", animationDelay: "0.3s" },
+                  children: "PROMPT"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "120",
+                  y: "0",
+                  style: { animationDuration: "2.4s", animationDelay: "0.7s" },
+                  children: "LLM"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "165",
+                  y: "0",
+                  style: { animationDuration: "1.9s", animationDelay: "0.1s" },
+                  children: "CAFFEINE"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "248",
+                  y: "0",
+                  style: { animationDuration: "2.2s", animationDelay: "0.5s" },
+                  children: "NEURAL"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "312",
+                  y: "0",
+                  style: { animationDuration: "1.7s", animationDelay: "0.9s" },
+                  children: ".AI"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "345",
+                  y: "0",
+                  style: { animationDuration: "2.0s", animationDelay: "0.2s" },
+                  children: "TOKEN"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "400",
+                  y: "0",
+                  style: { animationDuration: "2.3s", animationDelay: "0.6s" },
+                  children: "BUILD"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "448",
+                  y: "0",
+                  style: { animationDuration: "1.8s", animationDelay: "1.1s" },
+                  children: "DEPLOY"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "508",
+                  y: "0",
+                  style: { animationDuration: "2.1s", animationDelay: "0.4s" },
+                  children: "AGENT"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "560",
+                  y: "0",
+                  style: { animationDuration: "1.9s", animationDelay: "0.8s" },
+                  children: "MODEL"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "616",
+                  y: "0",
+                  style: { animationDuration: "2.4s", animationDelay: "0.0s" },
+                  children: "INFER"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "668",
+                  y: "0",
+                  style: { animationDuration: "1.7s", animationDelay: "1.3s" },
+                  children: "WEB3"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "710",
+                  y: "0",
+                  style: { animationDuration: "2.2s", animationDelay: "0.2s" },
+                  children: "CODE"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "754",
+                  y: "0",
+                  style: { animationDuration: "1.8s", animationDelay: "0.7s" },
+                  children: "CHAIN"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "808",
+                  y: "0",
+                  style: { animationDuration: "2.0s", animationDelay: "0.4s" },
+                  children: "NODE"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "850",
+                  y: "0",
+                  style: { animationDuration: "2.3s", animationDelay: "1.0s" },
+                  children: "LEARN"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "905",
+                  y: "0",
+                  style: { animationDuration: "1.7s", animationDelay: "0.5s" },
+                  children: "DATA"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "945",
+                  y: "0",
+                  style: { animationDuration: "2.1s", animationDelay: "0.9s" },
+                  children: "COMPUTE"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "1015",
+                  y: "0",
+                  style: { animationDuration: "1.9s", animationDelay: "0.3s" },
+                  children: "INTERNET"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "1090",
+                  y: "0",
+                  style: { animationDuration: "2.2s", animationDelay: "1.2s" },
+                  children: "AI"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "1120",
+                  y: "0",
+                  style: { animationDuration: "1.8s", animationDelay: "0.6s" },
+                  children: "PROMPT"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "1175",
+                  y: "0",
+                  style: { animationDuration: "2.0s", animationDelay: "0.1s" },
+                  children: "LLM"
+                }
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "g",
+          {
+            fill: "#AADD00",
+            fontSize: "12",
+            fontFamily: "monospace",
+            opacity: "0.75",
+            className: "ai-rain-1",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "40",
+                  y: "0",
+                  style: { animationDuration: "2.8s", animationDelay: "0.4s" },
+                  children: "SELF"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "82",
+                  y: "0",
+                  style: { animationDuration: "3.1s", animationDelay: "1.2s" },
+                  children: "WRITING"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "148",
+                  y: "0",
+                  style: { animationDuration: "2.6s", animationDelay: "0.0s" },
+                  children: "INTERNET"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "230",
+                  y: "0",
+                  style: { animationDuration: "3.2s", animationDelay: "0.8s" },
+                  children: "CAFFEINE"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "313",
+                  y: "0",
+                  style: { animationDuration: "2.7s", animationDelay: "1.5s" },
+                  children: "AGENT"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "368",
+                  y: "0",
+                  style: { animationDuration: "3.0s", animationDelay: "0.3s" },
+                  children: "TOKEN"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "420",
+                  y: "0",
+                  style: { animationDuration: "2.8s", animationDelay: "1.0s" },
+                  children: "MODEL"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "470",
+                  y: "0",
+                  style: { animationDuration: "3.3s", animationDelay: "0.6s" },
+                  children: "INFER"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "524",
+                  y: "0",
+                  style: { animationDuration: "2.5s", animationDelay: "1.8s" },
+                  children: "NEURAL"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "585",
+                  y: "0",
+                  style: { animationDuration: "3.1s", animationDelay: "0.2s" },
+                  children: "LLM"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "620",
+                  y: "0",
+                  style: { animationDuration: "2.7s", animationDelay: "1.4s" },
+                  children: ".AI"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "656",
+                  y: "0",
+                  style: { animationDuration: "2.9s", animationDelay: "0.9s" },
+                  children: "DEPLOY"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "715",
+                  y: "0",
+                  style: { animationDuration: "3.2s", animationDelay: "0.5s" },
+                  children: "BUILD"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "762",
+                  y: "0",
+                  style: { animationDuration: "2.6s", animationDelay: "1.6s" },
+                  children: "CODE"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "800",
+                  y: "0",
+                  style: { animationDuration: "3.0s", animationDelay: "0.1s" },
+                  children: "DATA"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "838",
+                  y: "0",
+                  style: { animationDuration: "2.8s", animationDelay: "1.3s" },
+                  children: "CHAIN"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "882",
+                  y: "0",
+                  style: { animationDuration: "3.3s", animationDelay: "0.7s" },
+                  children: "WEB3"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "924",
+                  y: "0",
+                  style: { animationDuration: "2.5s", animationDelay: "1.1s" },
+                  children: "NODE"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "963",
+                  y: "0",
+                  style: { animationDuration: "3.1s", animationDelay: "0.4s" },
+                  children: "LEARN"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "1010",
+                  y: "0",
+                  style: { animationDuration: "2.7s", animationDelay: "1.7s" },
+                  children: "COMPUTE"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "1080",
+                  y: "0",
+                  style: { animationDuration: "2.9s", animationDelay: "0.0s" },
+                  children: "AI"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "1110",
+                  y: "0",
+                  style: { animationDuration: "3.2s", animationDelay: "0.8s" },
+                  children: "PROMPT"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "1162",
+                  y: "0",
+                  style: { animationDuration: "2.6s", animationDelay: "1.5s" },
+                  children: "LLM"
+                }
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "g",
+          {
+            fill: "#88BB00",
+            fontSize: "11",
+            fontFamily: "monospace",
+            opacity: "0.45",
+            className: "ai-rain-2",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "10",
+                  y: "0",
+                  style: { animationDuration: "4.0s", animationDelay: "0.6s" },
+                  children: "PROMPT"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "58",
+                  y: "0",
+                  style: { animationDuration: "4.5s", animationDelay: "2.0s" },
+                  children: "NEURAL"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "110",
+                  y: "0",
+                  style: { animationDuration: "3.8s", animationDelay: "0.3s" },
+                  children: "CAFFEINE"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "190",
+                  y: "0",
+                  style: { animationDuration: "4.2s", animationDelay: "1.5s" },
+                  children: "AI"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "220",
+                  y: "0",
+                  style: { animationDuration: "3.9s", animationDelay: "0.9s" },
+                  children: "DEPLOY"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "272",
+                  y: "0",
+                  style: { animationDuration: "4.4s", animationDelay: "2.4s" },
+                  children: "TOKEN"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "325",
+                  y: "0",
+                  style: { animationDuration: "3.7s", animationDelay: "0.0s" },
+                  children: "AGENT"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "378",
+                  y: "0",
+                  style: { animationDuration: "4.1s", animationDelay: "1.8s" },
+                  children: "LLM"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "412",
+                  y: "0",
+                  style: { animationDuration: "4.3s", animationDelay: "0.7s" },
+                  children: "INFER"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "464",
+                  y: "0",
+                  style: { animationDuration: "3.8s", animationDelay: "2.2s" },
+                  children: "WEB3"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "508",
+                  y: "0",
+                  style: { animationDuration: "4.0s", animationDelay: "1.2s" },
+                  children: "MODEL"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "553",
+                  y: "0",
+                  style: { animationDuration: "4.5s", animationDelay: "0.4s" },
+                  children: "CODE"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "592",
+                  y: "0",
+                  style: { animationDuration: "3.7s", animationDelay: "1.9s" },
+                  children: "NODE"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "631",
+                  y: "0",
+                  style: { animationDuration: "4.2s", animationDelay: "0.1s" },
+                  children: "CHAIN"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "680",
+                  y: "0",
+                  style: { animationDuration: "3.9s", animationDelay: "2.6s" },
+                  children: "DATA"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "718",
+                  y: "0",
+                  style: { animationDuration: "4.4s", animationDelay: "0.8s" },
+                  children: "LEARN"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "764",
+                  y: "0",
+                  style: { animationDuration: "4.1s", animationDelay: "1.6s" },
+                  children: "BUILD"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "808",
+                  y: "0",
+                  style: { animationDuration: "3.8s", animationDelay: "0.5s" },
+                  children: ".AI"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "842",
+                  y: "0",
+                  style: { animationDuration: "4.3s", animationDelay: "2.1s" },
+                  children: "COMPUTE"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "912",
+                  y: "0",
+                  style: { animationDuration: "3.7s", animationDelay: "0.2s" },
+                  children: "INTERNET"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "990",
+                  y: "0",
+                  style: { animationDuration: "4.0s", animationDelay: "1.4s" },
+                  children: "AI"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "1018",
+                  y: "0",
+                  style: { animationDuration: "4.5s", animationDelay: "0.7s" },
+                  children: "PROMPT"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "1075",
+                  y: "0",
+                  style: { animationDuration: "3.9s", animationDelay: "2.3s" },
+                  children: "NEURAL"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "1128",
+                  y: "0",
+                  style: { animationDuration: "4.2s", animationDelay: "0.0s" },
+                  children: "LLM"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "1165",
+                  y: "0",
+                  style: { animationDuration: "4.4s", animationDelay: "1.1s" },
+                  children: "CAFFEINE"
+                }
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { stroke: "#CCFF00", strokeWidth: "0.5", opacity: "0.18", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "0", y1: "120", x2: "380", y2: "120" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "380", y1: "120", x2: "380", y2: "160" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "380", y1: "160", x2: "280", y2: "160" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "820", y1: "120", x2: "1200", y2: "120" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "820", y1: "120", x2: "820", y2: "155" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "820", y1: "155", x2: "930", y2: "155" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "0", y1: "660", x2: "320", y2: "660" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "320", y1: "660", x2: "320", y2: "620" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "320", y1: "620", x2: "440", y2: "620" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "880", y1: "660", x2: "1200", y2: "660" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "880", y1: "660", x2: "880", y2: "625" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "880", y1: "625", x2: "760", y2: "625" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#CCFF00", opacity: "0.35", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "380", cy: "120", r: "3" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "280", cy: "160", r: "2.5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "820", cy: "120", r: "3" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "930", cy: "155", r: "2.5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "320", cy: "660", r: "3" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "440", cy: "620", r: "2.5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "880", cy: "660", r: "3" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "760", cy: "625", r: "2.5" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "text",
+          {
+            x: "600",
+            y: "390",
+            textAnchor: "middle",
+            fontFamily: "'Helvetica Neue', Arial, sans-serif",
+            fontWeight: "900",
+            fontSize: "82",
+            fill: "#FFFFFF",
+            children: "caffeine.ai"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "text",
+          {
+            x: "600",
+            y: "440",
+            textAnchor: "middle",
+            fontFamily: "'Helvetica Neue', Arial, sans-serif",
+            fontWeight: "700",
+            fontSize: "18",
+            letterSpacing: "6",
+            fill: "#CCFF00",
+            opacity: "0.85",
+            children: "SELF-WRITING INTERNET"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { stroke: "#CCFF00", strokeWidth: "1.5", opacity: "0.4", fill: "none", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M 340,330 L 340,310 L 380,310" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M 860,330 L 860,310 L 820,310" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M 340,455 L 340,475 L 380,475" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M 860,455 L 860,475 L 820,475" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#CCFF00", opacity: "0.6", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "340", cy: "310", r: "2.5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "860", cy: "310", r: "2.5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "340", cy: "475", r: "2.5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "860", cy: "475", r: "2.5" })
+        ] })
+      ]
+    }
+  );
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -34367,6 +36145,8 @@ const BackgroundRenderer = ({ world }) => {
         return renderSkyWorld();
       case "cyberpunk":
         return renderCyberpunkWorld();
+      case "caffeineai":
+        return renderCaffeineAIWorld();
       default:
         return renderOriginalWorld();
     }
@@ -34375,7 +36155,9 @@ const BackgroundRenderer = ({ world }) => {
 };
 const BottomMenu = ({
   currentView,
-  onViewChange
+  onViewChange,
+  context = "game",
+  zIndex = 30
 }) => {
   const audioRef = reactExports.useRef(null);
   const { isAuthenticated } = useInternetIdentity();
@@ -34425,63 +36207,93 @@ const BottomMenu = ({
     {
       id: "achievements",
       icon: Trophy,
+      label: "Achievements",
       ocid: "bottom_menu.achievements_tab",
       authGated: true
     },
     {
-      id: "game",
-      icon: Target,
-      ocid: "bottom_menu.game_tab",
+      id: context === "worldSelection" ? "worldSelection" : "game",
+      icon: context === "worldSelection" ? Globe : Target,
+      label: context === "worldSelection" ? "Worlds" : "Game",
+      ocid: context === "worldSelection" ? "bottom_menu.world_selection_tab" : "bottom_menu.game_tab",
       authGated: false
     },
     {
       id: "profile",
       icon: User,
+      label: "Profile",
       ocid: "bottom_menu.profile_tab",
       authGated: true
     },
     {
       id: "leaderboard",
       icon: Medal,
+      label: "Leaderboard",
       ocid: "bottom_menu.leaderboard_tab",
+      authGated: true
+    },
+    {
+      id: "socials",
+      icon: Users,
+      label: "Socials",
+      ocid: "bottom_menu.socials_tab",
       authGated: true
     },
     {
       id: "settings",
       icon: Settings,
+      label: "Settings",
       ocid: "bottom_menu.settings_tab",
       authGated: false
     }
   ];
   const activeColor = (id) => {
-    if (id === "game") return "text-orange-400";
+    if (id === "game" || id === "worldSelection") return "text-orange-400";
+    if (id === "socials") return "text-purple-400";
     return "text-yellow-400";
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bottom-menu fixed bottom-0 left-0 right-0 z-30 bg-gradient-to-t from-amber-800 via-amber-700 to-amber-600 border-t-4 border-amber-900 shadow-2xl", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-around px-4 py-2", children: tabs.map(({ id, icon: Icon2, ocid, authGated }) => {
-      const isActive = currentView === id;
-      const dimmed = authGated && !isAuthenticated && !isActive;
-      return /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          "data-ocid": ocid,
-          onClick: () => handleViewChange(id),
-          className: "flex items-center justify-center w-16 h-12 transition-all duration-200 hover:scale-110 active:scale-95",
-          "aria-label": id,
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Icon2,
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "bottom-menu fixed bottom-0 left-0 right-0 bg-gradient-to-t from-amber-800 via-amber-700 to-amber-600 border-t-4 border-amber-900 shadow-2xl",
+      style: { zIndex },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-around px-1 py-1", children: tabs.map(({ id, icon: Icon2, label, ocid, authGated }) => {
+          const isActive = currentView === id;
+          const dimmed = authGated && !isAuthenticated && !isActive;
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
             {
-              size: 24,
-              className: `transition-colors duration-200 ${isActive ? activeColor(id) : dimmed ? "text-gray-400 opacity-60" : "text-white hover:text-yellow-200"}`
-            }
-          )
-        },
-        id
-      );
-    }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-1 bg-gradient-to-r from-amber-900 via-yellow-600 to-amber-900" })
-  ] });
+              type: "button",
+              "data-ocid": ocid,
+              onClick: () => handleViewChange(id),
+              className: "flex flex-col items-center justify-center w-12 h-12 transition-all duration-200 hover:scale-110 active:scale-95 gap-0.5",
+              "aria-label": label,
+              "aria-current": isActive ? "page" : void 0,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Icon2,
+                  {
+                    size: 20,
+                    className: `transition-colors duration-200 ${isActive ? activeColor(id) : dimmed ? "text-amber-600/50 opacity-60" : "text-white hover:text-yellow-200"}`
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "span",
+                  {
+                    className: `text-[9px] leading-none font-medium transition-colors duration-200 ${isActive ? activeColor(id) : dimmed ? "text-amber-600/50 opacity-60" : "text-white/70"}`,
+                    children: label
+                  }
+                )
+              ]
+            },
+            id
+          );
+        }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-1 bg-gradient-to-r from-amber-900 via-yellow-600 to-amber-900" })
+      ]
+    }
+  );
 };
 const GameOverWindow = ({
   score,
@@ -35587,7 +37399,7 @@ const ProfileView = ({
                     className: "header-change-symbol flex items-center justify-center w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-full transition-all duration-200 hover:scale-105 active:scale-95 border border-white/30 shadow-lg",
                     "aria-label": "Change header image",
                     children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Image, { className: "w-5 h-5" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Image$1, { className: "w-5 h-5" }),
                       isUploading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 rounded-full bg-black/70 flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-white" }) })
                     ]
                   }
@@ -35782,7 +37594,10 @@ const ProfileView = ({
     }
   );
 };
-const SettingsView = ({ onClose }) => {
+const SettingsView = ({
+  onClose,
+  zIndex = 40
+}) => {
   const [settings, setSettings] = reactExports.useState({
     backgroundMusicVolume: 30,
     soundEffectsEnabled: true
@@ -35838,72 +37653,70 @@ const SettingsView = ({ onClose }) => {
       console.error("Logout failed:", error);
     }
   };
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      className: "fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4",
-      onClick: handleOverlayClick,
-      onKeyDown: (e) => {
-        if (e.key === "Escape") onClose();
-      },
+      className: "fixed inset-0 flex flex-col overflow-hidden bg-black",
       "data-ocid": "settings.dialog",
-      children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl border border-gray-200 w-full max-w-md mx-auto", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between p-6 border-b border-gray-200", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 mr-4 shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { className: "w-6 h-6 text-white" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-black text-black", children: "SETTINGS" })
-          ] }),
+      style: { zIndex, paddingBottom: "60px" },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               type: "button",
               onClick: onClose,
-              className: "flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-200",
-              "aria-label": "Close settings",
+              className: "flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-gray-200 text-black hover:border-orange-400 transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm",
+              "aria-label": "Back",
               "data-ocid": "settings.close_button",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5 text-gray-600" })
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { className: "w-5 h-5" })
             }
-          )
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { className: "w-5 h-5 text-white" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-black text-white tracking-tight", children: "SETTINGS" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-10" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6 space-y-6", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-lg bg-orange-50 border border-orange-200 mr-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Music, { className: "w-5 h-5 text-orange-500" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold text-black", children: "Background Music" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600", children: "Adjust music volume" })
-                ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto px-5 py-5 space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-white border border-gray-200 shadow-xl p-5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 mb-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 shadow-md", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Music, { className: "w-5 h-5 text-white" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-black text-black", children: "Background Music" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: "Adjust music volume" })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-orange-500 font-bold text-lg", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-orange-500 font-black text-lg min-w-[3rem] text-right", children: [
                 settings.backgroundMusicVolume,
                 "%"
               ] })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center space-x-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full h-2.5 rounded-full bg-gray-200 overflow-hidden mb-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                className: "h-full rounded-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-200",
+                style: { width: `${settings.backgroundMusicVolume}%` }
+              }
+            ) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center gap-6", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "button",
                 {
                   type: "button",
                   onClick: handleVolumeDecrease,
                   disabled: settings.backgroundMusicVolume === 0,
-                  className: "flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none",
+                  className: "flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none",
                   "aria-label": "Decrease volume",
                   "data-ocid": "settings.volume_decrease",
                   children: /* @__PURE__ */ jsxRuntimeExports.jsx(Minus, { className: "w-5 h-5" })
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 text-center", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-2xl font-black text-orange-500 mb-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-4xl font-black text-black mb-1", children: [
                   settings.backgroundMusicVolume,
                   "%"
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500", children: settings.backgroundMusicVolume === 0 ? "Silent" : settings.backgroundMusicVolume === 100 ? "Maximum" : "Volume" })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 font-medium", children: settings.backgroundMusicVolume === 0 ? "Silent" : settings.backgroundMusicVolume === 100 ? "Maximum" : "Volume" })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "button",
@@ -35911,7 +37724,7 @@ const SettingsView = ({ onClose }) => {
                   type: "button",
                   onClick: handleVolumeIncrease,
                   disabled: settings.backgroundMusicVolume === 100,
-                  className: "flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none",
+                  className: "flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none",
                   "aria-label": "Increase volume",
                   "data-ocid": "settings.volume_increase",
                   children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-5 h-5" })
@@ -35919,12 +37732,12 @@ const SettingsView = ({ onClose }) => {
               )
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-lg bg-orange-50 border border-orange-200 mr-3", children: settings.soundEffectsEnabled ? /* @__PURE__ */ jsxRuntimeExports.jsx(Volume2, { className: "w-5 h-5 text-orange-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(VolumeX, { className: "w-5 h-5 text-gray-400" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-xl bg-white border border-gray-200 shadow-xl p-5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 shadow-md", children: settings.soundEffectsEnabled ? /* @__PURE__ */ jsxRuntimeExports.jsx(Volume2, { className: "w-5 h-5 text-white" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(VolumeX, { className: "w-5 h-5 text-white opacity-60" }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold text-black", children: "Sound Effects" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600", children: "Shot sounds and feedback" })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-black text-black", children: "Sound Effects" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: "Shot sounds and feedback" })
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -35933,7 +37746,7 @@ const SettingsView = ({ onClose }) => {
                 type: "button",
                 onClick: handleSoundEffectsToggle,
                 "aria-label": settings.soundEffectsEnabled ? "Disable sound effects" : "Enable sound effects",
-                className: `relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none ${settings.soundEffectsEnabled ? "bg-gradient-to-r from-orange-500 to-orange-600" : "bg-gray-300"}`,
+                className: `relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${settings.soundEffectsEnabled ? "bg-gradient-to-r from-orange-500 to-orange-600" : "bg-gray-200"}`,
                 "data-ocid": "settings.sound_toggle",
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "span",
@@ -35944,12 +37757,12 @@ const SettingsView = ({ onClose }) => {
               }
             )
           ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-lg bg-orange-50 border border-orange-200 mr-3", children: isAuthenticated ? /* @__PURE__ */ jsxRuntimeExports.jsx(LogOut, { className: "w-5 h-5 text-orange-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(LogIn, { className: "w-5 h-5 text-orange-500" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-xl bg-white border border-gray-200 shadow-xl p-5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 shadow-md", children: isAuthenticated ? /* @__PURE__ */ jsxRuntimeExports.jsx(LogOut, { className: "w-5 h-5 text-white" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(LogIn, { className: "w-5 h-5 text-white" }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-bold text-black", children: "Account" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-600", children: isAuthenticated ? "Logged in with Internet Identity" : "Login for persistent progress" })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-black text-black", children: "Account" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-500", children: isAuthenticated ? "Logged in with Internet Identity" : "Login for persistent progress" })
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -35958,20 +37771,1434 @@ const SettingsView = ({ onClose }) => {
                 type: "button",
                 onClick: isAuthenticated ? handleLogout : handleLogin,
                 disabled: isLoggingIn,
-                className: `px-4 py-2 rounded-lg font-bold text-sm transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${isAuthenticated ? "bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300" : "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg"}`,
+                className: `px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${isAuthenticated ? "bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200" : "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg"}`,
                 "data-ocid": "settings.auth_button",
-                children: isLoggingIn ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" }),
+                children: isLoggingIn ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-current" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Connecting..." })
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: isAuthenticated ? "Logout" : "Login" })
               }
             )
-          ] }) })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center text-gray-700 text-xs pt-2 font-medium", children: "ChickenHunt — Settings are saved automatically" })
         ] })
-      ] })
+      ]
     }
   );
 };
+const IMG_PREFIX = "[img]";
+const MAX_IMG_DIMENSION = 1200;
+const IMG_QUALITY = 0.75;
+async function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      var _a3;
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > MAX_IMG_DIMENSION || height > MAX_IMG_DIMENSION) {
+          const ratio = Math.min(
+            MAX_IMG_DIMENSION / width,
+            MAX_IMG_DIMENSION / height
+          );
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Canvas not available"));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/jpeg", IMG_QUALITY);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error("Blob conversion failed"));
+              return;
+            }
+            resolve({ blob, dataUrl });
+          },
+          "image/jpeg",
+          IMG_QUALITY
+        );
+      };
+      img.onerror = reject;
+      img.src = (_a3 = e.target) == null ? void 0 : _a3.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+const SocialsView = ({ isAuthenticated }) => {
+  const [activeTab, setActiveTab] = reactExports.useState("clans");
+  const [clanSection, setClanSection] = reactExports.useState("mine");
+  const [view, setView] = reactExports.useState({ kind: "clans" });
+  const { login, loginStatus, identity } = useInternetIdentity();
+  const isLoggingIn = loginStatus === "logging-in";
+  const myPrincipal = (identity == null ? void 0 : identity.getPrincipal()) ?? null;
+  if (!isAuthenticated) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "fixed inset-0 flex flex-col overflow-hidden bg-black",
+        style: { paddingBottom: "60px" },
+        "data-ocid": "socials.page",
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col items-center justify-center px-6 text-center", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-20 h-20 rounded-xl bg-orange-100 border border-orange-200 mb-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 36, className: "text-orange-500" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-3xl font-black text-white mb-3 tracking-tight", children: "SOCIALS" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-400 text-base mb-8 max-w-xs", children: "Sign in to join clans, add friends and chat in clan chat." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              "data-ocid": "socials.login_button",
+              onClick: () => login(),
+              disabled: isLoggingIn,
+              className: "flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-base transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(LogIn, { size: 18 }),
+                isLoggingIn ? "Signing in…" : "Sign In"
+              ]
+            }
+          )
+        ] })
+      }
+    );
+  }
+  if (view.kind === "clanDetails") {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "fixed inset-0 flex flex-col bg-black",
+        style: { paddingBottom: "60px" },
+        "data-ocid": "socials.clan_details.page",
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ClanDetailsView,
+          {
+            clanId: view.clanId,
+            myPrincipal,
+            onBack: () => setView({ kind: "clans" }),
+            onOpenChat: (clan) => setView({ kind: "clanChat", clan }),
+            onOpenPending: (id) => setView({ kind: "pendingRequests", clanId: id })
+          }
+        )
+      }
+    );
+  }
+  if (view.kind === "pendingRequests") {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "fixed inset-0 flex flex-col bg-black",
+        style: { paddingBottom: "60px" },
+        "data-ocid": "socials.pending_requests.page",
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          PendingRequestsView,
+          {
+            clanId: view.clanId,
+            onBack: () => setView({ kind: "clanDetails", clanId: view.clanId })
+          }
+        )
+      }
+    );
+  }
+  if (view.kind === "clanChat") {
+    const clan = view.clan;
+    const clanId = clan.id;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "fixed inset-0 flex flex-col bg-black",
+        style: { paddingBottom: "60px" },
+        "data-ocid": "socials.clan_chat.page",
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          InlineClanChat,
+          {
+            clan,
+            myPrincipal,
+            onBack: () => setView({ kind: "clanDetails", clanId }),
+            onOpenMemberProfile: (member) => setView({ kind: "memberProfile", member })
+          }
+        )
+      }
+    );
+  }
+  if (view.kind === "memberProfile") {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "fixed inset-0 flex flex-col bg-black",
+        style: { paddingBottom: "60px" },
+        "data-ocid": "socials.member_profile.page",
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          MemberProfileView,
+          {
+            member: view.member,
+            myPrincipal,
+            onBack: () => setView({ kind: "clans" })
+          }
+        )
+      }
+    );
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "fixed inset-0 flex flex-col overflow-hidden bg-black",
+      style: { paddingBottom: "60px" },
+      "data-ocid": "socials.page",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center px-4 pt-5 pb-4 border-b border-gray-800 shrink-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 20, className: "text-white" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-black text-white tracking-tight", children: "SOCIALS" })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex mx-4 mt-4 mb-1 rounded-xl overflow-hidden border border-gray-800 shrink-0", children: ["clans", "friends"].map((tab) => {
+          const isActive = activeTab === tab;
+          const Icon2 = tab === "clans" ? Shield : Users;
+          const label = tab === "clans" ? "Clans" : "Friends";
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              "data-ocid": `socials.${tab}_tab`,
+              onClick: () => setActiveTab(tab),
+              className: `flex-1 flex items-center justify-center gap-2 py-3 text-sm font-bold transition-all duration-200 ${isActive ? "bg-white text-black border-b-2 border-orange-500" : "bg-black text-gray-500 hover:text-gray-300"}`,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { size: 15 }),
+                label
+              ]
+            },
+            tab
+          );
+        }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto", children: activeTab === "clans" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ClansPanel,
+          {
+            section: clanSection,
+            onSectionChange: setClanSection,
+            myPrincipal,
+            onOpenClan: (id) => setView({ kind: "clanDetails", clanId: id }),
+            onClanCreated: () => setClanSection("mine")
+          }
+        ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+          FriendsPanel,
+          {
+            onOpenProfile: (m2) => setView({ kind: "memberProfile", member: m2 })
+          }
+        ) })
+      ]
+    }
+  );
+};
+const ClansPanel = ({
+  section,
+  onSectionChange,
+  myPrincipal,
+  onOpenClan,
+  onClanCreated
+}) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col h-full", children: [
+  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2 px-4 pt-3 pb-2", children: [
+    { id: "mine", label: "My Clans", icon: Shield },
+    { id: "search", label: "Search", icon: Search },
+    { id: "create", label: "Create", icon: Plus }
+  ].map(({ id, label, icon: Icon2 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      type: "button",
+      "data-ocid": `socials.clan_${id}_tab`,
+      onClick: () => onSectionChange(id),
+      className: `flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${section === id ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md" : "bg-white text-gray-600 border border-gray-200 hover:border-orange-300 hover:text-orange-600"}`,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { size: 13 }),
+        label
+      ]
+    },
+    id
+  )) }),
+  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 px-4 pb-4", children: [
+    section === "mine" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      MyClansSection,
+      {
+        myPrincipal,
+        onOpenClan,
+        onGoSearch: () => onSectionChange("search"),
+        onGoCreate: () => onSectionChange("create")
+      }
+    ),
+    section === "search" && /* @__PURE__ */ jsxRuntimeExports.jsx(SearchClansSection, { myPrincipal, onOpenClan }),
+    section === "create" && /* @__PURE__ */ jsxRuntimeExports.jsx(CreateClanSection, { onCreated: onClanCreated })
+  ] })
+] });
+const MyClansSection = ({
+  myPrincipal,
+  onOpenClan,
+  onGoSearch,
+  onGoCreate
+}) => {
+  const { data: myClans, isLoading, error } = useUserClans(myPrincipal);
+  if (isLoading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "flex flex-col gap-3 pt-2",
+        "data-ocid": "socials.my_clans.loading_state",
+        children: [1, 2].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "h-20 rounded-xl bg-white border border-gray-200 animate-pulse"
+          },
+          i
+        ))
+      }
+    );
+  }
+  if (error) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "text-center py-8 text-red-500 text-sm font-medium",
+        "data-ocid": "socials.my_clans.error_state",
+        children: "Error loading clans"
+      }
+    );
+  }
+  if (!myClans || myClans.length === 0) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "flex flex-col items-center justify-center py-12 text-center",
+        "data-ocid": "socials.my_clans.empty_state",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-16 h-16 rounded-xl bg-gray-100 border border-gray-200 mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { size: 28, className: "text-gray-400" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-white font-black text-lg mb-2", children: "No Clan Yet" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm max-w-xs mb-6", children: "You haven't joined a clan yet. Search or create one!" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: onGoSearch,
+                className: "flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 text-xs font-bold hover:border-orange-300 hover:text-orange-600 transition-colors shadow-sm",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 13 }),
+                  "Search"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: onGoCreate,
+                className: "flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold hover:from-orange-600 hover:to-orange-700 transition-all shadow-md",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 13 }),
+                  "Create"
+                ]
+              }
+            )
+          ] })
+        ]
+      }
+    );
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col gap-2 pt-2", "data-ocid": "socials.my_clans.list", children: (myClans ?? []).map((clan, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    ClanCard,
+    {
+      clan,
+      index: i + 1,
+      myPrincipal,
+      onClick: () => onOpenClan(clan.id)
+    },
+    clan.id.toString()
+  )) });
+};
+const ClanCard = ({
+  clan,
+  index: index2,
+  myPrincipal,
+  onClick,
+  actionLabel,
+  onAction,
+  actionLoading,
+  isMember
+}) => {
+  const isOwner = myPrincipal ? clan.ownerId.toText() === myPrincipal.toText() : false;
+  const initials = clan.name.slice(0, 2).toUpperCase();
+  const isOpen = clan.joinMode === JoinMode.open;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      type: "button",
+      "data-ocid": `socials.clan_card.item.${index2}`,
+      className: "flex items-center gap-3 p-4 rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-orange-300 transition-all duration-200 cursor-pointer w-full text-left",
+      onClick,
+      "aria-label": `Open clan ${clan.name}`,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-11 h-11 rounded-xl bg-orange-100 text-orange-600 font-black text-sm shrink-0 border border-orange-200", children: initials }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-black text-sm truncate", children: clan.name }),
+            isOwner && /* @__PURE__ */ jsxRuntimeExports.jsx(Crown, { size: 11, className: "text-orange-500 shrink-0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-0.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500 flex items-center gap-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 10 }),
+              clan.memberCount.toString(),
+              " Members"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                className: `text-xs font-semibold px-2 py-0.5 rounded-full ${isOpen ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`,
+                children: isOpen ? "Open" : "Request Required"
+              }
+            )
+          ] })
+        ] }),
+        actionLabel && onAction ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            "data-ocid": `socials.clan_action_button.${index2}`,
+            onClick: (e) => {
+              e.stopPropagation();
+              onAction();
+            },
+            disabled: actionLoading || isMember,
+            className: `px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 shrink-0 ${isMember ? "bg-gray-100 text-gray-400 cursor-default" : "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white hover:scale-105 active:scale-95 disabled:opacity-40"}`,
+            children: actionLoading ? "…" : isMember ? "Member" : actionLabel
+          }
+        ) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { size: 16, className: "text-gray-300 shrink-0" })
+      ]
+    }
+  );
+};
+const SearchClansSection = ({
+  myPrincipal,
+  onOpenClan
+}) => {
+  const [query, setQuery] = reactExports.useState("");
+  const [debouncedQuery, setDebouncedQuery] = reactExports.useState("");
+  const joinClan = useJoinClan();
+  const { data: userClans } = useUserClans(myPrincipal);
+  reactExports.useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query), 350);
+    return () => clearTimeout(t);
+  }, [query]);
+  const { data: searchResults, isLoading } = useSearchClans(debouncedQuery);
+  const memberClanIds = new Set((userClans ?? []).map((c2) => c2.id.toString()));
+  const results = debouncedQuery.trim().length > 0 ? searchResults ?? [] : [];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-3 pt-2", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Search,
+        {
+          size: 15,
+          className: "absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "text",
+          placeholder: "Search clan name…",
+          value: query,
+          onChange: (e) => setQuery(e.target.value),
+          "data-ocid": "socials.clan_search_input",
+          className: "w-full pl-9 pr-4 py-3 rounded-xl bg-white border border-gray-200 text-black placeholder-gray-400 text-sm focus:outline-none focus:border-orange-400 transition-colors shadow-sm"
+        }
+      )
+    ] }),
+    debouncedQuery.trim().length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-8 text-gray-500 text-sm", children: "Type to search clans…" }) : isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "flex flex-col gap-2",
+        "data-ocid": "socials.clan_search.loading_state",
+        children: [1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "h-20 rounded-xl bg-white border border-gray-200 animate-pulse"
+          },
+          i
+        ))
+      }
+    ) : results.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "text-center py-8 text-gray-500 text-sm",
+        "data-ocid": "socials.clan_search.empty_state",
+        children: "No clan found"
+      }
+    ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "flex flex-col gap-2",
+        "data-ocid": "socials.clan_search.list",
+        children: results.map((clan, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ClanCard,
+          {
+            clan,
+            index: i + 1,
+            myPrincipal,
+            onClick: () => onOpenClan(clan.id),
+            actionLabel: clan.joinMode === JoinMode.open ? "Join" : "Request",
+            isMember: memberClanIds.has(clan.id.toString()),
+            actionLoading: joinClan.isPending,
+            onAction: () => joinClan.mutate(clan.id)
+          },
+          clan.id.toString()
+        ))
+      }
+    ),
+    joinClan.isError && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "text-xs text-red-500 text-center font-medium",
+        "data-ocid": "socials.clan_search.error_state",
+        children: joinClan.error instanceof Error ? joinClan.error.message : "Error joining"
+      }
+    )
+  ] });
+};
+const CreateClanSection = ({
+  onCreated
+}) => {
+  const [name, setName] = reactExports.useState("");
+  const [description, setDescription] = reactExports.useState("");
+  const [joinMode, setJoinMode] = reactExports.useState(JoinMode.open);
+  const createClan = useCreateClan();
+  const canSubmit = name.trim().length >= 3;
+  const handleSubmit = () => {
+    if (!canSubmit) return;
+    createClan.mutate(
+      { name: name.trim(), description: description.trim(), joinMode },
+      {
+        onSuccess: () => {
+          setName("");
+          setDescription("");
+          onCreated();
+        }
+      }
+    );
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col gap-4 pt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-white border border-gray-200 shadow-xl p-5 flex flex-col gap-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 18, className: "text-white" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-black font-black text-base", children: "Create New Clan" })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1.5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "label",
+        {
+          htmlFor: "create-clan-name",
+          className: "text-xs font-bold text-gray-600 uppercase tracking-wider",
+          children: "Clan Name *"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          id: "create-clan-name",
+          type: "text",
+          placeholder: "e.g. ChickenElite",
+          value: name,
+          maxLength: 24,
+          onChange: (e) => setName(e.target.value),
+          "data-ocid": "socials.create_clan.name_input",
+          className: "px-3 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-black placeholder-gray-400 text-sm focus:outline-none focus:border-orange-400 transition-colors"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1.5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "label",
+        {
+          htmlFor: "create-clan-desc",
+          className: "text-xs font-bold text-gray-600 uppercase tracking-wider",
+          children: "Description (optional)"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "textarea",
+        {
+          id: "create-clan-desc",
+          placeholder: "What is your clan about?",
+          value: description,
+          maxLength: 120,
+          onChange: (e) => setDescription(e.target.value),
+          rows: 2,
+          "data-ocid": "socials.create_clan.description_textarea",
+          className: "px-3 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-black placeholder-gray-400 text-sm focus:outline-none focus:border-orange-400 transition-colors resize-none"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold text-gray-600 uppercase tracking-wider", children: "Join Mode" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", children: [
+        { mode: JoinMode.open, label: "🔓 Open to all" },
+        {
+          mode: JoinMode.requestRequired,
+          label: "📩 Request required"
+        }
+      ].map(({ mode, label }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          "data-ocid": `socials.create_clan.join_mode_${mode}`,
+          onClick: () => setJoinMode(mode),
+          className: `flex-1 py-2.5 rounded-lg text-xs font-bold transition-all duration-200 border ${joinMode === mode ? "bg-gradient-to-r from-orange-500 to-orange-600 border-orange-500 text-white shadow-md" : "bg-gray-50 border-gray-200 text-gray-600 hover:border-orange-300"}`,
+          children: label
+        },
+        mode
+      )) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500", children: joinMode === JoinMode.open ? "Anyone can join immediately." : "You will receive a request and can approve or decline." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        type: "button",
+        "data-ocid": "socials.create_clan.submit_button",
+        disabled: !canSubmit || createClan.isPending,
+        onClick: handleSubmit,
+        className: "w-full py-3 rounded-xl font-black text-sm text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100",
+        children: createClan.isPending ? "Creating…" : "Create Clan"
+      }
+    ),
+    !canSubmit && name.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "p",
+      {
+        className: "text-xs text-orange-600 text-center -mt-2",
+        "data-ocid": "socials.create_clan.field_error",
+        children: "Name must be at least 3 characters"
+      }
+    ),
+    createClan.isError && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "p",
+      {
+        className: "text-xs text-red-500 text-center -mt-2",
+        "data-ocid": "socials.create_clan.error_state",
+        children: createClan.error instanceof Error ? createClan.error.message : "Error creating"
+      }
+    )
+  ] }) });
+};
+const ClanDetailsView = ({
+  clanId,
+  myPrincipal,
+  onBack,
+  onOpenChat,
+  onOpenPending
+}) => {
+  const { data: clan, isLoading, error } = useClanDetails(clanId);
+  const leaveClan = useLeaveClan();
+  const deleteClan = useDeleteClan();
+  if (isLoading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ScreenHeader, { title: "Clan", onBack }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin",
+          "data-ocid": "socials.clan_details.loading_state"
+        }
+      ) })
+    ] });
+  }
+  if (error || !clan) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ScreenHeader, { title: "Clan", onBack }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "flex-1 flex items-center justify-center text-red-500 text-sm font-medium",
+          "data-ocid": "socials.clan_details.error_state",
+          children: "Clan could not be loaded"
+        }
+      )
+    ] });
+  }
+  const myText = (myPrincipal == null ? void 0 : myPrincipal.toText()) ?? "";
+  const isOwner = clan.ownerId.toText() === myText;
+  const isMember = clan.members.some((m2) => m2.principal.toText() === myText);
+  const isOpen = clan.joinMode === JoinMode.open;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ScreenHeader, { title: clan.name, onBack }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto px-4 pb-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 rounded-xl bg-white border border-gray-200 shadow-xl p-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-14 h-14 rounded-xl bg-orange-100 text-orange-600 font-black text-lg shrink-0 border border-orange-200", children: clan.name.slice(0, 2).toUpperCase() }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-black font-black text-lg", children: clan.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  className: `text-xs px-2 py-0.5 rounded-full font-bold ${isOpen ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`,
+                  children: isOpen ? "Open" : "Request Required"
+                }
+              )
+            ] }),
+            clan.description && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 text-sm mt-1 break-words", children: clan.description }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 mt-2 text-xs text-gray-500", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 11 }),
+                clan.members.length,
+                " Members"
+              ] }),
+              isOwner && clan.pendingCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1 text-orange-600 font-bold", children: [
+                clan.pendingCount.toString(),
+                " pending"
+              ] })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mt-4 flex-wrap", children: [
+          (isMember || isOwner) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              "data-ocid": "socials.clan_details.chat_button",
+              onClick: () => onOpenChat(clan),
+              className: "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { size: 15 }),
+                "Chat"
+              ]
+            }
+          ),
+          isOwner && clan.pendingCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              "data-ocid": "socials.clan_details.pending_button",
+              onClick: () => onOpenPending(clan.id),
+              className: "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-bold hover:border-orange-300 hover:text-orange-600 transition-colors",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 15 }),
+                "Requests (",
+                clan.pendingCount.toString(),
+                ")"
+              ]
+            }
+          ),
+          isOwner && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              "data-ocid": "socials.clan_details.delete_button",
+              disabled: deleteClan.isPending,
+              onClick: () => deleteClan.mutate(clan.id, { onSuccess: onBack }),
+              className: "flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 text-sm font-bold hover:bg-red-50 transition-colors disabled:opacity-40",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 15 }),
+                deleteClan.isPending ? "…" : "Delete"
+              ]
+            }
+          ),
+          !isOwner && isMember && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              "data-ocid": "socials.clan_details.leave_button",
+              disabled: leaveClan.isPending,
+              onClick: () => leaveClan.mutate(clan.id, { onSuccess: onBack }),
+              className: "flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 text-sm font-bold hover:bg-red-50 transition-colors disabled:opacity-40",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(UserMinus, { size: 15 }),
+                leaveClan.isPending ? "…" : "Leave"
+              ]
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-1", children: [
+          "Members (",
+          clan.members.length,
+          ")"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "flex flex-col gap-1.5",
+            "data-ocid": "socials.clan_details.members_list",
+            children: clan.members.map((member, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              MemberRow,
+              {
+                member,
+                index: i + 1,
+                isOwner: member.principal.toText() === clan.ownerId.toText()
+              },
+              member.principal.toText()
+            ))
+          }
+        )
+      ] })
+    ] })
+  ] });
+};
+const MemberRow = ({
+  member,
+  index: index2,
+  isOwner,
+  onClick
+}) => {
+  const initials = (member.name || "??").slice(0, 2).toUpperCase();
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      "data-ocid": `socials.member_row.item.${index2}`,
+      role: onClick ? "button" : void 0,
+      tabIndex: onClick ? 0 : void 0,
+      onClick,
+      onKeyDown: onClick ? (e) => e.key === "Enter" && onClick() : void 0,
+      className: `flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white border border-gray-200 shadow-sm ${onClick ? "cursor-pointer hover:shadow-md hover:border-orange-300 transition-all" : ""}`,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-9 h-9 rounded-xl bg-orange-100 text-orange-600 font-black text-xs shrink-0 border border-orange-200", children: initials }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-black text-sm font-bold truncate", children: member.name || "Unknown" }),
+            isOwner && /* @__PURE__ */ jsxRuntimeExports.jsx(Crown, { size: 11, className: "text-orange-500 shrink-0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500", children: [
+            "Level ",
+            member.level.toString()
+          ] })
+        ] }),
+        onClick && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { size: 14, className: "text-gray-300 shrink-0" })
+      ]
+    }
+  );
+};
+const PendingRequestsView = ({
+  clanId,
+  onBack
+}) => {
+  const { data: pending, isLoading } = usePendingJoinRequests(clanId);
+  const approve = useApproveJoinRequest();
+  const decline = useDeclineJoinRequest();
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ScreenHeader, { title: "Pending Requests", onBack }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto px-4 pb-4", children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "flex items-center justify-center py-12",
+        "data-ocid": "socials.pending_requests.loading_state",
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" })
+      }
+    ) : !pending || pending.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "flex flex-col items-center justify-center py-12 text-center",
+        "data-ocid": "socials.pending_requests.empty_state",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-12 h-12 rounded-xl bg-green-100 border border-green-200 mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 24, className: "text-green-600" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white font-bold mb-1", children: "All done" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm", children: "No pending requests" })
+        ]
+      }
+    ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "flex flex-col gap-2 pt-3",
+        "data-ocid": "socials.pending_requests.list",
+        children: pending.map((user, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            "data-ocid": `socials.pending_request.item.${i + 1}`,
+            className: "flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-200 shadow-sm",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-xl bg-orange-100 text-orange-600 font-black text-xs shrink-0 border border-orange-200", children: (user.name || "??").slice(0, 2).toUpperCase() }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-black text-sm font-bold truncate", children: user.name || "Unknown" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-gray-500", children: [
+                  "Level ",
+                  user.level.toString()
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 shrink-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    "data-ocid": `socials.pending_request.approve_button.${i + 1}`,
+                    disabled: approve.isPending || decline.isPending,
+                    onClick: () => approve.mutate({ clanId, userId: user.principal }),
+                    className: "flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-green-100 border border-green-200 text-green-700 text-xs font-bold hover:bg-green-200 transition-colors disabled:opacity-40",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 13 }),
+                      "Approve"
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    "data-ocid": `socials.pending_request.decline_button.${i + 1}`,
+                    disabled: approve.isPending || decline.isPending,
+                    onClick: () => decline.mutate({ clanId, userId: user.principal }),
+                    className: "flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-red-200 text-red-500 text-xs font-bold hover:bg-red-50 transition-colors disabled:opacity-40",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 13 }),
+                      "Decline"
+                    ]
+                  }
+                )
+              ] })
+            ]
+          },
+          user.principal.toText()
+        ))
+      }
+    ) })
+  ] });
+};
+const InlineClanChat = ({
+  clan,
+  myPrincipal,
+  onBack,
+  onOpenMemberProfile
+}) => {
+  const clanId = clan.id;
+  const { data: messages } = useClanMessages(clanId);
+  const sendMessage = useSendClanMessage();
+  const { uploadFile } = useFileUpload();
+  const [text, setText] = reactExports.useState("");
+  const [optimistic, setOptimistic] = reactExports.useState([]);
+  const bottomRef = reactExports.useRef(null);
+  const fileInputRef = reactExports.useRef(null);
+  const members = "members" in clan ? clan.members : [];
+  const resolveName = (principal) => {
+    const found = members.find(
+      (m2) => m2.principal.toText() === principal.toText()
+    );
+    return (found == null ? void 0 : found.name) || `${principal.toText().slice(0, 12)}…`;
+  };
+  reactExports.useEffect(() => {
+    var _a3;
+    (_a3 = bottomRef.current) == null ? void 0 : _a3.scrollIntoView({ behavior: "smooth" });
+  }, [messages, optimistic]);
+  reactExports.useEffect(() => {
+    if (!messages || messages.length === 0) return;
+    setOptimistic(
+      (prev) => prev.filter(
+        (opt) => !messages.some(
+          (m2) => m2.text === opt.text && m2.senderId.toText() === opt.senderId && Number(m2.timestamp) / 1e6 > opt.timestamp - 1e4
+        )
+      )
+    );
+  }, [messages]);
+  const handleSend = () => {
+    const trimmed = text.trim();
+    if (!trimmed || !myPrincipal) return;
+    setOptimistic((prev) => [
+      ...prev,
+      {
+        id: `opt-${Date.now()}`,
+        text: trimmed,
+        senderId: myPrincipal.toText(),
+        timestamp: Date.now()
+      }
+    ]);
+    setText("");
+    sendMessage.mutate({ clanId, text: trimmed });
+  };
+  const handleImageButtonClick = () => {
+    var _a3;
+    (_a3 = fileInputRef.current) == null ? void 0 : _a3.click();
+  };
+  const handleFileChange = reactExports.useCallback(
+    async (e) => {
+      var _a3;
+      const file = (_a3 = e.target.files) == null ? void 0 : _a3[0];
+      if (!file || !myPrincipal) return;
+      e.target.value = "";
+      const tempId = Date.now();
+      let compressed;
+      try {
+        compressed = await compressImage(file);
+      } catch {
+        return;
+      }
+      const localImgUrl = compressed.dataUrl;
+      setOptimistic((prev) => [
+        ...prev,
+        {
+          id: `opt-img-${tempId}`,
+          text: `${IMG_PREFIX}${localImgUrl}`,
+          senderId: myPrincipal.toText(),
+          timestamp: tempId
+        }
+      ]);
+      try {
+        const path = `chat-images/${clanId.toString()}-${tempId}.jpg`;
+        const arrayBuffer = await compressed.blob.arrayBuffer();
+        const uint8 = new Uint8Array(arrayBuffer);
+        await uploadFile(path, "image/jpeg", uint8);
+        const remoteUrl = await buildFileUrl(path);
+        const finalText = `${IMG_PREFIX}${remoteUrl}`;
+        setOptimistic(
+          (prev) => prev.filter((m2) => m2.id !== `opt-img-${tempId}`)
+        );
+        sendMessage.mutate({ clanId, text: finalText });
+      } catch {
+        setOptimistic(
+          (prev) => prev.filter((m2) => m2.id !== `opt-img-${tempId}`)
+        );
+      }
+    },
+    [myPrincipal, clanId, uploadFile, sendMessage]
+  );
+  const myText = (myPrincipal == null ? void 0 : myPrincipal.toText()) ?? "";
+  const confirmed = (messages ?? []).map((m2) => ({
+    id: m2.id.toString(),
+    text: m2.text,
+    senderId: m2.senderId.toText(),
+    senderName: resolveName(m2.senderId),
+    timestamp: Number(m2.timestamp) / 1e6,
+    pending: false,
+    memberInfo: members.find((mb) => mb.principal.toText() === m2.senderId.toText()) ?? null
+  }));
+  const optItems = optimistic.map((o2) => ({
+    id: o2.id,
+    text: o2.text,
+    senderId: o2.senderId,
+    senderName: "You",
+    timestamp: o2.timestamp,
+    pending: true,
+    memberInfo: null
+  }));
+  const allMessages = [...confirmed, ...optItems].sort(
+    (a2, b2) => a2.timestamp - b2.timestamp
+  );
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 px-4 pt-4 pb-3 border-b border-gray-800 shrink-0", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          "data-ocid": "socials.back_button",
+          onClick: onBack,
+          className: "flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-gray-200 text-black hover:border-orange-400 transition-colors shadow-sm",
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 18 })
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-9 h-9 rounded-xl bg-orange-100 text-orange-600 font-black text-sm border border-orange-200 shrink-0", children: clan.name.slice(0, 2).toUpperCase() }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-base font-black text-white truncate", children: clan.name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-gray-500", children: "Clan Chat" })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-2",
+        "data-ocid": "socials.clan_chat.messages_list",
+        children: [
+          allMessages.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "flex flex-col items-center justify-center flex-1 py-12 text-center",
+              "data-ocid": "socials.clan_chat.empty_state",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-14 h-14 rounded-xl bg-gray-100 border border-gray-200 mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { size: 22, className: "text-gray-400" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm", children: "No messages yet. Be the first!" })
+              ]
+            }
+          ),
+          allMessages.map((msg) => {
+            const isMe = msg.senderId === myText;
+            const initials = (msg.senderName || "??").slice(0, 2).toUpperCase();
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                "data-ocid": `socials.clan_chat.message.${msg.id}`,
+                className: `flex gap-2 ${isMe ? "flex-row-reverse" : "flex-row"}`,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      "aria-label": `Open ${msg.senderName}'s profile`,
+                      onClick: () => {
+                        if (!isMe && msg.memberInfo)
+                          onOpenMemberProfile(msg.memberInfo);
+                      },
+                      className: `flex items-center justify-center w-8 h-8 rounded-xl bg-orange-100 text-orange-600 font-black text-xs shrink-0 self-end border border-orange-200 ${!isMe && msg.memberInfo ? "cursor-pointer hover:border-orange-400 transition-colors" : "cursor-default"}`,
+                      children: initials
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "div",
+                    {
+                      className: `flex flex-col max-w-[72%] ${isMe ? "items-end" : "items-start"}`,
+                      children: [
+                        !isMe && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-orange-500 font-semibold mb-0.5 px-1", children: msg.senderName }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "div",
+                          {
+                            className: `px-3 py-2 rounded-2xl text-sm shadow-sm overflow-hidden ${isMe ? `bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-br-sm ${msg.pending ? "opacity-60" : ""}` : "bg-white border border-gray-200 text-black rounded-bl-sm"}`,
+                            children: msg.text.startsWith(IMG_PREFIX) ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "img",
+                              {
+                                src: msg.text.slice(IMG_PREFIX.length),
+                                alt: "Shared by user",
+                                className: "max-w-full rounded-lg object-cover",
+                                style: { maxHeight: 200 }
+                              }
+                            ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "span",
+                              {
+                                style: {
+                                  overflowWrap: "break-word",
+                                  wordBreak: "break-word"
+                                },
+                                children: msg.text
+                              }
+                            )
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] text-gray-500 mt-0.5 px-1", children: new Date(msg.timestamp).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        }) })
+                      ]
+                    }
+                  )
+                ]
+              },
+              msg.id
+            );
+          }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: bottomRef })
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "input",
+      {
+        ref: fileInputRef,
+        type: "file",
+        accept: "image/*",
+        className: "hidden",
+        tabIndex: -1,
+        onChange: handleFileChange
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-3 pb-2 pt-2 border-t border-gray-800 flex gap-2 items-center shrink-0", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          "data-ocid": "socials.clan_chat.image_upload_button",
+          onClick: handleImageButtonClick,
+          "aria-label": "Upload image",
+          className: "w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-md transition-all duration-200 hover:scale-110 active:scale-95 shrink-0",
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 18 })
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "text",
+          placeholder: "Type a message…",
+          value: text,
+          onChange: (e) => setText(e.target.value),
+          onKeyDown: (e) => e.key === "Enter" && handleSend(),
+          maxLength: 500,
+          "data-ocid": "socials.clan_chat.message_input",
+          className: "flex-1 min-w-0 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-black placeholder-gray-400 focus:outline-none focus:border-orange-400 transition-colors shadow-sm",
+          style: { fontSize: "16px" }
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          "data-ocid": "socials.clan_chat.send_button",
+          disabled: !text.trim(),
+          onClick: handleSend,
+          className: "flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white disabled:opacity-40 hover:from-orange-600 hover:to-orange-700 active:scale-95 transition-all shadow-md",
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { size: 16 })
+        }
+      )
+    ] })
+  ] });
+};
+const MemberProfileView = ({
+  member,
+  myPrincipal,
+  onBack
+}) => {
+  const { data: isFriend } = useIsFriend(member.principal);
+  const { data: profile } = useGetUserProfile(member.principal);
+  const { data: gameStats, isLoading: statsLoading } = useGetUserGameStats(
+    member.principal
+  );
+  const addFriend = useAddFriend();
+  const removeFriend = useRemoveFriend();
+  const isMe = (myPrincipal == null ? void 0 : myPrincipal.toText()) === member.principal.toText();
+  const initials = (member.name || "??").slice(0, 2).toUpperCase();
+  const typedProfile = profile;
+  const typedStats = gameStats;
+  const statsEntries = typedStats ? [
+    { label: "Level", value: Number(typedStats.level).toString() },
+    {
+      label: "Highest Score",
+      value: Number(typedStats.highestScore).toLocaleString()
+    },
+    {
+      label: "Total Score",
+      value: Number(typedStats.totalScore).toLocaleString()
+    },
+    {
+      label: "Total Chickens",
+      value: Number(typedStats.totalChickensShot).toLocaleString()
+    },
+    {
+      label: "Golden Chickens",
+      value: Number(typedStats.goldenChickensShot).toLocaleString()
+    },
+    {
+      label: "Fast Chickens",
+      value: Number(typedStats.fastChickensShot).toLocaleString()
+    },
+    {
+      label: "Total Shots",
+      value: Number(typedStats.totalShotsFired).toLocaleString()
+    },
+    {
+      label: "Missed Shots",
+      value: Number(typedStats.totalMissedShots).toLocaleString()
+    },
+    {
+      label: "Accuracy",
+      value: `${typedStats.currentAccuracy.toFixed(1)} %`
+    },
+    {
+      label: "Best Hit Streak",
+      value: Number(typedStats.bestConsecutiveHits).toString()
+    },
+    {
+      label: "Perfect Sessions",
+      value: Number(typedStats.perfectAccuracySessions).toString()
+    },
+    {
+      label: "Play Time (min)",
+      value: Number(typedStats.totalPlayTimeMinutes).toLocaleString()
+    },
+    {
+      label: "Best Session",
+      value: Number(typedStats.bestSessionChickens).toLocaleString()
+    },
+    {
+      label: "Small Chickens",
+      value: Number(typedStats.smallChickensShot).toLocaleString()
+    },
+    {
+      label: "Medium Chickens",
+      value: Number(typedStats.mediumChickensShot).toLocaleString()
+    },
+    {
+      label: "Large Chickens",
+      value: Number(typedStats.largeChickensShot).toLocaleString()
+    }
+  ] : [];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ScreenHeader, { title: "Player Profile", onBack }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto px-4 pb-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center mt-6 mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-20 h-20 rounded-xl bg-orange-100 text-orange-600 font-black text-2xl mb-3 border-2 border-orange-200 shadow-lg", children: initials }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-white font-black text-xl", children: member.name || "Unknown" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2 mt-1.5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 px-3 py-1 rounded-full shadow-md", children: [
+          "Level ",
+          member.level.toString()
+        ] }) }),
+        (typedProfile == null ? void 0 : typedProfile.bio) && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-400 text-sm text-center mt-2 max-w-xs", children: typedProfile.bio })
+      ] }),
+      !isMe && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center mb-4", children: isFriend ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          "data-ocid": "socials.member_profile.remove_friend_button",
+          disabled: removeFriend.isPending,
+          onClick: () => removeFriend.mutate(member.principal),
+          className: "flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 text-sm font-bold hover:bg-red-50 transition-colors disabled:opacity-40 shadow-sm",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(UserMinus, { size: 16 }),
+            removeFriend.isPending ? "…" : "Remove Friend"
+          ]
+        }
+      ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          "data-ocid": "socials.member_profile.add_friend_button",
+          disabled: addFriend.isPending,
+          onClick: () => addFriend.mutate(member.principal),
+          className: "flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold transition-all hover:scale-105 active:scale-95 disabled:opacity-40 shadow-md",
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { size: 16 }),
+            addFriend.isPending ? "Adding…" : "Add Friend"
+          ]
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-white border border-gray-200 shadow-xl p-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-4 h-4 rounded-md bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-white text-[8px] font-black", children: "★" }) }),
+          "Statistics"
+        ] }),
+        statsLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "grid grid-cols-2 gap-3",
+            "data-ocid": "socials.member_profile.loading_state",
+            children: Array.from({ length: 8 }).map((_2, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                className: "h-14 rounded-lg bg-gray-100 border border-gray-200 animate-pulse"
+              },
+              i
+            ))
+          }
+        ) : !typedStats ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "text-center py-6 text-gray-500 text-sm",
+            "data-ocid": "socials.member_profile.empty_state",
+            children: "No statistics yet"
+          }
+        ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "grid grid-cols-2 gap-2",
+            "data-ocid": "socials.member_profile.stats_list",
+            children: statsEntries.map(({ label, value }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "rounded-lg bg-gray-50 border border-gray-200 px-3 py-2.5",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mb-0.5 truncate", children: label }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-black text-sm font-bold truncate", children: value })
+                ]
+              },
+              label
+            ))
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 rounded-xl bg-white border border-gray-200 px-3 py-2.5 shadow-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mb-0.5", children: "Principal ID" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-black text-xs font-mono truncate", children: member.principal.toText() })
+      ] })
+    ] })
+  ] });
+};
+const FriendsPanel = ({
+  onOpenProfile
+}) => {
+  const { data: friends, isLoading } = useGetFriends();
+  if (isLoading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "flex flex-col gap-3 px-4 pt-4",
+        "data-ocid": "socials.friends.loading_state",
+        children: [1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "h-16 rounded-xl bg-white border border-gray-200 animate-pulse"
+          },
+          i
+        ))
+      }
+    );
+  }
+  if (!friends || friends.length === 0) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "flex flex-col items-center justify-center py-10 px-6 text-center",
+        "data-ocid": "socials.friends.empty_state",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-16 h-16 rounded-xl bg-gray-100 border border-gray-200 mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 28, className: "text-gray-400" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-white font-black text-lg mb-2", children: "Friends" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm max-w-xs mb-6", children: "No friends yet. Click on a player in Clan Chat and add them as a friend." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-white border border-gray-200 shadow-xl p-4 w-full max-w-xs", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-6 h-6 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Hash2, { size: 12, className: "text-white" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold text-black uppercase tracking-wider", children: "How it works" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "text-left space-y-2", children: [
+              "Join a clan or create one",
+              "Open the clan chat",
+              "Tap on a player name",
+              'Click "Add Friend"'
+            ].map((step, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "li",
+              {
+                className: "flex items-start gap-2 text-xs text-gray-600",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-orange-500 font-black shrink-0", children: [
+                    i + 1,
+                    "."
+                  ] }),
+                  step
+                ]
+              },
+              step
+            )) })
+          ] })
+        ]
+      }
+    );
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "flex flex-col gap-2 px-4 pt-4 pb-4",
+      "data-ocid": "socials.friends.list",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs font-bold text-gray-500 uppercase tracking-wider px-1 mb-1", children: [
+          friends.length,
+          " Friends"
+        ] }),
+        friends.map((friend, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          MemberRow,
+          {
+            member: friend,
+            index: i + 1,
+            onClick: () => onOpenProfile(friend)
+          },
+          friend.principal.toText()
+        ))
+      ]
+    }
+  );
+};
+const ScreenHeader = ({
+  title,
+  onBack
+}) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 px-4 pt-4 pb-3 border-b border-gray-800 shrink-0", children: [
+  /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "button",
+    {
+      type: "button",
+      "data-ocid": "socials.back_button",
+      onClick: onBack,
+      className: "flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-gray-200 text-black hover:border-orange-400 transition-colors shadow-sm",
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 18 })
+    }
+  ),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg font-black text-white truncate flex-1", children: title })
+] });
 const CHICKEN_COLORS$2 = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
 const FAST_CHICKEN_COLORS = [
   "#FF4500",
@@ -36008,6 +39235,8 @@ const GameScreen = ({
   const backgroundMusicGainRef = reactExports.useRef(null);
   const rainSoundGainRef = reactExports.useRef(null);
   const rainSourceRef = reactExports.useRef(null);
+  const aiSoundGainRef = reactExports.useRef(null);
+  const aiSoundSourceRef = reactExports.useRef(null);
   const touchTrackersRef = reactExports.useRef(/* @__PURE__ */ new Map());
   const gameStateRef = reactExports.useRef({
     chickens: [],
@@ -36227,6 +39456,103 @@ const GameScreen = ({
       if (rainSourceRef.current) {
         const src = rainSourceRef.current;
         rainSourceRef.current = null;
+        setTimeout(() => {
+          try {
+            src.stop();
+          } catch {
+          }
+        }, 900);
+      }
+    } catch {
+    }
+  }, []);
+  const createAISound = reactExports.useCallback(() => {
+    const audioContext = audioContextRef.current;
+    if (!audioContext) return;
+    try {
+      if (audioContext.state === "suspended") audioContext.resume();
+      if (aiSoundSourceRef.current) {
+        try {
+          aiSoundSourceRef.current.stop();
+        } catch {
+        }
+        aiSoundSourceRef.current = null;
+      }
+      if (!aiSoundGainRef.current) {
+        const gainNode = audioContext.createGain();
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(
+          0.12,
+          audioContext.currentTime + 2
+        );
+        gainNode.connect(audioContext.destination);
+        aiSoundGainRef.current = gainNode;
+      } else {
+        aiSoundGainRef.current.gain.setValueAtTime(0, audioContext.currentTime);
+        aiSoundGainRef.current.gain.linearRampToValueAtTime(
+          0.12,
+          audioContext.currentTime + 2
+        );
+      }
+      const bufferSize = audioContext.sampleRate * 3;
+      const noiseBuffer = audioContext.createBuffer(
+        1,
+        bufferSize,
+        audioContext.sampleRate
+      );
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.4;
+      }
+      const noiseSource = audioContext.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+      noiseSource.loop = true;
+      const highpass = audioContext.createBiquadFilter();
+      highpass.type = "highpass";
+      highpass.frequency.setValueAtTime(2400, audioContext.currentTime);
+      const bandpass = audioContext.createBiquadFilter();
+      bandpass.type = "bandpass";
+      bandpass.frequency.setValueAtTime(4800, audioContext.currentTime);
+      bandpass.Q.setValueAtTime(2, audioContext.currentTime);
+      noiseSource.connect(highpass);
+      highpass.connect(bandpass);
+      bandpass.connect(aiSoundGainRef.current);
+      const droneOsc = audioContext.createOscillator();
+      droneOsc.type = "sine";
+      droneOsc.frequency.setValueAtTime(55, audioContext.currentTime);
+      droneOsc.frequency.linearRampToValueAtTime(
+        58,
+        audioContext.currentTime + 4
+      );
+      droneOsc.frequency.linearRampToValueAtTime(
+        55,
+        audioContext.currentTime + 8
+      );
+      const droneGain = audioContext.createGain();
+      droneGain.gain.setValueAtTime(0.35, audioContext.currentTime);
+      droneOsc.connect(droneGain);
+      droneGain.connect(aiSoundGainRef.current);
+      noiseSource.start();
+      droneOsc.start();
+      aiSoundSourceRef.current = noiseSource;
+    } catch {
+    }
+  }, []);
+  const stopAISound = reactExports.useCallback(() => {
+    try {
+      if (aiSoundGainRef.current && audioContextRef.current) {
+        aiSoundGainRef.current.gain.setValueAtTime(
+          aiSoundGainRef.current.gain.value,
+          audioContextRef.current.currentTime
+        );
+        aiSoundGainRef.current.gain.linearRampToValueAtTime(
+          0,
+          audioContextRef.current.currentTime + 0.8
+        );
+      }
+      if (aiSoundSourceRef.current) {
+        const src = aiSoundSourceRef.current;
+        aiSoundSourceRef.current = null;
         setTimeout(() => {
           try {
             src.stop();
@@ -37180,6 +40506,7 @@ const GameScreen = ({
     setGameEnded(true);
     stopBackgroundMusic();
     stopRainSound();
+    stopAISound();
     setScoreMultiplier({ isActive: false, endTime: 0 });
     touchTrackersRef.current.clear();
     const durationMin = Math.round(
@@ -37225,6 +40552,7 @@ const GameScreen = ({
   }, [
     stopBackgroundMusic,
     stopRainSound,
+    stopAISound,
     sessionStats,
     gameStatistics,
     updateStatistics,
@@ -37383,6 +40711,17 @@ const GameScreen = ({
     };
   }, [selectedWorld, currentView, createRainSound, stopRainSound]);
   reactExports.useEffect(() => {
+    const isGameActive = currentView === "game" && gameStateRef.current.isRunning && !gameStateRef.current.gameEnded;
+    if (selectedWorld === "caffeineai" && isGameActive) {
+      createAISound();
+    } else {
+      stopAISound();
+    }
+    return () => {
+      stopAISound();
+    };
+  }, [selectedWorld, currentView, createAISound, stopAISound]);
+  reactExports.useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     initializeAudio();
@@ -37431,6 +40770,7 @@ const GameScreen = ({
       touchTrackersRef.current.clear();
       stopBackgroundMusic();
       stopRainSound();
+      stopAISound();
     };
   }, [
     gameLoop,
@@ -37438,6 +40778,7 @@ const GameScreen = ({
     initializeAudio,
     stopBackgroundMusic,
     stopRainSound,
+    stopAISound,
     generateGoldenChickenSpawnTimes
   ]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full h-screen overflow-hidden", children: [
@@ -37540,7 +40881,7 @@ const GameScreen = ({
         "data-ocid": "game.canvas_target"
       }
     ),
-    currentView === "achievements" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    currentView === "achievements" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       AchievementsView,
       {
         gameStatistics,
@@ -37548,8 +40889,8 @@ const GameScreen = ({
         addXP,
         playerLevel: playerData.level
       }
-    ),
-    currentView === "profile" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    ) }),
+    currentView === "profile" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       ProfileView,
       {
         score,
@@ -37557,16 +40898,26 @@ const GameScreen = ({
         isAuthenticated,
         gameStatistics
       }
-    ),
-    currentView === "leaderboard" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    ) }),
+    currentView === "leaderboard" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       LeaderboardView,
       {
         currentPlayerScore: gameStatistics.highestScore,
         isAuthenticated
       }
-    ),
-    currentView === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsView, { onClose: () => setCurrentView("game") }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(BottomMenu, { currentView, onViewChange: setCurrentView })
+    ) }),
+    currentView === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsView, { onClose: () => setCurrentView("game") }) }),
+    currentView === "socials" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SocialsView, { isAuthenticated }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      BottomMenu,
+      {
+        currentView,
+        onViewChange: (view) => {
+          if (view !== "worldSelection") setCurrentView(view);
+        },
+        zIndex: 50
+      }
+    )
   ] });
 };
 const CHICKEN_COLORS$1 = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
@@ -37919,7 +41270,8 @@ const WORLDS = [
   { id: "jungle", name: "Jungle" },
   { id: "snowy", name: "Snowy" },
   { id: "sky", name: "Heaven" },
-  { id: "cyberpunk", name: "Cyberpunk City" }
+  { id: "cyberpunk", name: "Cyberpunk City" },
+  { id: "caffeineai", name: "CaffeineAI" }
 ];
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
 const START_BUTTON_CLASSES = {
@@ -37930,14 +41282,19 @@ const START_BUTTON_CLASSES = {
   jungle: "start-game-button-jungle",
   snowy: "start-game-button-snowy",
   sky: "start-game-button-sky",
-  cyberpunk: "start-game-button-cyberpunk"
+  cyberpunk: "start-game-button-cyberpunk",
+  caffeineai: "start-game-button-caffeineai"
 };
 const StartScreen = ({
   onStartGame,
-  onNavigateToView,
   selectedWorld,
-  onWorldChange
+  onWorldChange,
+  playerData,
+  gameStatistics,
+  addXP
 }) => {
+  const { isAuthenticated } = useInternetIdentity();
+  const [overlayView, setOverlayView] = reactExports.useState(null);
   const [worldIndex, setWorldIndex] = reactExports.useState(() => {
     const idx = WORLDS.findIndex((w2) => w2.id === selectedWorld);
     return idx >= 0 ? idx : 0;
@@ -38364,17 +41721,46 @@ const StartScreen = ({
             )
           }
         ),
+        overlayView === "achievements" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          AchievementsView,
+          {
+            gameStatistics,
+            isAuthenticated,
+            addXP,
+            playerLevel: playerData.level
+          }
+        ) }),
+        overlayView === "profile" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ProfileView,
+          {
+            score: 0,
+            playerData,
+            isAuthenticated,
+            gameStatistics
+          }
+        ) }),
+        overlayView === "leaderboard" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          LeaderboardView,
+          {
+            currentPlayerScore: gameStatistics.highestScore,
+            isAuthenticated
+          }
+        ) }),
+        overlayView === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsView, { onClose: () => setOverlayView(null) }) }),
+        overlayView === "socials" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SocialsView, { isAuthenticated }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           BottomMenu,
           {
-            currentView: "game",
+            currentView: overlayView ?? "worldSelection",
+            context: "worldSelection",
             onViewChange: (view) => {
-              if (view === "game") {
-                onStartGame();
-              } else {
-                onNavigateToView(view);
+              if (view === "achievements" || view === "profile" || view === "leaderboard" || view === "settings" || view === "socials") {
+                setOverlayView(view);
+              } else if (view === "worldSelection") {
+                setOverlayView(null);
               }
-            }
+            },
+            zIndex: 50
           }
         )
       ]
@@ -38491,7 +41877,8 @@ const VALID_WORLDS = [
   "jungle",
   "snowy",
   "sky",
-  "cyberpunk"
+  "cyberpunk",
+  "caffeineai"
 ];
 const DEFAULT_PLAYER_DATA = {
   level: 1,
@@ -38620,9 +42007,11 @@ function App() {
       StartScreen,
       {
         onStartGame: () => startGame("game"),
-        onNavigateToView: (view) => startGame(view),
         selectedWorld,
-        onWorldChange: setSelectedWorld
+        onWorldChange: setSelectedWorld,
+        playerData,
+        gameStatistics,
+        addXP
       }
     ),
     gameState === "playing" && /* @__PURE__ */ jsxRuntimeExports.jsx(

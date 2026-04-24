@@ -39,6 +39,18 @@ type StreamingCallbackHttpResponse =
  };
 type StreamingCallback = func (StreamingToken) ->
                           (StreamingCallbackHttpResponse) query;
+type PrincipalInfo = 
+ record {
+   avatarUrl: opt text;
+   level: nat;
+   name: text;
+   "principal": principal;
+ };
+type JoinMode = 
+ variant {
+   open;
+   requestRequired;
+ };
 type HttpResponse = 
  record {
    body: blob;
@@ -83,6 +95,34 @@ type FileMetadata =
    path: text;
    size: nat;
  };
+type ClanSummary = 
+ record {
+   description: text;
+   id: nat;
+   joinMode: JoinMode;
+   memberCount: nat;
+   name: text;
+   ownerId: principal;
+ };
+type ClanMessage = 
+ record {
+   clanId: nat;
+   id: nat;
+   senderId: principal;
+   "text": text;
+   timestamp: int;
+ };
+type ClanDetails = 
+ record {
+   createdAt: int;
+   description: text;
+   id: nat;
+   joinMode: JoinMode;
+   members: vec PrincipalInfo;
+   name: text;
+   ownerId: principal;
+   pendingCount: nat;
+ };
 type ApprovalStatus = 
  variant {
    approved;
@@ -90,21 +130,61 @@ type ApprovalStatus =
    rejected;
  };
 service : {
+  addFriend: (userId: principal) -> (variant {
+                                       err: text;
+                                       ok: text;
+                                     });
+  approveJoinRequest: (clanId: nat, userId: principal) ->
+   (variant {
+      err: text;
+      ok: text;
+    });
   assignRole: (user: principal, newRole: UserRole) -> ();
+  createClan: (name: text, description: text, joinMode: JoinMode) ->
+   (variant {
+      err: text;
+      ok: nat;
+    });
+  declineJoinRequest: (clanId: nat, userId: principal) ->
+   (variant {
+      err: text;
+      ok: text;
+    });
+  deleteClan: (clanId: nat) -> (variant {
+                                  err: text;
+                                  ok: text;
+                                });
   fileDelete: (path: text) -> ();
   fileList: () -> (vec FileMetadata) query;
   fileUpload: (path: text, mimeType: text, chunk: blob, complete: bool) -> ();
+  getAllClans: () -> (vec ClanSummary) query;
   getApprovalStatus: (user: principal) -> (ApprovalStatus) query;
+  getClan: (clanId: nat) -> (variant {
+                               err: text;
+                               ok: ClanDetails;
+                             }) query;
+  getClanMessages: (clanId: nat, limit: nat, before: opt nat) ->
+   (variant {
+      err: text;
+      ok: vec ClanMessage;
+    }) query;
   getCurrentUserApprovalStatus: () -> (ApprovalStatus) query;
   getCurrentUserProfile: () -> (opt UserProfile) query;
   getCurrentUserProfileWithChangeStatus: () ->
    (opt UserProfileWithChangeStatus) query;
   getCurrentUserRole: () -> (UserRole) query;
+  getFriends: () -> (vec PrincipalInfo) query;
   getLeaderboard: () -> (vec record {
                                text;
                                nat;
                                nat;
                              }) query;
+  getPendingJoinRequests: (clanId: nat) ->
+   (variant {
+      err: text;
+      ok: vec PrincipalInfo;
+    });
+  getUserGameStats: (userId: principal) -> (opt GameStatistics) query;
   getUserProfile: (user: principal) -> (opt UserProfile) query;
   getUserProfileWithChangeStatus: (user: principal) ->
    (opt UserProfileWithChangeStatus) query;
@@ -113,10 +193,29 @@ service : {
   http_request: (request: HttpRequest) -> (HttpResponse) query;
   initializeAuth: () -> ();
   isCurrentUserAdmin: () -> (bool) query;
+  isFriend: (userId: principal) -> (bool) query;
+  joinClan: (clanId: nat) -> (variant {
+                                err: text;
+                                ok: text;
+                              });
+  leaveClan: (clanId: nat) -> (variant {
+                                 err: text;
+                                 ok: text;
+                               });
   listUsers: () -> (vec UserInfo) query;
+  removeFriend: (userId: principal) -> (variant {
+                                          err: text;
+                                          ok: text;
+                                        });
   saveCurrentUserProfile: (profile: UserProfile) -> ();
   saveCurrentUserProfileWithChangeStatus: (profile:
    UserProfileWithChangeStatus) -> ();
   saveGameStatistics: (stats: GameStatistics) -> ();
+  searchClans: (q: text) -> (vec ClanSummary) query;
+  sendClanMessage: (clanId: nat, "text": text) ->
+   (variant {
+      err: text;
+      ok: ClanMessage;
+    });
   setApproval: (user: principal, approval: ApprovalStatus) -> ();
 }

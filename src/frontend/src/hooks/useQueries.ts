@@ -3,7 +3,12 @@ import { Principal } from "@icp-sdk/core/principal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ApprovalStatus,
+  type ClanDetails,
+  type ClanMessage,
+  type ClanSummary,
   type GameStatistics,
+  JoinMode,
+  type PrincipalInfo,
   type UserInfo,
   type UserProfile,
   type UserProfileWithChangeStatus,
@@ -16,8 +21,12 @@ export type {
   UserProfileWithChangeStatus,
   UserInfo,
   GameStatistics,
+  ClanSummary,
+  ClanDetails,
+  ClanMessage,
+  PrincipalInfo,
 };
-export { ApprovalStatus, UserRole };
+export { ApprovalStatus, UserRole, JoinMode };
 
 export function useUserProfile() {
   const { actor, isFetching } = useActor(createActor);
@@ -182,5 +191,351 @@ export function useAssignRole() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listUsers"] });
     },
+  });
+}
+
+// ─── Clan Queries ──────────────────────────────────────────────────────────────
+
+export function useAllClans() {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<ClanSummary[]>({
+    queryKey: ["allClans"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllClans();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+/**
+ * Returns all clans the current user is a member of (owner OR regular member).
+ * Fetches all clan summaries, then resolves details in parallel to check membership.
+ */
+export function useUserClans(myPrincipal: Principal | null) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<ClanSummary[]>({
+    queryKey: ["userClans", myPrincipal?.toText()],
+    queryFn: async () => {
+      if (!actor || !myPrincipal) return [];
+      const all = await actor.getAllClans();
+      if (all.length === 0) return [];
+      const myText = myPrincipal.toText();
+      // First pass: clans where user is owner (no extra fetch needed)
+      const ownedIds = new Set(
+        all
+          .filter((c) => c.ownerId.toText() === myText)
+          .map((c) => c.id.toString()),
+      );
+      // Second pass: for remaining clans, fetch details to check membership
+      const detailResults = await Promise.allSettled(
+        all
+          .filter((c) => !ownedIds.has(c.id.toString()))
+          .map(async (c) => {
+            const res = await actor.getClan(c.id);
+            if (res.__kind__ === "ok") {
+              const isMember = res.ok.members.some(
+                (m) => m.principal.toText() === myText,
+              );
+              return isMember ? c.id.toString() : null;
+            }
+            return null;
+          }),
+      );
+      const memberIds = new Set(
+        detailResults
+          .filter(
+            (r): r is PromiseFulfilledResult<string | null> =>
+              r.status === "fulfilled",
+          )
+          .map((r) => r.value)
+          .filter((id): id is string => id !== null),
+      );
+      return all.filter(
+        (c) => ownedIds.has(c.id.toString()) || memberIds.has(c.id.toString()),
+      );
+    },
+    enabled: !!actor && !isFetching && myPrincipal !== null,
+  });
+}
+
+export function useSearchClans(q: string) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<ClanSummary[]>({
+    queryKey: ["searchClans", q],
+    queryFn: async () => {
+      if (!actor || q.trim().length === 0) return [];
+      return actor.searchClans(q);
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useClanDetails(clanId: bigint | null) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<ClanDetails | null>({
+    queryKey: ["clan", clanId?.toString()],
+    queryFn: async () => {
+      if (!actor || clanId === null) return null;
+      const res = await actor.getClan(clanId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    enabled: !!actor && !isFetching && clanId !== null,
+  });
+}
+
+export function usePendingJoinRequests(clanId: bigint | null) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<PrincipalInfo[]>({
+    queryKey: ["pendingRequests", clanId?.toString()],
+    queryFn: async () => {
+      if (!actor || clanId === null) return [];
+      const res = await actor.getPendingJoinRequests(clanId);
+      if (res.__kind__ === "ok") return res.ok;
+      return [];
+    },
+    enabled: !!actor && !isFetching && clanId !== null,
+  });
+}
+
+export function useCreateClan() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      name,
+      description,
+      joinMode,
+    }: { name: string; description: string; joinMode: JoinMode }) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.createClan(name, description, joinMode);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allClans"] });
+    },
+  });
+}
+
+export function useJoinClan() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (clanId: bigint) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.joinClan(clanId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allClans"] });
+      queryClient.invalidateQueries({ queryKey: ["searchClans"] });
+    },
+  });
+}
+
+export function useLeaveClan() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (clanId: bigint) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.leaveClan(clanId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: (_, clanId) => {
+      queryClient.invalidateQueries({ queryKey: ["allClans"] });
+      queryClient.invalidateQueries({ queryKey: ["clan", clanId.toString()] });
+    },
+  });
+}
+
+export function useDeleteClan() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (clanId: bigint) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.deleteClan(clanId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allClans"] });
+    },
+  });
+}
+
+export function useApproveJoinRequest() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      clanId,
+      userId,
+    }: { clanId: bigint; userId: Principal }) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.approveJoinRequest(clanId, userId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: (_, { clanId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["pendingRequests", clanId.toString()],
+      });
+      queryClient.invalidateQueries({ queryKey: ["clan", clanId.toString()] });
+    },
+  });
+}
+
+export function useDeclineJoinRequest() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      clanId,
+      userId,
+    }: { clanId: bigint; userId: Principal }) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.declineJoinRequest(clanId, userId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: (_, { clanId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["pendingRequests", clanId.toString()],
+      });
+    },
+  });
+}
+
+// ─── Clan Chat ─────────────────────────────────────────────────────────────────
+
+export function useClanMessages(clanId: bigint | null) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<ClanMessage[]>({
+    queryKey: ["clanMessages", clanId?.toString()],
+    queryFn: async () => {
+      if (!actor || clanId === null) return [];
+      const res = await actor.getClanMessages(clanId, BigInt(50), null);
+      if (res.__kind__ === "ok") return res.ok;
+      return [];
+    },
+    enabled: !!actor && !isFetching && clanId !== null,
+    refetchInterval: 3000,
+  });
+}
+
+export function useSendClanMessage() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ clanId, text }: { clanId: bigint; text: string }) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.sendClanMessage(clanId, text);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: (_, { clanId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["clanMessages", clanId.toString()],
+      });
+    },
+  });
+}
+
+// ─── Friends ──────────────────────────────────────────────────────────────────
+
+export function useGetFriends() {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<PrincipalInfo[]>({
+    queryKey: ["friends"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getFriends();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useIsFriend(userId: Principal | null) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<boolean>({
+    queryKey: ["isFriend", userId?.toText()],
+    queryFn: async () => {
+      if (!actor || !userId) return false;
+      return actor.isFriend(userId);
+    },
+    enabled: !!actor && !isFetching && userId !== null,
+  });
+}
+
+export function useAddFriend() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (userId: Principal) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.addFriend(userId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["isFriend"] });
+    },
+  });
+}
+
+export function useRemoveFriend() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (userId: Principal) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.removeFriend(userId);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["isFriend"] });
+    },
+  });
+}
+
+export function useGetUserProfile(user: Principal | null) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<UserProfile | null>({
+    queryKey: ["userProfileOf", user?.toText()],
+    queryFn: async () => {
+      if (!actor || !user) return null;
+      return actor.getUserProfile(user);
+    },
+    enabled: !!actor && !isFetching && user !== null,
+  });
+}
+
+export function useGetUserGameStats(userId: Principal | null) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<GameStatistics | null>({
+    queryKey: ["userGameStats", userId?.toText()],
+    queryFn: async () => {
+      if (!actor || !userId) return null;
+      return actor.getUserGameStats(userId);
+    },
+    enabled: !!actor && !isFetching && userId !== null,
   });
 }

@@ -22,7 +22,8 @@ export type BackgroundWorld =
   | "jungle"
   | "snowy"
   | "sky"
-  | "cyberpunk";
+  | "cyberpunk"
+  | "caffeineai";
 
 export interface PlayerData {
   level: number;
@@ -77,6 +78,7 @@ const VALID_WORLDS: BackgroundWorld[] = [
   "snowy",
   "sky",
   "cyberpunk",
+  "caffeineai",
 ];
 
 const DEFAULT_PLAYER_DATA: PlayerData = {
@@ -243,9 +245,11 @@ function App() {
       {gameState === "start" && (
         <StartScreen
           onStartGame={() => startGame("game")}
-          onNavigateToView={(view) => startGame(view)}
           selectedWorld={selectedWorld}
           onWorldChange={setSelectedWorld}
+          playerData={playerData}
+          gameStatistics={gameStatistics}
+          addXP={addXP}
         />
       )}
       {gameState === "playing" && (

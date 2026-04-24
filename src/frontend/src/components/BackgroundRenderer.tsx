@@ -4508,6 +4508,653 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ world }) => {
     </svg>
   );
 
+  const renderCaffeineAIWorld = () => (
+    <svg
+      role="img"
+      aria-label="CaffeineAI world background"
+      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <defs>
+        {/* Matrix rain falling animations only */}
+        <style>{`
+          @keyframes aiRainFall0 {
+            0%   { transform: translateY(-900px); opacity: 0; }
+            3%   { opacity: 0.9; }
+            92%  { opacity: 0.85; }
+            100% { transform: translateY(900px); opacity: 0; }
+          }
+          @keyframes aiRainFall1 {
+            0%   { transform: translateY(-900px); opacity: 0; }
+            5%   { opacity: 0.7; }
+            90%  { opacity: 0.65; }
+            100% { transform: translateY(900px); opacity: 0; }
+          }
+          @keyframes aiRainFall2 {
+            0%   { transform: translateY(-900px); opacity: 0; }
+            4%   { opacity: 0.5; }
+            88%  { opacity: 0.45; }
+            100% { transform: translateY(900px); opacity: 0; }
+          }
+          .ai-rain-0 { animation: aiRainFall0 linear infinite; }
+          .ai-rain-1 { animation: aiRainFall1 linear infinite; }
+          .ai-rain-2 { animation: aiRainFall2 linear infinite; }
+        `}</style>
+      </defs>
+
+      {/* Pure black background */}
+      <rect width="1200" height="800" fill="#000000" />
+
+      {/* === MATRIX RAIN COLUMNS — bright leading char, fading trail === */}
+      {/* Column brightness layers: 0=bright, 1=medium, 2=dim */}
+
+      {/* Bright layer — fast falling, high opacity */}
+      <g
+        fill="#CCFF00"
+        fontSize="13"
+        fontFamily="monospace"
+        fontWeight="bold"
+        className="ai-rain-0"
+      >
+        <text
+          x="22"
+          y="0"
+          style={{ animationDuration: "2.1s", animationDelay: "0.0s" }}
+        >
+          AI
+        </text>
+        <text
+          x="62"
+          y="0"
+          style={{ animationDuration: "1.8s", animationDelay: "0.3s" }}
+        >
+          PROMPT
+        </text>
+        <text
+          x="120"
+          y="0"
+          style={{ animationDuration: "2.4s", animationDelay: "0.7s" }}
+        >
+          LLM
+        </text>
+        <text
+          x="165"
+          y="0"
+          style={{ animationDuration: "1.9s", animationDelay: "0.1s" }}
+        >
+          CAFFEINE
+        </text>
+        <text
+          x="248"
+          y="0"
+          style={{ animationDuration: "2.2s", animationDelay: "0.5s" }}
+        >
+          NEURAL
+        </text>
+        <text
+          x="312"
+          y="0"
+          style={{ animationDuration: "1.7s", animationDelay: "0.9s" }}
+        >
+          .AI
+        </text>
+        <text
+          x="345"
+          y="0"
+          style={{ animationDuration: "2.0s", animationDelay: "0.2s" }}
+        >
+          TOKEN
+        </text>
+        <text
+          x="400"
+          y="0"
+          style={{ animationDuration: "2.3s", animationDelay: "0.6s" }}
+        >
+          BUILD
+        </text>
+        <text
+          x="448"
+          y="0"
+          style={{ animationDuration: "1.8s", animationDelay: "1.1s" }}
+        >
+          DEPLOY
+        </text>
+        <text
+          x="508"
+          y="0"
+          style={{ animationDuration: "2.1s", animationDelay: "0.4s" }}
+        >
+          AGENT
+        </text>
+        <text
+          x="560"
+          y="0"
+          style={{ animationDuration: "1.9s", animationDelay: "0.8s" }}
+        >
+          MODEL
+        </text>
+        <text
+          x="616"
+          y="0"
+          style={{ animationDuration: "2.4s", animationDelay: "0.0s" }}
+        >
+          INFER
+        </text>
+        <text
+          x="668"
+          y="0"
+          style={{ animationDuration: "1.7s", animationDelay: "1.3s" }}
+        >
+          WEB3
+        </text>
+        <text
+          x="710"
+          y="0"
+          style={{ animationDuration: "2.2s", animationDelay: "0.2s" }}
+        >
+          CODE
+        </text>
+        <text
+          x="754"
+          y="0"
+          style={{ animationDuration: "1.8s", animationDelay: "0.7s" }}
+        >
+          CHAIN
+        </text>
+        <text
+          x="808"
+          y="0"
+          style={{ animationDuration: "2.0s", animationDelay: "0.4s" }}
+        >
+          NODE
+        </text>
+        <text
+          x="850"
+          y="0"
+          style={{ animationDuration: "2.3s", animationDelay: "1.0s" }}
+        >
+          LEARN
+        </text>
+        <text
+          x="905"
+          y="0"
+          style={{ animationDuration: "1.7s", animationDelay: "0.5s" }}
+        >
+          DATA
+        </text>
+        <text
+          x="945"
+          y="0"
+          style={{ animationDuration: "2.1s", animationDelay: "0.9s" }}
+        >
+          COMPUTE
+        </text>
+        <text
+          x="1015"
+          y="0"
+          style={{ animationDuration: "1.9s", animationDelay: "0.3s" }}
+        >
+          INTERNET
+        </text>
+        <text
+          x="1090"
+          y="0"
+          style={{ animationDuration: "2.2s", animationDelay: "1.2s" }}
+        >
+          AI
+        </text>
+        <text
+          x="1120"
+          y="0"
+          style={{ animationDuration: "1.8s", animationDelay: "0.6s" }}
+        >
+          PROMPT
+        </text>
+        <text
+          x="1175"
+          y="0"
+          style={{ animationDuration: "2.0s", animationDelay: "0.1s" }}
+        >
+          LLM
+        </text>
+      </g>
+
+      {/* Medium layer — medium speed, staggered offsets */}
+      <g
+        fill="#AADD00"
+        fontSize="12"
+        fontFamily="monospace"
+        opacity="0.75"
+        className="ai-rain-1"
+      >
+        <text
+          x="40"
+          y="0"
+          style={{ animationDuration: "2.8s", animationDelay: "0.4s" }}
+        >
+          SELF
+        </text>
+        <text
+          x="82"
+          y="0"
+          style={{ animationDuration: "3.1s", animationDelay: "1.2s" }}
+        >
+          WRITING
+        </text>
+        <text
+          x="148"
+          y="0"
+          style={{ animationDuration: "2.6s", animationDelay: "0.0s" }}
+        >
+          INTERNET
+        </text>
+        <text
+          x="230"
+          y="0"
+          style={{ animationDuration: "3.2s", animationDelay: "0.8s" }}
+        >
+          CAFFEINE
+        </text>
+        <text
+          x="313"
+          y="0"
+          style={{ animationDuration: "2.7s", animationDelay: "1.5s" }}
+        >
+          AGENT
+        </text>
+        <text
+          x="368"
+          y="0"
+          style={{ animationDuration: "3.0s", animationDelay: "0.3s" }}
+        >
+          TOKEN
+        </text>
+        <text
+          x="420"
+          y="0"
+          style={{ animationDuration: "2.8s", animationDelay: "1.0s" }}
+        >
+          MODEL
+        </text>
+        <text
+          x="470"
+          y="0"
+          style={{ animationDuration: "3.3s", animationDelay: "0.6s" }}
+        >
+          INFER
+        </text>
+        <text
+          x="524"
+          y="0"
+          style={{ animationDuration: "2.5s", animationDelay: "1.8s" }}
+        >
+          NEURAL
+        </text>
+        <text
+          x="585"
+          y="0"
+          style={{ animationDuration: "3.1s", animationDelay: "0.2s" }}
+        >
+          LLM
+        </text>
+        <text
+          x="620"
+          y="0"
+          style={{ animationDuration: "2.7s", animationDelay: "1.4s" }}
+        >
+          .AI
+        </text>
+        <text
+          x="656"
+          y="0"
+          style={{ animationDuration: "2.9s", animationDelay: "0.9s" }}
+        >
+          DEPLOY
+        </text>
+        <text
+          x="715"
+          y="0"
+          style={{ animationDuration: "3.2s", animationDelay: "0.5s" }}
+        >
+          BUILD
+        </text>
+        <text
+          x="762"
+          y="0"
+          style={{ animationDuration: "2.6s", animationDelay: "1.6s" }}
+        >
+          CODE
+        </text>
+        <text
+          x="800"
+          y="0"
+          style={{ animationDuration: "3.0s", animationDelay: "0.1s" }}
+        >
+          DATA
+        </text>
+        <text
+          x="838"
+          y="0"
+          style={{ animationDuration: "2.8s", animationDelay: "1.3s" }}
+        >
+          CHAIN
+        </text>
+        <text
+          x="882"
+          y="0"
+          style={{ animationDuration: "3.3s", animationDelay: "0.7s" }}
+        >
+          WEB3
+        </text>
+        <text
+          x="924"
+          y="0"
+          style={{ animationDuration: "2.5s", animationDelay: "1.1s" }}
+        >
+          NODE
+        </text>
+        <text
+          x="963"
+          y="0"
+          style={{ animationDuration: "3.1s", animationDelay: "0.4s" }}
+        >
+          LEARN
+        </text>
+        <text
+          x="1010"
+          y="0"
+          style={{ animationDuration: "2.7s", animationDelay: "1.7s" }}
+        >
+          COMPUTE
+        </text>
+        <text
+          x="1080"
+          y="0"
+          style={{ animationDuration: "2.9s", animationDelay: "0.0s" }}
+        >
+          AI
+        </text>
+        <text
+          x="1110"
+          y="0"
+          style={{ animationDuration: "3.2s", animationDelay: "0.8s" }}
+        >
+          PROMPT
+        </text>
+        <text
+          x="1162"
+          y="0"
+          style={{ animationDuration: "2.6s", animationDelay: "1.5s" }}
+        >
+          LLM
+        </text>
+      </g>
+
+      {/* Dim layer — slowest, adds depth and density */}
+      <g
+        fill="#88BB00"
+        fontSize="11"
+        fontFamily="monospace"
+        opacity="0.45"
+        className="ai-rain-2"
+      >
+        <text
+          x="10"
+          y="0"
+          style={{ animationDuration: "4.0s", animationDelay: "0.6s" }}
+        >
+          PROMPT
+        </text>
+        <text
+          x="58"
+          y="0"
+          style={{ animationDuration: "4.5s", animationDelay: "2.0s" }}
+        >
+          NEURAL
+        </text>
+        <text
+          x="110"
+          y="0"
+          style={{ animationDuration: "3.8s", animationDelay: "0.3s" }}
+        >
+          CAFFEINE
+        </text>
+        <text
+          x="190"
+          y="0"
+          style={{ animationDuration: "4.2s", animationDelay: "1.5s" }}
+        >
+          AI
+        </text>
+        <text
+          x="220"
+          y="0"
+          style={{ animationDuration: "3.9s", animationDelay: "0.9s" }}
+        >
+          DEPLOY
+        </text>
+        <text
+          x="272"
+          y="0"
+          style={{ animationDuration: "4.4s", animationDelay: "2.4s" }}
+        >
+          TOKEN
+        </text>
+        <text
+          x="325"
+          y="0"
+          style={{ animationDuration: "3.7s", animationDelay: "0.0s" }}
+        >
+          AGENT
+        </text>
+        <text
+          x="378"
+          y="0"
+          style={{ animationDuration: "4.1s", animationDelay: "1.8s" }}
+        >
+          LLM
+        </text>
+        <text
+          x="412"
+          y="0"
+          style={{ animationDuration: "4.3s", animationDelay: "0.7s" }}
+        >
+          INFER
+        </text>
+        <text
+          x="464"
+          y="0"
+          style={{ animationDuration: "3.8s", animationDelay: "2.2s" }}
+        >
+          WEB3
+        </text>
+        <text
+          x="508"
+          y="0"
+          style={{ animationDuration: "4.0s", animationDelay: "1.2s" }}
+        >
+          MODEL
+        </text>
+        <text
+          x="553"
+          y="0"
+          style={{ animationDuration: "4.5s", animationDelay: "0.4s" }}
+        >
+          CODE
+        </text>
+        <text
+          x="592"
+          y="0"
+          style={{ animationDuration: "3.7s", animationDelay: "1.9s" }}
+        >
+          NODE
+        </text>
+        <text
+          x="631"
+          y="0"
+          style={{ animationDuration: "4.2s", animationDelay: "0.1s" }}
+        >
+          CHAIN
+        </text>
+        <text
+          x="680"
+          y="0"
+          style={{ animationDuration: "3.9s", animationDelay: "2.6s" }}
+        >
+          DATA
+        </text>
+        <text
+          x="718"
+          y="0"
+          style={{ animationDuration: "4.4s", animationDelay: "0.8s" }}
+        >
+          LEARN
+        </text>
+        <text
+          x="764"
+          y="0"
+          style={{ animationDuration: "4.1s", animationDelay: "1.6s" }}
+        >
+          BUILD
+        </text>
+        <text
+          x="808"
+          y="0"
+          style={{ animationDuration: "3.8s", animationDelay: "0.5s" }}
+        >
+          .AI
+        </text>
+        <text
+          x="842"
+          y="0"
+          style={{ animationDuration: "4.3s", animationDelay: "2.1s" }}
+        >
+          COMPUTE
+        </text>
+        <text
+          x="912"
+          y="0"
+          style={{ animationDuration: "3.7s", animationDelay: "0.2s" }}
+        >
+          INTERNET
+        </text>
+        <text
+          x="990"
+          y="0"
+          style={{ animationDuration: "4.0s", animationDelay: "1.4s" }}
+        >
+          AI
+        </text>
+        <text
+          x="1018"
+          y="0"
+          style={{ animationDuration: "4.5s", animationDelay: "0.7s" }}
+        >
+          PROMPT
+        </text>
+        <text
+          x="1075"
+          y="0"
+          style={{ animationDuration: "3.9s", animationDelay: "2.3s" }}
+        >
+          NEURAL
+        </text>
+        <text
+          x="1128"
+          y="0"
+          style={{ animationDuration: "4.2s", animationDelay: "0.0s" }}
+        >
+          LLM
+        </text>
+        <text
+          x="1165"
+          y="0"
+          style={{ animationDuration: "4.4s", animationDelay: "1.1s" }}
+        >
+          CAFFEINE
+        </text>
+      </g>
+
+      {/* === SUBTLE SCANLINES for retro tech feel === */}
+
+      {/* === CIRCUIT / PARTICLE EFFECTS === */}
+      {/* Horizontal circuit lines — static, no animation */}
+      <g stroke="#CCFF00" strokeWidth="0.5" opacity="0.18">
+        <line x1="0" y1="120" x2="380" y2="120" />
+        <line x1="380" y1="120" x2="380" y2="160" />
+        <line x1="380" y1="160" x2="280" y2="160" />
+        <line x1="820" y1="120" x2="1200" y2="120" />
+        <line x1="820" y1="120" x2="820" y2="155" />
+        <line x1="820" y1="155" x2="930" y2="155" />
+        <line x1="0" y1="660" x2="320" y2="660" />
+        <line x1="320" y1="660" x2="320" y2="620" />
+        <line x1="320" y1="620" x2="440" y2="620" />
+        <line x1="880" y1="660" x2="1200" y2="660" />
+        <line x1="880" y1="660" x2="880" y2="625" />
+        <line x1="880" y1="625" x2="760" y2="625" />
+      </g>
+      {/* Circuit nodes — static, no filter */}
+      <g fill="#CCFF00" opacity="0.35">
+        <circle cx="380" cy="120" r="3" />
+        <circle cx="280" cy="160" r="2.5" />
+        <circle cx="820" cy="120" r="3" />
+        <circle cx="930" cy="155" r="2.5" />
+        <circle cx="320" cy="660" r="3" />
+        <circle cx="440" cy="620" r="2.5" />
+        <circle cx="880" cy="660" r="3" />
+        <circle cx="760" cy="625" r="2.5" />
+      </g>
+
+      {/* === 'caffeine.ai' LOGO — single plain white text, no glow, no filter === */}
+      <text
+        x="600"
+        y="390"
+        textAnchor="middle"
+        fontFamily="'Helvetica Neue', Arial, sans-serif"
+        fontWeight="900"
+        fontSize="82"
+        fill="#FFFFFF"
+      >
+        caffeine.ai
+      </text>
+
+      {/* === SUBTITLE — plain, no glow === */}
+      <text
+        x="600"
+        y="440"
+        textAnchor="middle"
+        fontFamily="'Helvetica Neue', Arial, sans-serif"
+        fontWeight="700"
+        fontSize="18"
+        letterSpacing="6"
+        fill="#CCFF00"
+        opacity="0.85"
+      >
+        SELF-WRITING INTERNET
+      </text>
+
+      {/* === DECORATIVE BRACKET LINES around logo — static === */}
+      <g stroke="#CCFF00" strokeWidth="1.5" opacity="0.4" fill="none">
+        {/* Top-left bracket */}
+        <path d="M 340,330 L 340,310 L 380,310" />
+        {/* Top-right bracket */}
+        <path d="M 860,330 L 860,310 L 820,310" />
+        {/* Bottom-left bracket */}
+        <path d="M 340,455 L 340,475 L 380,475" />
+        {/* Bottom-right bracket */}
+        <path d="M 860,455 L 860,475 L 820,475" />
+      </g>
+      {/* Bracket corner dots */}
+      <g fill="#CCFF00" opacity="0.6">
+        <circle cx="340" cy="310" r="2.5" />
+        <circle cx="860" cy="310" r="2.5" />
+        <circle cx="340" cy="475" r="2.5" />
+        <circle cx="860" cy="475" r="2.5" />
+      </g>
+    </svg>
+  );
+
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -4524,6 +5171,8 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ world }) => {
         return renderSkyWorld();
       case "cyberpunk":
         return renderCyberpunkWorld();
+      case "caffeineai":
+        return renderCaffeineAIWorld();
       default:
         return renderOriginalWorld();
     }

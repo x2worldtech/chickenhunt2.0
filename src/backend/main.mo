@@ -4,10 +4,15 @@ import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import FileStorage "file-storage/file-storage";
 import Http "file-storage/http";
+import SocialsLib "lib/socials";
+import SocialsApi "mixins/socials-api";
 
 persistent actor {
     // ── Auth state ──────────────────────────────────────────────────────────
     let multiUserState = MultiUserSystem.initState();
+
+    // ── Socials state ────────────────────────────────────────────────────────
+    let socialsState = SocialsLib.initState();
 
     public shared ({ caller }) func initializeAuth() : async () {
         MultiUserSystem.initializeAuth(multiUserState, caller);
@@ -122,6 +127,10 @@ persistent actor {
         gameStatistics.add(caller, { stats with highestScore = updatedHighScore });
     };
 
+    public query func getUserGameStats(userId : Principal) : async ?GameStatistics {
+        gameStatistics.get(userId);
+    };
+
     // ── Leaderboard ───────────────────────────────────────────────────────────
     // Returns [(name, score, level)] sorted descending by highestScore.
     // Name is taken from UserProfileWithChangeStatus; falls back to principal text.
@@ -170,4 +179,27 @@ persistent actor {
     public query func httpStreamingCallback(token : Http.StreamingToken) : async Http.StreamingCallbackHttpResponse {
         FileStorage.httpStreamingCallback(storage, token);
     };
+
+    // ── Socials mixin ─────────────────────────────────────────────────────────
+    // Resolver helpers that bridge socials domain with user profile / stats state
+    func _getName(p : Principal) : ?Text {
+        switch (userProfilesWithChangeStatus.get(p)) {
+            case (?prof) ?prof.name;
+            case null switch (userProfiles.get(p)) {
+                case (?prof) ?prof.name;
+                case null null;
+            };
+        };
+    };
+
+    func _getAvatarUrl(_p : Principal) : ?Text { null };
+
+    func _getLevel(p : Principal) : Nat {
+        switch (gameStatistics.get(p)) {
+            case (?stats) stats.level;
+            case null 0;
+        };
+    };
+
+    include SocialsApi(socialsState, _getName, _getAvatarUrl, _getLevel);
 };

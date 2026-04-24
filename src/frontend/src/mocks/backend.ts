@@ -1,11 +1,38 @@
-import type { backendInterface, UserProfile, UserProfileWithChangeStatus, GameStatistics, ApprovalStatus, UserRole, UserInfo, FileMetadata, StreamingCallbackHttpResponse, HttpResponse } from "../backend";
+import type {
+  ApprovalStatus,
+  ClanDetails,
+  ClanMessage,
+  ClanSummary,
+  FileMetadata,
+  GameStatistics,
+  HttpResponse,
+  PrincipalInfo,
+  StreamingCallbackHttpResponse,
+  UserInfo,
+  UserProfile,
+  UserProfileWithChangeStatus,
+  UserRole,
+  backendInterface,
+} from "../backend";
+import { JoinMode } from "../backend";
+
+const ok = <T>(value: T) => ({ __kind__: "ok" as const, ok: value });
+const err = (msg: string) => ({ __kind__: "err" as const, err: msg });
 
 export const mockBackend: backendInterface = {
+  addFriend: async () => ok("ok"),
+  approveJoinRequest: async () => ok("ok"),
   assignRole: async () => undefined,
+  createClan: async () => ok(BigInt(1)),
+  declineJoinRequest: async () => ok("ok"),
+  deleteClan: async () => ok("ok"),
   fileDelete: async () => undefined,
   fileList: async (): Promise<FileMetadata[]> => [],
   fileUpload: async () => undefined,
+  getAllClans: async (): Promise<ClanSummary[]> => [],
   getApprovalStatus: async () => "approved" as unknown as ApprovalStatus,
+  getClan: async () => err("not found"),
+  getClanMessages: async () => ok([] as ClanMessage[]),
   getCurrentUserApprovalStatus: async () => "approved" as unknown as ApprovalStatus,
   getCurrentUserProfile: async (): Promise<UserProfile | null> => ({
     bio: "ChickenHunt Spieler",
@@ -17,11 +44,14 @@ export const mockBackend: backendInterface = {
     hasChangedName: false,
   }),
   getCurrentUserRole: async () => "user" as unknown as UserRole,
+  getFriends: async (): Promise<PrincipalInfo[]> => [],
   getLeaderboard: async (): Promise<Array<[string, bigint, bigint]>> => [
     ["Jäger", BigInt(5000), BigInt(1)],
     ["Meisterschütze", BigInt(4200), BigInt(2)],
     ["Hühnerjäger", BigInt(3800), BigInt(3)],
   ],
+  getPendingJoinRequests: async () => ok([] as PrincipalInfo[]),
+  getUserGameStats: async (): Promise<GameStatistics | null> => null,
   getUserProfile: async (): Promise<UserProfile | null> => ({
     bio: "ChickenHunt Spieler",
     name: "Jäger",
@@ -42,9 +72,15 @@ export const mockBackend: backendInterface = {
   }),
   initializeAuth: async () => undefined,
   isCurrentUserAdmin: async () => false,
+  isFriend: async () => false,
+  joinClan: async () => ok("ok"),
+  leaveClan: async () => ok("ok"),
   listUsers: async (): Promise<UserInfo[]> => [],
+  removeFriend: async () => ok("ok"),
   saveCurrentUserProfile: async () => undefined,
   saveCurrentUserProfileWithChangeStatus: async () => undefined,
   saveGameStatistics: async () => undefined,
+  searchClans: async (): Promise<ClanSummary[]> => [],
+  sendClanMessage: async () => err("not implemented"),
   setApproval: async () => undefined,
 };
