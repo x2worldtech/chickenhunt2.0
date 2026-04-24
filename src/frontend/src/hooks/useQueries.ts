@@ -539,3 +539,65 @@ export function useGetUserGameStats(userId: Principal | null) {
     enabled: !!actor && !isFetching && userId !== null,
   });
 }
+
+// ─── Leaderboard with principals ───────────────────────────────────────────────
+
+export interface LeaderboardEntryWithPrincipal {
+  username: string;
+  highestScore: number;
+  level: number;
+  key: string;
+  principal: Principal | null;
+}
+
+/**
+ * Returns leaderboard entries enriched with principal IDs.
+ * Cross-references leaderboard names against user profiles via listUsers.
+ * principal is null when no match could be found.
+ */
+export function useLeaderboardWithPrincipals() {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<LeaderboardEntryWithPrincipal[]>({
+    queryKey: ["leaderboardWithPrincipals"],
+    queryFn: async () => {
+      if (!actor) return [];
+      const [leaderboard, allUsers] = await Promise.all([
+        actor.getLeaderboard(),
+        actor.listUsers(),
+      ]);
+
+      if (leaderboard.length === 0) return [];
+
+      // Batch-fetch profiles for all users (cap at 100 to avoid overload)
+      const usersToFetch = allUsers.slice(0, 100);
+      const profiles = await Promise.allSettled(
+        usersToFetch.map(async (u) => {
+          const profile = await actor.getUserProfile(u.principal);
+          return { principal: u.principal, name: profile?.name?.trim() ?? "" };
+        }),
+      );
+
+      // Build name → principal map (first match wins)
+      const nameMap = new Map<string, Principal>();
+      for (const result of profiles) {
+        if (result.status === "fulfilled" && result.value.name) {
+          const { name, principal } = result.value;
+          if (!nameMap.has(name)) {
+            nameMap.set(name, principal);
+          }
+        }
+      }
+
+      return leaderboard
+        .map(([username, score, level], index) => ({
+          username,
+          highestScore: Number(score),
+          level: Number(level),
+          key: `lb-${index}-${username}`,
+          principal: nameMap.get(username) ?? null,
+        }))
+        .sort((a, b) => b.highestScore - a.highestScore);
+    },
+    enabled: !!actor && !isFetching,
+  });
+}

@@ -1,19 +1,5 @@
 import { useInternetIdentity } from "@caffeineai/core-infrastructure";
-import {
-  ArrowLeft,
-  Award,
-  Clock,
-  Plus,
-  Send,
-  Star,
-  Target,
-  TrendingUp,
-  Trophy,
-  UserPlus,
-  Users,
-  X,
-  Zap,
-} from "lucide-react";
+import { ArrowLeft, Plus, Send } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { buildFileUrl } from "../file-storage/FileList";
@@ -23,13 +9,8 @@ import type {
   ClanMessage,
   PrincipalInfo,
 } from "../hooks/useQueries";
-import {
-  useAddFriend,
-  useClanMessages,
-  useGetUserProfile,
-  useIsFriend,
-  useSendClanMessage,
-} from "../hooks/useQueries";
+import { useClanMessages, useSendClanMessage } from "../hooks/useQueries";
+import PlayerProfileScreen from "./PlayerProfileScreen";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -43,7 +24,7 @@ interface OptimisticMessage extends ClanMessage {
   _optimistic?: boolean;
   _failed?: boolean;
   _tempId?: number;
-  _localImgUrl?: string; // blob URL for optimistic image preview
+  _localImgUrl?: string;
 }
 
 interface ClanChatViewProps {
@@ -134,152 +115,6 @@ function getImageUrl(text: string): string {
   return text.slice(IMG_PREFIX.length);
 }
 
-// ─── UserProfileOverlay ────────────────────────────────────────────────────────
-
-interface ProfileOverlayProps {
-  member: PrincipalInfo;
-  onClose: () => void;
-}
-
-const STAT_ROWS = [
-  { key: "totalChickensShot", label: "Chickens Shot", icon: Target },
-  { key: "highestScore", label: "Highest Score", icon: Trophy },
-  { key: "totalScore", label: "Total Score", icon: Star },
-  { key: "currentAccuracy", label: "Accuracy", icon: TrendingUp },
-  { key: "goldenChickensShot", label: "Golden Chickens", icon: Star },
-  { key: "fastChickensShot", label: "Fast Chickens", icon: Zap },
-  { key: "totalShotsFired", label: "Total Shots", icon: Target },
-  { key: "totalMissedShots", label: "Missed Shots", icon: X },
-  { key: "bestConsecutiveHits", label: "Best Streak", icon: TrendingUp },
-  { key: "perfectAccuracySessions", label: "Perfect Sessions", icon: Award },
-  { key: "bestSessionChickens", label: "Best Session", icon: Trophy },
-  { key: "totalPlayTimeMinutes", label: "Play Time (min)", icon: Clock },
-] as const;
-
-const UserProfileOverlay: React.FC<ProfileOverlayProps> = ({
-  member,
-  onClose,
-}) => {
-  const userId = member.principal;
-  const { data: profile } = useGetUserProfile(userId);
-  const { data: isFriendData, isLoading: friendLoading } = useIsFriend(userId);
-  const addFriendMutation = useAddFriend();
-  const [friendAdded, setFriendAdded] = useState(false);
-
-  const isFriend = friendAdded || isFriendData === true;
-  const displayName =
-    member.name?.trim() ||
-    profile?.name?.trim() ||
-    userId.toString().slice(0, 10);
-  const level = Number(member.level);
-
-  const handleAddFriend = async () => {
-    try {
-      await addFriendMutation.mutateAsync(userId);
-      setFriendAdded(true);
-    } catch {
-      // ignore
-    }
-  };
-
-  return (
-    <div
-      className="fixed inset-0 z-[100] flex items-end justify-center"
-      data-ocid="clan_chat.profile_overlay"
-      role="presentation"
-      onClick={onClose}
-      onKeyDown={(e) => e.key === "Escape" && onClose()}
-    >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-
-      {/* Sheet */}
-      <div
-        className="relative w-full max-w-md rounded-t-2xl bg-black border-t border-gray-800 shadow-2xl pb-6"
-        role="presentation"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
-      >
-        {/* Close button */}
-        <button
-          type="button"
-          data-ocid="clan_chat.profile_overlay.close_button"
-          onClick={onClose}
-          className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-black hover:border-orange-400 transition-colors shadow-sm"
-          aria-label="Close"
-        >
-          <X size={15} />
-        </button>
-
-        {/* Avatar + Name */}
-        <div className="flex flex-col items-center pt-6 pb-4 px-6 border-b border-gray-800">
-          <div className="w-20 h-20 rounded-xl bg-orange-100 border-2 border-orange-200 flex items-center justify-center text-orange-600 font-black text-2xl shadow-lg mb-3">
-            {getInitials(displayName)}
-          </div>
-          <h3 className="text-white font-black text-xl">{displayName}</h3>
-          <div className="flex items-center gap-2 mt-1.5">
-            <span className="text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 px-3 py-1 rounded-full shadow-md">
-              Lv.{level}
-            </span>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="px-4 pt-3 pb-2 max-h-56 overflow-y-auto">
-          <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
-              <Trophy size={9} className="text-white" />
-            </div>
-            Statistics
-          </h4>
-          <div className="grid grid-cols-2 gap-2">
-            {STAT_ROWS.map(({ key, label, icon: Icon }) => (
-              <div
-                key={key}
-                className="flex items-center gap-2 bg-white rounded-lg px-2.5 py-2 border border-gray-200 shadow-sm"
-              >
-                <Icon size={12} className="text-orange-500 shrink-0" />
-                <div className="min-w-0">
-                  <div className="text-[10px] text-gray-500 leading-none truncate">
-                    {label}
-                  </div>
-                  <div className="text-sm font-black text-black">–</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Friend button */}
-        <div className="px-4 pt-3">
-          {friendLoading ? (
-            <div className="w-full py-3 rounded-xl bg-gray-100 border border-gray-200 animate-pulse" />
-          ) : isFriend ? (
-            <div
-              className="w-full py-3 rounded-xl flex items-center justify-center gap-2 bg-green-100 border border-green-200 text-green-700 font-bold text-sm"
-              data-ocid="clan_chat.profile_overlay.friend_badge"
-            >
-              <Users size={16} />
-              Friends
-            </div>
-          ) : (
-            <button
-              type="button"
-              data-ocid="clan_chat.profile_overlay.add_friend_button"
-              onClick={handleAddFriend}
-              disabled={addFriendMutation.isPending}
-              className="w-full py-3 rounded-xl flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <UserPlus size={16} />
-              {addFriendMutation.isPending ? "Adding…" : "Add Friend"}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // ─── Message Bubble ────────────────────────────────────────────────────────────
 
 interface BubbleProps {
@@ -301,7 +136,6 @@ const MessageBubble: React.FC<BubbleProps> = ({
   const member = members.find((m) => m.principal.toString() === senderStr);
   const isImg = isImageMessage(msg.text);
 
-  // Render content — text or image
   const renderContent = (textColor: string) => {
     if (isImg) {
       const url = msg._localImgUrl ?? getImageUrl(msg.text);
@@ -366,7 +200,7 @@ const MessageBubble: React.FC<BubbleProps> = ({
 
   return (
     <div className="flex items-end gap-2 mb-1 px-3">
-      {/* Avatar */}
+      {/* Avatar — clickable to open full-screen profile */}
       <button
         type="button"
         data-ocid="clan_chat.avatar_button"
@@ -420,7 +254,8 @@ const ClanChatView: React.FC<ClanChatViewProps> = ({ clan, onBack }) => {
     OptimisticMessage[]
   >([]);
   const [inputText, setInputText] = useState("");
-  const [selectedMember, setSelectedMember] = useState<PrincipalInfo | null>(
+  // Full-screen profile view — null = chat visible, PrincipalInfo = profile visible
+  const [viewingProfile, setViewingProfile] = useState<PrincipalInfo | null>(
     null,
   );
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -495,20 +330,17 @@ const ClanChatView: React.FC<ClanChatViewProps> = ({ clan, onBack }) => {
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file || !myPrincipal) return;
-      // Reset so same file can be picked again
       e.target.value = "";
 
       const tempId = Date.now();
 
-      // Compress in background
       let compressed: { blob: Blob; dataUrl: string };
       try {
         compressed = await compressImage(file);
       } catch {
-        return; // Silently fail on compression error
+        return;
       }
 
-      // Show optimistic preview immediately
       const localImgUrl = compressed.dataUrl;
       const tempMsg: OptimisticMessage = {
         id: BigInt(tempId),
@@ -523,7 +355,6 @@ const ClanChatView: React.FC<ClanChatViewProps> = ({ clan, onBack }) => {
       };
       setOptimisticMessages((prev) => [...prev, tempMsg]);
 
-      // Upload compressed image
       try {
         const ext = "jpg";
         const path = `chat-images/${clan.id.toString()}-${tempId}.${ext}`;
@@ -531,11 +362,9 @@ const ClanChatView: React.FC<ClanChatViewProps> = ({ clan, onBack }) => {
         const uint8 = new Uint8Array(arrayBuffer);
         await uploadFile(path, "image/jpeg", uint8);
 
-        // Build the persistent URL
         const remoteUrl = await buildFileUrl(path);
         const finalText = `${IMG_PREFIX}${remoteUrl}`;
 
-        // Remove optimistic and send real message
         setOptimisticMessages((prev) =>
           prev.filter((m) => m._tempId !== tempId),
         );
@@ -548,6 +377,25 @@ const ClanChatView: React.FC<ClanChatViewProps> = ({ clan, onBack }) => {
     },
     [myPrincipal, clan.id, uploadFile, sendMutation],
   );
+
+  // ── If user tapped a sender — show full-screen unified profile ──────────────
+  if (viewingProfile) {
+    return (
+      <div
+        className="fixed inset-0 flex flex-col bg-black"
+        style={{ paddingBottom: "60px" }}
+        data-ocid="clan_chat.player_profile.page"
+      >
+        <PlayerProfileScreen
+          principal={viewingProfile.principal}
+          fallbackName={viewingProfile.name}
+          fallbackLevel={Number(viewingProfile.level)}
+          isOwnProfile={myPrincipalStr === viewingProfile.principal.toString()}
+          onBack={() => setViewingProfile(null)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -605,7 +453,7 @@ const ClanChatView: React.FC<ClanChatViewProps> = ({ clan, onBack }) => {
             msg={msg}
             isOwn={msg.senderId.toString() === myPrincipalStr}
             members={clan.members}
-            onAvatarClick={setSelectedMember}
+            onAvatarClick={setViewingProfile}
           />
         ))}
         <div ref={messagesEndRef} />
@@ -664,14 +512,6 @@ const ClanChatView: React.FC<ClanChatViewProps> = ({ clan, onBack }) => {
           <Send size={17} />
         </button>
       </div>
-
-      {/* Profile overlay */}
-      {selectedMember && (
-        <UserProfileOverlay
-          member={selectedMember}
-          onClose={() => setSelectedMember(null)}
-        />
-      )}
     </div>
   );
 };

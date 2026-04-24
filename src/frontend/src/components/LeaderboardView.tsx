@@ -1,20 +1,15 @@
 import { useInternetIdentity } from "@caffeineai/core-infrastructure";
+import type { Principal } from "@icp-sdk/core/principal";
 import { useQueryClient } from "@tanstack/react-query";
-import { Crown, LogIn, Medal, Star, Trophy } from "lucide-react";
+import { ChevronRight, Crown, LogIn, Medal, Star, Trophy } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import {
+  type LeaderboardEntryWithPrincipal,
   useLeaderboard,
-  useListUsers,
-  useUserProfileWithChangeStatus,
+  useLeaderboardWithPrincipals,
 } from "../hooks/useQueries";
-
-interface LeaderboardEntry {
-  username: string;
-  highestScore: number;
-  key: string;
-  level: number;
-}
+import PlayerProfileScreen from "./PlayerProfileScreen";
 
 interface LeaderboardViewProps {
   currentPlayerScore?: number;
@@ -22,17 +17,18 @@ interface LeaderboardViewProps {
 }
 
 const LeaderboardView: React.FC<LeaderboardViewProps> = ({
-  currentPlayerScore = 0,
+  currentPlayerScore: _currentPlayerScore = 0,
   isAuthenticated,
 }) => {
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>(
-    [],
-  );
   const { identity, login, loginStatus } = useInternetIdentity();
+  const { data: leaderboardRich, isLoading: richLoading } =
+    useLeaderboardWithPrincipals();
   const { data: backendLeaderboard = [] } = useLeaderboard();
-  const { data: allUsers = [] } = useListUsers();
-  const { data: currentUserProfile } = useUserProfileWithChangeStatus();
   const queryClient = useQueryClient();
+  const [viewingPrincipal, setViewingPrincipal] = useState<Principal | null>(
+    null,
+  );
+  const [viewingName, setViewingName] = useState<string>("");
 
   const handleLogin = async () => {
     try {
@@ -43,101 +39,6 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({
     }
   };
 
-  // Get default username based on user registration order
-  const getDefaultUsername = useCallback(
-    (principalString: string) => {
-      const userIndex = allUsers.findIndex(
-        (user) => user.principal.toString() === principalString,
-      );
-      return userIndex >= 0 ? `Player #${userIndex + 1}` : "Player #1";
-    },
-    [allUsers],
-  );
-
-  // Get player level from localStorage
-  const getPlayerLevel = useCallback((principalString: string): number => {
-    try {
-      const storageKey = `chickenHuntPlayerData_${principalString}`;
-      const savedPlayerData = localStorage.getItem(storageKey);
-      if (savedPlayerData) {
-        const parsed = JSON.parse(savedPlayerData) as { level?: number };
-        return Math.max(1, Math.min(100, parsed.level ?? 1));
-      }
-    } catch {
-      // ignore
-    }
-    return 1;
-  }, []);
-
-  useEffect(() => {
-    if (backendLeaderboard.length > 0) {
-      // Backend returns [name, score, level]
-      const entries: LeaderboardEntry[] = backendLeaderboard.map(
-        ([username, score, level], index) => ({
-          username,
-          highestScore: Number(score),
-          level: Number(level),
-          key: `backend-${index}-${username}`,
-        }),
-      );
-      setLeaderboardData(
-        [...entries].sort((a, b) => b.highestScore - a.highestScore),
-      );
-    } else if (allUsers.length > 0) {
-      const entries: LeaderboardEntry[] = allUsers.map((user, index) => {
-        const principalString = user.principal.toString();
-        let displayName = getDefaultUsername(principalString);
-        if (
-          identity &&
-          identity.getPrincipal().toString() === principalString &&
-          currentUserProfile?.name
-        ) {
-          displayName = currentUserProfile.name;
-        }
-        return {
-          username: displayName,
-          highestScore:
-            principalString === identity?.getPrincipal().toString()
-              ? currentPlayerScore
-              : 0,
-          level: getPlayerLevel(principalString),
-          key: `user-${index}-${principalString}`,
-        };
-      });
-      setLeaderboardData(
-        [...entries].sort((a, b) => b.highestScore - a.highestScore),
-      );
-    } else {
-      // Default placeholder data
-      const defaults: LeaderboardEntry[] = [
-        { username: "ChickenKing", highestScore: 1420, level: 15, key: "d-1" },
-        {
-          username: "Player #2",
-          highestScore: currentPlayerScore,
-          level: getPlayerLevel(identity?.getPrincipal().toString() ?? "guest"),
-          key: "d-2",
-        },
-        { username: "EggHunter99", highestScore: 1250, level: 12, key: "d-3" },
-        {
-          username: "FeatherFury",
-          highestScore: 1100,
-          level: 8,
-          key: "d-4",
-        },
-        { username: "RoosterRuler", highestScore: 980, level: 6, key: "d-5" },
-      ].sort((a, b) => b.highestScore - a.highestScore);
-      setLeaderboardData(defaults);
-    }
-  }, [
-    backendLeaderboard,
-    allUsers,
-    currentUserProfile,
-    identity,
-    currentPlayerScore,
-    getDefaultUsername,
-    getPlayerLevel,
-  ]);
-
   const getRankIcon = (index: number) => {
     if (index === 0) return <Crown className="w-5 h-5 text-yellow-500" />;
     if (index === 1) return <Medal className="w-5 h-5 text-gray-400" />;
@@ -145,9 +46,10 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({
     return <Star className="w-4 h-4 text-gray-500" />;
   };
 
-  const getRankStyling = (index: number): string => {
-    const base =
-      "flex items-center justify-between p-4 rounded-lg transition-all duration-200 ";
+  const getRankStyling = (index: number, clickable: boolean): string => {
+    const base = `flex items-center justify-between p-4 rounded-lg transition-all duration-200 ${
+      clickable ? "cursor-pointer hover:scale-[1.01] active:scale-[0.99]" : ""
+    } `;
     if (index === 0)
       return `${base}bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 border border-yellow-500/30`;
     if (index === 1)
@@ -158,6 +60,27 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({
   };
 
   const isLoggingIn = loginStatus === "logging-in";
+  const myPrincipalStr = identity?.getPrincipal().toString() ?? "";
+
+  const handleRowClick = (entry: LeaderboardEntryWithPrincipal) => {
+    if (!entry.principal) return;
+    setViewingName(entry.username);
+    setViewingPrincipal(entry.principal);
+  };
+
+  // Full-screen profile view
+  if (viewingPrincipal) {
+    return (
+      <div className="absolute inset-0 bg-black pb-20">
+        <PlayerProfileScreen
+          principal={viewingPrincipal}
+          fallbackName={viewingName}
+          isOwnProfile={viewingPrincipal.toText() === myPrincipalStr}
+          onBack={() => setViewingPrincipal(null)}
+        />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
@@ -226,44 +149,52 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({
 
           {/* Blurred List */}
           <div className="max-w-4xl mx-auto space-y-3 opacity-30 blur-sm pointer-events-none">
-            {leaderboardData.slice(0, 5).map((entry, index) => (
-              <div key={entry.key} className={getRankStyling(index)}>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
-                    <span className="text-white font-black text-lg">
-                      #{index + 1}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-center w-8 h-8">
-                    {getRankIcon(index)}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-white">
-                      {entry.username}
-                      <span className="text-sm font-normal text-white/60 ml-2">
-                        Lv.{entry.level}
+            {backendLeaderboard
+              .slice(0, 5)
+              .map(([username, score, level], index) => (
+                <div
+                  // biome-ignore lint/suspicious/noArrayIndexKey: preview list is static order
+                  key={`preview-${index}`}
+                  className={getRankStyling(index, false)}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
+                      <span className="text-white font-black text-lg">
+                        #{index + 1}
                       </span>
-                    </h3>
-                    <p className="text-white/70 text-sm font-medium">
-                      Personal Best
-                    </p>
+                    </div>
+                    <div className="flex items-center justify-center w-8 h-8">
+                      {getRankIcon(index)}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-white">
+                        {username}
+                        <span className="text-sm font-normal text-white/60 ml-2">
+                          Lv.{Number(level)}
+                        </span>
+                      </h3>
+                      <p className="text-white/70 text-sm font-medium">
+                        Personal Best
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-black text-white">
+                      {Number(score).toLocaleString()}
+                    </div>
+                    <div className="text-white/50 text-xs font-medium">
+                      POINTS
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-black text-white">
-                    {entry.highestScore.toLocaleString()}
-                  </div>
-                  <div className="text-white/50 text-xs font-medium">
-                    POINTS
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </div>
     );
   }
+
+  const leaderboardData = leaderboardRich ?? [];
 
   return (
     <div className="absolute inset-0 bg-black overflow-y-auto pb-32">
@@ -287,50 +218,91 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({
           </div>
         </div>
 
+        {/* Loading skeleton */}
+        {richLoading && (
+          <div
+            className="max-w-4xl mx-auto space-y-3"
+            data-ocid="leaderboard.loading_state"
+          >
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="h-20 rounded-lg bg-white/10 border border-white/20 animate-pulse"
+              />
+            ))}
+          </div>
+        )}
+
         {/* Leaderboard List */}
-        <div
-          className="max-w-4xl mx-auto space-y-3"
-          data-ocid="leaderboard.list"
-        >
-          {leaderboardData.map((entry, index) => (
-            <div
-              key={entry.key}
-              className={getRankStyling(index)}
-              data-ocid={`leaderboard.item.${index + 1}`}
-            >
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm">
-                  <span className="text-white font-black text-lg">
-                    #{index + 1}
-                  </span>
+        {!richLoading && (
+          <div
+            className="max-w-4xl mx-auto space-y-3"
+            data-ocid="leaderboard.list"
+          >
+            {leaderboardData.map((entry, index) => {
+              const isClickable = !!entry.principal;
+              const isMe = entry.principal?.toText() === myPrincipalStr;
+              return (
+                <div
+                  key={entry.key}
+                  role={isClickable ? "button" : undefined}
+                  tabIndex={isClickable ? 0 : undefined}
+                  onClick={() => handleRowClick(entry)}
+                  onKeyDown={
+                    isClickable
+                      ? (e) => e.key === "Enter" && handleRowClick(entry)
+                      : undefined
+                  }
+                  className={getRankStyling(index, isClickable)}
+                  data-ocid={`leaderboard.item.${index + 1}`}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm">
+                      <span className="text-white font-black text-lg">
+                        #{index + 1}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center w-8 h-8">
+                      {getRankIcon(index)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-lg text-white flex items-center gap-2 flex-wrap">
+                        <span className="truncate">{entry.username}</span>
+                        {isMe && (
+                          <span className="text-xs font-bold bg-orange-500 text-white px-2 py-0.5 rounded-full shrink-0">
+                            You
+                          </span>
+                        )}
+                        <span className="text-sm font-normal text-white/60 shrink-0">
+                          Lv.{entry.level}
+                        </span>
+                      </h3>
+                      <p className="text-white/70 text-sm font-medium">
+                        Personal Best
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="text-2xl font-black text-white">
+                        {entry.highestScore.toLocaleString()}
+                      </div>
+                      <div className="text-white/50 text-xs font-medium">
+                        POINTS
+                      </div>
+                    </div>
+                    {isClickable && (
+                      <ChevronRight className="w-5 h-5 text-white/40 shrink-0" />
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center justify-center w-8 h-8">
-                  {getRankIcon(index)}
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg text-white">
-                    {entry.username}
-                    <span className="text-sm font-normal text-white/60 ml-2">
-                      Lv.{entry.level}
-                    </span>
-                  </h3>
-                  <p className="text-white/70 text-sm font-medium">
-                    Personal Best
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-black text-white">
-                  {entry.highestScore.toLocaleString()}
-                </div>
-                <div className="text-white/50 text-xs font-medium">POINTS</div>
-              </div>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Empty State */}
-        {leaderboardData.length === 0 && (
+        {!richLoading && leaderboardData.length === 0 && (
           <div
             className="max-w-4xl mx-auto"
             data-ocid="leaderboard.empty_state"

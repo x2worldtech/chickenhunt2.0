@@ -29026,6 +29026,45 @@ function useGetUserGameStats(userId) {
     enabled: !!actor && !isFetching && userId !== null
   });
 }
+function useLeaderboardWithPrincipals() {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery({
+    queryKey: ["leaderboardWithPrincipals"],
+    queryFn: async () => {
+      if (!actor) return [];
+      const [leaderboard, allUsers] = await Promise.all([
+        actor.getLeaderboard(),
+        actor.listUsers()
+      ]);
+      if (leaderboard.length === 0) return [];
+      const usersToFetch = allUsers.slice(0, 100);
+      const profiles = await Promise.allSettled(
+        usersToFetch.map(async (u) => {
+          var _a3;
+          const profile = await actor.getUserProfile(u.principal);
+          return { principal: u.principal, name: ((_a3 = profile == null ? void 0 : profile.name) == null ? void 0 : _a3.trim()) ?? "" };
+        })
+      );
+      const nameMap = /* @__PURE__ */ new Map();
+      for (const result of profiles) {
+        if (result.status === "fulfilled" && result.value.name) {
+          const { name, principal } = result.value;
+          if (!nameMap.has(name)) {
+            nameMap.set(name, principal);
+          }
+        }
+      }
+      return leaderboard.map(([username, score, level], index2) => ({
+        username,
+        highestScore: Number(score),
+        level: Number(level),
+        key: `lb-${index2}-${username}`,
+        principal: nameMap.get(username) ?? null
+      })).sort((a2, b2) => b2.highestScore - a2.highestScore);
+    },
+    enabled: !!actor && !isFetching
+  });
+}
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -36541,18 +36580,335 @@ const GameOverWindow = ({
     }
   );
 };
+const DEFAULT_AVATAR_SVG$1 = `data:image/svg+xml,${encodeURIComponent(`
+  <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="bg2" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.95" />
+        <stop offset="100%" style="stop-color:#f3f4f6;stop-opacity:0.95" />
+      </linearGradient>
+    </defs>
+    <circle cx="40" cy="40" r="40" fill="url(#ag)"/>
+    <circle cx="40" cy="40" r="36" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    <circle cx="40" cy="30" r="12" fill="url(#bg2)" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+    <path d="M22 62 Q22 50 40 50 Q58 50 58 62 Q58 66 40 66 Q22 66 22 62 Z" fill="url(#bg2)" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+    <circle cx="40" cy="40" r="40" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+  </svg>
+`)}`;
+const getPlayerTitle$1 = (level) => {
+  if (level >= 95) return "Eggsplosion Master";
+  if (level >= 90) return "Hen House Hero";
+  if (level >= 85) return "Rooster Ruler";
+  if (level >= 80) return "Coop Conqueror";
+  if (level >= 75) return "Cluck Commander";
+  if (level >= 70) return "Ultimate Chicken Champion";
+  if (level >= 65) return "Chicken Dragon Tamer";
+  if (level >= 60) return "Master of Molt";
+  if (level >= 55) return "Feather Curse Slayer";
+  if (level >= 50) return "Galactic Rooster Hunter";
+  if (level >= 45) return "Egg Exterminator";
+  if (level >= 40) return "Poultry Destroyer";
+  if (level >= 35) return "King of Chickens";
+  if (level >= 30) return "Turbo Tractorman";
+  if (level >= 25) return "Wing Hunter";
+  if (level >= 20) return "Roasted Hen Tamer";
+  if (level >= 15) return "Corn Massacre";
+  if (level >= 10) return "Feather Catcher";
+  if (level >= 5) return "Egg Breaker";
+  return "Chick Warrior";
+};
+const formatPlayTime$1 = (minutes) => {
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  const rem = minutes % 60;
+  return rem > 0 ? `${hours}h ${rem}m` : `${hours}h`;
+};
+const STAT_ITEMS$1 = [
+  {
+    key: "totalChickensShot",
+    label: "Total Chickens",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "highestScore",
+    label: "Best Score",
+    icon: Trophy,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "currentAccuracy",
+    label: "Accuracy",
+    icon: TrendingUp,
+    format: (v2) => `${v2.toFixed(1)}%`
+  },
+  {
+    key: "totalPlayTimeMinutes",
+    label: "Play Time",
+    icon: Clock,
+    format: (v2) => formatPlayTime$1(v2)
+  },
+  {
+    key: "totalMissedShots",
+    label: "Missed Shots",
+    icon: X,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "goldenChickensShot",
+    label: "Golden Chickens",
+    icon: Star,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "fastChickensShot",
+    label: "Fast Chickens",
+    icon: Zap,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "smallChickensShot",
+    label: "Small Chickens",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "mediumChickensShot",
+    label: "Medium Chickens",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "largeChickensShot",
+    label: "Large Chickens",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "bestConsecutiveHits",
+    label: "Best Streak",
+    icon: TrendingUp,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "perfectAccuracySessions",
+    label: "Perfect Sessions",
+    icon: Award,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "totalScore",
+    label: "Total Score",
+    icon: Star,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "totalShotsFired",
+    label: "Total Shots",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "bestSessionChickens",
+    label: "Best Session",
+    icon: Trophy,
+    format: (v2) => v2.toLocaleString()
+  }
+];
+const StatSkeleton = () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 md:grid-cols-3 gap-3", children: Array.from({ length: 6 }, (_2, i) => `skel-${i}`).map((id) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  "div",
+  {
+    className: "h-16 rounded-lg bg-muted border border-border animate-pulse"
+  },
+  id
+)) });
+const PlayerProfileScreen = ({
+  principal,
+  fallbackName,
+  fallbackLevel = 1,
+  isOwnProfile = false,
+  onBack
+}) => {
+  var _a3, _b3;
+  const { data: profile, isLoading: profileLoading } = useGetUserProfile(principal);
+  const { data: gameStats, isLoading: statsLoading } = useGetUserGameStats(principal);
+  const { data: isFriend, isLoading: friendLoading } = useIsFriend(
+    isOwnProfile ? null : principal
+  );
+  const addFriend = useAddFriend();
+  const removeFriend = useRemoveFriend();
+  const displayName = ((_a3 = profile == null ? void 0 : profile.name) == null ? void 0 : _a3.trim()) || (fallbackName == null ? void 0 : fallbackName.trim()) || `${principal.toText().slice(0, 10)}…`;
+  const level = gameStats ? Number(gameStats.level) : fallbackLevel;
+  const currentTitle = getPlayerTitle$1(level);
+  const highestScore = gameStats ? Number(gameStats.highestScore) : 0;
+  const xpForLevel = (lvl) => Math.floor(100 * lvl ** 1.5);
+  const currentXP = highestScore % Math.max(1, xpForLevel(level));
+  const requiredXP = xpForLevel(level);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "flex flex-col overflow-hidden",
+      style: { height: "100%", width: "100%" },
+      "data-ocid": "player_profile.page",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 px-4 pt-4 pb-3 border-b border-gray-800 shrink-0 bg-black", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              "data-ocid": "player_profile.back_button",
+              onClick: onBack,
+              className: "flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-gray-200 text-black hover:border-orange-400 transition-colors shadow-sm shrink-0",
+              "aria-label": "Back",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 18 })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg font-black text-white truncate flex-1", children: "Player Profile" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto bg-black pb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-4 mt-4 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-28 relative bg-gradient-to-br from-orange-900 via-orange-700 to-black", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute left-6 bottom-0 translate-y-1/2 w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg bg-orange-100", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "img",
+            {
+              src: DEFAULT_AVATAR_SVG$1,
+              alt: `${displayName}'s avatar`,
+              className: "w-full h-full object-cover"
+            }
+          ) }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-6 pt-14", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-2", children: profileLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-40 bg-gray-200 rounded animate-pulse mb-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center flex-wrap gap-2 mb-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold text-black", children: displayName }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 px-2 py-1 rounded-full shadow-sm", children: [
+                "Lv.",
+                level
+              ] })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4", children: profileLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-4 w-full bg-gray-100 rounded animate-pulse" }) : ((_b3 = profile == null ? void 0 : profile.bio) == null ? void 0 : _b3.trim()) ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-700 whitespace-pre-wrap break-words", children: profile.bio.trim() }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-400 italic", children: "No bio set." }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center mb-5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg px-3 py-1.5 shadow-md", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-4 h-4 mr-2 text-yellow-300" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-sm", children: currentTitle })
+            ] }) }),
+            level < 100 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between text-xs font-medium text-gray-600 mb-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  "Level ",
+                  level
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  currentXP.toLocaleString(),
+                  " / ",
+                  requiredXP.toLocaleString(),
+                  " ",
+                  "XP"
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full bg-gray-200 rounded-full h-2 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "h-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full transition-all duration-500",
+                  style: {
+                    width: `${Math.min(100, currentXP / Math.max(1, requiredXP) * 100)}%`
+                  }
+                }
+              ) })
+            ] }),
+            !isOwnProfile && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-5", children: [
+              friendLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "w-full h-11 rounded-xl bg-gray-100 border border-gray-200 animate-pulse",
+                  "data-ocid": "player_profile.friend_button.loading_state"
+                }
+              ) : isFriend ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  "data-ocid": "player_profile.remove_friend_button",
+                  disabled: removeFriend.isPending,
+                  onClick: () => removeFriend.mutate(principal),
+                  className: "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 font-bold text-sm hover:bg-red-50 transition-colors disabled:opacity-40 shadow-sm",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(UserMinus, { size: 16 }),
+                    removeFriend.isPending ? "Removing…" : "Remove Friend"
+                  ]
+                }
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  "data-ocid": "player_profile.add_friend_button",
+                  disabled: addFriend.isPending,
+                  onClick: () => addFriend.mutate(principal),
+                  className: "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 shadow-md",
+                  children: addFriend.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-white" }),
+                    "Adding…"
+                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { size: 16 }),
+                    "Add Friend"
+                  ] })
+                }
+              ),
+              addFriend.isSuccess && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center gap-1.5 mt-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 14, className: "text-green-600" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-green-600 font-medium", children: "You are now friends!" })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-gray-200 pt-5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-lg font-black text-black flex items-center mb-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-5 h-5 mr-2 text-orange-500" }),
+                "Statistics Overview"
+              ] }),
+              statsLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(StatSkeleton, {}) : !gameStats ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "text-center py-6 text-gray-400 text-sm",
+                  "data-ocid": "player_profile.stats.empty_state",
+                  children: "No statistics yet"
+                }
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "grid grid-cols-2 md:grid-cols-3 gap-4",
+                  "data-ocid": "player_profile.stats.list",
+                  children: STAT_ITEMS$1.map(({ key, label, icon: Icon2, format }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "div",
+                    {
+                      className: "bg-gray-50 rounded-lg p-3 border border-gray-200",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center mb-2", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-4 h-4 text-orange-500 mr-2" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium text-gray-600 truncate", children: label })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-lg font-black text-gray-700", children: format(Number(gameStats[key] ?? 0)) })
+                      ]
+                    },
+                    key
+                  ))
+                }
+              )
+            ] })
+          ] })
+        ] }) })
+      ]
+    }
+  );
+};
 const LeaderboardView = ({
-  currentPlayerScore = 0,
+  currentPlayerScore: _currentPlayerScore = 0,
   isAuthenticated
 }) => {
-  const [leaderboardData, setLeaderboardData] = reactExports.useState(
-    []
-  );
   const { identity, login, loginStatus } = useInternetIdentity();
+  const { data: leaderboardRich, isLoading: richLoading } = useLeaderboardWithPrincipals();
   const { data: backendLeaderboard = [] } = useLeaderboard();
-  const { data: allUsers = [] } = useListUsers();
-  const { data: currentUserProfile } = useUserProfileWithChangeStatus();
   const queryClient2 = useQueryClient();
+  const [viewingPrincipal, setViewingPrincipal] = reactExports.useState(
+    null
+  );
+  const [viewingName, setViewingName] = reactExports.useState("");
   const handleLogin = async () => {
     try {
       await login();
@@ -36561,94 +36917,14 @@ const LeaderboardView = ({
       console.error("Login failed:", error);
     }
   };
-  const getDefaultUsername = reactExports.useCallback(
-    (principalString) => {
-      const userIndex = allUsers.findIndex(
-        (user) => user.principal.toString() === principalString
-      );
-      return userIndex >= 0 ? `Player #${userIndex + 1}` : "Player #1";
-    },
-    [allUsers]
-  );
-  const getPlayerLevel = reactExports.useCallback((principalString) => {
-    try {
-      const storageKey = `chickenHuntPlayerData_${principalString}`;
-      const savedPlayerData = localStorage.getItem(storageKey);
-      if (savedPlayerData) {
-        const parsed = JSON.parse(savedPlayerData);
-        return Math.max(1, Math.min(100, parsed.level ?? 1));
-      }
-    } catch {
-    }
-    return 1;
-  }, []);
-  reactExports.useEffect(() => {
-    if (backendLeaderboard.length > 0) {
-      const entries = backendLeaderboard.map(
-        ([username, score, level], index2) => ({
-          username,
-          highestScore: Number(score),
-          level: Number(level),
-          key: `backend-${index2}-${username}`
-        })
-      );
-      setLeaderboardData(
-        [...entries].sort((a2, b2) => b2.highestScore - a2.highestScore)
-      );
-    } else if (allUsers.length > 0) {
-      const entries = allUsers.map((user, index2) => {
-        const principalString = user.principal.toString();
-        let displayName = getDefaultUsername(principalString);
-        if (identity && identity.getPrincipal().toString() === principalString && (currentUserProfile == null ? void 0 : currentUserProfile.name)) {
-          displayName = currentUserProfile.name;
-        }
-        return {
-          username: displayName,
-          highestScore: principalString === (identity == null ? void 0 : identity.getPrincipal().toString()) ? currentPlayerScore : 0,
-          level: getPlayerLevel(principalString),
-          key: `user-${index2}-${principalString}`
-        };
-      });
-      setLeaderboardData(
-        [...entries].sort((a2, b2) => b2.highestScore - a2.highestScore)
-      );
-    } else {
-      const defaults = [
-        { username: "ChickenKing", highestScore: 1420, level: 15, key: "d-1" },
-        {
-          username: "Player #2",
-          highestScore: currentPlayerScore,
-          level: getPlayerLevel((identity == null ? void 0 : identity.getPrincipal().toString()) ?? "guest"),
-          key: "d-2"
-        },
-        { username: "EggHunter99", highestScore: 1250, level: 12, key: "d-3" },
-        {
-          username: "FeatherFury",
-          highestScore: 1100,
-          level: 8,
-          key: "d-4"
-        },
-        { username: "RoosterRuler", highestScore: 980, level: 6, key: "d-5" }
-      ].sort((a2, b2) => b2.highestScore - a2.highestScore);
-      setLeaderboardData(defaults);
-    }
-  }, [
-    backendLeaderboard,
-    allUsers,
-    currentUserProfile,
-    identity,
-    currentPlayerScore,
-    getDefaultUsername,
-    getPlayerLevel
-  ]);
   const getRankIcon = (index2) => {
     if (index2 === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx(Crown, { className: "w-5 h-5 text-yellow-500" });
     if (index2 === 1) return /* @__PURE__ */ jsxRuntimeExports.jsx(Medal, { className: "w-5 h-5 text-gray-400" });
     if (index2 === 2) return /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-5 h-5 text-amber-600" });
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Star, { className: "w-4 h-4 text-gray-500" });
   };
-  const getRankStyling = (index2) => {
-    const base = "flex items-center justify-between p-4 rounded-lg transition-all duration-200 ";
+  const getRankStyling = (index2, clickable) => {
+    const base = `flex items-center justify-between p-4 rounded-lg transition-all duration-200 ${clickable ? "cursor-pointer hover:scale-[1.01] active:scale-[0.99]" : ""} `;
     if (index2 === 0)
       return `${base}bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 border border-yellow-500/30`;
     if (index2 === 1)
@@ -36658,6 +36934,23 @@ const LeaderboardView = ({
     return `${base}bg-white/10 border border-white/20 hover:bg-white/15`;
   };
   const isLoggingIn = loginStatus === "logging-in";
+  const myPrincipalStr = (identity == null ? void 0 : identity.getPrincipal().toString()) ?? "";
+  const handleRowClick = (entry) => {
+    if (!entry.principal) return;
+    setViewingName(entry.username);
+    setViewingPrincipal(entry.principal);
+  };
+  if (viewingPrincipal) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-black pb-20", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      PlayerProfileScreen,
+      {
+        principal: viewingPrincipal,
+        fallbackName: viewingName,
+        isOwnProfile: viewingPrincipal.toText() === myPrincipalStr,
+        onBack: () => setViewingPrincipal(null)
+      }
+    ) });
+  }
   if (!isAuthenticated) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-black overflow-y-auto pb-32", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "container mx-auto px-4 py-6", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl p-4 shadow-xl border border-gray-200 opacity-60 blur-sm", children: [
@@ -36700,31 +36993,39 @@ const LeaderboardView = ({
           ] })
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-4xl mx-auto space-y-3 opacity-30 blur-sm pointer-events-none", children: leaderboardData.slice(0, 5).map((entry, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: getRankStyling(index2), children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-full bg-white/20", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-black text-lg", children: [
-            "#",
-            index2 + 1
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-8 h-8", children: getRankIcon(index2) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-lg text-white", children: [
-              entry.username,
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-normal text-white/60 ml-2", children: [
-                "Lv.",
-                entry.level
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-w-4xl mx-auto space-y-3 opacity-30 blur-sm pointer-events-none", children: backendLeaderboard.slice(0, 5).map(([username, score, level], index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: getRankStyling(index2, false),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-full bg-white/20", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-black text-lg", children: [
+                "#",
+                index2 + 1
+              ] }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-8 h-8", children: getRankIcon(index2) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-lg text-white", children: [
+                  username,
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-normal text-white/60 ml-2", children: [
+                    "Lv.",
+                    Number(level)
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white/70 text-sm font-medium", children: "Personal Best" })
               ] })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white/70 text-sm font-medium", children: "Personal Best" })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-black text-white", children: entry.highestScore.toLocaleString() }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-white/50 text-xs font-medium", children: "POINTS" })
-        ] })
-      ] }, entry.key)) })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-black text-white", children: Number(score).toLocaleString() }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-white/50 text-xs font-medium", children: "POINTS" })
+            ] })
+          ]
+        },
+        `preview-${index2}`
+      )) })
     ] }) });
   }
+  const leaderboardData = leaderboardRich ?? [];
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-black overflow-y-auto pb-32", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "container mx-auto px-4 py-6", "data-ocid": "leaderboard.page", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl p-4 shadow-xl border border-gray-200", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center mb-3", children: [
@@ -36733,45 +37034,72 @@ const LeaderboardView = ({
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 font-medium", children: "Players ranked by highest score achieved" }) })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
+    richLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "max-w-4xl mx-auto space-y-3",
+        "data-ocid": "leaderboard.loading_state",
+        children: [1, 2, 3, 4, 5].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "h-20 rounded-lg bg-white/10 border border-white/20 animate-pulse"
+          },
+          i
+        ))
+      }
+    ),
+    !richLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
       {
         className: "max-w-4xl mx-auto space-y-3",
         "data-ocid": "leaderboard.list",
-        children: leaderboardData.map((entry, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
-          {
-            className: getRankStyling(index2),
-            "data-ocid": `leaderboard.item.${index2 + 1}`,
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-black text-lg", children: [
-                  "#",
-                  index2 + 1
-                ] }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-8 h-8", children: getRankIcon(index2) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-lg text-white", children: [
-                    entry.username,
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-normal text-white/60 ml-2", children: [
-                      "Lv.",
-                      entry.level
-                    ] })
+        children: leaderboardData.map((entry, index2) => {
+          var _a3;
+          const isClickable = !!entry.principal;
+          const isMe = ((_a3 = entry.principal) == null ? void 0 : _a3.toText()) === myPrincipalStr;
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              role: isClickable ? "button" : void 0,
+              tabIndex: isClickable ? 0 : void 0,
+              onClick: () => handleRowClick(entry),
+              onKeyDown: isClickable ? (e) => e.key === "Enter" && handleRowClick(entry) : void 0,
+              className: getRankStyling(index2, isClickable),
+              "data-ocid": `leaderboard.item.${index2 + 1}`,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-black text-lg", children: [
+                    "#",
+                    index2 + 1
+                  ] }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-8 h-8", children: getRankIcon(index2) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-lg text-white flex items-center gap-2 flex-wrap", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: entry.username }),
+                      isMe && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold bg-orange-500 text-white px-2 py-0.5 rounded-full shrink-0", children: "You" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-normal text-white/60 shrink-0", children: [
+                        "Lv.",
+                        entry.level
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white/70 text-sm font-medium", children: "Personal Best" })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-black text-white", children: entry.highestScore.toLocaleString() }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-white/50 text-xs font-medium", children: "POINTS" })
                   ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white/70 text-sm font-medium", children: "Personal Best" })
+                  isClickable && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-5 h-5 text-white/40 shrink-0" })
                 ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-black text-white", children: entry.highestScore.toLocaleString() }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-white/50 text-xs font-medium", children: "POINTS" })
-              ] })
-            ]
-          },
-          entry.key
-        ))
+              ]
+            },
+            entry.key
+          );
+        })
       }
     ),
-    leaderboardData.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    !richLoading && leaderboardData.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
       {
         className: "max-w-4xl mx-auto",
@@ -37884,7 +38212,8 @@ const SocialsView = ({ isAuthenticated }) => {
             myPrincipal,
             onBack: () => setView({ kind: "clans" }),
             onOpenChat: (clan) => setView({ kind: "clanChat", clan }),
-            onOpenPending: (id) => setView({ kind: "pendingRequests", clanId: id })
+            onOpenPending: (id) => setView({ kind: "pendingRequests", clanId: id }),
+            onOpenMember: (member) => setView({ kind: "memberProfile", member })
           }
         )
       }
@@ -38393,7 +38722,8 @@ const ClanDetailsView = ({
   myPrincipal,
   onBack,
   onOpenChat,
-  onOpenPending
+  onOpenPending,
+  onOpenMember
 }) => {
   const { data: clan, isLoading, error } = useClanDetails(clanId);
   const leaveClan = useLeaveClan();
@@ -38533,7 +38863,8 @@ const ClanDetailsView = ({
               {
                 member,
                 index: i + 1,
-                isOwner: member.principal.toText() === clan.ownerId.toText()
+                isOwner: member.principal.toText() === clan.ownerId.toText(),
+                onClick: () => onOpenMember(member)
               },
               member.principal.toText()
             ))
@@ -38937,169 +39268,17 @@ const MemberProfileView = ({
   myPrincipal,
   onBack
 }) => {
-  const { data: isFriend } = useIsFriend(member.principal);
-  const { data: profile } = useGetUserProfile(member.principal);
-  const { data: gameStats, isLoading: statsLoading } = useGetUserGameStats(
-    member.principal
-  );
-  const addFriend = useAddFriend();
-  const removeFriend = useRemoveFriend();
-  const isMe = (myPrincipal == null ? void 0 : myPrincipal.toText()) === member.principal.toText();
-  const initials = (member.name || "??").slice(0, 2).toUpperCase();
-  const typedProfile = profile;
-  const typedStats = gameStats;
-  const statsEntries = typedStats ? [
-    { label: "Level", value: Number(typedStats.level).toString() },
+  const isOwnProfile = (myPrincipal == null ? void 0 : myPrincipal.toText()) === member.principal.toText();
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    PlayerProfileScreen,
     {
-      label: "Highest Score",
-      value: Number(typedStats.highestScore).toLocaleString()
-    },
-    {
-      label: "Total Score",
-      value: Number(typedStats.totalScore).toLocaleString()
-    },
-    {
-      label: "Total Chickens",
-      value: Number(typedStats.totalChickensShot).toLocaleString()
-    },
-    {
-      label: "Golden Chickens",
-      value: Number(typedStats.goldenChickensShot).toLocaleString()
-    },
-    {
-      label: "Fast Chickens",
-      value: Number(typedStats.fastChickensShot).toLocaleString()
-    },
-    {
-      label: "Total Shots",
-      value: Number(typedStats.totalShotsFired).toLocaleString()
-    },
-    {
-      label: "Missed Shots",
-      value: Number(typedStats.totalMissedShots).toLocaleString()
-    },
-    {
-      label: "Accuracy",
-      value: `${typedStats.currentAccuracy.toFixed(1)} %`
-    },
-    {
-      label: "Best Hit Streak",
-      value: Number(typedStats.bestConsecutiveHits).toString()
-    },
-    {
-      label: "Perfect Sessions",
-      value: Number(typedStats.perfectAccuracySessions).toString()
-    },
-    {
-      label: "Play Time (min)",
-      value: Number(typedStats.totalPlayTimeMinutes).toLocaleString()
-    },
-    {
-      label: "Best Session",
-      value: Number(typedStats.bestSessionChickens).toLocaleString()
-    },
-    {
-      label: "Small Chickens",
-      value: Number(typedStats.smallChickensShot).toLocaleString()
-    },
-    {
-      label: "Medium Chickens",
-      value: Number(typedStats.mediumChickensShot).toLocaleString()
-    },
-    {
-      label: "Large Chickens",
-      value: Number(typedStats.largeChickensShot).toLocaleString()
+      principal: member.principal,
+      fallbackName: member.name,
+      fallbackLevel: Number(member.level),
+      isOwnProfile,
+      onBack
     }
-  ] : [];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ScreenHeader, { title: "Player Profile", onBack }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto px-4 pb-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center mt-6 mb-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-20 h-20 rounded-xl bg-orange-100 text-orange-600 font-black text-2xl mb-3 border-2 border-orange-200 shadow-lg", children: initials }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-white font-black text-xl", children: member.name || "Unknown" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2 mt-1.5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 px-3 py-1 rounded-full shadow-md", children: [
-          "Level ",
-          member.level.toString()
-        ] }) }),
-        (typedProfile == null ? void 0 : typedProfile.bio) && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-400 text-sm text-center mt-2 max-w-xs", children: typedProfile.bio })
-      ] }),
-      !isMe && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center mb-4", children: isFriend ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "button",
-        {
-          type: "button",
-          "data-ocid": "socials.member_profile.remove_friend_button",
-          disabled: removeFriend.isPending,
-          onClick: () => removeFriend.mutate(member.principal),
-          className: "flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 text-sm font-bold hover:bg-red-50 transition-colors disabled:opacity-40 shadow-sm",
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(UserMinus, { size: 16 }),
-            removeFriend.isPending ? "…" : "Remove Friend"
-          ]
-        }
-      ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "button",
-        {
-          type: "button",
-          "data-ocid": "socials.member_profile.add_friend_button",
-          disabled: addFriend.isPending,
-          onClick: () => addFriend.mutate(member.principal),
-          className: "flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold transition-all hover:scale-105 active:scale-95 disabled:opacity-40 shadow-md",
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { size: 16 }),
-            addFriend.isPending ? "Adding…" : "Add Friend"
-          ]
-        }
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-white border border-gray-200 shadow-xl p-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-4 h-4 rounded-md bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-white text-[8px] font-black", children: "★" }) }),
-          "Statistics"
-        ] }),
-        statsLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            className: "grid grid-cols-2 gap-3",
-            "data-ocid": "socials.member_profile.loading_state",
-            children: Array.from({ length: 8 }).map((_2, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "h-14 rounded-lg bg-gray-100 border border-gray-200 animate-pulse"
-              },
-              i
-            ))
-          }
-        ) : !typedStats ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            className: "text-center py-6 text-gray-500 text-sm",
-            "data-ocid": "socials.member_profile.empty_state",
-            children: "No statistics yet"
-          }
-        ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            className: "grid grid-cols-2 gap-2",
-            "data-ocid": "socials.member_profile.stats_list",
-            children: statsEntries.map(({ label, value }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "div",
-              {
-                className: "rounded-lg bg-gray-50 border border-gray-200 px-3 py-2.5",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mb-0.5 truncate", children: label }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-black text-sm font-bold truncate", children: value })
-                ]
-              },
-              label
-            ))
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 rounded-xl bg-white border border-gray-200 px-3 py-2.5 shadow-sm", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 mb-0.5", children: "Principal ID" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-black text-xs font-mono truncate", children: member.principal.toText() })
-      ] })
-    ] })
-  ] });
+  );
 };
 const FriendsPanel = ({
   onOpenProfile

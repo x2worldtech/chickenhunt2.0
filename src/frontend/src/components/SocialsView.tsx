@@ -13,7 +13,6 @@ import {
   Shield,
   Trash2,
   UserMinus,
-  UserPlus,
   Users,
   X,
 } from "lucide-react";
@@ -24,11 +23,8 @@ import { useFileUpload } from "../file-storage/FileUpload";
 import {
   type ClanDetails,
   type ClanSummary,
-  type GameStatistics,
   JoinMode,
   type PrincipalInfo,
-  type UserProfile,
-  useAddFriend,
   useApproveJoinRequest,
   useClanDetails,
   useClanMessages,
@@ -36,9 +32,6 @@ import {
   useDeclineJoinRequest,
   useDeleteClan,
   useGetFriends,
-  useGetUserGameStats,
-  useGetUserProfile,
-  useIsFriend,
   useJoinClan,
   useLeaveClan,
   usePendingJoinRequests,
@@ -47,6 +40,7 @@ import {
   useSendClanMessage,
   useUserClans,
 } from "../hooks/useQueries";
+import PlayerProfileScreen from "./PlayerProfileScreen";
 
 // ─── Image upload constants ────────────────────────────────────────────────────
 
@@ -171,6 +165,7 @@ const SocialsView: React.FC<SocialsViewProps> = ({ isAuthenticated }) => {
           onOpenPending={(id) =>
             setView({ kind: "pendingRequests", clanId: id })
           }
+          onOpenMember={(member) => setView({ kind: "memberProfile", member })}
         />
       </div>
     );
@@ -774,6 +769,7 @@ interface ClanDetailsViewProps {
   onBack: () => void;
   onOpenChat: (clan: ClanDetails) => void;
   onOpenPending: (id: bigint) => void;
+  onOpenMember: (member: PrincipalInfo) => void;
 }
 
 const ClanDetailsView: React.FC<ClanDetailsViewProps> = ({
@@ -782,6 +778,7 @@ const ClanDetailsView: React.FC<ClanDetailsViewProps> = ({
   onBack,
   onOpenChat,
   onOpenPending,
+  onOpenMember,
 }) => {
   const { data: clan, isLoading, error } = useClanDetails(clanId);
   const leaveClan = useLeaveClan();
@@ -929,6 +926,7 @@ const ClanDetailsView: React.FC<ClanDetailsViewProps> = ({
                 member={member}
                 index={i + 1}
                 isOwner={member.principal.toText() === clan.ownerId.toText()}
+                onClick={() => onOpenMember(member)}
               />
             ))}
           </div>
@@ -1404,6 +1402,7 @@ const InlineClanChat: React.FC<InlineClanChatProps> = ({
 };
 
 // ─── Member Profile View ──────────────────────────────────────────────────────
+// Unified design — delegates entirely to PlayerProfileScreen
 
 interface MemberProfileViewProps {
   member: PrincipalInfo;
@@ -1416,197 +1415,15 @@ const MemberProfileView: React.FC<MemberProfileViewProps> = ({
   myPrincipal,
   onBack,
 }) => {
-  const { data: isFriend } = useIsFriend(member.principal);
-  const { data: profile } = useGetUserProfile(member.principal);
-  const { data: gameStats, isLoading: statsLoading } = useGetUserGameStats(
-    member.principal,
-  );
-  const addFriend = useAddFriend();
-  const removeFriend = useRemoveFriend();
-  const isMe = myPrincipal?.toText() === member.principal.toText();
-  const initials = (member.name || "??").slice(0, 2).toUpperCase();
-  const typedProfile = profile as UserProfile | null | undefined;
-  const typedStats = gameStats as GameStatistics | null | undefined;
-
-  type StatEntry = { label: string; value: string };
-
-  const statsEntries: StatEntry[] = typedStats
-    ? [
-        { label: "Level", value: Number(typedStats.level).toString() },
-        {
-          label: "Highest Score",
-          value: Number(typedStats.highestScore).toLocaleString(),
-        },
-        {
-          label: "Total Score",
-          value: Number(typedStats.totalScore).toLocaleString(),
-        },
-        {
-          label: "Total Chickens",
-          value: Number(typedStats.totalChickensShot).toLocaleString(),
-        },
-        {
-          label: "Golden Chickens",
-          value: Number(typedStats.goldenChickensShot).toLocaleString(),
-        },
-        {
-          label: "Fast Chickens",
-          value: Number(typedStats.fastChickensShot).toLocaleString(),
-        },
-        {
-          label: "Total Shots",
-          value: Number(typedStats.totalShotsFired).toLocaleString(),
-        },
-        {
-          label: "Missed Shots",
-          value: Number(typedStats.totalMissedShots).toLocaleString(),
-        },
-        {
-          label: "Accuracy",
-          value: `${typedStats.currentAccuracy.toFixed(1)} %`,
-        },
-        {
-          label: "Best Hit Streak",
-          value: Number(typedStats.bestConsecutiveHits).toString(),
-        },
-        {
-          label: "Perfect Sessions",
-          value: Number(typedStats.perfectAccuracySessions).toString(),
-        },
-        {
-          label: "Play Time (min)",
-          value: Number(typedStats.totalPlayTimeMinutes).toLocaleString(),
-        },
-        {
-          label: "Best Session",
-          value: Number(typedStats.bestSessionChickens).toLocaleString(),
-        },
-        {
-          label: "Small Chickens",
-          value: Number(typedStats.smallChickensShot).toLocaleString(),
-        },
-        {
-          label: "Medium Chickens",
-          value: Number(typedStats.mediumChickensShot).toLocaleString(),
-        },
-        {
-          label: "Large Chickens",
-          value: Number(typedStats.largeChickensShot).toLocaleString(),
-        },
-      ]
-    : [];
-
+  const isOwnProfile = myPrincipal?.toText() === member.principal.toText();
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      <ScreenHeader title="Player Profile" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
-        {/* Avatar & Name */}
-        <div className="flex flex-col items-center mt-6 mb-4">
-          <div className="flex items-center justify-center w-20 h-20 rounded-xl bg-orange-100 text-orange-600 font-black text-2xl mb-3 border-2 border-orange-200 shadow-lg">
-            {initials}
-          </div>
-          <h2 className="text-white font-black text-xl">
-            {member.name || "Unknown"}
-          </h2>
-          <div className="flex items-center gap-2 mt-1.5">
-            <span className="text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 px-3 py-1 rounded-full shadow-md">
-              Level {member.level.toString()}
-            </span>
-          </div>
-          {typedProfile?.bio && (
-            <p className="text-gray-400 text-sm text-center mt-2 max-w-xs">
-              {typedProfile.bio}
-            </p>
-          )}
-        </div>
-
-        {!isMe && (
-          <div className="flex justify-center mb-4">
-            {isFriend ? (
-              <button
-                type="button"
-                data-ocid="socials.member_profile.remove_friend_button"
-                disabled={removeFriend.isPending}
-                onClick={() => removeFriend.mutate(member.principal)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 text-sm font-bold hover:bg-red-50 transition-colors disabled:opacity-40 shadow-sm"
-              >
-                <UserMinus size={16} />
-                {removeFriend.isPending ? "…" : "Remove Friend"}
-              </button>
-            ) : (
-              <button
-                type="button"
-                data-ocid="socials.member_profile.add_friend_button"
-                disabled={addFriend.isPending}
-                onClick={() => addFriend.mutate(member.principal)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold transition-all hover:scale-105 active:scale-95 disabled:opacity-40 shadow-md"
-              >
-                <UserPlus size={16} />
-                {addFriend.isPending ? "Adding…" : "Add Friend"}
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Stats */}
-        <div className="rounded-xl bg-white border border-gray-200 shadow-xl p-4">
-          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded-md bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
-              <span className="text-white text-[8px] font-black">★</span>
-            </div>
-            Statistics
-          </h3>
-          {statsLoading ? (
-            <div
-              className="grid grid-cols-2 gap-3"
-              data-ocid="socials.member_profile.loading_state"
-            >
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton list
-                  key={i}
-                  className="h-14 rounded-lg bg-gray-100 border border-gray-200 animate-pulse"
-                />
-              ))}
-            </div>
-          ) : !typedStats ? (
-            <div
-              className="text-center py-6 text-gray-500 text-sm"
-              data-ocid="socials.member_profile.empty_state"
-            >
-              No statistics yet
-            </div>
-          ) : (
-            <div
-              className="grid grid-cols-2 gap-2"
-              data-ocid="socials.member_profile.stats_list"
-            >
-              {statsEntries.map(({ label, value }) => (
-                <div
-                  key={label}
-                  className="rounded-lg bg-gray-50 border border-gray-200 px-3 py-2.5"
-                >
-                  <div className="text-xs text-gray-500 mb-0.5 truncate">
-                    {label}
-                  </div>
-                  <div className="text-black text-sm font-bold truncate">
-                    {value}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Principal */}
-        <div className="mt-3 rounded-xl bg-white border border-gray-200 px-3 py-2.5 shadow-sm">
-          <div className="text-xs text-gray-500 mb-0.5">Principal ID</div>
-          <div className="text-black text-xs font-mono truncate">
-            {member.principal.toText()}
-          </div>
-        </div>
-      </div>
-    </div>
+    <PlayerProfileScreen
+      principal={member.principal}
+      fallbackName={member.name}
+      fallbackLevel={Number(member.level)}
+      isOwnProfile={isOwnProfile}
+      onBack={onBack}
+    />
   );
 };
 
