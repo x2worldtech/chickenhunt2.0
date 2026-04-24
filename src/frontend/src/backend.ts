@@ -318,6 +318,13 @@ export interface backendInterface {
         err: string;
     }>;
     setApproval(user: Principal, approval: ApprovalStatus): Promise<void>;
+    updateClan(clanId: bigint, description: string, joinMode: JoinMode, emblemId: bigint): Promise<{
+        __kind__: "ok";
+        ok: ClanDetails;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
 }
 import type { ApprovalStatus as _ApprovalStatus, ClanDetails as _ClanDetails, ClanMessage as _ClanMessage, ClanSummary as _ClanSummary, GameStatistics as _GameStatistics, HeaderField as _HeaderField, HttpResponse as _HttpResponse, JoinMode as _JoinMode, PrincipalInfo as _PrincipalInfo, StreamingCallbackHttpResponse as _StreamingCallbackHttpResponse, StreamingStrategy as _StreamingStrategy, StreamingToken as _StreamingToken, UserInfo as _UserInfo, UserProfile as _UserProfile, UserProfileWithChangeStatus as _UserProfileWithChangeStatus, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -924,6 +931,26 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n45(this._uploadFile, this._downloadFile, arg1));
             return result;
+        }
+    }
+    async updateClan(arg0: bigint, arg1: string, arg2: JoinMode, arg3: bigint): Promise<{
+        __kind__: "ok";
+        ok: ClanDetails;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateClan(arg0, arg1, to_candid_JoinMode_n4(this._uploadFile, this._downloadFile, arg2), arg3);
+                return from_candid_variant_n14(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateClan(arg0, arg1, to_candid_JoinMode_n4(this._uploadFile, this._downloadFile, arg2), arg3);
+            return from_candid_variant_n14(this._uploadFile, this._downloadFile, result);
         }
     }
 }

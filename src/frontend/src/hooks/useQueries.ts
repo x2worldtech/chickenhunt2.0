@@ -450,6 +450,40 @@ export function useDeclineJoinRequest() {
   });
 }
 
+export function useUpdateClan() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      clanId,
+      description,
+      joinMode,
+      emblemId,
+    }: {
+      clanId: bigint;
+      description: string;
+      joinMode: JoinMode;
+      emblemId: number;
+    }) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.updateClan(
+        clanId,
+        description,
+        joinMode,
+        BigInt(emblemId),
+      );
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: (_, { clanId }) => {
+      queryClient.invalidateQueries({ queryKey: ["clan", clanId.toString()] });
+      queryClient.invalidateQueries({ queryKey: ["allClans"] });
+      queryClient.invalidateQueries({ queryKey: ["userClans"] });
+    },
+  });
+}
+
 // ─── Clan Chat ─────────────────────────────────────────────────────────────────
 
 export function useClanMessages(clanId: bigint | null) {

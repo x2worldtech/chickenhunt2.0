@@ -46,6 +46,15 @@ mixin (
     SocialsLib.leaveClan(socialsState, caller, clanId);
   };
 
+  public shared ({ caller }) func updateClan(
+    clanId : Nat,
+    description : Text,
+    joinMode : JoinMode,
+    emblemId : Nat,
+  ) : async { #ok : ClanDetails; #err : Text } {
+    SocialsLib.updateClan(socialsState, caller, clanId, description, joinMode, emblemId, getName, getAvatarUrl, getLevel);
+  };
+
   public shared ({ caller }) func deleteClan(clanId : Nat) : async { #ok : Text; #err : Text } {
     SocialsLib.deleteClan(socialsState, caller, clanId);
   };

@@ -183,6 +183,29 @@ module {
     };
   };
 
+  public func updateClan(
+    state : SocialsState,
+    caller : Principal,
+    clanId : Nat,
+    description : Text,
+    joinMode : JoinMode,
+    emblemId : Nat,
+    getName : Principal -> ?Text,
+    getAvatarUrl : Principal -> ?Text,
+    getLevel : Principal -> Nat,
+  ) : { #ok : ClanDetails; #err : Text } {
+    switch (state.clans.get(clanId)) {
+      case null #err("not_found");
+      case (?clan) {
+        if (not Principal.equal(clan.ownerId, caller)) return #err("not_owner");
+        clan.description := description;
+        clan.joinMode := joinMode;
+        clan.emblemId := emblemId;
+        #ok(clanToDetails(clan, getName, getAvatarUrl, getLevel));
+      };
+    };
+  };
+
   public func deleteClan(
     state : SocialsState,
     caller : Principal,

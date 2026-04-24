@@ -83,4 +83,5 @@ export const mockBackend: backendInterface = {
   searchClans: async (): Promise<ClanSummary[]> => [],
   sendClanMessage: async () => err("not implemented"),
   setApproval: async () => undefined,
+  updateClan: async () => err("not implemented"),
 };

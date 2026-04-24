@@ -205,6 +205,11 @@ export interface _SERVICE {
       { 'err' : string }
   >,
   'setApproval' : ActorMethod<[Principal, ApprovalStatus], undefined>,
+  'updateClan' : ActorMethod<
+    [bigint, string, JoinMode, bigint],
+    { 'ok' : ClanDetails } |
+      { 'err' : string }
+  >,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

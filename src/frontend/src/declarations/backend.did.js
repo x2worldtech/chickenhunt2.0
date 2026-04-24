@@ -249,6 +249,11 @@ export const idlService = IDL.Service({
       [],
     ),
   'setApproval' : IDL.Func([IDL.Principal, ApprovalStatus], [], []),
+  'updateClan' : IDL.Func(
+      [IDL.Nat, IDL.Text, JoinMode, IDL.Nat],
+      [IDL.Variant({ 'ok' : ClanDetails, 'err' : IDL.Text })],
+      [],
+    ),
 });
 
 export const idlInitArgs = [];
@@ -499,6 +504,11 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'setApproval' : IDL.Func([IDL.Principal, ApprovalStatus], [], []),
+    'updateClan' : IDL.Func(
+        [IDL.Nat, IDL.Text, JoinMode, IDL.Nat],
+        [IDL.Variant({ 'ok' : ClanDetails, 'err' : IDL.Text })],
+        [],
+      ),
   });
 };
 

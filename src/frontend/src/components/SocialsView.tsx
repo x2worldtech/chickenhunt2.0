@@ -6,8 +6,11 @@ import {
   ChevronRight,
   Crown,
   Hash,
+  Lock,
   LogIn,
+  MessageCircle,
   MessageSquare,
+  Pencil,
   Plus,
   Search,
   Shield,
@@ -40,6 +43,7 @@ import {
   useRemoveFriend,
   useSearchClans,
   useSendClanMessage,
+  useUpdateClan,
   useUserClans,
 } from "../hooks/useQueries";
 import PlayerProfileScreen from "./PlayerProfileScreen";
@@ -303,50 +307,62 @@ const ClansPanel: React.FC<ClansPanelProps> = ({
   myPrincipal,
   onOpenClan,
   onClanCreated,
-}) => (
-  <div className="flex flex-col h-full">
-    <div className="flex gap-2 px-4 pt-3 pb-2">
-      {(
-        [
-          { id: "mine" as ClanSection, label: "My Clans", icon: Shield },
-          { id: "search" as ClanSection, label: "Search", icon: Search },
-          { id: "create" as ClanSection, label: "Create", icon: Plus },
-        ] as { id: ClanSection; label: string; icon: React.ElementType }[]
-      ).map(({ id, label, icon: Icon }) => (
-        <button
-          key={id}
-          type="button"
-          data-ocid={`socials.clan_${id}_tab`}
-          onClick={() => onSectionChange(id)}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${
-            section === id
-              ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md"
-              : "bg-white text-gray-600 border border-gray-200 hover:border-orange-300 hover:text-orange-600"
-          }`}
-        >
-          <Icon size={13} />
-          {label}
-        </button>
-      ))}
-    </div>
-    <div className="flex-1 px-4 pb-4">
-      {section === "mine" && (
-        <MyClansSection
-          myPrincipal={myPrincipal}
-          onOpenClan={onOpenClan}
-          onGoSearch={() => onSectionChange("search")}
-          onGoCreate={() => onSectionChange("create")}
-        />
-      )}
-      {section === "search" && (
-        <SearchClansSection myPrincipal={myPrincipal} onOpenClan={onOpenClan} />
-      )}
-      {section === "create" && <CreateClanSection onCreated={onClanCreated} />}
-    </div>
-  </div>
-);
+}) => {
+  const { data: userClans } = useUserClans(myPrincipal);
+  const isInClan = (userClans ?? []).length > 0;
 
-// ─── My Clans ─────────────────────────────────────────────────────────────────
+  const tabs: { id: ClanSection; label: string; icon: React.ElementType }[] = [
+    { id: "mine", label: "My Clan", icon: Shield },
+    { id: "search", label: "Search", icon: Search },
+    ...(!isInClan
+      ? [{ id: "create" as ClanSection, label: "Create", icon: Plus }]
+      : []),
+  ];
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex gap-2 px-4 pt-3 pb-2">
+        {tabs.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            type="button"
+            data-ocid={`socials.clan_${id}_tab`}
+            onClick={() => onSectionChange(id)}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${
+              section === id
+                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md"
+                : "bg-white text-gray-600 border border-gray-200 hover:border-orange-300 hover:text-orange-600"
+            }`}
+          >
+            <Icon size={13} />
+            {label}
+          </button>
+        ))}
+      </div>
+      <div className="flex-1 px-4 pb-4">
+        {section === "mine" && (
+          <MyClansSection
+            myPrincipal={myPrincipal}
+            onOpenClan={onOpenClan}
+            onGoSearch={() => onSectionChange("search")}
+            onGoCreate={() => onSectionChange("create")}
+          />
+        )}
+        {section === "search" && (
+          <SearchClansSection
+            myPrincipal={myPrincipal}
+            onOpenClan={onOpenClan}
+          />
+        )}
+        {section === "create" && !isInClan && (
+          <CreateClanSection onCreated={onClanCreated} />
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ─── My Clan ─────────────────────────────────────────────────────────────────
 
 interface MyClansProps {
   myPrincipal: Principal | null;
@@ -385,7 +401,7 @@ const MyClansSection: React.FC<MyClansProps> = ({
         className="text-center py-8 text-red-500 text-sm font-medium"
         data-ocid="socials.my_clans.error_state"
       >
-        Error loading clans
+        Error loading clan
       </div>
     );
   }
@@ -400,8 +416,9 @@ const MyClansSection: React.FC<MyClansProps> = ({
           <Shield size={28} className="text-gray-400" />
         </div>
         <h3 className="text-white font-black text-lg mb-2">No Clan Yet</h3>
-        <p className="text-gray-500 text-sm max-w-xs mb-6">
-          You haven't joined a clan yet. Search or create one!
+        <p className="text-gray-400 text-sm max-w-xs mb-6">
+          You are not in a clan yet. Search for an existing clan or create your
+          own!
         </p>
         <div className="flex gap-3">
           <button
@@ -425,17 +442,462 @@ const MyClansSection: React.FC<MyClansProps> = ({
     );
   }
 
+  // User is in a clan — show it inline with all details expanded
+  const clan = myClans[0];
   return (
-    <div className="flex flex-col gap-2 pt-2" data-ocid="socials.my_clans.list">
-      {(myClans ?? []).map((clan, i) => (
-        <ClanCard
-          key={clan.id.toString()}
-          clan={clan}
-          index={i + 1}
-          myPrincipal={myPrincipal}
-          onClick={() => onOpenClan(clan.id)}
-        />
-      ))}
+    <div className="flex flex-col gap-3 pt-2" data-ocid="socials.my_clans.list">
+      <MyClanInlineDetails
+        clanId={clan.id}
+        myPrincipal={myPrincipal}
+        onOpenChat={() => onOpenClan(clan.id)}
+        onOpenPending={() => onOpenClan(clan.id)}
+      />
+    </div>
+  );
+};
+
+// ─── My Clan Inline Details (expanded, no navigation needed) ─────────────────
+
+interface MyClanInlineDetailsProps {
+  clanId: bigint;
+  myPrincipal: Principal | null;
+  onOpenChat: () => void;
+  onOpenPending: () => void;
+}
+
+const MyClanInlineDetails: React.FC<MyClanInlineDetailsProps> = ({
+  clanId,
+  myPrincipal,
+  onOpenChat,
+  onOpenPending,
+}) => {
+  const { data: clan, isLoading, error } = useClanDetails(clanId);
+  const leaveClan = useLeaveClan();
+  const deleteClan = useDeleteClan();
+  const updateClan = useUpdateClan();
+  const [memberProfileOpen, setMemberProfileOpen] =
+    useState<PrincipalInfo | null>(null);
+
+  // Edit form state
+  const [editOpen, setEditOpen] = useState(false);
+  const [editDescription, setEditDescription] = useState("");
+  const [editJoinMode, setEditJoinMode] = useState<JoinMode>(JoinMode.open);
+  const [editEmblemId, setEditEmblemId] = useState(1);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div
+        className="flex flex-col gap-3"
+        data-ocid="socials.my_clan_inline.loading_state"
+      >
+        <div className="h-32 rounded-xl bg-white border border-gray-200 animate-pulse" />
+        <div className="h-20 rounded-xl bg-white border border-gray-200 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error || !clan) {
+    return (
+      <div
+        className="text-center py-8 text-red-500 text-sm font-medium"
+        data-ocid="socials.my_clan_inline.error_state"
+      >
+        Clan could not be loaded
+      </div>
+    );
+  }
+
+  if (memberProfileOpen) {
+    return (
+      <MemberProfileView
+        member={memberProfileOpen}
+        myPrincipal={myPrincipal}
+        onBack={() => setMemberProfileOpen(null)}
+      />
+    );
+  }
+
+  const myText = myPrincipal?.toText() ?? "";
+  const isOwner = clan.ownerId.toText() === myText;
+  const isOpen = clan.joinMode === JoinMode.open;
+  const detailEmblem = getEmblem(clan.emblemId);
+
+  const openEdit = () => {
+    setEditDescription(clan.description ?? "");
+    setEditJoinMode(clan.joinMode);
+    setEditEmblemId(Number(clan.emblemId));
+    setSaveSuccess(false);
+    updateClan.reset();
+    setEditOpen(true);
+  };
+
+  const handleSave = () => {
+    updateClan.mutate(
+      {
+        clanId: clan.id,
+        description: editDescription.trim(),
+        joinMode: editJoinMode,
+        emblemId: editEmblemId,
+      },
+      {
+        onSuccess: () => {
+          setSaveSuccess(true);
+          setTimeout(() => {
+            setEditOpen(false);
+            setSaveSuccess(false);
+          }, 1200);
+        },
+      },
+    );
+  };
+
+  // ── Inline edit form ────────────────────────────────────────────────────────
+  if (editOpen) {
+    return (
+      <div className="flex flex-col gap-3" data-ocid="socials.edit_clan.panel">
+        <div className="rounded-xl bg-white border border-gray-200 shadow-xl p-5 flex flex-col gap-4">
+          {/* Header */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600">
+              <Pencil size={16} className="text-white" />
+            </div>
+            <h3 className="text-black font-black text-base flex-1">
+              Edit Clan
+            </h3>
+            <button
+              type="button"
+              data-ocid="socials.edit_clan.close_button"
+              onClick={() => setEditOpen(false)}
+              className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors"
+            >
+              <X size={15} />
+            </button>
+          </div>
+
+          {/* Clan Name — read-only */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Clan Name
+              </span>
+              <Lock size={10} className="text-gray-400" />
+              <span className="text-[10px] text-gray-400 font-medium">
+                cannot be changed
+              </span>
+            </div>
+            <div className="px-3 py-2.5 rounded-lg bg-gray-100 border border-gray-200 text-gray-400 text-sm select-none cursor-not-allowed">
+              {clan.name}
+            </div>
+          </div>
+
+          {/* Emblem Picker */}
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+              Clan Emblem
+            </p>
+            <div
+              className="grid grid-cols-5 gap-2"
+              data-ocid="socials.edit_clan.emblem_picker"
+            >
+              {CLAN_EMBLEMS.map((emblem) => {
+                const isSelected = emblem.id === editEmblemId;
+                return (
+                  <button
+                    key={emblem.id}
+                    type="button"
+                    data-ocid={`socials.edit_clan.emblem_${emblem.id}`}
+                    onClick={() => setEditEmblemId(emblem.id)}
+                    aria-label={`Select ${emblem.name} emblem`}
+                    className={`relative flex items-center justify-center rounded-xl overflow-hidden transition-all duration-200 aspect-square ${
+                      isSelected
+                        ? "ring-2 ring-orange-500 scale-105 shadow-lg shadow-orange-200"
+                        : "hover:scale-105 hover:ring-2 hover:ring-orange-300 opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <emblem.Svg size={56} />
+                    {isSelected && (
+                      <div className="absolute inset-0 rounded-xl ring-2 ring-orange-500 pointer-events-none" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs text-gray-500 text-center">
+              Selected:{" "}
+              <span className="text-orange-600 font-semibold">
+                {getEmblem(editEmblemId).name}
+              </span>
+            </p>
+          </div>
+
+          {/* Description */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="edit-clan-desc"
+              className="text-xs font-bold text-gray-600 uppercase tracking-wider"
+            >
+              Description
+            </label>
+            <textarea
+              id="edit-clan-desc"
+              placeholder="What is your clan about?"
+              value={editDescription}
+              maxLength={120}
+              onChange={(e) => setEditDescription(e.target.value)}
+              rows={2}
+              data-ocid="socials.edit_clan.description_textarea"
+              className="px-3 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-black placeholder-gray-400 text-sm focus:outline-none focus:border-orange-400 transition-colors resize-none"
+            />
+          </div>
+
+          {/* Join Mode */}
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+              Join Mode
+            </span>
+            <div className="flex gap-2">
+              {(
+                [
+                  { mode: JoinMode.open, label: "🔓 Open to all" },
+                  {
+                    mode: JoinMode.requestRequired,
+                    label: "📩 Request required",
+                  },
+                ] as { mode: JoinMode; label: string }[]
+              ).map(({ mode, label }) => (
+                <button
+                  key={mode}
+                  type="button"
+                  data-ocid={`socials.edit_clan.join_mode_${mode}`}
+                  onClick={() => setEditJoinMode(mode)}
+                  className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all duration-200 border ${
+                    editJoinMode === mode
+                      ? "bg-gradient-to-r from-orange-500 to-orange-600 border-orange-500 text-white shadow-md"
+                      : "bg-gray-50 border-gray-200 text-gray-600 hover:border-orange-300"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              data-ocid="socials.edit_clan.cancel_button"
+              onClick={() => setEditOpen(false)}
+              disabled={updateClan.isPending}
+              className="flex-1 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-bold hover:border-orange-300 hover:text-orange-600 transition-colors disabled:opacity-40"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              data-ocid="socials.edit_clan.save_button"
+              disabled={updateClan.isPending || saveSuccess}
+              onClick={handleSave}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {updateClan.isPending ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Saving…
+                </>
+              ) : saveSuccess ? (
+                <>
+                  <Check size={15} />
+                  Saved!
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </button>
+          </div>
+
+          {updateClan.isError && (
+            <p
+              className="text-xs text-red-500 text-center -mt-2"
+              data-ocid="socials.edit_clan.error_state"
+            >
+              {updateClan.error instanceof Error
+                ? updateClan.error.message
+                : "Error saving changes"}
+            </p>
+          )}
+          {saveSuccess && (
+            <p
+              className="text-xs text-green-600 text-center -mt-2 font-medium"
+              data-ocid="socials.edit_clan.success_state"
+            >
+              Clan updated successfully!
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="flex flex-col gap-3"
+      data-ocid="socials.my_clan_inline.panel"
+    >
+      {/* Clan Info Card */}
+      <div className="rounded-xl bg-white border border-gray-200 shadow-xl p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex items-center justify-center w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-orange-200">
+            <detailEmblem.Svg size={56} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-black font-black text-lg">{clan.name}</h2>
+              {isOwner && (
+                <span className="flex items-center gap-1 text-xs text-orange-600 font-bold">
+                  <Crown size={11} />
+                  Founder
+                </span>
+              )}
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                  isOpen
+                    ? "bg-green-100 text-green-700"
+                    : "bg-orange-100 text-orange-700"
+                }`}
+              >
+                {isOpen ? "Open" : "Request Required"}
+              </span>
+            </div>
+            {clan.description && (
+              <p className="text-gray-600 text-sm mt-1 break-words">
+                {clan.description}
+              </p>
+            )}
+            <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+              <span className="flex items-center gap-1">
+                <Users size={11} />
+                {clan.members.length}/50 Members
+              </span>
+              {isOwner && clan.pendingCount > 0 && (
+                <span className="flex items-center gap-1 text-orange-600 font-bold">
+                  {clan.pendingCount.toString()} pending
+                </span>
+              )}
+            </div>
+          </div>
+          {/* Edit button — founder only */}
+          {isOwner && (
+            <button
+              type="button"
+              data-ocid="socials.my_clan_inline.edit_button"
+              onClick={openEdit}
+              aria-label="Edit clan"
+              className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 hover:bg-orange-100 hover:text-orange-600 text-gray-500 transition-colors border border-gray-200 hover:border-orange-300 shrink-0"
+            >
+              <Pencil size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2 mt-4 flex-wrap">
+          <button
+            type="button"
+            data-ocid="socials.my_clan_inline.chat_button"
+            onClick={onOpenChat}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <MessageCircle size={15} />
+            Chat
+          </button>
+          {isOwner && clan.pendingCount > 0 && (
+            <button
+              type="button"
+              data-ocid="socials.my_clan_inline.pending_button"
+              onClick={onOpenPending}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-bold hover:border-orange-300 hover:text-orange-600 transition-colors"
+            >
+              <Users size={15} />
+              Requests ({clan.pendingCount.toString()})
+            </button>
+          )}
+          {isOwner ? (
+            <button
+              type="button"
+              data-ocid="socials.my_clan_inline.delete_button"
+              disabled={deleteClan.isPending}
+              onClick={() => deleteClan.mutate(clan.id)}
+              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 text-sm font-bold hover:bg-red-50 transition-colors disabled:opacity-40"
+            >
+              <Trash2 size={15} />
+              {deleteClan.isPending ? "…" : "Delete"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              data-ocid="socials.my_clan_inline.leave_button"
+              disabled={leaveClan.isPending}
+              onClick={() => leaveClan.mutate(clan.id)}
+              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 text-sm font-bold hover:bg-red-50 transition-colors disabled:opacity-40"
+            >
+              <UserMinus size={15} />
+              {leaveClan.isPending ? "…" : "Leave"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Members — always expanded, no toggle */}
+      <div className="rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
+          <Users size={14} className="text-orange-500 shrink-0" />
+          <h3 className="text-xs font-black text-black uppercase tracking-wider">
+            Members
+          </h3>
+          <span className="ml-auto text-xs font-bold text-gray-500">
+            {clan.members.length}/50
+          </span>
+        </div>
+        <div
+          className="flex flex-col divide-y divide-gray-100"
+          data-ocid="socials.my_clan_inline.members_list"
+        >
+          {clan.members.map((member, i) => {
+            const isOwnerRow =
+              member.principal.toText() === clan.ownerId.toText();
+            const initials = (member.name || "??").slice(0, 2).toUpperCase();
+            return (
+              <button
+                key={member.principal.toText()}
+                type="button"
+                data-ocid={`socials.my_clan_inline.member.${i + 1}`}
+                onClick={() => setMemberProfileOpen(member)}
+                className="flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors text-left w-full"
+              >
+                <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-orange-100 text-orange-600 font-black text-xs shrink-0 border border-orange-200">
+                  {initials}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-black text-sm font-bold truncate">
+                      {member.name || "Unknown"}
+                    </span>
+                    {isOwnerRow && (
+                      <Crown size={11} className="text-orange-500 shrink-0" />
+                    )}
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    Level {member.level.toString()}
+                  </span>
+                </div>
+                <ChevronRight size={14} className="text-gray-300 shrink-0" />
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };

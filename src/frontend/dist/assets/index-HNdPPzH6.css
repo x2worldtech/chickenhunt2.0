@@ -943,6 +943,9 @@ video {
 .h-3 {
   height: 0.75rem;
 }
+.h-32 {
+  height: 8rem;
+}
 .h-4 {
   height: 1rem;
 }
@@ -1297,6 +1300,9 @@ video {
 .cursor-grab {
   cursor: grab;
 }
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
 .cursor-pointer {
   cursor: pointer;
 }
@@ -1441,6 +1447,15 @@ video {
   --tw-space-y-reverse: 0;
   margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1rem * var(--tw-space-y-reverse));
+}
+.divide-y > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-y-reverse: 0;
+  border-top-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+  border-bottom-width: calc(1px * var(--tw-divide-y-reverse));
+}
+.divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-opacity: 1;
+  border-color: rgb(243 244 246 / var(--tw-divide-opacity, 1));
 }
 .self-start {
   align-self: flex-start;
@@ -1591,6 +1606,10 @@ video {
 }
 .border-current {
   border-color: currentColor;
+}
+.border-gray-100 {
+  --tw-border-opacity: 1;
+  border-color: rgb(243 244 246 / var(--tw-border-opacity, 1));
 }
 .border-gray-200 {
   --tw-border-opacity: 1;
@@ -3948,6 +3967,16 @@ body {
 
 .hover\:bg-muted:hover {
   background-color: oklch(var(--muted));
+}
+
+.hover\:bg-orange-100:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 237 213 / var(--tw-bg-opacity, 1));
+}
+
+.hover\:bg-orange-50:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 247 237 / var(--tw-bg-opacity, 1));
 }
 
 .hover\:bg-red-50:hover {

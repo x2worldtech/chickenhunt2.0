@@ -236,4 +236,11 @@ export interface backendInterface {
         err: string;
     }>;
     setApproval(user: Principal, approval: ApprovalStatus): Promise<void>;
+    updateClan(clanId: bigint, description: string, joinMode: JoinMode, emblemId: bigint): Promise<{
+        __kind__: "ok";
+        ok: ClanDetails;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
 }

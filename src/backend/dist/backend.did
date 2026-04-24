@@ -225,4 +225,9 @@ service : {
       ok: ClanMessage;
     });
   setApproval: (user: principal, approval: ApprovalStatus) -> ();
+  updateClan: (clanId: nat, description: text, joinMode: JoinMode, emblemId:
+   nat) -> (variant {
+              err: text;
+              ok: ClanDetails;
+            });
 }

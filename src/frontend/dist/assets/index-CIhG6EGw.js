@@ -27664,7 +27664,12 @@ Service({
     [Variant({ "ok": ClanMessage, "err": Text })],
     []
   ),
-  "setApproval": Func([Principal2, ApprovalStatus], [], [])
+  "setApproval": Func([Principal2, ApprovalStatus], [], []),
+  "updateClan": Func(
+    [Nat, Text, JoinMode$1, Nat],
+    [Variant({ "ok": ClanDetails, "err": Text })],
+    []
+  )
 });
 const idlFactory = ({ IDL: IDL2 }) => {
   const UserRole2 = IDL2.Variant({
@@ -27910,7 +27915,12 @@ const idlFactory = ({ IDL: IDL2 }) => {
       [IDL2.Variant({ "ok": ClanMessage2, "err": IDL2.Text })],
       []
     ),
-    "setApproval": IDL2.Func([IDL2.Principal, ApprovalStatus2], [], [])
+    "setApproval": IDL2.Func([IDL2.Principal, ApprovalStatus2], [], []),
+    "updateClan": IDL2.Func(
+      [IDL2.Nat, IDL2.Text, JoinMode2, IDL2.Nat],
+      [IDL2.Variant({ "ok": ClanDetails2, "err": IDL2.Text })],
+      []
+    )
   });
 };
 function candid_some(value) {
@@ -28468,6 +28478,20 @@ class Backend {
       return result;
     }
   }
+  async updateClan(arg0, arg1, arg2, arg3) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.updateClan(arg0, arg1, to_candid_JoinMode_n4(this._uploadFile, this._downloadFile, arg2), arg3);
+        return from_candid_variant_n14(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.updateClan(arg0, arg1, to_candid_JoinMode_n4(this._uploadFile, this._downloadFile, arg2), arg3);
+      return from_candid_variant_n14(this._uploadFile, this._downloadFile, result);
+    }
+  }
 }
 function from_candid_ApprovalStatus_n12(_uploadFile, _downloadFile, value) {
   return from_candid_variant_n13(_uploadFile, _downloadFile, value);
@@ -28998,6 +29022,33 @@ function useDeclineJoinRequest() {
     }
   });
 }
+function useUpdateClan() {
+  const { actor } = useActor(createActor);
+  const queryClient2 = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      clanId,
+      description,
+      joinMode,
+      emblemId
+    }) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.updateClan(
+        clanId,
+        description,
+        joinMode,
+        BigInt(emblemId)
+      );
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: (_2, { clanId }) => {
+      queryClient2.invalidateQueries({ queryKey: ["clan", clanId.toString()] });
+      queryClient2.invalidateQueries({ queryKey: ["allClans"] });
+      queryClient2.invalidateQueries({ queryKey: ["userClans"] });
+    }
+  });
+}
 function useClanMessages(clanId) {
   const { actor, isFetching } = useActor(createActor);
   return useQuery({
@@ -29227,18 +29278,18 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$E = [
+const __iconNode$H = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$E);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$H);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$D = [
+const __iconNode$G = [
   [
     "path",
     {
@@ -29248,14 +29299,14 @@ const __iconNode$D = [
   ],
   ["circle", { cx: "12", cy: "8", r: "6", key: "1vp47v" }]
 ];
-const Award = createLucideIcon("award", __iconNode$D);
+const Award = createLucideIcon("award", __iconNode$G);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$C = [
+const __iconNode$F = [
   [
     "path",
     {
@@ -29265,7 +29316,36 @@ const __iconNode$C = [
   ],
   ["circle", { cx: "12", cy: "13", r: "3", key: "1vg3eu" }]
 ];
-const Camera = createLucideIcon("camera", __iconNode$C);
+const Camera = createLucideIcon("camera", __iconNode$F);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$E = [
+  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
+  ["path", { d: "M18 17V9", key: "2bz60n" }],
+  ["path", { d: "M13 17V5", key: "1frdt8" }],
+  ["path", { d: "M8 17v-3", key: "17ska0" }]
+];
+const ChartColumn = createLucideIcon("chart-column", __iconNode$E);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$D = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$D);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$C = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$C);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -29273,28 +29353,35 @@ const Camera = createLucideIcon("camera", __iconNode$C);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$B = [
-  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
-  ["path", { d: "M18 17V9", key: "2bz60n" }],
-  ["path", { d: "M13 17V5", key: "1frdt8" }],
-  ["path", { d: "M8 17v-3", key: "17ska0" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$B);
+const Clock = createLucideIcon("clock", __iconNode$B);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$A = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$A);
+const __iconNode$A = [
+  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
+  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
+];
+const Copy = createLucideIcon("copy", __iconNode$A);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$z = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$z);
+const __iconNode$z = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["line", { x1: "22", x2: "18", y1: "12", y2: "12", key: "l9bcsi" }],
+  ["line", { x1: "6", x2: "2", y1: "12", y2: "12", key: "13hhkx" }],
+  ["line", { x1: "12", x2: "12", y1: "6", y2: "2", key: "10w3f3" }],
+  ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
+];
+const Crosshair = createLucideIcon("crosshair", __iconNode$z);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -29302,42 +29389,6 @@ const ChevronRight = createLucideIcon("chevron-right", __iconNode$z);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$y = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
-];
-const Clock = createLucideIcon("clock", __iconNode$y);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$x = [
-  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
-  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
-];
-const Copy = createLucideIcon("copy", __iconNode$x);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$w = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["line", { x1: "22", x2: "18", y1: "12", y2: "12", key: "l9bcsi" }],
-  ["line", { x1: "6", x2: "2", y1: "12", y2: "12", key: "13hhkx" }],
-  ["line", { x1: "12", x2: "12", y1: "6", y2: "2", key: "10w3f3" }],
-  ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
-];
-const Crosshair = createLucideIcon("crosshair", __iconNode$w);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$v = [
   [
     "path",
     {
@@ -29347,14 +29398,14 @@ const __iconNode$v = [
   ],
   ["path", { d: "M5 21h14", key: "11awu3" }]
 ];
-const Crown$1 = createLucideIcon("crown", __iconNode$v);
+const Crown$1 = createLucideIcon("crown", __iconNode$y);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$u = [
+const __iconNode$x = [
   [
     "path",
     {
@@ -29364,14 +29415,14 @@ const __iconNode$u = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$u);
+const Eye = createLucideIcon("eye", __iconNode$x);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$t = [
+const __iconNode$w = [
   ["rect", { x: "3", y: "8", width: "18", height: "4", rx: "1", key: "bkv52" }],
   ["path", { d: "M12 8v13", key: "1c76mn" }],
   ["path", { d: "M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7", key: "6wjy6b" }],
@@ -29383,39 +29434,39 @@ const __iconNode$t = [
     }
   ]
 ];
-const Gift = createLucideIcon("gift", __iconNode$t);
+const Gift = createLucideIcon("gift", __iconNode$w);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$s = [
+const __iconNode$v = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$s);
+const Globe = createLucideIcon("globe", __iconNode$v);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$r = [
+const __iconNode$u = [
   ["line", { x1: "4", x2: "20", y1: "9", y2: "9", key: "4lhtct" }],
   ["line", { x1: "4", x2: "20", y1: "15", y2: "15", key: "vyu0kd" }],
   ["line", { x1: "10", x2: "8", y1: "3", y2: "21", key: "1ggp8o" }],
   ["line", { x1: "16", x2: "14", y1: "3", y2: "21", key: "weycgp" }]
 ];
-const Hash2 = createLucideIcon("hash", __iconNode$r);
+const Hash2 = createLucideIcon("hash", __iconNode$u);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$q = [
+const __iconNode$t = [
   ["path", { d: "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8", key: "5wwlr5" }],
   [
     "path",
@@ -29425,7 +29476,42 @@ const __iconNode$q = [
     }
   ]
 ];
-const House = createLucideIcon("house", __iconNode$q);
+const House = createLucideIcon("house", __iconNode$t);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$s = [
+  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
+  ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
+  ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
+];
+const Image$1 = createLucideIcon("image", __iconNode$s);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$r = [
+  ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
+  ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
+];
+const Lock = createLucideIcon("lock", __iconNode$r);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$q = [
+  ["path", { d: "m10 17 5-5-5-5", key: "1bsop3" }],
+  ["path", { d: "M15 12H3", key: "6jk70r" }],
+  ["path", { d: "M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4", key: "u53s6r" }]
+];
+const LogIn = createLucideIcon("log-in", __iconNode$q);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -29433,11 +29519,11 @@ const House = createLucideIcon("house", __iconNode$q);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$p = [
-  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
-  ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
-  ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
+  ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
+  ["path", { d: "M21 12H9", key: "dn1m92" }],
+  ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const Image$1 = createLucideIcon("image", __iconNode$p);
+const LogOut = createLucideIcon("log-out", __iconNode$p);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -29445,30 +29531,6 @@ const Image$1 = createLucideIcon("image", __iconNode$p);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$o = [
-  ["path", { d: "m10 17 5-5-5-5", key: "1bsop3" }],
-  ["path", { d: "M15 12H3", key: "6jk70r" }],
-  ["path", { d: "M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4", key: "u53s6r" }]
-];
-const LogIn = createLucideIcon("log-in", __iconNode$o);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$n = [
-  ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
-  ["path", { d: "M21 12H9", key: "dn1m92" }],
-  ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
-];
-const LogOut = createLucideIcon("log-out", __iconNode$n);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$m = [
   [
     "path",
     {
@@ -29482,25 +29544,47 @@ const __iconNode$m = [
   ["circle", { cx: "12", cy: "17", r: "5", key: "qbz8iq" }],
   ["path", { d: "M12 18v-2h-.5", key: "fawc4q" }]
 ];
-const Medal = createLucideIcon("medal", __iconNode$m);
+const Medal = createLucideIcon("medal", __iconNode$o);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$l = [
+const __iconNode$n = [
+  ["path", { d: "M7.9 20A9 9 0 1 0 4 16.1L2 22Z", key: "vv11sd" }]
+];
+const MessageCircle = createLucideIcon("message-circle", __iconNode$n);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$m = [
   ["path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", key: "1lielz" }]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$l);
+const MessageSquare = createLucideIcon("message-square", __iconNode$m);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$k = [["path", { d: "M5 12h14", key: "1ays0h" }]];
-const Minus = createLucideIcon("minus", __iconNode$k);
+const __iconNode$l = [["path", { d: "M5 12h14", key: "1ays0h" }]];
+const Minus = createLucideIcon("minus", __iconNode$l);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$k = [
+  ["path", { d: "M9 18V5l12-2v13", key: "1jmyc2" }],
+  ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
+  ["circle", { cx: "18", cy: "16", r: "3", key: "1hluhg" }]
+];
+const Music = createLucideIcon("music", __iconNode$k);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -29508,18 +29592,6 @@ const Minus = createLucideIcon("minus", __iconNode$k);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$j = [
-  ["path", { d: "M9 18V5l12-2v13", key: "1jmyc2" }],
-  ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
-  ["circle", { cx: "18", cy: "16", r: "3", key: "1hluhg" }]
-];
-const Music = createLucideIcon("music", __iconNode$j);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$i = [
   ["path", { d: "M12 20h9", key: "t2du7b" }],
   [
     "path",
@@ -29529,7 +29601,24 @@ const __iconNode$i = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$i);
+const PenLine = createLucideIcon("pen-line", __iconNode$j);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$i = [
+  [
+    "path",
+    {
+      d: "M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z",
+      key: "1a8usu"
+    }
+  ],
+  ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
+];
+const Pencil = createLucideIcon("pencil", __iconNode$i);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -39580,39 +39669,50 @@ const ClansPanel = ({
   myPrincipal,
   onOpenClan,
   onClanCreated
-}) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col h-full", children: [
-  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2 px-4 pt-3 pb-2", children: [
-    { id: "mine", label: "My Clans", icon: Shield },
+}) => {
+  const { data: userClans } = useUserClans(myPrincipal);
+  const isInClan = (userClans ?? []).length > 0;
+  const tabs = [
+    { id: "mine", label: "My Clan", icon: Shield },
     { id: "search", label: "Search", icon: Search },
-    { id: "create", label: "Create", icon: Plus }
-  ].map(({ id, label, icon: Icon2 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "button",
-    {
-      type: "button",
-      "data-ocid": `socials.clan_${id}_tab`,
-      onClick: () => onSectionChange(id),
-      className: `flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${section === id ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md" : "bg-white text-gray-600 border border-gray-200 hover:border-orange-300 hover:text-orange-600"}`,
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { size: 13 }),
-        label
-      ]
-    },
-    id
-  )) }),
-  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 px-4 pb-4", children: [
-    section === "mine" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      MyClansSection,
+    ...!isInClan ? [{ id: "create", label: "Create", icon: Plus }] : []
+  ];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col h-full", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2 px-4 pt-3 pb-2", children: tabs.map(({ id, label, icon: Icon2 }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
       {
-        myPrincipal,
-        onOpenClan,
-        onGoSearch: () => onSectionChange("search"),
-        onGoCreate: () => onSectionChange("create")
-      }
-    ),
-    section === "search" && /* @__PURE__ */ jsxRuntimeExports.jsx(SearchClansSection, { myPrincipal, onOpenClan }),
-    section === "create" && /* @__PURE__ */ jsxRuntimeExports.jsx(CreateClanSection, { onCreated: onClanCreated })
-  ] })
-] });
+        type: "button",
+        "data-ocid": `socials.clan_${id}_tab`,
+        onClick: () => onSectionChange(id),
+        className: `flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${section === id ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md" : "bg-white text-gray-600 border border-gray-200 hover:border-orange-300 hover:text-orange-600"}`,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { size: 13 }),
+          label
+        ]
+      },
+      id
+    )) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 px-4 pb-4", children: [
+      section === "mine" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        MyClansSection,
+        {
+          myPrincipal,
+          onOpenClan,
+          onGoSearch: () => onSectionChange("search"),
+          onGoCreate: () => onSectionChange("create")
+        }
+      ),
+      section === "search" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        SearchClansSection,
+        {
+          myPrincipal,
+          onOpenClan
+        }
+      ),
+      section === "create" && !isInClan && /* @__PURE__ */ jsxRuntimeExports.jsx(CreateClanSection, { onCreated: onClanCreated })
+    ] })
+  ] });
+};
 const MyClansSection = ({
   myPrincipal,
   onOpenClan,
@@ -39642,7 +39742,7 @@ const MyClansSection = ({
       {
         className: "text-center py-8 text-red-500 text-sm font-medium",
         "data-ocid": "socials.my_clans.error_state",
-        children: "Error loading clans"
+        children: "Error loading clan"
       }
     );
   }
@@ -39655,7 +39755,7 @@ const MyClansSection = ({
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-16 h-16 rounded-xl bg-gray-100 border border-gray-200 mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { size: 28, className: "text-gray-400" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-white font-black text-lg mb-2", children: "No Clan Yet" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500 text-sm max-w-xs mb-6", children: "You haven't joined a clan yet. Search or create one!" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-400 text-sm max-w-xs mb-6", children: "You are not in a clan yet. Search for an existing clan or create your own!" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
@@ -39686,16 +39786,400 @@ const MyClansSection = ({
       }
     );
   }
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col gap-2 pt-2", "data-ocid": "socials.my_clans.list", children: (myClans ?? []).map((clan, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-    ClanCard,
+  const clan = myClans[0];
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col gap-3 pt-2", "data-ocid": "socials.my_clans.list", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    MyClanInlineDetails,
     {
-      clan,
-      index: i + 1,
+      clanId: clan.id,
       myPrincipal,
-      onClick: () => onOpenClan(clan.id)
-    },
-    clan.id.toString()
-  )) });
+      onOpenChat: () => onOpenClan(clan.id),
+      onOpenPending: () => onOpenClan(clan.id)
+    }
+  ) });
+};
+const MyClanInlineDetails = ({
+  clanId,
+  myPrincipal,
+  onOpenChat,
+  onOpenPending
+}) => {
+  const { data: clan, isLoading, error } = useClanDetails(clanId);
+  const leaveClan = useLeaveClan();
+  const deleteClan = useDeleteClan();
+  const updateClan = useUpdateClan();
+  const [memberProfileOpen, setMemberProfileOpen] = reactExports.useState(null);
+  const [editOpen, setEditOpen] = reactExports.useState(false);
+  const [editDescription, setEditDescription] = reactExports.useState("");
+  const [editJoinMode, setEditJoinMode] = reactExports.useState(JoinMode.open);
+  const [editEmblemId, setEditEmblemId] = reactExports.useState(1);
+  const [saveSuccess, setSaveSuccess] = reactExports.useState(false);
+  if (isLoading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "flex flex-col gap-3",
+        "data-ocid": "socials.my_clan_inline.loading_state",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-32 rounded-xl bg-white border border-gray-200 animate-pulse" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-20 rounded-xl bg-white border border-gray-200 animate-pulse" })
+        ]
+      }
+    );
+  }
+  if (error || !clan) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "text-center py-8 text-red-500 text-sm font-medium",
+        "data-ocid": "socials.my_clan_inline.error_state",
+        children: "Clan could not be loaded"
+      }
+    );
+  }
+  if (memberProfileOpen) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      MemberProfileView,
+      {
+        member: memberProfileOpen,
+        myPrincipal,
+        onBack: () => setMemberProfileOpen(null)
+      }
+    );
+  }
+  const myText = (myPrincipal == null ? void 0 : myPrincipal.toText()) ?? "";
+  const isOwner = clan.ownerId.toText() === myText;
+  const isOpen = clan.joinMode === JoinMode.open;
+  const detailEmblem = getEmblem(clan.emblemId);
+  const openEdit = () => {
+    setEditDescription(clan.description ?? "");
+    setEditJoinMode(clan.joinMode);
+    setEditEmblemId(Number(clan.emblemId));
+    setSaveSuccess(false);
+    updateClan.reset();
+    setEditOpen(true);
+  };
+  const handleSave = () => {
+    updateClan.mutate(
+      {
+        clanId: clan.id,
+        description: editDescription.trim(),
+        joinMode: editJoinMode,
+        emblemId: editEmblemId
+      },
+      {
+        onSuccess: () => {
+          setSaveSuccess(true);
+          setTimeout(() => {
+            setEditOpen(false);
+            setSaveSuccess(false);
+          }, 1200);
+        }
+      }
+    );
+  };
+  if (editOpen) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-col gap-3", "data-ocid": "socials.edit_clan.panel", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-white border border-gray-200 shadow-xl p-5 flex flex-col gap-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { size: 16, className: "text-white" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-black font-black text-base flex-1", children: "Edit Clan" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            "data-ocid": "socials.edit_clan.close_button",
+            onClick: () => setEditOpen(false),
+            className: "flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 15 })
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold text-gray-500 uppercase tracking-wider", children: "Clan Name" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Lock, { size: 10, className: "text-gray-400" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] text-gray-400 font-medium", children: "cannot be changed" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-3 py-2.5 rounded-lg bg-gray-100 border border-gray-200 text-gray-400 text-sm select-none cursor-not-allowed", children: clan.name })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-bold text-gray-600 uppercase tracking-wider", children: "Clan Emblem" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "grid grid-cols-5 gap-2",
+            "data-ocid": "socials.edit_clan.emblem_picker",
+            children: CLAN_EMBLEMS.map((emblem) => {
+              const isSelected = emblem.id === editEmblemId;
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  "data-ocid": `socials.edit_clan.emblem_${emblem.id}`,
+                  onClick: () => setEditEmblemId(emblem.id),
+                  "aria-label": `Select ${emblem.name} emblem`,
+                  className: `relative flex items-center justify-center rounded-xl overflow-hidden transition-all duration-200 aspect-square ${isSelected ? "ring-2 ring-orange-500 scale-105 shadow-lg shadow-orange-200" : "hover:scale-105 hover:ring-2 hover:ring-orange-300 opacity-70 hover:opacity-100"}`,
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(emblem.Svg, { size: 56 }),
+                    isSelected && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 rounded-xl ring-2 ring-orange-500 pointer-events-none" })
+                  ]
+                },
+                emblem.id
+              );
+            })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-gray-500 text-center", children: [
+          "Selected:",
+          " ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-orange-600 font-semibold", children: getEmblem(editEmblemId).name })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1.5", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "label",
+          {
+            htmlFor: "edit-clan-desc",
+            className: "text-xs font-bold text-gray-600 uppercase tracking-wider",
+            children: "Description"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "textarea",
+          {
+            id: "edit-clan-desc",
+            placeholder: "What is your clan about?",
+            value: editDescription,
+            maxLength: 120,
+            onChange: (e) => setEditDescription(e.target.value),
+            rows: 2,
+            "data-ocid": "socials.edit_clan.description_textarea",
+            className: "px-3 py-2.5 rounded-lg bg-gray-50 border border-gray-200 text-black placeholder-gray-400 text-sm focus:outline-none focus:border-orange-400 transition-colors resize-none"
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold text-gray-600 uppercase tracking-wider", children: "Join Mode" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2", children: [
+          { mode: JoinMode.open, label: "🔓 Open to all" },
+          {
+            mode: JoinMode.requestRequired,
+            label: "📩 Request required"
+          }
+        ].map(({ mode, label }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            "data-ocid": `socials.edit_clan.join_mode_${mode}`,
+            onClick: () => setEditJoinMode(mode),
+            className: `flex-1 py-2.5 rounded-lg text-xs font-bold transition-all duration-200 border ${editJoinMode === mode ? "bg-gradient-to-r from-orange-500 to-orange-600 border-orange-500 text-white shadow-md" : "bg-gray-50 border-gray-200 text-gray-600 hover:border-orange-300"}`,
+            children: label
+          },
+          mode
+        )) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            "data-ocid": "socials.edit_clan.cancel_button",
+            onClick: () => setEditOpen(false),
+            disabled: updateClan.isPending,
+            className: "flex-1 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-bold hover:border-orange-300 hover:text-orange-600 transition-colors disabled:opacity-40",
+            children: "Cancel"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            "data-ocid": "socials.edit_clan.save_button",
+            disabled: updateClan.isPending || saveSuccess,
+            onClick: handleSave,
+            className: "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed",
+            children: updateClan.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" }),
+              "Saving…"
+            ] }) : saveSuccess ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 15 }),
+              "Saved!"
+            ] }) : "Save Changes"
+          }
+        )
+      ] }),
+      updateClan.isError && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "p",
+        {
+          className: "text-xs text-red-500 text-center -mt-2",
+          "data-ocid": "socials.edit_clan.error_state",
+          children: updateClan.error instanceof Error ? updateClan.error.message : "Error saving changes"
+        }
+      ),
+      saveSuccess && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "p",
+        {
+          className: "text-xs text-green-600 text-center -mt-2 font-medium",
+          "data-ocid": "socials.edit_clan.success_state",
+          children: "Clan updated successfully!"
+        }
+      )
+    ] }) });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "flex flex-col gap-3",
+      "data-ocid": "socials.my_clan_inline.panel",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-white border border-gray-200 shadow-xl p-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-orange-200", children: /* @__PURE__ */ jsxRuntimeExports.jsx(detailEmblem.Svg, { size: 56 }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-black font-black text-lg", children: clan.name }),
+                isOwner && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1 text-xs text-orange-600 font-bold", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Crown$1, { size: 11 }),
+                  "Founder"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "span",
+                  {
+                    className: `text-xs px-2 py-0.5 rounded-full font-bold ${isOpen ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"}`,
+                    children: isOpen ? "Open" : "Request Required"
+                  }
+                )
+              ] }),
+              clan.description && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 text-sm mt-1 break-words", children: clan.description }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 mt-2 text-xs text-gray-500", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 11 }),
+                  clan.members.length,
+                  "/50 Members"
+                ] }),
+                isOwner && clan.pendingCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1 text-orange-600 font-bold", children: [
+                  clan.pendingCount.toString(),
+                  " pending"
+                ] })
+              ] })
+            ] }),
+            isOwner && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                "data-ocid": "socials.my_clan_inline.edit_button",
+                onClick: openEdit,
+                "aria-label": "Edit clan",
+                className: "flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 hover:bg-orange-100 hover:text-orange-600 text-gray-500 transition-colors border border-gray-200 hover:border-orange-300 shrink-0",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { size: 14 })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 mt-4 flex-wrap", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                "data-ocid": "socials.my_clan_inline.chat_button",
+                onClick: onOpenChat,
+                className: "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MessageCircle, { size: 15 }),
+                  "Chat"
+                ]
+              }
+            ),
+            isOwner && clan.pendingCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                "data-ocid": "socials.my_clan_inline.pending_button",
+                onClick: onOpenPending,
+                className: "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-bold hover:border-orange-300 hover:text-orange-600 transition-colors",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 15 }),
+                  "Requests (",
+                  clan.pendingCount.toString(),
+                  ")"
+                ]
+              }
+            ),
+            isOwner ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                "data-ocid": "socials.my_clan_inline.delete_button",
+                disabled: deleteClan.isPending,
+                onClick: () => deleteClan.mutate(clan.id),
+                className: "flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 text-sm font-bold hover:bg-red-50 transition-colors disabled:opacity-40",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 15 }),
+                  deleteClan.isPending ? "…" : "Delete"
+                ]
+              }
+            ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                "data-ocid": "socials.my_clan_inline.leave_button",
+                disabled: leaveClan.isPending,
+                onClick: () => leaveClan.mutate(clan.id),
+                className: "flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 text-sm font-bold hover:bg-red-50 transition-colors disabled:opacity-40",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(UserMinus, { size: 15 }),
+                  leaveClan.isPending ? "…" : "Leave"
+                ]
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 px-4 py-3 border-b border-gray-100", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 14, className: "text-orange-500 shrink-0" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-xs font-black text-black uppercase tracking-wider", children: "Members" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-auto text-xs font-bold text-gray-500", children: [
+              clan.members.length,
+              "/50"
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "flex flex-col divide-y divide-gray-100",
+              "data-ocid": "socials.my_clan_inline.members_list",
+              children: clan.members.map((member, i) => {
+                const isOwnerRow = member.principal.toText() === clan.ownerId.toText();
+                const initials = (member.name || "??").slice(0, 2).toUpperCase();
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    "data-ocid": `socials.my_clan_inline.member.${i + 1}`,
+                    onClick: () => setMemberProfileOpen(member),
+                    className: "flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors text-left w-full",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-9 h-9 rounded-xl bg-orange-100 text-orange-600 font-black text-xs shrink-0 border border-orange-200", children: initials }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-black text-sm font-bold truncate", children: member.name || "Unknown" }),
+                          isOwnerRow && /* @__PURE__ */ jsxRuntimeExports.jsx(Crown$1, { size: 11, className: "text-orange-500 shrink-0" })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500", children: [
+                          "Level ",
+                          member.level.toString()
+                        ] })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { size: 14, className: "text-gray-300 shrink-0" })
+                    ]
+                  },
+                  member.principal.toText()
+                );
+              })
+            }
+          )
+        ] })
+      ]
+    }
+  );
 };
 const ClanCard = ({
   clan,
