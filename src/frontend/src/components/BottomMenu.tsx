@@ -140,16 +140,10 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
     },
   ];
 
-  const activeColor = (id: GameView) => {
-    if (id === "game" || id === "worldSelection") return "text-orange-400";
-    if (id === "socials") return "text-purple-400";
-    return "text-yellow-400";
-  };
-
   return (
     <div
-      className="bottom-menu fixed bottom-0 left-0 right-0 bg-gradient-to-t from-amber-800 via-amber-700 to-amber-600 border-t-4 border-amber-900 shadow-2xl"
-      style={{ zIndex }}
+      className="bottom-menu fixed bottom-0 left-0 right-0 border-t border-white/10 shadow-2xl"
+      style={{ zIndex, background: "#0a0a0a" }}
     >
       <div className="flex items-center justify-around px-1 py-1">
         {tabs.map(({ id, icon: Icon, label, ocid, authGated }) => {
@@ -161,7 +155,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
               type="button"
               data-ocid={ocid}
               onClick={() => handleViewChange(id)}
-              className="flex flex-col items-center justify-center w-12 h-12 transition-all duration-200 hover:scale-110 active:scale-95 gap-0.5"
+              className="flex flex-col items-center justify-center w-12 h-12 transition-all duration-200 hover:scale-110 active:scale-95 gap-0.5 relative"
               aria-label={label}
               aria-current={isActive ? "page" : undefined}
             >
@@ -169,19 +163,19 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
                 size={20}
                 className={`transition-colors duration-200 ${
                   isActive
-                    ? activeColor(id)
+                    ? "text-white"
                     : dimmed
-                      ? "text-amber-600/50 opacity-60"
-                      : "text-white hover:text-yellow-200"
+                      ? "text-zinc-700 opacity-50"
+                      : "text-zinc-500 hover:text-zinc-200"
                 }`}
               />
               <span
                 className={`text-[9px] leading-none font-medium transition-colors duration-200 ${
                   isActive
-                    ? activeColor(id)
+                    ? "text-white"
                     : dimmed
-                      ? "text-amber-600/50 opacity-60"
-                      : "text-white/70"
+                      ? "text-zinc-700 opacity-50"
+                      : "text-zinc-500"
                 }`}
               >
                 {label}
@@ -190,7 +184,6 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
           );
         })}
       </div>
-      <div className="h-1 bg-gradient-to-r from-amber-900 via-yellow-600 to-amber-900" />
     </div>
   );
 };
