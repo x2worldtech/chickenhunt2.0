@@ -68,6 +68,10 @@ const WORLDS: { id: BackgroundWorld; name: string }[] = [
   { id: "sky", name: "Heaven" },
   { id: "cyberpunk", name: "Cyberpunk City" },
   { id: "caffeineai", name: "CaffeineAI" },
+  { id: "zombietown", name: "ZombieTown" },
+  { id: "halloween", name: "Halloween" },
+  { id: "tokyo", name: "Tokyo" },
+  { id: "internetcomputer", name: "Internet Computer" },
 ];
 
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
@@ -82,6 +86,10 @@ const START_BUTTON_CLASSES: Record<BackgroundWorld, string> = {
   sky: "start-game-button-sky",
   cyberpunk: "start-game-button-cyberpunk",
   caffeineai: "start-game-button-caffeineai",
+  zombietown: "start-game-button-zombietown",
+  halloween: "start-game-button-halloween",
+  tokyo: "start-game-button-tokyo",
+  internetcomputer: "start-game-button-internetcomputer",
 };
 
 const StartScreen: React.FC<StartScreenProps> = ({

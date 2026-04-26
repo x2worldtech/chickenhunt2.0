@@ -23,7 +23,11 @@ export type BackgroundWorld =
   | "snowy"
   | "sky"
   | "cyberpunk"
-  | "caffeineai";
+  | "caffeineai"
+  | "zombietown"
+  | "halloween"
+  | "tokyo"
+  | "internetcomputer";
 
 export interface PlayerData {
   level: number;
@@ -79,6 +83,10 @@ const VALID_WORLDS: BackgroundWorld[] = [
   "sky",
   "cyberpunk",
   "caffeineai",
+  "zombietown",
+  "halloween",
+  "tokyo",
+  "internetcomputer",
 ];
 
 const DEFAULT_PLAYER_DATA: PlayerData = {

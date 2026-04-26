@@ -5155,6 +5155,4610 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ world }) => {
     </svg>
   );
 
+  const renderZombietownWorld = () => (
+    <svg
+      role="img"
+      aria-label="ZombieTown world background"
+      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <defs>
+        {/* Dark eerie sky */}
+        <linearGradient id="zombieSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#030506" />
+          <stop offset="35%" stopColor="#080d08" />
+          <stop offset="70%" stopColor="#0d1509" />
+          <stop offset="100%" stopColor="#0a1007" />
+        </linearGradient>
+        {/* Ground gradient — dark soil */}
+        <linearGradient id="zombieGroundGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#0e1209" />
+          <stop offset="50%" stopColor="#080d05" />
+          <stop offset="100%" stopColor="#040704" />
+        </linearGradient>
+        {/* Building fire glow gradients */}
+        <radialGradient id="fireGlow1" cx="50%" cy="80%" r="50%">
+          <stop offset="0%" stopColor="#8b2a00" stopOpacity="0.55" />
+          <stop offset="60%" stopColor="#5a1400" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="#3a0800" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="fireGlow2" cx="50%" cy="80%" r="50%">
+          <stop offset="0%" stopColor="#6b1800" stopOpacity="0.45" />
+          <stop offset="60%" stopColor="#420f00" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#280600" stopOpacity="0" />
+        </radialGradient>
+        {/* Fog layer gradients */}
+        <linearGradient id="fogGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#1e3320" stopOpacity="0" />
+          <stop offset="20%" stopColor="#1e3320" stopOpacity="0.55" />
+          <stop offset="50%" stopColor="#253d27" stopOpacity="0.7" />
+          <stop offset="80%" stopColor="#1e3320" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#1e3320" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="fogGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#182818" stopOpacity="0" />
+          <stop offset="30%" stopColor="#182818" stopOpacity="0.6" />
+          <stop offset="60%" stopColor="#1e3020" stopOpacity="0.75" />
+          <stop offset="100%" stopColor="#182818" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="fogGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#203320" stopOpacity="0.5" />
+          <stop offset="40%" stopColor="#253d25" stopOpacity="0.65" />
+          <stop offset="70%" stopColor="#1e3020" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#203320" stopOpacity="0.4" />
+        </linearGradient>
+        {/* Moon glow */}
+        <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#c8d88a" stopOpacity="0.9" />
+          <stop offset="40%" stopColor="#a8b870" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#7a9050" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="moonFace" cx="40%" cy="35%" r="70%">
+          <stop offset="0%" stopColor="#d4e496" />
+          <stop offset="100%" stopColor="#8aaa50" />
+        </radialGradient>
+        {/* Flickering torch glow */}
+        <radialGradient id="torchGlow1" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#8b3a00" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#8b3a00" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="torchGlow2" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#7a2800" stopOpacity="0.65" />
+          <stop offset="100%" stopColor="#7a2800" stopOpacity="0" />
+        </radialGradient>
+        {/* Blood splatter gradient */}
+        <radialGradient id="bloodGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#5a0000" />
+          <stop offset="70%" stopColor="#3d0000" />
+          <stop offset="100%" stopColor="#1e0000" stopOpacity="0.3" />
+        </radialGradient>
+        {/* Window fire orange glow */}
+        <radialGradient id="winFire1" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#c04800" stopOpacity="0.85" />
+          <stop offset="60%" stopColor="#801800" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#400800" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="winFire2" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#a03000" stopOpacity="0.75" />
+          <stop offset="60%" stopColor="#601000" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="#300600" stopOpacity="0" />
+        </radialGradient>
+        {/* Fog animation */}
+        <style>{`
+          @keyframes fogDrift1 {
+            0% { transform: translateX(-80px); }
+            100% { transform: translateX(80px); }
+          }
+          @keyframes fogDrift2 {
+            0% { transform: translateX(60px); }
+            100% { transform: translateX(-100px); }
+          }
+          @keyframes fogDrift3 {
+            0% { transform: translateX(-40px); }
+            100% { transform: translateX(90px); }
+          }
+          @keyframes fogDrift4 {
+            0% { transform: translateX(100px); }
+            100% { transform: translateX(-60px); }
+          }
+          @keyframes torchFlicker {
+            0%,100% { opacity: 0.7; transform: scaleY(1) scaleX(1); }
+            20% { opacity: 0.5; transform: scaleY(0.9) scaleX(1.1); }
+            40% { opacity: 0.85; transform: scaleY(1.1) scaleX(0.95); }
+            60% { opacity: 0.6; transform: scaleY(0.95) scaleX(1.05); }
+            80% { opacity: 0.8; transform: scaleY(1.05) scaleX(1); }
+          }
+          @keyframes torchFlicker2 {
+            0%,100% { opacity: 0.65; transform: scaleY(1.05) scaleX(0.95); }
+            25% { opacity: 0.85; transform: scaleY(0.92) scaleX(1.08); }
+            50% { opacity: 0.55; transform: scaleY(1.08) scaleX(0.93); }
+            75% { opacity: 0.75; transform: scaleY(0.97) scaleX(1.02); }
+          }
+        `}</style>
+      </defs>
+
+      {/* === SKY === */}
+      <rect width="1200" height="800" fill="url(#zombieSkyGrad)" />
+
+      {/* === MOON & GLOW === */}
+      <ellipse
+        cx="900"
+        cy="100"
+        rx="90"
+        ry="90"
+        fill="url(#moonGlow)"
+        opacity="0.5"
+      />
+      <ellipse
+        cx="900"
+        cy="100"
+        rx="48"
+        ry="48"
+        fill="url(#moonGlow)"
+        opacity="0.4"
+      />
+      <circle cx="900" cy="100" r="34" fill="url(#moonFace)" />
+      {/* Moon craters */}
+      <circle cx="892" cy="90" r="5" fill="#7a9a48" opacity="0.6" />
+      <circle cx="912" cy="108" r="3.5" fill="#7a9a48" opacity="0.5" />
+      <circle cx="884" cy="110" r="4" fill="#7a9a48" opacity="0.5" />
+
+      {/* === BATS (static V-shapes scattered in upper sky) === */}
+      {/* Bat 1 */}
+      <g transform="translate(180, 85)" fill="#080e06" opacity="0.8">
+        <path d="M0,-4 Q-10,-12 -18,-8 Q-12,-4 -6,-2 Z" />
+        <path d="M0,-4 Q10,-12 18,-8 Q12,-4 6,-2 Z" />
+        <ellipse cx="0" cy="-3" rx="3" ry="4" />
+      </g>
+      {/* Bat 2 */}
+      <g transform="translate(420, 55)" fill="#070d05" opacity="0.75">
+        <path d="M0,-5 Q-12,-14 -22,-9 Q-14,-5 -7,-2 Z" />
+        <path d="M0,-5 Q12,-14 22,-9 Q14,-5 7,-2 Z" />
+        <ellipse cx="0" cy="-3" rx="3.5" ry="4.5" />
+      </g>
+      {/* Bat 3 */}
+      <g transform="translate(650, 110)" fill="#080e06" opacity="0.7">
+        <path d="M0,-3.5 Q-8,-10 -15,-7 Q-10,-3 -5,-1.5 Z" />
+        <path d="M0,-3.5 Q8,-10 15,-7 Q10,-3 5,-1.5 Z" />
+        <ellipse cx="0" cy="-2.5" rx="2.5" ry="3.5" />
+      </g>
+      {/* Bat 4 */}
+      <g transform="translate(800, 68)" fill="#070c05" opacity="0.78">
+        <path d="M0,-5 Q-11,-13 -20,-9 Q-13,-4 -6,-2 Z" />
+        <path d="M0,-5 Q11,-13 20,-9 Q13,-4 6,-2 Z" />
+        <ellipse cx="0" cy="-3" rx="3" ry="4" />
+      </g>
+      {/* Bat 5 */}
+      <g transform="translate(1080, 92)" fill="#080d06" opacity="0.72">
+        <path d="M0,-4 Q-9,-11 -17,-8 Q-11,-3.5 -5.5,-1.5 Z" />
+        <path d="M0,-4 Q9,-11 17,-8 Q11,-3.5 5.5,-1.5 Z" />
+        <ellipse cx="0" cy="-2.5" rx="2.5" ry="3.5" />
+      </g>
+
+      {/* === RUINED BUILDINGS — FAR BACKGROUND (darkest layer) === */}
+
+      {/* --- RUIN A: Collapsed factory/warehouse (far left background) --- */}
+      <g opacity="0.88">
+        {/* Main wall — far, very dark */}
+        <polygon
+          points="30,480 30,290 130,290 130,320 145,310 160,320 160,480"
+          fill="#0a0a0a"
+        />
+        {/* Collapsed right section — lower jagged edge */}
+        <polygon
+          points="130,290 130,350 160,330 175,360 190,340 195,380 210,480 130,480"
+          fill="#0c0c0c"
+        />
+        {/* Broken top edge — jagged */}
+        <polygon
+          points="30,290 45,275 55,282 65,265 75,278 90,260 100,270 115,255 130,290"
+          fill="#0a0a0a"
+        />
+        {/* Exposed interior floor lines */}
+        <line
+          x1="32"
+          y1="360"
+          x2="128"
+          y2="360"
+          stroke="#161210"
+          strokeWidth="1.5"
+          opacity="0.7"
+        />
+        <line
+          x1="32"
+          y1="400"
+          x2="128"
+          y2="400"
+          stroke="#161210"
+          strokeWidth="1.5"
+          opacity="0.6"
+        />
+        <line
+          x1="32"
+          y1="440"
+          x2="128"
+          y2="440"
+          stroke="#161210"
+          strokeWidth="1"
+          opacity="0.5"
+        />
+        {/* Windows — dark hollow */}
+        <rect x="40" y="300" width="22" height="16" fill="#050505" />
+        <rect x="75" y="300" width="22" height="16" fill="#050505" />
+        <rect x="40" y="370" width="22" height="18" fill="#050505" />
+        <rect x="75" y="370" width="22" height="18" fill="#050505" />
+        {/* Window fire glow — one lit window */}
+        <rect
+          x="75"
+          y="300"
+          width="22"
+          height="16"
+          fill="url(#winFire2)"
+          opacity="0.65"
+        />
+        {/* Wall cracks */}
+        <polyline
+          points="55,310 58,330 53,345 57,365"
+          fill="none"
+          stroke="#1a1414"
+          strokeWidth="1.2"
+          opacity="0.8"
+        />
+        <polyline
+          points="100,340 103,355 99,370"
+          fill="none"
+          stroke="#1a1414"
+          strokeWidth="1"
+          opacity="0.7"
+        />
+        {/* Rubble pile base */}
+        <polygon
+          points="30,475 55,455 80,465 110,450 150,465 190,455 210,475 210,480 30,480"
+          fill="#111111"
+          opacity="0.9"
+        />
+        <ellipse cx="90" cy="475" rx="30" ry="8" fill="#0e0e0e" opacity="0.8" />
+        <ellipse
+          cx="160"
+          cy="472"
+          rx="20"
+          ry="6"
+          fill="#0d0d0d"
+          opacity="0.7"
+        />
+      </g>
+
+      {/* --- RUIN B: Tall partially-collapsed skyscraper (center-left background) --- */}
+      <g opacity="0.9">
+        {/* Main tower body */}
+        <polygon
+          points="390,480 390,160 430,160 430,200 450,185 455,200 460,480"
+          fill="#0d0d0d"
+        />
+        {/* Collapsed upper section — missing chunk right side */}
+        <polygon
+          points="430,160 430,220 460,205 465,230 480,215 480,480 460,480"
+          fill="#111111"
+        />
+        {/* Jagged broken top */}
+        <polygon
+          points="390,160 400,140 408,150 415,130 422,145 430,135 430,160"
+          fill="#0d0d0d"
+        />
+        {/* Church-style broken spire remnant */}
+        <polygon points="405,135 410,100 416,135" fill="#0e0e0e" />
+        <line
+          x1="410"
+          y1="100"
+          x2="406"
+          y2="112"
+          stroke="#141010"
+          strokeWidth="1"
+          opacity="0.6"
+        />
+        {/* Exposed floor lines */}
+        <line
+          x1="392"
+          y1="220"
+          x2="458"
+          y2="220"
+          stroke="#1c1818"
+          strokeWidth="1.5"
+          opacity="0.6"
+        />
+        <line
+          x1="392"
+          y1="270"
+          x2="458"
+          y2="270"
+          stroke="#1c1818"
+          strokeWidth="1.5"
+          opacity="0.55"
+        />
+        <line
+          x1="392"
+          y1="320"
+          x2="458"
+          y2="320"
+          stroke="#1c1818"
+          strokeWidth="1.2"
+          opacity="0.5"
+        />
+        <line
+          x1="392"
+          y1="370"
+          x2="458"
+          y2="370"
+          stroke="#1c1818"
+          strokeWidth="1.2"
+          opacity="0.45"
+        />
+        <line
+          x1="392"
+          y1="420"
+          x2="458"
+          y2="420"
+          stroke="#1c1818"
+          strokeWidth="1"
+          opacity="0.4"
+        />
+        {/* Windows — some glowing */}
+        <rect x="397" y="170" width="14" height="18" fill="#050505" />
+        <rect x="420" y="170" width="14" height="18" fill="#050505" />
+        <rect x="397" y="230" width="14" height="18" fill="#050505" />
+        <rect x="420" y="230" width="14" height="18" fill="#050505" />
+        <rect x="397" y="285" width="14" height="18" fill="#050505" />
+        <rect x="420" y="285" width="14" height="18" fill="#050505" />
+        <rect x="397" y="340" width="14" height="18" fill="#050505" />
+        <rect x="420" y="340" width="14" height="18" fill="#050505" />
+        {/* Fire-lit windows */}
+        <rect
+          x="397"
+          y="230"
+          width="14"
+          height="18"
+          fill="url(#winFire1)"
+          opacity="0.8"
+        />
+        <rect
+          x="420"
+          y="285"
+          width="14"
+          height="18"
+          fill="url(#winFire1)"
+          opacity="0.7"
+        />
+        {/* Fire glow emanating from windows */}
+        <ellipse
+          cx="404"
+          cy="239"
+          rx="20"
+          ry="14"
+          fill="url(#fireGlow1)"
+          opacity="0.5"
+        />
+        <ellipse
+          cx="427"
+          cy="294"
+          rx="18"
+          ry="12"
+          fill="url(#fireGlow2)"
+          opacity="0.45"
+        />
+        {/* Wall cracks */}
+        <polyline
+          points="410,195 408,215 412,235 409,250"
+          fill="none"
+          stroke="#201818"
+          strokeWidth="1.3"
+          opacity="0.8"
+        />
+        <polyline
+          points="435,280 432,300 436,315"
+          fill="none"
+          stroke="#201818"
+          strokeWidth="1.1"
+          opacity="0.7"
+        />
+        <line
+          x1="400"
+          y1="370"
+          x2="395"
+          y2="420"
+          stroke="#1a1414"
+          strokeWidth="1"
+          opacity="0.6"
+        />
+        {/* Rubble base */}
+        <polygon
+          points="385,475 405,458 430,468 455,455 475,462 480,475 480,480 385,480"
+          fill="#111111"
+          opacity="0.9"
+        />
+        <polygon
+          points="395,472 415,463 435,470 455,461 470,470 470,475 395,475"
+          fill="#0e0e0e"
+          opacity="0.7"
+        />
+      </g>
+
+      {/* --- RUIN C: Church ruin with broken spire (far right background) --- */}
+      <g opacity="0.87">
+        {/* Main nave body */}
+        <polygon points="1000,480 1000,300 1100,300 1100,480" fill="#0b0b0b" />
+        {/* Bell tower left */}
+        <polygon points="1000,300 1000,200 1030,200 1030,300" fill="#0e0e0e" />
+        {/* Broken spire — collapsed at angle */}
+        <polygon points="1010,200 1015,155 1025,200" fill="#0c0c0c" />
+        <polygon
+          points="1018,165 1040,175 1030,182 1035,190 1015,185"
+          fill="#0a0a0a"
+        />
+        {/* Right section — collapsed wall */}
+        <polygon
+          points="1100,300 1100,350 1130,330 1145,355 1160,335 1170,370 1175,480 1100,480"
+          fill="#0d0d0d"
+        />
+        {/* Broken top of nave */}
+        <polygon
+          points="1000,300 1010,285 1020,294 1035,278 1048,288 1062,272 1075,283 1088,268 1100,300"
+          fill="#0b0b0b"
+        />
+        {/* Arched windows */}
+        <path
+          d="M1015,320 L1015,355 Q1025,365 1035,355 L1035,320 Z"
+          fill="#050505"
+        />
+        <path
+          d="M1055,320 L1055,355 Q1065,365 1075,355 L1075,320 Z"
+          fill="#050505"
+        />
+        {/* Church window fire glow */}
+        <path
+          d="M1015,320 L1015,355 Q1025,365 1035,355 L1035,320 Z"
+          fill="url(#winFire1)"
+          opacity="0.7"
+        />
+        {/* Bell tower window */}
+        <rect x="1008" y="220" width="16" height="20" rx="2" fill="#050505" />
+        <rect x="1008" y="255" width="16" height="15" rx="2" fill="#050505" />
+        {/* Exposed floor lines */}
+        <line
+          x1="1002"
+          y1="370"
+          x2="1098"
+          y2="370"
+          stroke="#1a1818"
+          strokeWidth="1.2"
+          opacity="0.5"
+        />
+        <line
+          x1="1002"
+          y1="420"
+          x2="1098"
+          y2="420"
+          stroke="#1a1818"
+          strokeWidth="1"
+          opacity="0.4"
+        />
+        {/* Cracks */}
+        <polyline
+          points="1045,310 1043,335 1047,350 1044,380"
+          fill="none"
+          stroke="#1c1414"
+          strokeWidth="1.2"
+          opacity="0.75"
+        />
+        <polyline
+          points="1070,350 1073,370 1069,390"
+          fill="none"
+          stroke="#1c1414"
+          strokeWidth="1"
+          opacity="0.65"
+        />
+        {/* Rubble base */}
+        <polygon
+          points="995,475 1015,460 1040,468 1065,455 1090,463 1115,452 1140,462 1175,472 1175,480 995,480"
+          fill="#111111"
+          opacity="0.88"
+        />
+        <ellipse
+          cx="1050"
+          cy="475"
+          rx="35"
+          ry="8"
+          fill="#0d0d0d"
+          opacity="0.7"
+        />
+      </g>
+
+      {/* --- RUIN D: Low collapsed warehouse (right midground) --- */}
+      <g opacity="0.85">
+        {/* Main structure */}
+        <polygon
+          points="700,480 700,340 760,340 760,320 800,320 800,340 850,340 850,480"
+          fill="#0c0c0c"
+        />
+        {/* Collapsed roof section */}
+        <polygon
+          points="750,340 755,305 775,295 790,308 810,298 820,318 840,310 850,340"
+          fill="#0e0e0e"
+        />
+        {/* Broken jagged top */}
+        <polygon
+          points="760,340 760,325 770,315 778,325 785,310 792,323 800,315 800,340"
+          fill="#0d0d0d"
+        />
+        {/* Loading dock opening — dark hollow */}
+        <rect x="740" y="400" width="40" height="70" fill="#050505" />
+        <rect x="790" y="405" width="35" height="65" fill="#050505" />
+        {/* Windows */}
+        <rect x="710" y="355" width="18" height="14" fill="#050505" />
+        <rect x="820" y="355" width="18" height="14" fill="#050505" />
+        <rect
+          x="820"
+          y="355"
+          width="18"
+          height="14"
+          fill="url(#winFire2)"
+          opacity="0.6"
+        />
+        {/* Exposed floor */}
+        <line
+          x1="702"
+          y1="390"
+          x2="848"
+          y2="390"
+          stroke="#181614"
+          strokeWidth="1.2"
+          opacity="0.5"
+        />
+        <line
+          x1="702"
+          y1="440"
+          x2="848"
+          y2="440"
+          stroke="#181614"
+          strokeWidth="1"
+          opacity="0.4"
+        />
+        {/* Wall crack */}
+        <polyline
+          points="775,340 778,360 774,385 777,410"
+          fill="none"
+          stroke="#1e1a14"
+          strokeWidth="1.3"
+          opacity="0.7"
+        />
+        {/* Rubble */}
+        <polygon
+          points="700,475 720,463 745,472 770,460 800,468 830,458 850,468 850,480 700,480"
+          fill="#111111"
+          opacity="0.85"
+        />
+      </g>
+
+      {/* === BACKGROUND DEAD TREES (far, small, enhanced with extra branches) === */}
+      <g>
+        {/* tree bg-1 */}
+        <line
+          x1="80"
+          y1="480"
+          x2="80"
+          y2="310"
+          stroke="#131b10"
+          strokeWidth="8"
+        />
+        <line
+          x1="80"
+          y1="370"
+          x2="40"
+          y2="320"
+          stroke="#131b10"
+          strokeWidth="4"
+        />
+        <line
+          x1="80"
+          y1="350"
+          x2="118"
+          y2="300"
+          stroke="#131b10"
+          strokeWidth="4"
+        />
+        <line
+          x1="80"
+          y1="330"
+          x2="55"
+          y2="290"
+          stroke="#131b10"
+          strokeWidth="3"
+        />
+        <line
+          x1="55"
+          y1="290"
+          x2="42"
+          y2="275"
+          stroke="#131b10"
+          strokeWidth="2"
+        />
+        <line
+          x1="40"
+          y1="320"
+          x2="25"
+          y2="305"
+          stroke="#131b10"
+          strokeWidth="2"
+        />
+        {/* tree bg-2 */}
+        <line
+          x1="220"
+          y1="480"
+          x2="218"
+          y2="295"
+          stroke="#0f1a0c"
+          strokeWidth="7"
+        />
+        <line
+          x1="218"
+          y1="360"
+          x2="185"
+          y2="308"
+          stroke="#0f1a0c"
+          strokeWidth="3.5"
+        />
+        <line
+          x1="218"
+          y1="340"
+          x2="252"
+          y2="295"
+          stroke="#0f1a0c"
+          strokeWidth="3.5"
+        />
+        <line
+          x1="185"
+          y1="308"
+          x2="172"
+          y2="295"
+          stroke="#0f1a0c"
+          strokeWidth="2"
+        />
+        <line
+          x1="252"
+          y1="295"
+          x2="264"
+          y2="280"
+          stroke="#0f1a0c"
+          strokeWidth="2"
+        />
+        {/* tree bg-3 */}
+        <line
+          x1="490"
+          y1="480"
+          x2="492"
+          y2="300"
+          stroke="#111a0d"
+          strokeWidth="7"
+        />
+        <line
+          x1="492"
+          y1="360"
+          x2="455"
+          y2="312"
+          stroke="#111a0d"
+          strokeWidth="3.5"
+        />
+        <line
+          x1="492"
+          y1="340"
+          x2="528"
+          y2="298"
+          stroke="#111a0d"
+          strokeWidth="3.5"
+        />
+        <line
+          x1="492"
+          y1="320"
+          x2="510"
+          y2="278"
+          stroke="#111a0d"
+          strokeWidth="2.5"
+        />
+        <line
+          x1="455"
+          y1="312"
+          x2="440"
+          y2="298"
+          stroke="#111a0d"
+          strokeWidth="2"
+        />
+        <line
+          x1="510"
+          y1="278"
+          x2="522"
+          y2="262"
+          stroke="#111a0d"
+          strokeWidth="1.8"
+        />
+        {/* tree bg-4 */}
+        <line
+          x1="730"
+          y1="480"
+          x2="728"
+          y2="305"
+          stroke="#101808"
+          strokeWidth="7"
+        />
+        <line
+          x1="728"
+          y1="370"
+          x2="695"
+          y2="315"
+          stroke="#101808"
+          strokeWidth="3.5"
+        />
+        <line
+          x1="728"
+          y1="345"
+          x2="762"
+          y2="300"
+          stroke="#101808"
+          strokeWidth="3.5"
+        />
+        <line
+          x1="695"
+          y1="315"
+          x2="682"
+          y2="300"
+          stroke="#101808"
+          strokeWidth="2"
+        />
+        <line
+          x1="762"
+          y1="300"
+          x2="775"
+          y2="285"
+          stroke="#101808"
+          strokeWidth="2"
+        />
+        {/* tree bg-5 */}
+        <line
+          x1="1050"
+          y1="480"
+          x2="1048"
+          y2="295"
+          stroke="#131b0e"
+          strokeWidth="7"
+        />
+        <line
+          x1="1048"
+          y1="355"
+          x2="1015"
+          y2="308"
+          stroke="#131b0e"
+          strokeWidth="3.5"
+        />
+        <line
+          x1="1048"
+          y1="335"
+          x2="1082"
+          y2="292"
+          stroke="#131b0e"
+          strokeWidth="3.5"
+        />
+        <line
+          x1="1048"
+          y1="318"
+          x2="1030"
+          y2="278"
+          stroke="#131b0e"
+          strokeWidth="2.5"
+        />
+        <line
+          x1="1015"
+          y1="308"
+          x2="1002"
+          y2="293"
+          stroke="#131b0e"
+          strokeWidth="2"
+        />
+        <line
+          x1="1082"
+          y1="292"
+          x2="1094"
+          y2="278"
+          stroke="#131b0e"
+          strokeWidth="2"
+        />
+      </g>
+
+      {/* === GROUND === */}
+      <rect
+        x="0"
+        y="480"
+        width="1200"
+        height="320"
+        fill="url(#zombieGroundGrad)"
+      />
+      {/* Ground horizon edge — slightly lighter */}
+      <path
+        d="M0,480 Q200,472 400,478 Q600,484 800,475 Q1000,468 1200,476 L1200,480 L0,480 Z"
+        fill="#151f10"
+      />
+
+      {/* === BLOOD SPLATTERS & PUDDLES === */}
+      <ellipse
+        cx="150"
+        cy="620"
+        rx="55"
+        ry="22"
+        fill="#3d0000"
+        opacity="0.85"
+      />
+      <ellipse cx="155" cy="618" rx="35" ry="13" fill="#5a0000" opacity="0.7" />
+      <ellipse
+        cx="100"
+        cy="608"
+        rx="8"
+        ry="4"
+        fill="#4a0000"
+        opacity="0.8"
+        transform="rotate(-15 100 608)"
+      />
+      <ellipse
+        cx="200"
+        cy="630"
+        rx="6"
+        ry="3"
+        fill="#4a0000"
+        opacity="0.7"
+        transform="rotate(10 200 630)"
+      />
+      <circle cx="185" cy="605" r="4" fill="#420000" opacity="0.75" />
+      <circle cx="120" cy="635" r="5" fill="#380000" opacity="0.65" />
+      <ellipse cx="600" cy="680" rx="70" ry="26" fill="#3a0000" opacity="0.8" />
+      <ellipse cx="605" cy="678" rx="45" ry="16" fill="#560000" opacity="0.7" />
+      <circle cx="540" cy="668" r="5" fill="#440000" opacity="0.8" />
+      <circle cx="660" cy="692" r="4" fill="#440000" opacity="0.7" />
+      <ellipse
+        cx="625"
+        cy="660"
+        rx="7"
+        ry="3.5"
+        fill="#4e0000"
+        opacity="0.75"
+        transform="rotate(20 625 660)"
+      />
+      <ellipse
+        cx="980"
+        cy="640"
+        rx="60"
+        ry="24"
+        fill="#3d0000"
+        opacity="0.82"
+      />
+      <ellipse cx="984" cy="638" rx="38" ry="15" fill="#580000" opacity="0.7" />
+      <circle cx="920" cy="628" r="5" fill="#420000" opacity="0.75" />
+      <ellipse
+        cx="1040"
+        cy="652"
+        rx="6"
+        ry="3"
+        fill="#4a0000"
+        opacity="0.68"
+        transform="rotate(-8 1040 652)"
+      />
+      <circle cx="340" cy="590" r="4" fill="#450000" opacity="0.7" />
+      <circle cx="355" cy="596" r="3" fill="#3e0000" opacity="0.65" />
+      <circle cx="820" cy="560" r="3.5" fill="#420000" opacity="0.7" />
+      <ellipse
+        cx="760"
+        cy="570"
+        rx="5"
+        ry="2.5"
+        fill="#400000"
+        opacity="0.65"
+        transform="rotate(12 760 570)"
+      />
+
+      {/* === TORCH POSTS === */}
+      <g transform="translate(280, 480)">
+        <rect
+          x="-5"
+          y="-140"
+          width="10"
+          height="140"
+          fill="#1a1208"
+          stroke="#0f0c06"
+          strokeWidth="1"
+        />
+        <rect x="-9" y="-148" width="18" height="20" fill="#251a0a" rx="2" />
+        <g
+          style={{
+            animation: "torchFlicker 1.8s ease-in-out infinite",
+            transformOrigin: "280px 336px",
+          }}
+        >
+          <ellipse
+            cx="0"
+            cy="-158"
+            rx="14"
+            ry="18"
+            fill="#8b3a00"
+            opacity="0.9"
+          />
+          <ellipse
+            cx="0"
+            cy="-164"
+            rx="9"
+            ry="13"
+            fill="#c45a00"
+            opacity="0.85"
+          />
+          <ellipse
+            cx="0"
+            cy="-169"
+            rx="5"
+            ry="8"
+            fill="#e87800"
+            opacity="0.8"
+          />
+          <ellipse
+            cx="0"
+            cy="-172"
+            rx="3"
+            ry="5"
+            fill="#ffa030"
+            opacity="0.9"
+          />
+        </g>
+        <ellipse
+          cx="0"
+          cy="10"
+          rx="60"
+          ry="20"
+          fill="url(#torchGlow1)"
+          opacity="0.5"
+          style={{ animation: "torchFlicker 1.8s ease-in-out infinite" }}
+        />
+      </g>
+      <g transform="translate(920, 480)">
+        <rect
+          x="-5"
+          y="-140"
+          width="10"
+          height="140"
+          fill="#1a1208"
+          stroke="#0f0c06"
+          strokeWidth="1"
+        />
+        <rect x="-9" y="-148" width="18" height="20" fill="#251a0a" rx="2" />
+        <g
+          style={{
+            animation: "torchFlicker2 2.1s ease-in-out infinite",
+            transformOrigin: "920px 336px",
+          }}
+        >
+          <ellipse
+            cx="0"
+            cy="-158"
+            rx="14"
+            ry="18"
+            fill="#8b3a00"
+            opacity="0.9"
+          />
+          <ellipse
+            cx="0"
+            cy="-164"
+            rx="9"
+            ry="13"
+            fill="#c45a00"
+            opacity="0.85"
+          />
+          <ellipse
+            cx="0"
+            cy="-169"
+            rx="5"
+            ry="8"
+            fill="#e87800"
+            opacity="0.8"
+          />
+          <ellipse
+            cx="0"
+            cy="-172"
+            rx="3"
+            ry="5"
+            fill="#ffa030"
+            opacity="0.9"
+          />
+        </g>
+        <ellipse
+          cx="0"
+          cy="10"
+          rx="60"
+          ry="20"
+          fill="url(#torchGlow2)"
+          opacity="0.45"
+          style={{ animation: "torchFlicker2 2.1s ease-in-out infinite" }}
+        />
+      </g>
+
+      {/* === FOREGROUND DEAD TREES (large, near, enhanced branches) === */}
+      <g>
+        {/* Tree FG-1 (left) */}
+        <line
+          x1="50"
+          y1="800"
+          x2="52"
+          y2="440"
+          stroke="#0e1609"
+          strokeWidth="18"
+        />
+        <line
+          x1="52"
+          y1="570"
+          x2="5"
+          y2="490"
+          stroke="#0e1609"
+          strokeWidth="9"
+        />
+        <line
+          x1="52"
+          y1="540"
+          x2="110"
+          y2="465"
+          stroke="#0e1609"
+          strokeWidth="8"
+        />
+        <line
+          x1="52"
+          y1="515"
+          x2="20"
+          y2="452"
+          stroke="#0e1609"
+          strokeWidth="6"
+        />
+        <line
+          x1="52"
+          y1="490"
+          x2="90"
+          y2="438"
+          stroke="#0e1609"
+          strokeWidth="6"
+        />
+        <line
+          x1="52"
+          y1="470"
+          x2="30"
+          y2="425"
+          stroke="#0e1609"
+          strokeWidth="5"
+        />
+        <line
+          x1="5"
+          y1="490"
+          x2="-8"
+          y2="472"
+          stroke="#0e1609"
+          strokeWidth="4"
+        />
+        <line
+          x1="110"
+          y1="465"
+          x2="130"
+          y2="448"
+          stroke="#0e1609"
+          strokeWidth="4"
+        />
+        <line
+          x1="20"
+          y1="452"
+          x2="8"
+          y2="438"
+          stroke="#0e1609"
+          strokeWidth="3"
+        />
+        {/* Tree FG-2 (right) */}
+        <line
+          x1="1155"
+          y1="800"
+          x2="1152"
+          y2="435"
+          stroke="#0d1508"
+          strokeWidth="20"
+        />
+        <line
+          x1="1152"
+          y1="560"
+          x2="1200"
+          y2="488"
+          stroke="#0d1508"
+          strokeWidth="10"
+        />
+        <line
+          x1="1152"
+          y1="530"
+          x2="1095"
+          y2="460"
+          stroke="#0d1508"
+          strokeWidth="9"
+        />
+        <line
+          x1="1152"
+          y1="505"
+          x2="1185"
+          y2="448"
+          stroke="#0d1508"
+          strokeWidth="7"
+        />
+        <line
+          x1="1152"
+          y1="480"
+          x2="1110"
+          y2="432"
+          stroke="#0d1508"
+          strokeWidth="6"
+        />
+        <line
+          x1="1152"
+          y1="460"
+          x2="1175"
+          y2="418"
+          stroke="#0d1508"
+          strokeWidth="5"
+        />
+        <line
+          x1="1095"
+          y1="460"
+          x2="1078"
+          y2="444"
+          stroke="#0d1508"
+          strokeWidth="4"
+        />
+        <line
+          x1="1185"
+          y1="448"
+          x2="1198"
+          y2="432"
+          stroke="#0d1508"
+          strokeWidth="3.5"
+        />
+        {/* Tree FG-3 (mid-left) */}
+        <line
+          x1="350"
+          y1="800"
+          x2="352"
+          y2="445"
+          stroke="#0f1708"
+          strokeWidth="14"
+        />
+        <line
+          x1="352"
+          y1="555"
+          x2="305"
+          y2="488"
+          stroke="#0f1708"
+          strokeWidth="7"
+        />
+        <line
+          x1="352"
+          y1="530"
+          x2="400"
+          y2="470"
+          stroke="#0f1708"
+          strokeWidth="7"
+        />
+        <line
+          x1="352"
+          y1="505"
+          x2="322"
+          y2="455"
+          stroke="#0f1708"
+          strokeWidth="5"
+        />
+        <line
+          x1="305"
+          y1="488"
+          x2="288"
+          y2="472"
+          stroke="#0f1708"
+          strokeWidth="3.5"
+        />
+        <line
+          x1="400"
+          y1="470"
+          x2="415"
+          y2="455"
+          stroke="#0f1708"
+          strokeWidth="3.5"
+        />
+        <line
+          x1="322"
+          y1="455"
+          x2="308"
+          y2="440"
+          stroke="#0f1708"
+          strokeWidth="3"
+        />
+        {/* Tree FG-4 (mid-right) */}
+        <line
+          x1="860"
+          y1="800"
+          x2="858"
+          y2="450"
+          stroke="#0e1608"
+          strokeWidth="14"
+        />
+        <line
+          x1="858"
+          y1="555"
+          x2="815"
+          y2="490"
+          stroke="#0e1608"
+          strokeWidth="7"
+        />
+        <line
+          x1="858"
+          y1="530"
+          x2="905"
+          y2="468"
+          stroke="#0e1608"
+          strokeWidth="7"
+        />
+        <line
+          x1="858"
+          y1="505"
+          x2="880"
+          y2="454"
+          stroke="#0e1608"
+          strokeWidth="5"
+        />
+        <line
+          x1="815"
+          y1="490"
+          x2="798"
+          y2="475"
+          stroke="#0e1608"
+          strokeWidth="3.5"
+        />
+        <line
+          x1="905"
+          y1="468"
+          x2="920"
+          y2="452"
+          stroke="#0e1608"
+          strokeWidth="3.5"
+        />
+        <line
+          x1="880"
+          y1="454"
+          x2="896"
+          y2="438"
+          stroke="#0e1608"
+          strokeWidth="3"
+        />
+      </g>
+
+      {/* === FOG LAYERS (animated, multiple passes) === */}
+      <rect
+        x="-100"
+        y="370"
+        width="1400"
+        height="110"
+        fill="url(#fogGrad1)"
+        opacity="0.85"
+        style={{ animation: "fogDrift1 18s ease-in-out infinite alternate" }}
+      />
+      <rect
+        x="-100"
+        y="430"
+        width="1400"
+        height="100"
+        fill="url(#fogGrad2)"
+        opacity="0.9"
+        style={{ animation: "fogDrift2 22s ease-in-out infinite alternate" }}
+      />
+      <rect
+        x="-100"
+        y="460"
+        width="1400"
+        height="80"
+        fill="url(#fogGrad3)"
+        opacity="0.75"
+        style={{ animation: "fogDrift3 15s ease-in-out infinite alternate" }}
+      />
+      <rect
+        x="-100"
+        y="490"
+        width="1400"
+        height="60"
+        fill="url(#fogGrad2)"
+        opacity="0.65"
+        style={{ animation: "fogDrift4 25s ease-in-out infinite alternate" }}
+      />
+      <rect
+        x="0"
+        y="540"
+        width="1200"
+        height="80"
+        fill="#182818"
+        opacity="0.35"
+        style={{ animation: "fogDrift1 30s ease-in-out infinite alternate" }}
+      />
+
+      {/* === PREMIUM DETAILED ZOMBIE FIGURES === */}
+
+      {/* ------ ZOMBIE 1: Classic outstretched arms, walking — x=160 ------ */}
+      <g transform="translate(160, 480)" opacity="0.93">
+        {/* Ground shadow */}
+        <ellipse cx="0" cy="2" rx="18" ry="5" fill="#050808" opacity="0.6" />
+        {/* Left leg — slightly forward */}
+        <path d="M-8,-10 L-12,0 L-8,2 L-4,-8 Z" fill="#1a2a10" />
+        {/* Right leg — back, slight drag */}
+        <path d="M2,-10 L8,0 L12,2 L6,-9 Z" fill="#1a2a10" />
+        {/* Torn trouser ragged edge left */}
+        <path
+          d="M-12,0 L-10,-2 L-8,1 L-6,-1 L-4,2 L-3,0 L-2,2"
+          fill="none"
+          stroke="#111808"
+          strokeWidth="1"
+        />
+        {/* Torso — ragged shirt with blood stains */}
+        <rect x="-10" y="-58" width="20" height="48" rx="2" fill="#2a3a1a" />
+        {/* Blood stain on shirt */}
+        <ellipse cx="-2" cy="-40" rx="6" ry="8" fill="#5a0808" opacity="0.7" />
+        <ellipse cx="4" cy="-32" rx="4" ry="5" fill="#4a0000" opacity="0.6" />
+        {/* Torn shirt ragged bottom edge */}
+        <path
+          d="M-10,-10 L-7,-12 L-4,-9 L0,-13 L4,-10 L7,-12 L10,-10"
+          fill="none"
+          stroke="#1a2a10"
+          strokeWidth="1.2"
+        />
+        {/* Neck */}
+        <rect x="-4" y="-66" width="8" height="10" rx="1" fill="#3a4a2a" />
+        {/* Head — skull shaped */}
+        <ellipse cx="0" cy="-78" rx="12" ry="14" fill="#3a4a2a" />
+        {/* Sunken eye sockets */}
+        <ellipse cx="-4" cy="-80" rx="3.5" ry="3" fill="#0a0a08" />
+        <ellipse cx="4" cy="-80" rx="3.5" ry="3" fill="#0a0a08" />
+        {/* Glowing red-orange eye embers */}
+        <circle cx="-4" cy="-80" r="1.5" fill="#8b1800" opacity="0.8" />
+        <circle cx="4" cy="-80" r="1.5" fill="#8b1800" opacity="0.8" />
+        {/* Exposed teeth — jaw torn */}
+        <path
+          d="M-5,-68 L-3,-65 L-1,-67 L1,-65 L3,-67 L5,-65 L6,-68"
+          fill="none"
+          stroke="#ccccaa"
+          strokeWidth="1.2"
+        />
+        <rect
+          x="-5"
+          y="-68"
+          width="10"
+          height="4"
+          rx="1"
+          fill="#1a1a0a"
+          opacity="0.6"
+        />
+        {/* Tear/wound on cheek */}
+        <path
+          d="M6,-76 L9,-72"
+          fill="none"
+          stroke="#5a0808"
+          strokeWidth="1.5"
+        />
+        {/* Left arm — reaching far forward low */}
+        <path d="M-10,-50 L-38,-46 L-40,-40 L-10,-44 Z" fill="#2a3a1a" />
+        {/* Torn sleeve end */}
+        <path
+          d="M-38,-46 L-36,-49 L-34,-45 L-32,-48 L-30,-45 L-28,-47 L-26,-44"
+          fill="none"
+          stroke="#1a2a10"
+          strokeWidth="1"
+        />
+        {/* Right arm — reaching forward higher */}
+        <path d="M10,-52 L40,-44 L42,-38 L10,-46 Z" fill="#2a3a1a" />
+        <path
+          d="M40,-44 L38,-47 L36,-43 L34,-46 L32,-43 L30,-45 L28,-42"
+          fill="none"
+          stroke="#1a2a10"
+          strokeWidth="1"
+        />
+        {/* Wound scar on right arm */}
+        <line
+          x1="20"
+          y1="-49"
+          x2="25"
+          y2="-45"
+          stroke="#5a0808"
+          strokeWidth="1.2"
+          opacity="0.8"
+        />
+      </g>
+
+      {/* ------ ZOMBIE 2: Hunching forward, one arm raised — x=440 ------ */}
+      <g transform="translate(440, 480) rotate(-8, 0, 0)" opacity="0.91">
+        {/* Ground shadow */}
+        <ellipse cx="0" cy="2" rx="16" ry="4.5" fill="#050808" opacity="0.55" />
+        {/* Legs */}
+        <path d="M-7,-8 L-11,2 L-7,4 L-3,-7 Z" fill="#1e2e14" />
+        <path d="M3,-8 L9,2 L13,4 L7,-8 Z" fill="#1e2e14" />
+        {/* Torso hunched forward */}
+        <path d="M-10,-60 Q0,-72 10,-60 L8,-14 L-8,-14 Z" fill="#283818" />
+        {/* Dark wound patch */}
+        <ellipse cx="3" cy="-38" rx="5" ry="6" fill="#4a0808" opacity="0.65" />
+        {/* Neck */}
+        <rect x="-4" y="-68" width="8" height="10" rx="1" fill="#344424" />
+        {/* Head tilted */}
+        <ellipse cx="2" cy="-80" rx="11" ry="13" fill="#344424" />
+        {/* Eye sockets */}
+        <ellipse cx="-2" cy="-82" rx="3" ry="2.8" fill="#090908" />
+        <ellipse cx="6" cy="-82" rx="3" ry="2.8" fill="#090908" />
+        <circle cx="-2" cy="-82" r="1.3" fill="#7a1200" opacity="0.85" />
+        <circle cx="6" cy="-82" r="1.3" fill="#7a1200" opacity="0.85" />
+        {/* Teeth / exposed jaw */}
+        <path
+          d="M-4,-70 L-2,-67 L0,-69 L2,-67 L4,-70"
+          fill="none"
+          stroke="#bbbba0"
+          strokeWidth="1.1"
+        />
+        {/* One arm raised high — left */}
+        <path d="M-10,-55 L-30,-30 L-26,-24 L-6,-50 Z" fill="#283818" />
+        <path
+          d="M-30,-30 L-28,-33 L-26,-29 L-24,-32 L-22,-28 L-20,-31"
+          fill="none"
+          stroke="#182410"
+          strokeWidth="1"
+        />
+        {/* Other arm drooping low — right */}
+        <path d="M10,-48 L30,-20 L34,-14 L12,-44 Z" fill="#283818" />
+        {/* Blood drip on drooping arm */}
+        <ellipse cx="22" cy="-32" rx="3" ry="4" fill="#5a0000" opacity="0.6" />
+        <path
+          d="M22,-28 L21,-20"
+          fill="none"
+          stroke="#5a0000"
+          strokeWidth="1"
+        />
+      </g>
+
+      {/* ------ ZOMBIE 3: Both arms extended, taller stance — x=610 ------ */}
+      <g transform="translate(610, 480)" opacity="0.89">
+        {/* Ground shadow */}
+        <ellipse cx="0" cy="2" rx="17" ry="5" fill="#050808" opacity="0.58" />
+        {/* Legs — wider stance */}
+        <path d="M-9,-12 L-15,2 L-10,4 L-4,-10 Z" fill="#1c2c12" />
+        <path d="M4,-12 L10,2 L15,4 L8,-11 Z" fill="#1c2c12" />
+        {/* Torn trousers */}
+        <path
+          d="M-15,2 L-13,0 L-11,3 L-9,0 L-7,3 L-5,1"
+          fill="none"
+          stroke="#121c08"
+          strokeWidth="1"
+        />
+        <path
+          d="M10,2 L12,0 L14,3 L16,0"
+          fill="none"
+          stroke="#121c08"
+          strokeWidth="1"
+        />
+        {/* Torso — tall, ragged */}
+        <rect x="-11" y="-65" width="22" height="53" rx="2" fill="#253515" />
+        {/* Wound gash — diagonal across chest */}
+        <path
+          d="M-8,-50 L5,-40"
+          fill="none"
+          stroke="#600000"
+          strokeWidth="2.5"
+        />
+        <path
+          d="M-8,-50 L5,-40"
+          fill="none"
+          stroke="#3a0000"
+          strokeWidth="1.2"
+          opacity="0.6"
+        />
+        {/* Blood stains */}
+        <ellipse cx="-3" cy="-48" rx="5" ry="7" fill="#5a0808" opacity="0.6" />
+        <ellipse
+          cx="6"
+          cy="-38"
+          rx="3.5"
+          ry="4.5"
+          fill="#4a0000"
+          opacity="0.55"
+        />
+        {/* Torn shirt hem */}
+        <path
+          d="M-11,-12 L-8,-15 L-5,-11 L-2,-14 L1,-11 L4,-14 L7,-11 L11,-13"
+          fill="none"
+          stroke="#1a2a10"
+          strokeWidth="1.2"
+        />
+        {/* Neck */}
+        <rect x="-4" y="-73" width="8" height="10" rx="1" fill="#334322" />
+        {/* Head — elongated skull */}
+        <ellipse cx="0" cy="-86" rx="12" ry="15" fill="#334322" />
+        {/* Sunken eye sockets — hollow dark */}
+        <ellipse cx="-4.5" cy="-88" rx="3.8" ry="3.5" fill="#080808" />
+        <ellipse cx="4.5" cy="-88" rx="3.8" ry="3.5" fill="#080808" />
+        {/* Ember eyes */}
+        <circle cx="-4.5" cy="-88" r="1.6" fill="#901800" opacity="0.9" />
+        <circle cx="4.5" cy="-88" r="1.6" fill="#901800" opacity="0.9" />
+        {/* Exposed teeth — wide open */}
+        <path
+          d="M-6,-75 L-4,-72 L-2,-74 L0,-72 L2,-74 L4,-72 L6,-75"
+          fill="none"
+          stroke="#ccccaa"
+          strokeWidth="1.3"
+        />
+        <path
+          d="M-6,-75 Q0,-77 6,-75"
+          fill="none"
+          stroke="#bba880"
+          strokeWidth="1"
+          opacity="0.5"
+        />
+        {/* Wound/scar on jaw */}
+        <line
+          x1="-8"
+          y1="-76"
+          x2="-10"
+          y2="-70"
+          stroke="#5a0808"
+          strokeWidth="1.3"
+        />
+        {/* Left arm — extended far forward slightly angled down */}
+        <path d="M-11,-55 L-46,-50 L-48,-44 L-9,-50 Z" fill="#253515" />
+        <path
+          d="M-46,-50 L-44,-53 L-42,-49 L-40,-52 L-38,-48 L-36,-51"
+          fill="none"
+          stroke="#18240e"
+          strokeWidth="1"
+        />
+        {/* Right arm — extended far forward slightly up */}
+        <path d="M11,-58 L46,-52 L48,-46 L9,-52 Z" fill="#253515" />
+        <path
+          d="M46,-52 L44,-55 L42,-51 L40,-54 L38,-50 L36,-53"
+          fill="none"
+          stroke="#18240e"
+          strokeWidth="1"
+        />
+        {/* Torn sleeves */}
+        <path
+          d="M-11,-55 L-9,-58 L-7,-54 L-5,-57 L-3,-54"
+          fill="none"
+          stroke="#1a2a10"
+          strokeWidth="1"
+        />
+        <path
+          d="M11,-58 L13,-61 L15,-57 L17,-60"
+          fill="none"
+          stroke="#1a2a10"
+          strokeWidth="1"
+        />
+      </g>
+
+      {/* ------ ZOMBIE 4: Distant, slightly hunched, one arm missing at wrist — x=780, scale 0.72 ------ */}
+      <g transform="translate(780, 480) scale(0.72)" opacity="0.86">
+        {/* Ground shadow */}
+        <ellipse cx="0" cy="2" rx="15" ry="4" fill="#050808" opacity="0.5" />
+        {/* Legs */}
+        <path d="M-7,-10 L-10,0 L-6,2 L-3,-8 Z" fill="#1e2c10" />
+        <path d="M3,-10 L7,0 L11,2 L6,-9 Z" fill="#1e2c10" />
+        {/* Torso — slightly hunched */}
+        <path d="M-9,-55 Q0,-65 9,-55 L7,-12 L-7,-12 Z" fill="#26361a" />
+        {/* Blood stain */}
+        <ellipse cx="-1" cy="-38" rx="5" ry="6" fill="#5a0808" opacity="0.6" />
+        {/* Neck */}
+        <rect x="-3.5" y="-63" width="7" height="9" rx="1" fill="#324222" />
+        {/* Head */}
+        <ellipse cx="0" cy="-74" rx="10" ry="12" fill="#324222" />
+        {/* Sockets */}
+        <ellipse cx="-3.5" cy="-76" rx="3" ry="2.5" fill="#080808" />
+        <ellipse cx="3.5" cy="-76" rx="3" ry="2.5" fill="#080808" />
+        <circle cx="-3.5" cy="-76" r="1.2" fill="#7a1000" opacity="0.8" />
+        <circle cx="3.5" cy="-76" r="1.2" fill="#7a1000" opacity="0.8" />
+        {/* Teeth */}
+        <path
+          d="M-4,-64 L-2,-61 L0,-63 L2,-61 L4,-64"
+          fill="none"
+          stroke="#bbbba0"
+          strokeWidth="1"
+        />
+        {/* Left arm — reaching forward */}
+        <path d="M-9,-48 L-32,-42 L-34,-36 L-7,-44 Z" fill="#26361a" />
+        {/* Right arm — cut off at wrist — stump end */}
+        <path d="M9,-46 L28,-36 L27,-28 L8,-40 Z" fill="#26361a" />
+        {/* Stump end — ragged wound */}
+        <ellipse
+          cx="27.5"
+          cy="-32"
+          rx="4"
+          ry="5"
+          fill="#5a0808"
+          opacity="0.8"
+        />
+        <path
+          d="M24,-30 L26,-26 M28,-28 L29,-24 M31,-30 L32,-26"
+          fill="none"
+          stroke="#3a0000"
+          strokeWidth="1"
+        />
+      </g>
+
+      {/* ------ ZOMBIE 5: Crawling/fallen, dragging body — x=1000 ------ */}
+      <g transform="translate(1000, 478)" opacity="0.83">
+        {/* Ground shadow */}
+        <ellipse cx="-20" cy="4" rx="45" ry="7" fill="#050808" opacity="0.5" />
+        {/* Dragging legs — behind */}
+        <path d="M15,-3 L38,8 L40,14 L16,4 Z" fill="#1e2c10" />
+        <path d="M18,5 L38,14 L36,20 L16,12 Z" fill="#1c2a0e" />
+        {/* Horizontal body */}
+        <path d="M-35,-18 Q0,-28 15,-8 L15,5 Q0,-8 -35,-4 Z" fill="#283818" />
+        {/* Wound on back/side */}
+        <ellipse cx="-8" cy="-14" rx="6" ry="4" fill="#5a0808" opacity="0.65" />
+        {/* Blood trail */}
+        <path
+          d="M-35,-10 L-55,-8 L-58,-2"
+          fill="none"
+          stroke="#5a0000"
+          strokeWidth="2.5"
+          opacity="0.6"
+        />
+        <ellipse cx="-50" cy="-4" rx="5" ry="3" fill="#4a0000" opacity="0.5" />
+        {/* Head — angled */}
+        <ellipse
+          cx="-45"
+          cy="-20"
+          rx="11"
+          ry="12"
+          fill="#334222"
+          transform="rotate(30, -45, -20)"
+        />
+        {/* Eye sockets */}
+        <ellipse
+          cx="-50"
+          cy="-22"
+          rx="2.8"
+          ry="2.5"
+          fill="#080808"
+          transform="rotate(30, -50, -22)"
+        />
+        <ellipse
+          cx="-42"
+          cy="-18"
+          rx="2.8"
+          ry="2.5"
+          fill="#080808"
+          transform="rotate(30, -42, -18)"
+        />
+        <circle
+          cx="-50"
+          cy="-22"
+          r="1.1"
+          fill="#801000"
+          opacity="0.8"
+          transform="rotate(30, -50, -22)"
+        />
+        <circle
+          cx="-42"
+          cy="-18"
+          r="1.1"
+          fill="#801000"
+          opacity="0.8"
+          transform="rotate(30, -42, -18)"
+        />
+        {/* Teeth */}
+        <path
+          d="M-47,-10 L-45,-8 L-43,-10 L-41,-8"
+          fill="none"
+          stroke="#bba890"
+          strokeWidth="1"
+          transform="rotate(30, -44, -9)"
+        />
+        {/* Arms clawing forward */}
+        <path d="M-35,-14 L-58,-18 L-60,-12 L-33,-8 Z" fill="#283818" />
+        <path
+          d="M-58,-18 L-56,-21 L-54,-17 L-52,-20 L-50,-16 L-48,-18"
+          fill="none"
+          stroke="#182410"
+          strokeWidth="1"
+        />
+        <path d="M-35,-8 L-52,-4 L-53,2 L-33,-2 Z" fill="#283818" />
+        <path
+          d="M-52,-4 L-50,-7 L-48,-3 L-46,-6 L-44,-2"
+          fill="none"
+          stroke="#182410"
+          strokeWidth="1"
+        />
+      </g>
+
+      {/* ------ ZOMBIE 6: Background small, arms both reaching, scale 0.65 — x=300 ------ */}
+      <g transform="translate(300, 480) scale(0.65)" opacity="0.79">
+        {/* Ground shadow */}
+        <ellipse cx="0" cy="2" rx="14" ry="4" fill="#050808" opacity="0.45" />
+        {/* Legs */}
+        <path d="M-7,-9 L-10,0 L-6,2 L-3,-7 Z" fill="#1a2a10" />
+        <path d="M3,-9 L7,0 L11,2 L5,-8 Z" fill="#1a2a10" />
+        {/* Torso */}
+        <rect x="-9" y="-58" width="18" height="49" rx="2" fill="#243414" />
+        {/* Wound / blood */}
+        <ellipse cx="2" cy="-40" rx="4" ry="5" fill="#520808" opacity="0.6" />
+        {/* Neck */}
+        <rect x="-3.5" y="-66" width="7" height="9" rx="1" fill="#30401e" />
+        {/* Head */}
+        <ellipse cx="0" cy="-77" rx="10" ry="12" fill="#30401e" />
+        {/* Eye sockets */}
+        <ellipse cx="-3.5" cy="-79" rx="3" ry="2.5" fill="#080808" />
+        <ellipse cx="3.5" cy="-79" rx="3" ry="2.5" fill="#080808" />
+        <circle cx="-3.5" cy="-79" r="1.2" fill="#7a1200" opacity="0.8" />
+        <circle cx="3.5" cy="-79" r="1.2" fill="#7a1200" opacity="0.8" />
+        {/* Teeth */}
+        <path
+          d="M-4,-67 L-2,-64 L0,-66 L2,-64 L4,-67"
+          fill="none"
+          stroke="#c0c0a0"
+          strokeWidth="1"
+        />
+        {/* Both arms reaching */}
+        <path d="M-9,-50 L-34,-44 L-36,-38 L-7,-45 Z" fill="#243414" />
+        <path
+          d="M-34,-44 L-32,-47 L-30,-43 L-28,-46 L-26,-42"
+          fill="none"
+          stroke="#162010"
+          strokeWidth="0.9"
+        />
+        <path d="M9,-48 L34,-42 L36,-36 L7,-43 Z" fill="#243414" />
+        <path
+          d="M34,-42 L32,-45 L30,-41 L28,-44 L26,-40"
+          fill="none"
+          stroke="#162010"
+          strokeWidth="0.9"
+        />
+      </g>
+    </svg>
+  );
+
+  const renderHalloweenWorld = () => (
+    <svg
+      role="img"
+      aria-label="Halloween world background"
+      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <defs>
+        {/* ── NIGHT SKY ── */}
+        <linearGradient id="hwSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#050510" />
+          <stop offset="40%" stopColor="#0a0a1a" />
+          <stop offset="100%" stopColor="#1a0a2e" />
+        </linearGradient>
+        {/* Ground gradient */}
+        <linearGradient id="hwGroundGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#0a0510" />
+          <stop offset="50%" stopColor="#060308" />
+          <stop offset="100%" stopColor="#030205" />
+        </linearGradient>
+        {/* Castle stone gradients — three shades for variety */}
+        <linearGradient id="hwCastleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#1e1a2e" />
+          <stop offset="50%" stopColor="#14112a" />
+          <stop offset="100%" stopColor="#0c0a1e" />
+        </linearGradient>
+        <linearGradient id="hwCastleGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#16213e" />
+          <stop offset="50%" stopColor="#0f1832" />
+          <stop offset="100%" stopColor="#0a1028" />
+        </linearGradient>
+        <linearGradient id="hwCastleGrad3" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#1a1a2e" />
+          <stop offset="60%" stopColor="#0f3460" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#0a0a1a" />
+        </linearGradient>
+        {/* Rocky cliff under castle */}
+        <linearGradient id="hwCliffGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#0e0c1c" />
+          <stop offset="100%" stopColor="#060410" />
+        </linearGradient>
+        {/* Moon gradients */}
+        <radialGradient id="hwMoonGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#fffff0" stopOpacity="0.5" />
+          <stop offset="40%" stopColor="#f5e8c0" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#d4c080" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="hwMoonFace" cx="35%" cy="30%" r="72%">
+          <stop offset="0%" stopColor="#fffef5" />
+          <stop offset="60%" stopColor="#f5e6c8" />
+          <stop offset="100%" stopColor="#dcc88a" />
+        </radialGradient>
+        {/* Pumpkin body gradients */}
+        <radialGradient id="hwPump1" cx="35%" cy="30%" r="65%">
+          <stop offset="0%" stopColor="#ff9422" />
+          <stop offset="55%" stopColor="#d05000" />
+          <stop offset="100%" stopColor="#7a2800" />
+        </radialGradient>
+        <radialGradient id="hwPump2" cx="35%" cy="30%" r="65%">
+          <stop offset="0%" stopColor="#ff7a00" />
+          <stop offset="55%" stopColor="#c04200" />
+          <stop offset="100%" stopColor="#6a2000" />
+        </radialGradient>
+        <radialGradient id="hwPump3" cx="35%" cy="30%" r="65%">
+          <stop offset="0%" stopColor="#ffa030" />
+          <stop offset="55%" stopColor="#d86000" />
+          <stop offset="100%" stopColor="#7a3000" />
+        </radialGradient>
+        {/* Static pumpkin glow halos — no animation */}
+        <radialGradient id="hwPumpGlow1" cx="50%" cy="55%" r="50%">
+          <stop offset="0%" stopColor="#ffcc44" stopOpacity="0.55" />
+          <stop offset="50%" stopColor="#ff8800" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#cc3300" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="hwPumpGlow2" cx="50%" cy="55%" r="50%">
+          <stop offset="0%" stopColor="#ffdd55" stopOpacity="0.5" />
+          <stop offset="55%" stopColor="#ff9900" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="#dd3300" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="hwPumpGlowBig" cx="50%" cy="55%" r="55%">
+          <stop offset="0%" stopColor="#ffe066" stopOpacity="0.6" />
+          <stop offset="40%" stopColor="#ffaa00" stopOpacity="0.35" />
+          <stop offset="75%" stopColor="#ff6600" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#dd2200" stopOpacity="0" />
+        </radialGradient>
+        {/* Castle window warm amber glow */}
+        <radialGradient id="hwWinGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ffb944" stopOpacity="1" />
+          <stop offset="55%" stopColor="#cc6a00" stopOpacity="0.65" />
+          <stop offset="100%" stopColor="#882200" stopOpacity="0" />
+        </radialGradient>
+        {/* Static fog gradient */}
+        <linearGradient id="hwFogGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#c8c0e0" stopOpacity="0" />
+          <stop offset="20%" stopColor="#c8c0e0" stopOpacity="0.18" />
+          <stop offset="50%" stopColor="#b8b0d0" stopOpacity="0.28" />
+          <stop offset="80%" stopColor="#c8c0e0" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="#c8c0e0" stopOpacity="0" />
+        </linearGradient>
+        {/* Glow filters */}
+        <filter id="hwGlow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="hwGlowLg" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="10" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="hwGlowMd" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="6" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="hwMoonHalo" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="16" />
+        </filter>
+        <filter id="hwSoftBlur" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" />
+        </filter>
+      </defs>
+
+      {/* ── SKY ── */}
+      <rect width="1200" height="800" fill="url(#hwSkyGrad)" />
+
+      {/* ── STATIC STARS ── */}
+      {/* Larger accent stars */}
+      <g filter="url(#hwGlow)">
+        <circle cx="80" cy="55" r="1.6" fill="#fff9e8" />
+        <circle cx="190" cy="30" r="1.2" fill="#fff8f0" />
+        <circle cx="310" cy="70" r="1.8" fill="#fffde0" />
+        <circle cx="445" cy="42" r="1.3" fill="#fff9e8" />
+        <circle cx="560" cy="25" r="2.0" fill="#fffde0" />
+        <circle cx="670" cy="60" r="1.5" fill="#fff8f0" />
+        <circle cx="790" cy="38" r="1.7" fill="#fffce0" />
+        <circle cx="920" cy="55" r="1.4" fill="#fff9e8" />
+        <circle cx="1060" cy="28" r="1.9" fill="#fffde0" />
+        <circle cx="1140" cy="65" r="1.3" fill="#fff8f0" />
+        <circle cx="130" cy="95" r="1.1" fill="#fff0d8" />
+        <circle cx="370" cy="48" r="1.2" fill="#fffde0" />
+        <circle cx="500" cy="95" r="1.0" fill="#fff9e8" />
+        <circle cx="720" cy="88" r="1.2" fill="#fff0d8" />
+        <circle cx="860" cy="32" r="1.0" fill="#fffde0" />
+        <circle cx="990" cy="75" r="1.1" fill="#fff8f0" />
+      </g>
+      {/* Dim stars — no filter, no animation */}
+      <g fill="#e8d8b8" opacity="0.45">
+        <circle cx="225" cy="80" r="0.7" />
+        <circle cx="610" cy="45" r="0.7" />
+        <circle cx="1100" cy="50" r="0.7" />
+        <circle cx="55" cy="130" r="0.8" />
+        <circle cx="280" cy="118" r="0.9" />
+        <circle cx="420" cy="130" r="0.7" />
+        <circle cx="640" cy="105" r="0.8" />
+        <circle cx="820" cy="120" r="1.0" />
+        <circle cx="1000" cy="115" r="0.7" />
+        <circle cx="1160" cy="98" r="0.9" />
+        <circle cx="150" cy="145" r="0.7" />
+        <circle cx="330" cy="155" r="0.8" />
+        <circle cx="480" cy="140" r="0.7" />
+        <circle cx="700" cy="160" r="0.9" />
+        <circle cx="940" cy="135" r="0.8" />
+        <circle cx="1080" cy="148" r="0.7" />
+        <circle cx="35" cy="80" r="0.6" />
+        <circle cx="748" cy="72" r="0.7" />
+        <circle cx="1185" cy="115" r="0.6" />
+        <circle cx="260" cy="60" r="0.7" />
+        <circle cx="590" cy="80" r="0.6" />
+        <circle cx="1020" cy="55" r="0.7" />
+      </g>
+
+      {/* ── MOON (upper right, large and detailed) ── */}
+      {/* Outer halo */}
+      <circle
+        cx="940"
+        cy="130"
+        r="110"
+        fill="url(#hwMoonGlow)"
+        filter="url(#hwMoonHalo)"
+      />
+      <circle
+        cx="940"
+        cy="130"
+        r="82"
+        fill="url(#hwMoonGlow)"
+        filter="url(#hwMoonHalo)"
+        opacity="0.55"
+      />
+      {/* Moon disc */}
+      <circle cx="940" cy="130" r="66" fill="url(#hwMoonFace)" />
+      {/* Moon edge ring */}
+      <circle
+        cx="940"
+        cy="130"
+        r="66"
+        fill="none"
+        stroke="#fffef0"
+        strokeWidth="1.5"
+        opacity="0.25"
+      />
+      {/* Moon craters */}
+      <circle cx="912" cy="112" r="11" fill="#d8c888" opacity="0.45" />
+      <circle cx="912" cy="112" r="7.5" fill="#e8d89a" opacity="0.3" />
+      <circle cx="962" cy="148" r="9" fill="#d4c47e" opacity="0.4" />
+      <circle cx="962" cy="148" r="6" fill="#e4d490" opacity="0.28" />
+      <circle cx="925" cy="158" r="7" fill="#d0bf7a" opacity="0.38" />
+      <circle cx="958" cy="108" r="5.5" fill="#dcd08e" opacity="0.35" />
+      <circle cx="902" cy="142" r="4.5" fill="#d8c886" opacity="0.4" />
+      <circle cx="978" cy="128" r="4" fill="#dcd28c" opacity="0.35" />
+      <circle cx="920" cy="132" r="3" fill="#d8cc84" opacity="0.3" />
+      <circle cx="948" cy="120" r="2.5" fill="#dfd48e" opacity="0.28" />
+
+      {/* ── STATIC WISPY CLOUDS NEAR MOON ── */}
+      <g opacity="0.22">
+        <ellipse cx="895" cy="112" rx="75" ry="18" fill="#e8e4f0" />
+        <ellipse cx="990" cy="138" rx="60" ry="14" fill="#dcd8ec" />
+        <ellipse cx="930" cy="102" rx="48" ry="11" fill="#f0eef8" />
+        <ellipse cx="870" cy="145" rx="40" ry="10" fill="#e0dcea" />
+      </g>
+
+      {/* ── STATIC BATS (3, no animation) ── */}
+      {/* Bat 1 — near moon */}
+      <g transform="translate(870, 88)">
+        <path d="M0,0 Q-20,-15 -32,-7 Q-22,-2 0,0 Z" fill="#1a0030" />
+        <path d="M0,0 Q20,-15 32,-7 Q22,-2 0,0 Z" fill="#1a0030" />
+        <ellipse cx="0" cy="0" rx="6" ry="4.5" fill="#130022" />
+        <path d="M-3,-5 L-5,-10 L-1,-5.5 Z" fill="#130022" />
+        <path d="M3,-5 L5,-10 L1,-5.5 Z" fill="#130022" />
+        <circle cx="-2.5" cy="-1" r="1.2" fill="#380055" />
+        <circle cx="2.5" cy="-1" r="1.2" fill="#380055" />
+      </g>
+      {/* Bat 2 */}
+      <g transform="translate(720, 155)">
+        <path d="M0,0 Q-14,-11 -22,-5 Q-15,-1 0,0 Z" fill="#16002a" />
+        <path d="M0,0 Q14,-11 22,-5 Q15,-1 0,0 Z" fill="#16002a" />
+        <ellipse cx="0" cy="0" rx="5" ry="3.5" fill="#12001f" />
+        <path d="M-2.5,-4 L-4,-8 L-1,-4.5 Z" fill="#12001f" />
+        <path d="M2.5,-4 L4,-8 L1,-4.5 Z" fill="#12001f" />
+      </g>
+      {/* Bat 3 */}
+      <g transform="translate(1060, 92)">
+        <path d="M0,0 Q-16,-12 -24,-6 Q-17,-2 0,0 Z" fill="#18002c" />
+        <path d="M0,0 Q16,-12 24,-6 Q17,-2 0,0 Z" fill="#18002c" />
+        <ellipse cx="0" cy="0" rx="5.5" ry="4" fill="#130022" />
+        <path d="M-2.5,-4 L-4.5,-9 L-1,-5 Z" fill="#130022" />
+        <path d="M2.5,-4 L4.5,-9 L1,-5 Z" fill="#130022" />
+      </g>
+
+      {/* ═══════════════════════════════════════════
+          GOTHIC HAUNTED CASTLE (background, upper)
+      ═══════════════════════════════════════════ */}
+
+      {/* Outer atmosphere / ambient castle glow */}
+      <ellipse
+        cx="420"
+        cy="430"
+        rx="290"
+        ry="200"
+        fill="#1a0035"
+        opacity="0.20"
+        filter="url(#hwSoftBlur)"
+      />
+
+      {/* Rocky cliff / dark hill under castle */}
+      <path
+        d="M80,560 Q120,510 180,505 Q220,500 260,510 Q310,518 360,508 Q420,498 480,505 Q540,512 590,504 Q640,496 680,500 Q720,504 760,510 L800,560 Z"
+        fill="url(#hwCliffGrad)"
+      />
+      {/* Jagged rock shapes */}
+      <polygon
+        points="100,560 115,530 130,548 145,520 160,542 175,515 192,536 210,518 225,540 240,525 260,545 275,518 295,538 320,560"
+        fill="#0c0a1c"
+      />
+      <polygon
+        points="600,560 618,532 638,548 655,522 672,540 692,518 710,535 730,520 750,540 770,525 790,548 800,560"
+        fill="#0b091a"
+      />
+
+      {/* ── Castle main body ── */}
+      <rect
+        x="180"
+        y="360"
+        width="400"
+        height="220"
+        fill="url(#hwCastleGrad)"
+      />
+      {/* Stone block texture — horizontal mortar lines */}
+      <g stroke="#252038" strokeWidth="0.8" opacity="0.6">
+        {[375, 390, 405, 420, 435, 450, 465, 480, 495, 510, 525, 540, 555].map(
+          (y) => (
+            <line key={`hcl-${y}`} x1="180" y1={y} x2="580" y2={y} />
+          ),
+        )}
+      </g>
+      {/* Vertical stone joints (offset alternating rows) */}
+      <g stroke="#252038" strokeWidth="0.6" opacity="0.4">
+        {[210, 240, 270, 300, 330, 360, 390, 420, 450, 480, 510, 550].map(
+          (x) => (
+            <line key={`vcl-${x}`} x1={x} y1="360" x2={x} y2="580" />
+          ),
+        )}
+      </g>
+      {/* Color variation patches to simulate stone variation */}
+      <rect
+        x="215"
+        y="375"
+        width="35"
+        height="28"
+        fill="#16213e"
+        opacity="0.35"
+      />
+      <rect
+        x="305"
+        y="408"
+        width="42"
+        height="28"
+        fill="#0f3460"
+        opacity="0.25"
+      />
+      <rect
+        x="482"
+        y="438"
+        width="38"
+        height="28"
+        fill="#16213e"
+        opacity="0.3"
+      />
+      <rect
+        x="248"
+        y="470"
+        width="30"
+        height="28"
+        fill="#0f3460"
+        opacity="0.2"
+      />
+      <rect
+        x="530"
+        y="395"
+        width="34"
+        height="28"
+        fill="#1a1a2e"
+        opacity="0.4"
+      />
+
+      {/* ── Left main tower (tall) ── */}
+      <rect
+        x="155"
+        y="230"
+        width="80"
+        height="165"
+        fill="url(#hwCastleGrad2)"
+      />
+      {/* Stone texture left tower */}
+      <g stroke="#252038" strokeWidth="0.7" opacity="0.5">
+        {[248, 264, 280, 296, 312, 328, 344, 360].map((y) => (
+          <line key={`ltl-${y}`} x1="155" y1={y} x2="235" y2={y} />
+        ))}
+      </g>
+      {/* Left tower pointed roof */}
+      <polygon
+        points="148,230 195,148 242,230"
+        fill="#0f0c1c"
+        stroke="#1e1830"
+        strokeWidth="1.5"
+      />
+      {/* Left tower battlements */}
+      <g fill="#0c0918">
+        <rect x="150" y="226" width="14" height="18" />
+        <rect x="170" y="226" width="14" height="18" />
+        <rect x="191" y="226" width="14" height="18" />
+        <rect x="212" y="226" width="14" height="18" />
+        <rect x="233" y="226" width="14" height="18" />
+      </g>
+      {/* Left tower cracks */}
+      <path
+        d="M185,258 Q189,278 185,300 Q188,318 183,338"
+        stroke="#2e2848"
+        strokeWidth="1.2"
+        fill="none"
+        opacity="0.7"
+      />
+      <path
+        d="M210,290 Q214,308 211,322"
+        stroke="#2e2848"
+        strokeWidth="0.9"
+        fill="none"
+        opacity="0.6"
+      />
+
+      {/* ── Right main tower ── */}
+      <rect
+        x="525"
+        y="258"
+        width="72"
+        height="142"
+        fill="url(#hwCastleGrad2)"
+      />
+      <g stroke="#252038" strokeWidth="0.7" opacity="0.5">
+        {[272, 288, 304, 320, 336, 352, 368, 385].map((y) => (
+          <line key={`rtl-${y}`} x1="525" y1={y} x2="597" y2={y} />
+        ))}
+      </g>
+      <polygon
+        points="519,258 561,180 603,258"
+        fill="#0f0c1c"
+        stroke="#1e1830"
+        strokeWidth="1.5"
+      />
+      <g fill="#0c0918">
+        <rect x="516" y="254" width="12" height="16" />
+        <rect x="533" y="254" width="12" height="16" />
+        <rect x="551" y="254" width="12" height="16" />
+        <rect x="569" y="254" width="12" height="16" />
+        <rect x="587" y="254" width="12" height="16" />
+      </g>
+      <path
+        d="M548,285 Q552,305 549,325"
+        stroke="#2e2848"
+        strokeWidth="1.1"
+        fill="none"
+        opacity="0.65"
+      />
+
+      {/* ── Centre tallest tower / spire ── */}
+      <rect
+        x="330"
+        y="195"
+        width="100"
+        height="210"
+        fill="url(#hwCastleGrad)"
+      />
+      <g stroke="#252038" strokeWidth="0.7" opacity="0.5">
+        {[210, 225, 240, 255, 270, 285, 300, 315, 330, 345, 360].map((y) => (
+          <line key={`ctl-${y}`} x1="330" y1={y} x2="430" y2={y} />
+        ))}
+      </g>
+      <polygon
+        points="323,195 380,102 437,195"
+        fill="#0c091a"
+        stroke="#1c1830"
+        strokeWidth="1.5"
+      />
+      {/* Centre tower battlements */}
+      <g fill="#0b0818">
+        <rect x="320" y="191" width="16" height="20" />
+        <rect x="341" y="191" width="16" height="20" />
+        <rect x="363" y="191" width="16" height="20" />
+        <rect x="385" y="191" width="16" height="20" />
+        <rect x="407" y="191" width="16" height="20" />
+        <rect x="428" y="191" width="16" height="20" />
+      </g>
+      {/* Centre tower cracks */}
+      <path
+        d="M358,222 Q362,252 357,282 Q360,310 355,338"
+        stroke="#2e2848"
+        strokeWidth="1.5"
+        fill="none"
+        opacity="0.65"
+      />
+      <path
+        d="M400,265 Q404,285 401,308"
+        stroke="#2e2848"
+        strokeWidth="1"
+        fill="none"
+        opacity="0.55"
+      />
+
+      {/* ── Small left corner turret ── */}
+      <rect x="108" y="318" width="54" height="80" fill="url(#hwCastleGrad3)" />
+      <polygon
+        points="104,318 135,265 162,318"
+        fill="#0f0c1c"
+        stroke="#1e1830"
+        strokeWidth="1.5"
+      />
+      <g fill="#0c0918">
+        <rect x="104" y="315" width="11" height="14" />
+        <rect x="119" y="315" width="11" height="14" />
+        <rect x="135" y="315" width="11" height="14" />
+        <rect x="151" y="315" width="11" height="14" />
+      </g>
+      {/* Gargoyle silhouette on left small turret */}
+      <g fill="#0a0816" opacity="0.9">
+        <ellipse cx="112" cy="314" rx="6" ry="5" />
+        <path d="M106,314 Q102,308 106,304 Q112,302 116,308 Z" />
+        <path d="M118,308 Q124,304 122,310 L118,312 Z" />
+        <path d="M108,317 Q104,322 108,324 L114,320 Z" />
+      </g>
+
+      {/* ── Small right corner turret ── */}
+      <rect x="600" y="330" width="52" height="70" fill="url(#hwCastleGrad3)" />
+      <polygon
+        points="597,330 626,278 652,330"
+        fill="#0f0c1c"
+        stroke="#1e1830"
+        strokeWidth="1.5"
+      />
+      <g fill="#0c0918">
+        <rect x="595" y="327" width="11" height="13" />
+        <rect x="610" y="327" width="11" height="13" />
+        <rect x="626" y="327" width="11" height="13" />
+        <rect x="642" y="327" width="11" height="13" />
+      </g>
+      {/* Gargoyle on right */}
+      <g fill="#0a0816" opacity="0.9">
+        <ellipse cx="648" cy="326" rx="6" ry="5" />
+        <path d="M642,326 Q638,320 642,316 Q648,314 652,320 Z" />
+        <path d="M654,318 Q660,314 658,322 L654,324 Z" />
+      </g>
+
+      {/* ── Castle main battlements (roof line) ── */}
+      <g fill="#0c0918">
+        <rect x="176" y="355" width="18" height="22" />
+        <rect x="200" y="355" width="18" height="22" />
+        <rect x="224" y="355" width="18" height="22" />
+        <rect x="248" y="355" width="18" height="22" />
+        <rect x="290" y="355" width="18" height="22" />
+        <rect x="314" y="355" width="18" height="22" />
+        <rect x="430" y="355" width="18" height="22" />
+        <rect x="454" y="355" width="18" height="22" />
+        <rect x="478" y="355" width="18" height="22" />
+        <rect x="502" y="355" width="18" height="22" />
+        <rect x="540" y="355" width="18" height="22" />
+        <rect x="564" y="355" width="18" height="22" />
+      </g>
+
+      {/* ── Central gate / portcullis ── */}
+      <path
+        d="M316,580 Q316,516 380,510 Q444,516 444,580 L444,580 L316,580 Z"
+        fill="#04020c"
+        stroke="#1a1530"
+        strokeWidth="2"
+      />
+      {/* Gate iron bars */}
+      <g stroke="#10101a" strokeWidth="2" opacity="0.75">
+        <line x1="333" y1="516" x2="333" y2="580" />
+        <line x1="349" y1="513" x2="349" y2="580" />
+        <line x1="365" y1="511" x2="365" y2="580" />
+        <line x1="380" y1="510" x2="380" y2="580" />
+        <line x1="396" y1="511" x2="396" y2="580" />
+        <line x1="412" y1="513" x2="412" y2="580" />
+        <line x1="428" y1="516" x2="428" y2="580" />
+        <line x1="317" y1="532" x2="443" y2="532" />
+        <line x1="317" y1="550" x2="443" y2="550" />
+        <line x1="317" y1="566" x2="443" y2="566" />
+      </g>
+      {/* Gate arch stone surround */}
+      <path
+        d="M310,580 Q310,510 380,505 Q450,510 450,580"
+        fill="none"
+        stroke="#2a2440"
+        strokeWidth="4"
+      />
+      <path
+        d="M306,580 Q306,506 380,500 Q454,506 454,580"
+        fill="none"
+        stroke="#222038"
+        strokeWidth="2"
+      />
+
+      {/* ── Gothic arched windows with amber glow ── */}
+      {/* Left wing window 1 */}
+      <path
+        d="M228,408 Q228,388 242,385 Q256,388 256,408 L256,432 L228,432 Z"
+        fill="#04020c"
+      />
+      <path
+        d="M230,410 Q230,392 242,389 Q254,392 254,410 L254,430 L230,430 Z"
+        fill="url(#hwWinGlow)"
+        opacity="0.8"
+        filter="url(#hwGlowMd)"
+      />
+      {/* Stone surround left win 1 */}
+      <path
+        d="M226,432 L226,408 Q226,382 242,378 Q258,382 258,408 L258,432"
+        fill="none"
+        stroke="#302a48"
+        strokeWidth="2.5"
+      />
+      {/* Left wing window 2 */}
+      <path
+        d="M268,418 Q268,400 280,397 Q292,400 292,418 L292,440 L268,440 Z"
+        fill="#04020c"
+      />
+      <path
+        d="M270,420 Q270,402 280,399 Q290,402 290,420 L290,438 L270,438 Z"
+        fill="url(#hwWinGlow)"
+        opacity="0.7"
+        filter="url(#hwGlowMd)"
+      />
+      <path
+        d="M266,440 L266,418 Q266,394 280,390 Q294,394 294,418 L294,440"
+        fill="none"
+        stroke="#302a48"
+        strokeWidth="2"
+      />
+      {/* Right wing window 1 */}
+      <path
+        d="M466,402 Q466,382 480,378 Q494,382 494,402 L494,428 L466,428 Z"
+        fill="#04020c"
+      />
+      <path
+        d="M468,404 Q468,385 480,381 Q492,385 492,404 L492,426 L468,426 Z"
+        fill="url(#hwWinGlow)"
+        opacity="0.8"
+        filter="url(#hwGlowMd)"
+      />
+      <path
+        d="M464,428 L464,402 Q464,376 480,372 Q496,376 496,402 L496,428"
+        fill="none"
+        stroke="#302a48"
+        strokeWidth="2.5"
+      />
+      {/* Right wing window 2 */}
+      <path
+        d="M502,412 Q502,395 514,392 Q526,395 526,412 L526,436 L502,436 Z"
+        fill="#04020c"
+      />
+      <path
+        d="M504,414 Q504,397 514,394 Q524,397 524,414 L524,434 L504,434 Z"
+        fill="url(#hwWinGlow)"
+        opacity="0.7"
+        filter="url(#hwGlowMd)"
+      />
+      <path
+        d="M500,436 L500,412 Q500,388 514,384 Q528,388 528,412 L528,436"
+        fill="none"
+        stroke="#302a48"
+        strokeWidth="2"
+      />
+      {/* Centre tall windows */}
+      <path
+        d="M350,338 Q350,315 366,311 Q382,315 382,338 L382,368 L350,368 Z"
+        fill="#04020c"
+      />
+      <path
+        d="M352,340 Q352,318 366,314 Q380,318 380,340 L380,366 L352,366 Z"
+        fill="url(#hwWinGlow)"
+        opacity="0.9"
+        filter="url(#hwGlowMd)"
+      />
+      <path
+        d="M348,368 L348,338 Q348,308 366,304 Q384,308 384,338 L384,368"
+        fill="none"
+        stroke="#302a48"
+        strokeWidth="3"
+      />
+      <path
+        d="M390,342 Q390,320 404,316 Q418,320 418,342 L418,370 L390,370 Z"
+        fill="#04020c"
+      />
+      <path
+        d="M392,344 Q392,322 404,318 Q416,322 416,344 L416,368 L392,368 Z"
+        fill="url(#hwWinGlow)"
+        opacity="0.85"
+        filter="url(#hwGlowMd)"
+      />
+      <path
+        d="M388,370 L388,342 Q388,312 404,308 Q420,312 420,342 L420,370"
+        fill="none"
+        stroke="#302a48"
+        strokeWidth="3"
+      />
+      {/* Upper centre spire window */}
+      <path
+        d="M368,248 Q368,236 380,232 Q392,236 392,248 L392,268 L368,268 Z"
+        fill="#04020c"
+      />
+      <path
+        d="M370,250 Q370,238 380,234 Q390,238 390,250 L390,266 L370,266 Z"
+        fill="url(#hwWinGlow)"
+        opacity="0.9"
+        filter="url(#hwGlowMd)"
+      />
+      {/* Small left tower window */}
+      <path
+        d="M175,280 Q175,266 187,262 Q199,266 199,280 L199,300 L175,300 Z"
+        fill="#04020c"
+      />
+      <path
+        d="M177,282 Q177,268 187,264 Q197,268 197,282 L197,298 L177,298 Z"
+        fill="url(#hwWinGlow)"
+        opacity="0.75"
+        filter="url(#hwGlow)"
+      />
+      {/* Small right tower window */}
+      <path
+        d="M543,300 Q543,288 555,284 Q567,288 567,300 L567,318 L543,318 Z"
+        fill="#04020c"
+      />
+      <path
+        d="M545,302 Q545,290 555,286 Q565,290 565,302 L565,316 L545,316 Z"
+        fill="url(#hwWinGlow)"
+        opacity="0.75"
+        filter="url(#hwGlow)"
+      />
+
+      {/* ── Ivy vines on castle walls ── */}
+      <g stroke="#0c1808" strokeWidth="1.8" fill="none" opacity="0.65">
+        <path d="M180,360 Q185,340 182,318 Q178,296 182,272 Q186,250 182,228" />
+        <path d="M180,340 Q192,326 190,310 Q194,294 190,278" />
+        <path d="M580,370 Q575,350 578,328 Q574,308 577,286" />
+        <path d="M580,350 Q570,336 573,320 Q569,304 572,288" />
+      </g>
+      {/* Ivy leaves */}
+      <g fill="#0c1808" opacity="0.55">
+        {(
+          [
+            [182, 330],
+            [186, 305],
+            [180, 278],
+            [191, 345],
+            [183, 290],
+          ] as [number, number][]
+        ).map(([x, y]) => (
+          <ellipse
+            key={`ivy-l-${x}-${y}`}
+            cx={x}
+            cy={y}
+            rx="5"
+            ry="3"
+            transform={`rotate(${((x * 17 + y * 7) % 80) - 40} ${x} ${y})`}
+          />
+        ))}
+        {(
+          [
+            [575, 342],
+            [578, 316],
+            [576, 290],
+            [572, 360],
+            [580, 304],
+          ] as [number, number][]
+        ).map(([x, y]) => (
+          <ellipse
+            key={`ivy-r-${x}-${y}`}
+            cx={x}
+            cy={y}
+            rx="4"
+            ry="2.5"
+            transform={`rotate(${((x * 13 + y * 11) % 90) - 45} ${x} ${y})`}
+          />
+        ))}
+      </g>
+
+      {/* ═══════════════════════════════════════════
+          DARK ROLLING HILLS + MIDGROUND
+      ═══════════════════════════════════════════ */}
+      <path
+        d="M0,555 Q120,520 250,532 Q380,545 500,522 Q620,500 760,514 Q900,528 1040,510 Q1110,500 1200,516 L1200,800 L0,800 Z"
+        fill="#080514"
+      />
+      <path
+        d="M0,598 Q80,568 200,580 Q340,592 460,570 Q590,548 720,562 Q850,576 980,558 Q1080,544 1200,555 L1200,800 L0,800 Z"
+        fill="#060410"
+      />
+
+      {/* ── Castle flanking bare dead trees ── */}
+      <g stroke="#100e1e" fill="none">
+        {/* Left flanking tree */}
+        <path
+          d="M105,570 Q108,538 106,505 Q103,472 106,440 Q109,410 105,380 Q101,350 104,318"
+          strokeWidth="2.8"
+        />
+        <path d="M106,440 Q88,424 78,408" strokeWidth="1.8" />
+        <path d="M106,455 Q84,442 72,430" strokeWidth="1.8" />
+        <path d="M106,470 Q88,460 78,450" strokeWidth="1.5" />
+        <path d="M104,410 Q120,394 128,378" strokeWidth="1.8" />
+        <path d="M104,425 Q122,412 130,398" strokeWidth="1.5" />
+        <path d="M104,380 Q96,360 92,344" strokeWidth="1.5" />
+        <path d="M104,380 Q114,358 120,342" strokeWidth="1.5" />
+        <path d="M78,408 Q66,398 60,386" strokeWidth="1.2" />
+        <path d="M128,378 Q136,364 140,352" strokeWidth="1.2" />
+        {/* Right flanking tree */}
+        <path
+          d="M658,578 Q654,544 656,510 Q660,476 656,442 Q652,408 655,374 Q658,342 654,312"
+          strokeWidth="2.5"
+        />
+        <path d="M655,450 Q672,434 684,420" strokeWidth="1.6" />
+        <path d="M655,466 Q674,454 686,442" strokeWidth="1.6" />
+        <path d="M655,480 Q670,470 680,460" strokeWidth="1.4" />
+        <path d="M654,420 Q638,404 630,390" strokeWidth="1.6" />
+        <path d="M654,435 Q640,422 633,408" strokeWidth="1.4" />
+        <path d="M654,374 Q648,354 644,338" strokeWidth="1.4" />
+        <path d="M654,374 Q662,352 668,336" strokeWidth="1.4" />
+      </g>
+
+      {/* ── Midground twisted dead trees ── */}
+      <g stroke="#18142a" fill="none" opacity="0.8">
+        <path
+          d="M72,590 Q74,558 72,526 Q70,494 73,462 Q76,432 72,404"
+          strokeWidth="2.2"
+        />
+        <path d="M72,462 Q55,448 46,434" strokeWidth="1.5" />
+        <path d="M72,478 Q53,466 44,454" strokeWidth="1.5" />
+        <path d="M73,444 Q88,430 95,418" strokeWidth="1.5" />
+        <path d="M73,458 Q90,446 97,432" strokeWidth="1.4" />
+        <path d="M72,404 Q66,386 62,370" strokeWidth="1.4" />
+        <path d="M72,404 Q78,384 82,368" strokeWidth="1.4" />
+        <path
+          d="M1100,585 Q1098,554 1100,522 Q1102,490 1099,460"
+          strokeWidth="2.2"
+        />
+        <path d="M1099,500 Q1082,486 1074,472" strokeWidth="1.5" />
+        <path d="M1099,518 Q1080,506 1072,494" strokeWidth="1.5" />
+        <path d="M1100,480 Q1116,466 1124,452" strokeWidth="1.5" />
+        <path d="M1099,460 Q1093,442 1090,426" strokeWidth="1.4" />
+        <path d="M1099,460 Q1106,440 1110,424" strokeWidth="1.4" />
+        <path d="M780,598 Q776,566 778,534 Q780,504 776,475" strokeWidth="2" />
+        <path d="M777,510 Q762,496 755,482" strokeWidth="1.4" />
+        <path d="M777,526 Q760,514 752,502" strokeWidth="1.4" />
+        <path d="M776,490 Q791,476 798,462" strokeWidth="1.4" />
+        <path d="M776,475 Q770,456 766,440" strokeWidth="1.3" />
+        <path d="M776,475 Q782,455 786,440" strokeWidth="1.3" />
+      </g>
+
+      {/* ── Foreground ground / grass ── */}
+      <path
+        d="M0,638 Q60,614 160,626 Q266,638 390,620 Q508,604 650,614 Q792,624 920,606 Q1042,590 1200,600 L1200,800 L0,800 Z"
+        fill="#04020c"
+      />
+
+      {/* ── STATIC FOG WISPS ── */}
+      <rect
+        x="0"
+        y="528"
+        width="1200"
+        height="45"
+        fill="url(#hwFogGrad)"
+        opacity="0.6"
+      />
+      <rect
+        x="0"
+        y="548"
+        width="1200"
+        height="38"
+        fill="url(#hwFogGrad)"
+        opacity="0.5"
+      />
+      <rect
+        x="0"
+        y="590"
+        width="1200"
+        height="35"
+        fill="url(#hwFogGrad)"
+        opacity="0.45"
+      />
+      <rect
+        x="0"
+        y="638"
+        width="1200"
+        height="30"
+        fill="url(#hwFogGrad)"
+        opacity="0.35"
+      />
+      <rect
+        x="0"
+        y="660"
+        width="1200"
+        height="25"
+        fill="url(#hwFogGrad)"
+        opacity="0.28"
+      />
+
+      {/* ═══════════════════════════════════════════
+          GRAVEYARD (foreground)
+      ═══════════════════════════════════════════ */}
+
+      {/* Iron fence spanning width — spear-top pickets */}
+      <g fill="#0d0b1c" stroke="#181630" strokeWidth="1">
+        {/* Left section */}
+        {[58, 73, 88, 103, 118, 133, 148].map((x) => (
+          <g key={`lf-${x}`}>
+            <rect x={x - 2} y="632" width="4" height="58" />
+            <polygon points={`${x - 4},632 ${x},618 ${x + 4},632`} />
+            <rect x={x - 3} y="628" width="6" height="5" />
+          </g>
+        ))}
+        <rect x="56" y="645" width="96" height="5" rx="1" />
+        <rect x="56" y="660" width="96" height="4" rx="1" />
+        {/* Right section */}
+        {[1040, 1055, 1070, 1085, 1100, 1115, 1130].map((x) => (
+          <g key={`rf-${x}`}>
+            <rect x={x - 2} y="628" width="4" height="60" />
+            <polygon points={`${x - 4},628 ${x},614 ${x + 4},628`} />
+            <rect x={x - 3} y="624" width="6" height="5" />
+          </g>
+        ))}
+        <rect x="1038" y="641" width="96" height="5" rx="1" />
+        <rect x="1038" y="656" width="96" height="4" rx="1" />
+        {/* Wide gate in middle */}
+        <rect x="550" y="620" width="5" height="68" />
+        <polygon points="546,620 552,605 558,620" />
+        <rect x="645" y="620" width="5" height="68" />
+        <polygon points="641,620 647,605 653,620" />
+        <rect x="548" y="635" width="104" height="4" rx="1" />
+        <rect x="548" y="650" width="104" height="4" rx="1" />
+      </g>
+
+      {/* ── TOMBSTONES (8 varied) ── */}
+      {/* Tombstone 1 — rounded arch */}
+      <g transform="translate(195, 668)">
+        <path
+          d="M-19,0 Q-19,-48 0,-56 Q19,-48 19,0 L19,26 L-19,26 Z"
+          fill="#171325"
+          stroke="#22203a"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M-13,0 Q-13,-40 0,-47 Q13,-40 13,0 L13,4 L-13,4 Z"
+          fill="#0f0c1c"
+          opacity="0.4"
+        />
+        {/* Carved decorative border lines */}
+        <path
+          d="M-15,-42 Q0,-52 15,-42"
+          fill="none"
+          stroke="#201e38"
+          strokeWidth="1"
+          opacity="0.6"
+        />
+        <path
+          d="M-14,-35 Q0,-44 14,-35"
+          fill="none"
+          stroke="#1e1c36"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        {/* Crack */}
+        <path
+          d="M-3,-30 Q1,-18 -2,-5"
+          stroke="#2a2848"
+          strokeWidth="1.1"
+          fill="none"
+        />
+        {/* Moss */}
+        <circle cx="9" cy="-16" r="3.5" fill="#0c1a08" opacity="0.55" />
+        <circle cx="-10" cy="-28" r="3" fill="#0c1a08" opacity="0.5" />
+        <ellipse
+          cx="-5"
+          cy="-8"
+          rx="4"
+          ry="2.5"
+          fill="#0c1a08"
+          opacity="0.45"
+          transform="rotate(15 -5 -8)"
+        />
+        <text
+          x="0"
+          y="-14"
+          textAnchor="middle"
+          fontSize="7"
+          fill="#2c2848"
+          fontFamily="serif"
+        >
+          R.I.P
+        </text>
+      </g>
+      {/* Tombstone 2 — rectangle rounded */}
+      <g transform="translate(318, 672)">
+        <rect
+          x="-15"
+          y="-56"
+          width="30"
+          height="74"
+          rx="9"
+          fill="#151122"
+          stroke="#1e1c32"
+          strokeWidth="1.5"
+        />
+        <rect
+          x="-11"
+          y="-49"
+          width="22"
+          height="5"
+          rx="2"
+          fill="#0f0d1c"
+          opacity="0.5"
+        />
+        <rect
+          x="-11"
+          y="-40"
+          width="22"
+          height="3"
+          rx="1"
+          fill="#0f0d1c"
+          opacity="0.4"
+        />
+        <path
+          d="M3,-38 Q6,-22 4,-8"
+          stroke="#262248"
+          strokeWidth="1"
+          fill="none"
+        />
+        <path
+          d="M-7,-30 Q-5,-18 -6,-8"
+          stroke="#262248"
+          strokeWidth="0.8"
+          fill="none"
+        />
+        {/* Moss */}
+        <circle cx="-8" cy="-22" r="3" fill="#0a1806" opacity="0.5" />
+        <circle cx="7" cy="-36" r="2.5" fill="#0a1806" opacity="0.45" />
+        <text
+          x="0"
+          y="-22"
+          textAnchor="middle"
+          fontSize="8"
+          fill="#2a2448"
+          fontFamily="serif"
+        >
+          †
+        </text>
+        <text
+          x="0"
+          y="-12"
+          textAnchor="middle"
+          fontSize="5.5"
+          fill="#262244"
+          fontFamily="serif"
+        >
+          REST
+        </text>
+      </g>
+      {/* Tombstone 3 — cross */}
+      <g transform="translate(455, 664)">
+        <rect
+          x="-7"
+          y="-66"
+          width="14"
+          height="84"
+          fill="#171325"
+          stroke="#22203a"
+          strokeWidth="1.5"
+        />
+        <rect
+          x="-22"
+          y="-53"
+          width="44"
+          height="14"
+          fill="#171325"
+          stroke="#22203a"
+          strokeWidth="1.5"
+        />
+        <rect
+          x="-5"
+          y="-44"
+          width="10"
+          height="62"
+          fill="#100e1e"
+          opacity="0.3"
+        />
+        <path
+          d="M1,-58 Q3,-44 1,-30"
+          stroke="#2a2848"
+          strokeWidth="0.9"
+          fill="none"
+        />
+        {/* Skull & crossbones carved */}
+        <circle
+          cx="0"
+          cy="-44"
+          r="4.5"
+          fill="none"
+          stroke="#201e3a"
+          strokeWidth="1"
+        />
+        <line
+          x1="-4"
+          y1="-38"
+          x2="4"
+          y2="-30"
+          stroke="#201e3a"
+          strokeWidth="0.8"
+        />
+        <line
+          x1="4"
+          y1="-38"
+          x2="-4"
+          y2="-30"
+          stroke="#201e3a"
+          strokeWidth="0.8"
+        />
+      </g>
+      {/* Tombstone 4 — wide slab */}
+      <g transform="translate(572, 675)">
+        <rect
+          x="-24"
+          y="-42"
+          width="48"
+          height="58"
+          rx="3"
+          fill="#151122"
+          stroke="#1e1c32"
+          strokeWidth="1.5"
+        />
+        <rect
+          x="-20"
+          y="-38"
+          width="40"
+          height="4"
+          fill="#1e1c32"
+          opacity="0.5"
+        />
+        <rect
+          x="-20"
+          y="-30"
+          width="40"
+          height="2"
+          fill="#1e1c32"
+          opacity="0.35"
+        />
+        <path
+          d="M-6,-28 Q-3,-14 -5,-4"
+          stroke="#262248"
+          strokeWidth="1"
+          fill="none"
+        />
+        <path
+          d="M8,-25 Q10,-12 9,-2"
+          stroke="#262248"
+          strokeWidth="0.8"
+          fill="none"
+        />
+        {/* Skull carved */}
+        <circle
+          cx="-12"
+          cy="-16"
+          r="4"
+          fill="none"
+          stroke="#201e38"
+          strokeWidth="0.9"
+        />
+        <ellipse
+          cx="-12"
+          cy="-13"
+          rx="3"
+          ry="2"
+          fill="none"
+          stroke="#201e38"
+          strokeWidth="0.7"
+        />
+        {/* Moss patches */}
+        <ellipse
+          cx="12"
+          cy="-14"
+          rx="6"
+          ry="3.5"
+          fill="#0a1806"
+          opacity="0.5"
+          transform="rotate(20 12 -14)"
+        />
+        <ellipse
+          cx="-18"
+          cy="-6"
+          rx="4"
+          ry="2.5"
+          fill="#0a1806"
+          opacity="0.45"
+          transform="rotate(-15 -18 -6)"
+        />
+        <text
+          x="0"
+          y="-18"
+          textAnchor="middle"
+          fontSize="6"
+          fill="#2c2848"
+          fontFamily="serif"
+        >
+          RIP
+        </text>
+        <text
+          x="0"
+          y="-9"
+          textAnchor="middle"
+          fontSize="5"
+          fill="#262244"
+          fontFamily="serif"
+        >
+          1765
+        </text>
+      </g>
+      {/* Tombstone 5 — tall pointed */}
+      <g transform="translate(716, 660)">
+        <path
+          d="M-13,-65 L0,-84 L13,-65 L13,20 L-13,20 Z"
+          fill="#171325"
+          stroke="#22203a"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M-9,-58 L0,-74 L9,-58 L9,16 L-9,16 Z"
+          fill="#100e1e"
+          opacity="0.28"
+        />
+        <path
+          d="M-2,-52 Q1,-34 -1,-12"
+          stroke="#262448"
+          strokeWidth="1.1"
+          fill="none"
+        />
+        <circle cx="7" cy="-30" r="3" fill="#0a1806" opacity="0.5" />
+        <circle cx="-7" cy="-46" r="2.5" fill="#0a1806" opacity="0.45" />
+        <text
+          x="0"
+          y="-28"
+          textAnchor="middle"
+          fontSize="6"
+          fill="#2c2848"
+          fontFamily="serif"
+        >
+          R.I.P
+        </text>
+      </g>
+      {/* Tombstone 6 — leaning, mossy */}
+      <g transform="translate(838, 670) rotate(-5)">
+        <rect
+          x="-15"
+          y="-50"
+          width="30"
+          height="66"
+          rx="6"
+          fill="#151122"
+          stroke="#1e1c32"
+          strokeWidth="1.5"
+        />
+        <path d="M-15,-50 Q0,-58 15,-50 Z" fill="#171325" />
+        <path
+          d="M-3,-37 Q2,-22 -1,-8"
+          stroke="#262448"
+          strokeWidth="1"
+          fill="none"
+        />
+        {/* Heavy moss */}
+        <ellipse
+          cx="-7"
+          cy="-24"
+          rx="7"
+          ry="4"
+          fill="#0a1806"
+          opacity="0.55"
+          transform="rotate(-12 -7 -24)"
+        />
+        <ellipse
+          cx="5"
+          cy="-38"
+          rx="5"
+          ry="3"
+          fill="#0a1806"
+          opacity="0.48"
+          transform="rotate(20 5 -38)"
+        />
+        <ellipse
+          cx="8"
+          cy="-10"
+          rx="6"
+          ry="3.5"
+          fill="#0a1806"
+          opacity="0.45"
+          transform="rotate(-8 8 -10)"
+        />
+        <text
+          x="0"
+          y="-18"
+          textAnchor="middle"
+          fontSize="6"
+          fill="#2c2848"
+          fontFamily="serif"
+        >
+          †
+        </text>
+      </g>
+      {/* Tombstone 7 — cracked broken top */}
+      <g transform="translate(950, 665)">
+        <rect
+          x="-16"
+          y="-52"
+          width="32"
+          height="68"
+          rx="4"
+          fill="#151122"
+          stroke="#1e1c32"
+          strokeWidth="1.5"
+        />
+        {/* Broken top piece */}
+        <path
+          d="M-16,-52 Q-6,-64 4,-52 L-16,-52 Z"
+          fill="#171325"
+          stroke="#22203a"
+          strokeWidth="1.5"
+        />
+        {/* Large crack diagonal */}
+        <path
+          d="M-4,-46 Q3,-30 -2,-16 Q4,-4 0,10"
+          stroke="#2e2850"
+          strokeWidth="1.6"
+          fill="none"
+        />
+        <path
+          d="M-4,-46 Q-10,-34 -6,-22"
+          stroke="#2e2850"
+          strokeWidth="0.9"
+          fill="none"
+        />
+        {/* Moss */}
+        <ellipse
+          cx="9"
+          cy="-16"
+          rx="8"
+          ry="4.5"
+          fill="#0a1806"
+          opacity="0.5"
+          transform="rotate(10 9 -16)"
+        />
+        <ellipse cx="-10" cy="-5" rx="5" ry="3" fill="#0a1806" opacity="0.42" />
+        <text
+          x="0"
+          y="-24"
+          textAnchor="middle"
+          fontSize="5.5"
+          fill="#2a2448"
+          fontFamily="serif"
+        >
+          LOST
+        </text>
+      </g>
+      {/* Tombstone 8 — obelisk with skull & crossbones */}
+      <g transform="translate(1060, 658) rotate(2)">
+        <polygon
+          points="-11,-80 11,-80 15,20 -15,20"
+          fill="#171325"
+          stroke="#22203a"
+          strokeWidth="1.5"
+        />
+        <polygon
+          points="-7,-76 7,-76 -7,-62 7,-62"
+          fill="#100e1e"
+          opacity="0.22"
+        />
+        <path
+          d="M2,-62 Q5,-44 3,-22"
+          stroke="#262448"
+          strokeWidth="1"
+          fill="none"
+        />
+        {/* Skull & crossbones carving */}
+        <circle
+          cx="0"
+          cy="-52"
+          r="6"
+          fill="none"
+          stroke="#201e3a"
+          strokeWidth="1.1"
+        />
+        <circle cx="-2" cy="-56" r="1.5" fill="#201e3a" opacity="0.7" />
+        <circle cx="2" cy="-56" r="1.5" fill="#201e3a" opacity="0.7" />
+        <path d="M-6,-44" fill="none" />
+        <line
+          x1="-7"
+          y1="-44"
+          x2="7"
+          y2="-36"
+          stroke="#201e3a"
+          strokeWidth="1"
+        />
+        <line
+          x1="7"
+          y1="-44"
+          x2="-7"
+          y2="-36"
+          stroke="#201e3a"
+          strokeWidth="1"
+        />
+        <text
+          x="0"
+          y="-20"
+          textAnchor="middle"
+          fontSize="5.5"
+          fill="#2a2448"
+          fontFamily="serif"
+        >
+          1802
+        </text>
+      </g>
+
+      {/* ── Large dead trees in graveyard ── */}
+      <g stroke="#120f22" fill="none">
+        {/* Tree 1 — far left */}
+        <path
+          d="M38,800 Q40,762 38,720 Q36,680 39,640 Q42,600 38,558 Q34,516 38,478"
+          strokeWidth="14"
+        />
+        <path d="M39,620 Q14,598 2,574" strokeWidth="7" />
+        <path d="M39,648 Q10,628 -2,608" strokeWidth="6" />
+        <path d="M39,675 Q16,660 5,645" strokeWidth="5" />
+        <path d="M38,590 Q62,568 74,548" strokeWidth="7" />
+        <path d="M38,614 Q64,596 76,578" strokeWidth="6" />
+        <path d="M38,548 Q30,522 26,500" strokeWidth="5" />
+        <path d="M38,548 Q48,520 54,498" strokeWidth="5" />
+        <path d="M14,574 Q2,560 -5,546" strokeWidth="4" />
+        <path d="M14,574 Q8,558 6,542" strokeWidth="3.5" />
+        <path d="M2,574 Q-6,562 -8,550" strokeWidth="3" />
+        <path d="M74,548 Q82,534 86,520" strokeWidth="4" />
+        <path d="M74,548 Q80,530 82,514" strokeWidth="3.5" />
+        <path d="M54,498 Q60,480 64,464" strokeWidth="3.5" />
+        <path d="M54,498 Q48,476 46,460" strokeWidth="3" />
+        {/* Tree 2 — right side */}
+        <path
+          d="M1175,800 Q1172,760 1174,718 Q1176,678 1172,638 Q1168,598 1172,558 Q1176,518 1172,480"
+          strokeWidth="15"
+        />
+        <path d="M1172,640 Q1196,618 1205,596" strokeWidth="7" />
+        <path d="M1172,668 Q1200,648 1208,626" strokeWidth="7" />
+        <path d="M1172,695 Q1194,678 1202,660" strokeWidth="5.5" />
+        <path d="M1172,610 Q1148,588 1138,568" strokeWidth="7" />
+        <path d="M1172,635 Q1146,616 1136,596" strokeWidth="6" />
+        <path d="M1172,558 Q1164,532 1160,508" strokeWidth="5" />
+        <path d="M1172,558 Q1182,530 1186,508" strokeWidth="5" />
+        <path d="M1205,596 Q1212,580 1214,565" strokeWidth="4" />
+        <path d="M1205,596 Q1216,580 1218,565" strokeWidth="3.5" />
+        <path d="M1138,568 Q1130,552 1128,538" strokeWidth="4" />
+        <path d="M1138,568 Q1132,550 1130,535" strokeWidth="3.5" />
+        <path d="M1186,508 Q1192,490 1194,474" strokeWidth="3.5" />
+        <path d="M1160,508 Q1152,490 1149,474" strokeWidth="3.5" />
+        {/* Tree 3 — centre left */}
+        <path
+          d="M310,800 Q312,762 310,722 Q308,684 311,648 Q314,612 310,578"
+          strokeWidth="11"
+        />
+        <path d="M310,652 Q288,632 278,614" strokeWidth="5.5" />
+        <path d="M310,676 Q286,658 276,640" strokeWidth="5" />
+        <path d="M311,628 Q330,608 340,590" strokeWidth="5.5" />
+        <path d="M311,648 Q332,630 342,614" strokeWidth="5" />
+        <path d="M310,578 Q302,558 298,540" strokeWidth="4.5" />
+        <path d="M310,578 Q320,556 324,540" strokeWidth="4.5" />
+        <path d="M278,614 Q266,600 262,585" strokeWidth="3.5" />
+        <path d="M340,590 Q348,576 350,562" strokeWidth="3.5" />
+        <path d="M324,540 Q330,522 332,507" strokeWidth="3.5" />
+        <path d="M298,540 Q290,522 288,507" strokeWidth="3" />
+      </g>
+
+      {/* ── Open grave pits and dirt mounds ── */}
+      <ellipse
+        cx="264"
+        cy="710"
+        rx="40"
+        ry="10"
+        fill="#07050e"
+        stroke="#100d1c"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M224,707 Q264,696 304,707 Q304,704 264,701 Q224,704 224,707 Z"
+        fill="#0d0a18"
+      />
+      <ellipse cx="312" cy="710" rx="18" ry="7" fill="#100e1c" />
+      <ellipse cx="214" cy="709" rx="14" ry="5.5" fill="#100e1c" />
+      <ellipse
+        cx="875"
+        cy="714"
+        rx="38"
+        ry="10"
+        fill="#070510"
+        stroke="#0e0c1a"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M837,711 Q875,700 913,711 Q913,708 875,705 Q837,708 837,711 Z"
+        fill="#0d0a18"
+      />
+      <ellipse cx="920" cy="714" rx="16" ry="6" fill="#0e0c1c" />
+      <ellipse cx="826" cy="712" rx="13" ry="5" fill="#0e0c1c" />
+
+      {/* ── Skeletal hands emerging from ground ── */}
+      {/* Hand 1 */}
+      <g
+        transform="translate(248, 696)"
+        fill="#cec898"
+        stroke="#a09870"
+        strokeWidth="0.8"
+      >
+        <path
+          d="M0,0 Q1,-18 0,-30 Q-1,-40 1,-50"
+          strokeWidth="3"
+          stroke="#c8c090"
+          fill="none"
+        />
+        <path
+          d="M0,-28 Q-5,-36 -6,-46"
+          strokeWidth="2.2"
+          stroke="#c8c090"
+          fill="none"
+        />
+        <path
+          d="M0,-28 Q3,-37 4,-48"
+          strokeWidth="2.2"
+          stroke="#c8c090"
+          fill="none"
+        />
+        <path
+          d="M0,-26 Q6,-32 8,-42"
+          strokeWidth="2"
+          stroke="#c8c090"
+          fill="none"
+        />
+        <path
+          d="M0,-26 Q-7,-30 -9,-40"
+          strokeWidth="2"
+          stroke="#c8c090"
+          fill="none"
+        />
+        <circle cx="1" cy="-30" r="2.5" fill="#cec898" />
+        <circle cx="-5" cy="-38" r="2" fill="#cec898" />
+        <circle cx="3" cy="-38" r="2" fill="#cec898" />
+        <circle cx="7" cy="-34" r="1.8" fill="#cec898" />
+      </g>
+      {/* Hand 2 */}
+      <g
+        transform="translate(860, 702)"
+        fill="#c8c290"
+        stroke="#9c9068"
+        strokeWidth="0.8"
+      >
+        <path
+          d="M0,0 Q-1,-16 0,-26 Q1,-36 -1,-45"
+          strokeWidth="3"
+          stroke="#c0ba88"
+          fill="none"
+        />
+        <path
+          d="M0,-25 Q-4,-33 -5,-42"
+          strokeWidth="2.2"
+          stroke="#c0ba88"
+          fill="none"
+        />
+        <path
+          d="M0,-25 Q4,-34 5,-44"
+          strokeWidth="2.2"
+          stroke="#c0ba88"
+          fill="none"
+        />
+        <path
+          d="M0,-24 Q7,-30 9,-39"
+          strokeWidth="2"
+          stroke="#c0ba88"
+          fill="none"
+        />
+        <circle cx="0" cy="-26" r="2.5" fill="#c8c290" />
+        <circle cx="-4" cy="-34" r="2" fill="#c8c290" />
+        <circle cx="4" cy="-35" r="2" fill="#c8c290" />
+        <circle cx="8" cy="-31" r="1.8" fill="#c8c290" />
+      </g>
+
+      {/* ── Dark shrubs and bushes ── */}
+      <g fill="#090815" stroke="#131020" strokeWidth="1">
+        <g transform="translate(155, 692)">
+          <circle cx="0" cy="0" r="16" />
+          <circle cx="-12" cy="4" r="12" />
+          <circle cx="11" cy="3" r="13" />
+          <circle cx="-4" cy="-10" r="10" />
+        </g>
+        <g transform="translate(1010, 690)">
+          <circle cx="0" cy="0" r="14" />
+          <circle cx="-10" cy="3" r="11" />
+          <circle cx="9" cy="2" r="12" />
+        </g>
+        <g transform="translate(745, 697)">
+          <circle cx="0" cy="0" r="12" />
+          <circle cx="-9" cy="3" r="9" />
+          <circle cx="8" cy="2" r="10" />
+        </g>
+        <g transform="translate(400, 700)">
+          <circle cx="0" cy="0" r="11" />
+          <circle cx="-8" cy="3" r="8" />
+          <circle cx="7" cy="2" r="9" />
+        </g>
+      </g>
+      {/* Small rocks */}
+      <g fill="#0c0a1a" stroke="#151328" strokeWidth="0.8">
+        <ellipse cx="145" cy="722" rx="12" ry="5" />
+        <ellipse cx="162" cy="726" rx="8" ry="3.5" />
+        <ellipse cx="644" cy="720" rx="10" ry="4" />
+        <ellipse cx="1082" cy="724" rx="11" ry="4.5" />
+        <ellipse cx="1098" cy="728" rx="7" ry="3" />
+        <ellipse cx="784" cy="717" rx="9" ry="3.5" />
+      </g>
+
+      {/* ═══════════════════════════════════════════
+          PUMPKINS — static warm glow
+      ═══════════════════════════════════════════ */}
+
+      {/* Pumpkin 1 — large, foreground left */}
+      <g transform="translate(192, 692)">
+        {/* Static glow halo */}
+        <ellipse
+          cx="0"
+          cy="8"
+          rx="52"
+          ry="32"
+          fill="url(#hwPumpGlowBig)"
+          filter="url(#hwGlowLg)"
+        />
+        {/* Curly stem */}
+        <path
+          d="M-2,-46 Q8,-54 6,-36"
+          stroke="#2a4810"
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <rect
+          x="-4"
+          y="-46"
+          width="8"
+          height="16"
+          rx="3.5"
+          fill="#2a4810"
+          stroke="#1c3008"
+          strokeWidth="1"
+        />
+        {/* Body with ridge segments */}
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="36"
+          ry="31"
+          fill="url(#hwPump1)"
+          stroke="#5a2800"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M-12,-27 Q-15,0 -12,27"
+          stroke="#6a2e00"
+          strokeWidth="2.2"
+          fill="none"
+          opacity="0.6"
+        />
+        <path
+          d="M12,-27 Q15,0 12,27"
+          stroke="#6a2e00"
+          strokeWidth="2.2"
+          fill="none"
+          opacity="0.6"
+        />
+        <path
+          d="M-24,-16 Q-28,0 -24,16"
+          stroke="#6a2e00"
+          strokeWidth="1.8"
+          fill="none"
+          opacity="0.5"
+        />
+        <path
+          d="M24,-16 Q28,0 24,16"
+          stroke="#6a2e00"
+          strokeWidth="1.8"
+          fill="none"
+          opacity="0.5"
+        />
+        {/* Inner amber light */}
+        <ellipse cx="0" cy="3" rx="28" ry="23" fill="url(#hwPumpGlow1)" />
+        {/* Menacing eyes */}
+        <path d="M-19,-9 L-8,-9 L-13,4 Z" fill="#04000a" />
+        <path d="M8,-9 L19,-9 L13,4 Z" fill="#04000a" />
+        <path
+          d="M-19,-9 L-8,-9 L-13,4 Z"
+          fill="#ffcc44"
+          opacity="0.45"
+          filter="url(#hwGlowMd)"
+        />
+        <path
+          d="M8,-9 L19,-9 L13,4 Z"
+          fill="#ffcc44"
+          opacity="0.45"
+          filter="url(#hwGlowMd)"
+        />
+        {/* Jagged mouth */}
+        <path
+          d="M-19,10 L-14,6 L-8,13 L-3,6 L3,13 L8,6 L14,13 L19,10"
+          stroke="#04000a"
+          strokeWidth="1.5"
+          fill="none"
+        />
+        <path
+          d="M-14,6 L-8,13 L-8,6 Z M-3,6 L3,13 L3,6 Z M8,6 L14,13 L14,6 Z"
+          fill="#ffaa22"
+          opacity="0.4"
+        />
+        {/* Nose */}
+        <path d="M-4,0 L0,-5 L4,0 L0,4 Z" fill="#04000a" />
+      </g>
+
+      {/* Pumpkin 2 — medium, surprised face */}
+      <g transform="translate(418, 600)">
+        <ellipse
+          cx="0"
+          cy="6"
+          rx="35"
+          ry="20"
+          fill="url(#hwPumpGlow2)"
+          filter="url(#hwGlowLg)"
+        />
+        <path
+          d="M1,-36 Q10,-44 8,-28"
+          stroke="#2a4810"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <rect
+          x="-3"
+          y="-37"
+          width="6"
+          height="12"
+          rx="2.5"
+          fill="#2a4810"
+          stroke="#1c3008"
+          strokeWidth="0.8"
+        />
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="27"
+          ry="23"
+          fill="url(#hwPump2)"
+          stroke="#4a2200"
+          strokeWidth="1.2"
+        />
+        <path
+          d="M-10,-21 Q-12,0 -10,21"
+          stroke="#5a2a00"
+          strokeWidth="1.6"
+          fill="none"
+          opacity="0.55"
+        />
+        <path
+          d="M10,-21 Q12,0 10,21"
+          stroke="#5a2a00"
+          strokeWidth="1.6"
+          fill="none"
+          opacity="0.55"
+        />
+        <path
+          d="M-20,-10 Q-22,0 -20,10"
+          stroke="#5a2a00"
+          strokeWidth="1.2"
+          fill="none"
+          opacity="0.45"
+        />
+        <path
+          d="M20,-10 Q22,0 20,10"
+          stroke="#5a2a00"
+          strokeWidth="1.2"
+          fill="none"
+          opacity="0.45"
+        />
+        <ellipse cx="0" cy="3" rx="21" ry="17" fill="url(#hwPumpGlow2)" />
+        {/* Surprised eyes — circles */}
+        <ellipse cx="-9" cy="-5" rx="5.5" ry="7" fill="#04000a" />
+        <ellipse cx="9" cy="-5" rx="5.5" ry="7" fill="#04000a" />
+        <ellipse
+          cx="-9"
+          cy="-5"
+          rx="3.5"
+          ry="5"
+          fill="#ffcc44"
+          opacity="0.42"
+          filter="url(#hwGlow)"
+        />
+        <ellipse
+          cx="9"
+          cy="-5"
+          rx="3.5"
+          ry="5"
+          fill="#ffcc44"
+          opacity="0.42"
+          filter="url(#hwGlow)"
+        />
+        {/* Surprised O-mouth */}
+        <ellipse cx="0" cy="11" rx="7" ry="6.5" fill="#04000a" />
+        <ellipse
+          cx="0"
+          cy="11"
+          rx="5"
+          ry="4.5"
+          fill="#ffaa22"
+          opacity="0.38"
+          filter="url(#hwGlow)"
+        />
+      </g>
+
+      {/* Pumpkin 3 — small classic near centre */}
+      <g transform="translate(537, 714)">
+        <ellipse
+          cx="0"
+          cy="5"
+          rx="24"
+          ry="14"
+          fill="url(#hwPumpGlow1)"
+          filter="url(#hwGlowLg)"
+        />
+        <rect
+          x="-2.5"
+          y="-28"
+          width="5"
+          height="10"
+          rx="2"
+          fill="#2a4810"
+          stroke="#1c3008"
+          strokeWidth="0.8"
+        />
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="19"
+          ry="16"
+          fill="url(#hwPump3)"
+          stroke="#4a2200"
+          strokeWidth="1"
+        />
+        <path
+          d="M-7,-14 Q-8,0 -7,14"
+          stroke="#5a2a00"
+          strokeWidth="1.2"
+          fill="none"
+          opacity="0.5"
+        />
+        <path
+          d="M7,-14 Q8,0 7,14"
+          stroke="#5a2a00"
+          strokeWidth="1.2"
+          fill="none"
+          opacity="0.5"
+        />
+        <ellipse cx="0" cy="2" rx="14" ry="11" fill="url(#hwPumpGlow1)" />
+        <path d="M-10,-5 L-4,-5 L-7,3 Z" fill="#04000a" />
+        <path d="M4,-5 L10,-5 L7,3 Z" fill="#04000a" />
+        <path
+          d="M-10,-5 L-4,-5 L-7,3 Z"
+          fill="#ffcc44"
+          opacity="0.44"
+          filter="url(#hwGlow)"
+        />
+        <path
+          d="M4,-5 L10,-5 L7,3 Z"
+          fill="#ffcc44"
+          opacity="0.44"
+          filter="url(#hwGlow)"
+        />
+        <path
+          d="M-8,8 Q0,14 8,8"
+          stroke="#04000a"
+          strokeWidth="1.5"
+          fill="none"
+        />
+        <path d="M-6,8 Q0,12 6,8" fill="#ffaa22" opacity="0.35" />
+      </g>
+
+      {/* Pumpkin 4 — taller, crescent eyes */}
+      <g transform="translate(775, 648)">
+        <ellipse
+          cx="0"
+          cy="7"
+          rx="38"
+          ry="24"
+          fill="url(#hwPumpGlowBig)"
+          filter="url(#hwGlowLg)"
+        />
+        <path
+          d="M2,-40 Q13,-48 11,-32"
+          stroke="#2a4810"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <rect
+          x="-3.5"
+          y="-40"
+          width="7"
+          height="14"
+          rx="3"
+          fill="#2a4810"
+          stroke="#1c3008"
+          strokeWidth="1"
+        />
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="29"
+          ry="30"
+          fill="url(#hwPump1)"
+          stroke="#5a2800"
+          strokeWidth="1.2"
+        />
+        <path
+          d="M-11,-26 Q-13,0 -11,26"
+          stroke="#6a2e00"
+          strokeWidth="1.8"
+          fill="none"
+          opacity="0.55"
+        />
+        <path
+          d="M11,-26 Q13,0 11,26"
+          stroke="#6a2e00"
+          strokeWidth="1.8"
+          fill="none"
+          opacity="0.55"
+        />
+        <path
+          d="M-21,-15 Q-23,0 -21,15"
+          stroke="#6a2e00"
+          strokeWidth="1.4"
+          fill="none"
+          opacity="0.45"
+        />
+        <path
+          d="M21,-15 Q23,0 21,15"
+          stroke="#6a2e00"
+          strokeWidth="1.4"
+          fill="none"
+          opacity="0.45"
+        />
+        <ellipse cx="0" cy="4" rx="23" ry="22" fill="url(#hwPumpGlow2)" />
+        {/* Crescent eyes */}
+        <path d="M-15,-8 Q-10,-17 -5,-8 Q-10,-3 -15,-8 Z" fill="#04000a" />
+        <path d="M5,-8 Q10,-17 15,-8 Q10,-3 5,-8 Z" fill="#04000a" />
+        <path
+          d="M-15,-8 Q-10,-17 -5,-8 Q-10,-3 -15,-8 Z"
+          fill="#ffcc44"
+          opacity="0.45"
+          filter="url(#hwGlowMd)"
+        />
+        <path
+          d="M5,-8 Q10,-17 15,-8 Q10,-3 5,-8 Z"
+          fill="#ffcc44"
+          opacity="0.45"
+          filter="url(#hwGlowMd)"
+        />
+        {/* Wide grin */}
+        <path
+          d="M-16,10 L-11,6 L-6,13 L0,7 L6,13 L11,6 L16,10 Q13,19 0,21 Q-13,19 -16,10 Z"
+          fill="#04000a"
+        />
+        <path
+          d="M-11,6 L-6,13 L-6,6 Z M0,7 L6,13 L6,7 Z"
+          fill="#ffaa22"
+          opacity="0.42"
+        />
+      </g>
+
+      {/* Pumpkin 5 — large right foreground */}
+      <g transform="translate(1148, 688)">
+        <ellipse
+          cx="0"
+          cy="8"
+          rx="48"
+          ry="28"
+          fill="url(#hwPumpGlowBig)"
+          filter="url(#hwGlowLg)"
+        />
+        <path
+          d="M2,-42 Q14,-50 12,-32"
+          stroke="#2a4810"
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <rect
+          x="-4"
+          y="-43"
+          width="8"
+          height="15"
+          rx="3.5"
+          fill="#2a4810"
+          stroke="#1c3008"
+          strokeWidth="1"
+        />
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="32"
+          ry="28"
+          fill="url(#hwPump1)"
+          stroke="#5a2800"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M-11,-24 Q-13,0 -11,24"
+          stroke="#6a2e00"
+          strokeWidth="2"
+          fill="none"
+          opacity="0.55"
+        />
+        <path
+          d="M11,-24 Q13,0 11,24"
+          stroke="#6a2e00"
+          strokeWidth="2"
+          fill="none"
+          opacity="0.55"
+        />
+        <path
+          d="M-22,-13 Q-24,0 -22,13"
+          stroke="#6a2e00"
+          strokeWidth="1.6"
+          fill="none"
+          opacity="0.45"
+        />
+        <path
+          d="M22,-13 Q24,0 22,13"
+          stroke="#6a2e00"
+          strokeWidth="1.6"
+          fill="none"
+          opacity="0.45"
+        />
+        <ellipse cx="0" cy="4" rx="26" ry="21" fill="url(#hwPumpGlow1)" />
+        {/* Wicked slanted eyes */}
+        <path d="M-17,-7 L-9,-11 L-7,-4 L-15,0 Z" fill="#04000a" />
+        <path d="M9,-11 L17,-7 L15,0 L7,-4 Z" fill="#04000a" />
+        <path
+          d="M-17,-7 L-9,-11 L-7,-4 L-15,0 Z"
+          fill="#ffdd44"
+          opacity="0.52"
+          filter="url(#hwGlowMd)"
+        />
+        <path
+          d="M9,-11 L17,-7 L15,0 L7,-4 Z"
+          fill="#ffdd44"
+          opacity="0.52"
+          filter="url(#hwGlowMd)"
+        />
+        {/* Wide jagged grin */}
+        <path
+          d="M-17,10 L-13,7 L-8,14 L-4,7 L0,14 L4,7 L8,14 L13,7 L17,10 Q15,21 0,23 Q-15,21 -17,10 Z"
+          fill="#04000a"
+        />
+        <path
+          d="M-13,7 L-8,14 L-8,7 Z M-4,7 L0,14 L0,7 Z M4,7 L8,14 L8,7 Z"
+          fill="#ffaa22"
+          opacity="0.48"
+        />
+      </g>
+    </svg>
+  );
+
+  const renderTokyoWorld = () => (
+    <svg
+      role="img"
+      aria-label="Tokyo world background"
+      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <defs>
+        {/* ── SKY GRADIENT — warm orange at horizon → deep crimson at top ── */}
+        <linearGradient id="tkSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#8B0000" />
+          <stop offset="28%" stopColor="#A61010" />
+          <stop offset="55%" stopColor="#C0311A" />
+          <stop offset="78%" stopColor="#D94B1A" />
+          <stop offset="90%" stopColor="#E8651A" />
+          <stop offset="100%" stopColor="#F07030" />
+        </linearGradient>
+        {/* ── WATER ── */}
+        <linearGradient id="tkWaterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#2A0A0A" />
+          <stop offset="40%" stopColor="#1A0606" />
+          <stop offset="100%" stopColor="#0D0303" />
+        </linearGradient>
+        {/* ── WATER STRIPE MASK for reflection ── */}
+        <pattern
+          id="tkWaterStripes"
+          x="0"
+          y="0"
+          width="1"
+          height="8"
+          patternUnits="userSpaceOnUse"
+        >
+          <rect x="0" y="0" width="1200" height="4" fill="white" />
+          <rect x="0" y="4" width="1200" height="4" fill="transparent" />
+        </pattern>
+        <mask id="tkReflMask">
+          <rect
+            x="0"
+            y="490"
+            width="1200"
+            height="310"
+            fill="url(#tkWaterStripes)"
+          />
+        </mask>
+        {/* ── SOFT BLUR for reflection ── */}
+        <filter id="tkReflBlur" x="-2%" y="-2%" width="104%" height="110%">
+          <feGaussianBlur stdDeviation="1.5 2.5" />
+        </filter>
+      </defs>
+
+      {/* ══════════════════════════════════════════
+          LAYER 1 — SKY
+      ══════════════════════════════════════════ */}
+      <rect width="1200" height="800" fill="url(#tkSkyGrad)" />
+
+      {/* ══════════════════════════════════════════
+          LAYER 2 — SUN (large solid crimson circle, no halo)
+      ══════════════════════════════════════════ */}
+      {/* Clean solid sun — the ONLY color element besides the sky */}
+      <circle cx="480" cy="360" r="95" fill="#C41E3A" />
+
+      {/* ══════════════════════════════════════════
+          LAYER 3 — MOUNT FUJI silhouette (solid black)
+      ══════════════════════════════════════════ */}
+      {/* Fuji main body — pure black silhouette */}
+      <path
+        d="M0,490 L140,250 L180,230 L220,255 L245,235 L270,255 L295,235 L315,255 L330,240 L350,260 L560,490 Z"
+        fill="#000000"
+      />
+      {/* Fuji snow cap — white peak only */}
+      <path
+        d="M220,255 L245,235 L270,255 L295,235 L315,255 L305,262 L270,268 L235,264 Z"
+        fill="#F0EDE8"
+      />
+
+      {/* ══════════════════════════════════════════
+          LAYER 4 — CITY SKYLINE (all solid black silhouettes)
+      ══════════════════════════════════════════ */}
+
+      {/* ── Far background buildings — varied heights ── */}
+      <g fill="#000000">
+        {/* Left cluster */}
+        <rect x="0" y="370" width="38" height="120" />
+        <rect x="32" y="345" width="28" height="145" />
+        <rect x="55" y="358" width="45" height="132" />
+        <rect x="95" y="325" width="32" height="165" />
+        <rect x="122" y="340" width="42" height="150" />
+        <rect x="158" y="328" width="35" height="162" />
+        <rect x="186" y="348" width="28" height="142" />
+        <rect x="208" y="338" width="40" height="152" />
+        <rect x="241" y="352" width="26" height="138" />
+        {/* Mid-left buildings */}
+        <rect x="265" y="318" width="36" height="172" />
+        <rect x="295" y="335" width="50" height="155" />
+        <rect x="338" y="360" width="30" height="130" />
+        <rect x="362" y="342" width="44" height="148" />
+        <rect x="398" y="355" width="35" height="135" />
+        <rect x="425" y="365" width="28" height="125" />
+        {/* Mid buildings (not behind sun — sun is at x=480 y=360 r=95) */}
+        <rect x="455" y="375" width="30" height="115" />
+        <rect x="620" y="348" width="38" height="142" />
+        <rect x="652" y="330" width="32" height="160" />
+        <rect x="678" y="355" width="46" height="135" />
+        <rect x="718" y="340" width="30" height="150" />
+        <rect x="742" y="360" width="42" height="130" />
+        {/* Right cluster */}
+        <rect x="778" y="325" width="35" height="165" />
+        <rect x="806" y="345" width="28" height="145" />
+        <rect x="828" y="362" width="48" height="128" />
+        <rect x="870" y="335" width="32" height="155" />
+        <rect x="895" y="352" width="38" height="138" />
+        <rect x="928" y="368" width="25" height="122" />
+        <rect x="1108" y="352" width="35" height="138" />
+        <rect x="1137" y="330" width="28" height="160" />
+        <rect x="1158" y="348" width="45" height="142" />
+        <rect x="1196" y="362" width="20" height="128" />
+      </g>
+
+      {/* ── TOKYO SKYTREE — tapered black tower silhouette ── */}
+      <g fill="#000000">
+        {/* Wide base */}
+        <path d="M952,490 L960,300 L968,290 L976,300 L984,490 Z" />
+        {/* Narrowing mid section */}
+        <path d="M960,300 L964,160 L968,155 L972,160 L976,300 Z" />
+        {/* Observation deck platform */}
+        <rect x="956" y="296" width="24" height="10" />
+        <rect x="959" y="256" width="18" height="8" />
+        {/* Slim upper spire */}
+        <path d="M965,155 L968,60 L971,155 Z" />
+      </g>
+
+      {/* ── TOKYO TOWER — black A-frame lattice silhouette ── */}
+      <g fill="#000000">
+        {/* Outer A-frame legs */}
+        <path d="M808,490 L835,210 L860,210 L887,490 Z" />
+        {/* Inner body narrowing */}
+        <path d="M832,285 L843,140 L857,140 L868,285 Z" />
+        {/* Upper section */}
+        <path d="M841,160 L849,65 L857,160 Z" />
+        {/* Spire */}
+        <path d="M847,65 L850,18 L853,65 Z" />
+        {/* Observation bands — slightly lighter for definition */}
+        <rect x="834" y="282" width="27" height="8" fill="#0a0a0a" />
+        <rect x="839" y="200" width="17" height="7" fill="#0a0a0a" />
+      </g>
+
+      {/* ── PAGODA — black 5-tier silhouette (far right) ── */}
+      <g fill="#000000">
+        {/* Base platform */}
+        <rect x="1055" y="482" width="115" height="10" />
+        {/* Tier 5 — widest */}
+        <rect x="1063" y="452" width="99" height="32" />
+        <path d="M1048,452 Q1113,432 1178,452 L1178,456 Q1113,436 1048,456 Z" />
+        {/* Tier 4 */}
+        <rect x="1075" y="422" width="75" height="32" />
+        <path d="M1062,422 Q1113,402 1163,422 L1163,426 Q1113,406 1062,426 Z" />
+        {/* Tier 3 */}
+        <rect x="1085" y="392" width="55" height="32" />
+        <path d="M1073,392 Q1113,372 1152,392 L1152,396 Q1113,376 1073,396 Z" />
+        {/* Tier 2 */}
+        <rect x="1095" y="362" width="35" height="32" />
+        <path d="M1084,362 Q1113,342 1141,362 L1141,366 Q1113,346 1084,366 Z" />
+        {/* Tier 1 — smallest */}
+        <rect x="1105" y="332" width="15" height="32" />
+        <path d="M1094,332 Q1113,312 1131,332 L1131,336 Q1113,316 1094,336 Z" />
+        {/* Spire */}
+        <path d="M1111,314 L1113,275 L1115,314 Z" />
+        <circle cx="1113" cy="274" r="3.5" />
+      </g>
+
+      {/* ── TORII GATE — classic black silhouette ── */}
+      <g fill="#000000">
+        {/* Top curved kasagi beam */}
+        <path d="M262,318 Q385,295 500,318 L503,304 Q385,279 260,304 Z" />
+        {/* Lower nuki beam */}
+        <rect x="294" y="352" width="175" height="18" />
+        {/* Left column */}
+        <rect x="282" y="316" width="24" height="178" />
+        {/* Right column */}
+        <rect x="458" y="316" width="24" height="178" />
+        {/* Column caps on top beam */}
+        <rect x="276" y="312" width="22" height="10" />
+        <rect x="462" y="312" width="22" height="10" />
+      </g>
+
+      {/* ══════════════════════════════════════════
+          LAYER 5 — GROUND / BANK (black)
+      ══════════════════════════════════════════ */}
+      <path
+        d="M0,490 Q200,483 400,488 Q600,494 800,484 Q1000,476 1200,486 L1200,510 L0,510 Z"
+        fill="#000000"
+      />
+
+      {/* ══════════════════════════════════════════
+          LAYER 6 — WATER (dark with horizontal stripe texture)
+      ══════════════════════════════════════════ */}
+      <rect x="0" y="490" width="1200" height="310" fill="url(#tkWaterGrad)" />
+
+      {/* Horizontal ripple lines */}
+      <g stroke="#3A1010" strokeWidth="0.8" opacity="0.5">
+        <line x1="0" y1="500" x2="1200" y2="500" />
+        <line x1="0" y1="510" x2="1200" y2="510" />
+        <line x1="0" y1="522" x2="1200" y2="522" />
+        <line x1="0" y1="535" x2="1200" y2="535" />
+        <line x1="0" y1="550" x2="1200" y2="550" />
+        <line x1="0" y1="567" x2="1200" y2="567" />
+        <line x1="0" y1="586" x2="1200" y2="586" />
+        <line x1="0" y1="608" x2="1200" y2="608" />
+        <line x1="0" y1="634" x2="1200" y2="634" />
+        <line x1="0" y1="664" x2="1200" y2="664" />
+        <line x1="0" y1="700" x2="1200" y2="700" />
+        <line x1="0" y1="745" x2="1200" y2="745" />
+      </g>
+      {/* Shorter broken ripple segments for texture */}
+      <g stroke="#4A1818" strokeWidth="0.5" opacity="0.35">
+        <line x1="40" y1="505" x2="260" y2="505" />
+        <line x1="310" y1="516" x2="560" y2="516" />
+        <line x1="600" y1="505" x2="800" y2="505" />
+        <line x1="860" y1="516" x2="1120" y2="516" />
+        <line x1="90" y1="528" x2="340" y2="528" />
+        <line x1="400" y1="542" x2="680" y2="542" />
+        <line x1="740" y1="528" x2="980" y2="528" />
+        <line x1="180" y1="558" x2="470" y2="558" />
+        <line x1="530" y1="572" x2="830" y2="572" />
+        <line x1="880" y1="558" x2="1080" y2="558" />
+      </g>
+
+      {/* ══════════════════════════════════════════
+          LAYER 7 — REFLECTION (mirrored city silhouette, wavy mask)
+      ══════════════════════════════════════════ */}
+      <g opacity="0.42" mask="url(#tkReflMask)" filter="url(#tkReflBlur)">
+        {/* Reflected buildings — flipped vertically from y=490 */}
+        <g fill="#000000" transform="scale(1,-1) translate(0,-980)">
+          <rect x="0" y="370" width="38" height="120" />
+          <rect x="32" y="345" width="28" height="145" />
+          <rect x="55" y="358" width="45" height="132" />
+          <rect x="95" y="325" width="32" height="165" />
+          <rect x="122" y="340" width="42" height="150" />
+          <rect x="158" y="328" width="35" height="162" />
+          <rect x="186" y="348" width="28" height="142" />
+          <rect x="208" y="338" width="40" height="152" />
+          <rect x="241" y="352" width="26" height="138" />
+          <rect x="265" y="318" width="36" height="172" />
+          <rect x="295" y="335" width="50" height="155" />
+          <rect x="338" y="360" width="30" height="130" />
+          <rect x="362" y="342" width="44" height="148" />
+          <rect x="398" y="355" width="35" height="135" />
+          <rect x="425" y="365" width="28" height="125" />
+          <rect x="455" y="375" width="30" height="115" />
+          <rect x="620" y="348" width="38" height="142" />
+          <rect x="652" y="330" width="32" height="160" />
+          <rect x="678" y="355" width="46" height="135" />
+          <rect x="718" y="340" width="30" height="150" />
+          <rect x="742" y="360" width="42" height="130" />
+          <rect x="778" y="325" width="35" height="165" />
+          <rect x="806" y="345" width="28" height="145" />
+          <rect x="828" y="362" width="48" height="128" />
+          <rect x="870" y="335" width="32" height="155" />
+          <rect x="895" y="352" width="38" height="138" />
+          <rect x="928" y="368" width="25" height="122" />
+          <rect x="1108" y="352" width="35" height="138" />
+          <rect x="1137" y="330" width="28" height="160" />
+          <rect x="1158" y="348" width="45" height="142" />
+          <rect x="1196" y="362" width="20" height="128" />
+          {/* Skytree reflection */}
+          <path d="M952,490 L960,300 L968,290 L976,300 L984,490 Z" />
+          <path d="M960,300 L964,160 L968,155 L972,160 L976,300 Z" />
+          <path d="M965,155 L968,60 L971,155 Z" />
+          {/* Tokyo Tower reflection */}
+          <path d="M808,490 L835,210 L860,210 L887,490 Z" />
+          <path d="M832,285 L843,140 L857,140 L868,285 Z" />
+          <path d="M841,160 L849,65 L857,160 Z" />
+          <path d="M847,65 L850,18 L853,65 Z" />
+          {/* Torii reflection */}
+          <path d="M262,318 Q385,295 500,318 L503,304 Q385,279 260,304 Z" />
+          <rect x="294" y="352" width="175" height="18" />
+          <rect x="282" y="316" width="24" height="178" />
+          <rect x="458" y="316" width="24" height="178" />
+          {/* Pagoda reflection */}
+          <rect x="1063" y="452" width="99" height="32" />
+          <path d="M1048,452 Q1113,432 1178,452 L1178,456 Q1113,436 1048,456 Z" />
+          <rect x="1075" y="422" width="75" height="32" />
+          <rect x="1085" y="392" width="55" height="32" />
+          <rect x="1095" y="362" width="35" height="32" />
+          <rect x="1105" y="332" width="15" height="32" />
+          <path d="M1111,314 L1113,275 L1115,314 Z" />
+          {/* Ground bank */}
+          <path d="M0,490 Q200,483 400,488 Q600,494 800,484 Q1000,476 1200,486 L1200,510 L0,510 Z" />
+          {/* Fuji reflection */}
+          <path d="M0,490 L140,250 L180,230 L220,255 L245,235 L270,255 L295,235 L315,255 L330,240 L350,260 L560,490 Z" />
+        </g>
+      </g>
+
+      {/* ══════════════════════════════════════════
+          LAYER 8 — REEDS / GRASS at water's edge
+      ══════════════════════════════════════════ */}
+      <g stroke="#000000" strokeWidth="1.5" fill="none" strokeLinecap="round">
+        {/* Left bank reeds */}
+        <line x1="18" y1="510" x2="22" y2="488" />
+        <line x1="26" y1="510" x2="30" y2="484" />
+        <line x1="34" y1="510" x2="32" y2="490" />
+        <line x1="42" y1="510" x2="46" y2="486" />
+        <line x1="50" y1="510" x2="48" y2="492" />
+        <line x1="60" y1="510" x2="64" y2="485" />
+        <line x1="72" y1="510" x2="70" y2="491" />
+        <line x1="84" y1="510" x2="88" y2="487" />
+        <line x1="98" y1="510" x2="96" y2="493" />
+        {/* Reed heads — small oval tips */}
+        <ellipse cx="22" cy="487" rx="3" ry="5" fill="#000000" stroke="none" />
+        <ellipse
+          cx="30"
+          cy="483"
+          rx="2.5"
+          ry="4.5"
+          fill="#000000"
+          stroke="none"
+        />
+        <ellipse
+          cx="32"
+          cy="489"
+          rx="2.5"
+          ry="4"
+          fill="#000000"
+          stroke="none"
+        />
+        <ellipse cx="46" cy="485" rx="3" ry="5" fill="#000000" stroke="none" />
+        <ellipse
+          cx="48"
+          cy="491"
+          rx="2.5"
+          ry="4"
+          fill="#000000"
+          stroke="none"
+        />
+        <ellipse
+          cx="64"
+          cy="484"
+          rx="3"
+          ry="5.5"
+          fill="#000000"
+          stroke="none"
+        />
+        <ellipse
+          cx="70"
+          cy="490"
+          rx="2.5"
+          ry="4.5"
+          fill="#000000"
+          stroke="none"
+        />
+        <ellipse cx="88" cy="486" rx="3" ry="5" fill="#000000" stroke="none" />
+        <ellipse
+          cx="96"
+          cy="492"
+          rx="2.5"
+          ry="4"
+          fill="#000000"
+          stroke="none"
+        />
+        {/* Right bank reeds */}
+        <line x1="1102" y1="510" x2="1106" y2="488" />
+        <line x1="1112" y1="510" x2="1110" y2="485" />
+        <line x1="1122" y1="510" x2="1126" y2="490" />
+        <line x1="1134" y1="510" x2="1132" y2="487" />
+        <line x1="1145" y1="510" x2="1149" y2="483" />
+        <line x1="1155" y1="510" x2="1153" y2="491" />
+        <line x1="1165" y1="510" x2="1169" y2="486" />
+        <line x1="1176" y1="510" x2="1174" y2="493" />
+        <ellipse
+          cx="1106"
+          cy="487"
+          rx="2.5"
+          ry="4.5"
+          fill="#000000"
+          stroke="none"
+        />
+        <ellipse
+          cx="1110"
+          cy="484"
+          rx="3"
+          ry="5"
+          fill="#000000"
+          stroke="none"
+        />
+        <ellipse
+          cx="1126"
+          cy="489"
+          rx="2.5"
+          ry="4"
+          fill="#000000"
+          stroke="none"
+        />
+        <ellipse
+          cx="1132"
+          cy="486"
+          rx="3"
+          ry="5"
+          fill="#000000"
+          stroke="none"
+        />
+        <ellipse
+          cx="1149"
+          cy="482"
+          rx="2.5"
+          ry="4.5"
+          fill="#000000"
+          stroke="none"
+        />
+        <ellipse
+          cx="1153"
+          cy="490"
+          rx="3"
+          ry="5"
+          fill="#000000"
+          stroke="none"
+        />
+        <ellipse
+          cx="1169"
+          cy="485"
+          rx="2.5"
+          ry="4"
+          fill="#000000"
+          stroke="none"
+        />
+        <ellipse
+          cx="1174"
+          cy="492"
+          rx="3"
+          ry="5"
+          fill="#000000"
+          stroke="none"
+        />
+      </g>
+
+      {/* ══════════════════════════════════════════
+          LAYER 9 — MINIMALIST BIRDS
+          Simple "M" / "V" shaped curved strokes — no body, no fill
+      ══════════════════════════════════════════ */}
+      <g
+        stroke="#000000"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {/* Bird 1 — upper left */}
+        <path d="M155,95 Q163,88 171,95" strokeWidth="2.2" />
+        <path d="M171,95 Q179,88 187,95" strokeWidth="2.2" />
+        {/* Bird 2 — upper center-left */}
+        <path d="M310,72 Q317,66 324,72" strokeWidth="2" />
+        <path d="M324,72 Q331,66 338,72" strokeWidth="2" />
+        {/* Bird 3 — upper center */}
+        <path d="M530,58 Q536,52 542,58" strokeWidth="1.8" />
+        <path d="M542,58 Q548,52 554,58" strokeWidth="1.8" />
+        {/* Bird 4 — small, high sky */}
+        <path d="M440,40 Q445,35 450,40" strokeWidth="1.5" />
+        <path d="M450,40 Q455,35 460,40" strokeWidth="1.5" />
+        {/* Bird 5 — right of center */}
+        <path d="M700,80 Q708,74 716,80" strokeWidth="2" />
+        <path d="M716,80 Q724,74 732,80" strokeWidth="2" />
+        {/* Bird 6 — upper right cluster */}
+        <path d="M890,55 Q896,49 902,55" strokeWidth="1.8" />
+        <path d="M902,55 Q908,49 914,55" strokeWidth="1.8" />
+        {/* Bird 7 — tiny, very high */}
+        <path d="M650,28 Q654,24 658,28" strokeWidth="1.4" />
+        <path d="M658,28 Q662,24 666,28" strokeWidth="1.4" />
+        {/* Bird 8 — mid-sky right */}
+        <path d="M1020,68 Q1027,62 1034,68" strokeWidth="1.8" />
+        <path d="M1034,68 Q1041,62 1048,68" strokeWidth="1.8" />
+        {/* Bird 9 — left mid-height */}
+        <path d="M215,130 Q222,124 229,130" strokeWidth="1.8" />
+        <path d="M229,130 Q236,124 243,130" strokeWidth="1.8" />
+        {/* Bird 10 — small accent right */}
+        <path d="M820,42 Q825,37 830,42" strokeWidth="1.5" />
+        <path d="M830,42 Q835,37 840,42" strokeWidth="1.5" />
+      </g>
+    </svg>
+  );
+
+  const renderInternetcomputerWorld = () => {
+    /* ─── Full-screen square-pixel world-map ─────────────────────────────────
+       Canvas: 1920 × 1080  |  Globe center: (960, 540)  |  Globe radius: 520
+       Dots inside globe sphere → continent map, colored blue/white shades
+       Dots outside globe sphere → very dark navy (#080d1a) for deep-space feel
+       Infinity logo: centered at (960, 540), ~700px wide, blue/white scheme
+    ─────────────────────────────────────────────────────────────────────── */
+    const GCX = 960;
+    const GCY = 540;
+    const GR = 520; // large enough to dominate the scene
+    const S = 5; // dot size px
+    const GAP = 8; // grid step (dot + spacing)
+
+    const landRects: [number, number, number, number][] = [
+      // North America
+      [-140, 72, -60, 50],
+      [-130, 50, -60, 24],
+      [-120, 24, -80, 10],
+      [-100, 28, -83, 18],
+      [-84, 18, -75, 8],
+      // Greenland
+      [-58, 84, -18, 60],
+      // South America
+      [-80, 12, -34, -10],
+      [-75, -10, -34, -35],
+      [-73, -35, -48, -56],
+      // Europe
+      [-10, 71, 30, 55],
+      [-10, 55, 35, 36],
+      [0, 44, 40, 36],
+      [20, 36, 30, 33],
+      // Africa
+      [-18, 38, 52, 15],
+      [-18, 15, 52, -5],
+      [-20, -5, 50, -35],
+      // Asia (main)
+      [26, 72, 180, 50],
+      [40, 50, 180, 20],
+      [60, 20, 145, 0],
+      // Indian subcontinent
+      [65, 35, 92, 5],
+      // Southeast Asia
+      [95, 28, 115, 5],
+      [100, 5, 120, -8],
+      // Japan
+      [130, 45, 145, 31],
+      // Indonesia
+      [95, -2, 145, -10],
+      // Australia
+      [113, -15, 154, -40],
+      // New Zealand
+      [166, -34, 178, -47],
+      // UK/Ireland
+      [-10, 61, 2, 50],
+      // Scandinavia
+      [4, 72, 32, 56],
+      // Alaska
+      [-168, 72, -140, 54],
+    ];
+
+    function isOnLand(lon: number, lat: number): boolean {
+      return landRects.some(
+        ([lo, laMax, hi, laMin]) =>
+          lon >= lo && lon <= hi && lat <= laMax && lat >= laMin,
+      );
+    }
+
+    const lonCenter = 10;
+
+    // Land dot color palette — blue/white shades
+    const landCols = [
+      "#4fc3f7", // light sky blue
+      "#81d4fa", // pale blue
+      "#e0f7ff", // near-white blue
+      "#29b6f6", // electric blue
+      "#b3e5fc", // very light blue
+      "#0288d1", // medium blue
+    ];
+
+    interface DotEntry {
+      x: number;
+      y: number;
+      opacity: number;
+      size: number;
+      col: string;
+    }
+    const dots: DotEntry[] = [];
+
+    // Full-screen grid: cover 0..1920 x 0..1080
+    for (let sy = 0; sy < 1080; sy += GAP) {
+      for (let sx = 0; sx < 1920; sx += GAP) {
+        const cx = sx + S / 2;
+        const cy = sy + S / 2;
+        const dx = cx - GCX;
+        const dy = cy - GCY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist <= GR) {
+          // Inside globe — try orthographic back-projection for continents
+          const latRad = Math.asin(Math.max(-1, Math.min(1, -dy / GR)));
+          const cosLat = Math.cos(latRad);
+          if (cosLat === 0) continue;
+          const sinLonRel = dx / (GR * cosLat);
+          if (sinLonRel < -1 || sinLonRel > 1) continue;
+          const lonRad = Math.asin(sinLonRel);
+          const lat = (latRad * 180) / Math.PI;
+          const lon = lonCenter + (lonRad * 180) / Math.PI;
+
+          const edgeFactor = 1 - dist / GR; // 1=center, 0=edge
+
+          if (isOnLand(lon, lat)) {
+            // Continent dot — bright blue/white
+            const opacity = 0.4 + edgeFactor * 0.58;
+            const dotSize = S * (0.5 + edgeFactor * 0.5);
+            const colorIdx =
+              Math.abs(Math.floor(dx / 22) + Math.floor(dy / 22)) %
+              landCols.length;
+            dots.push({
+              x: cx,
+              y: cy,
+              opacity,
+              size: dotSize,
+              col: landCols[colorIdx],
+            });
+          } else {
+            // Ocean dot — subtle dark blue, fade at edges
+            const opacity = 0.06 + edgeFactor * 0.1;
+            const dotSize = S * (0.38 + edgeFactor * 0.3);
+            dots.push({ x: cx, y: cy, opacity, size: dotSize, col: "#1a3a5c" });
+          }
+        } else {
+          // Outside globe — deep space dots, very dim
+          // Fade out further from globe edge
+          const spaceFade = Math.max(0, 1 - (dist - GR) / 400);
+          const opacity = spaceFade * 0.055;
+          if (opacity < 0.008) continue; // skip invisible dots
+          dots.push({ x: cx, y: cy, opacity, size: S * 0.55, col: "#0d1f3c" });
+        }
+      }
+    }
+
+    // Infinity logo — lemniscate centered at (960, 540), ~700px wide, ~280px tall
+    // Right loop center: (960+175=1135, 540), Left loop center: (960-175=785, 540)
+    // Loop radius ~175px → logo spans from x=610 to x=1310
+    const INF =
+      "M 960,540 C 960,452 1022,408 1085,408 C 1168,408 1220,468 1220,540 C 1220,612 1168,672 1085,672 C 1022,672 960,628 960,540 C 960,452 898,408 835,408 C 752,408 700,468 700,540 C 700,612 752,672 835,672 C 898,672 960,628 960,540 Z";
+
+    return (
+      <svg
+        role="img"
+        aria-label="Internet Computer world background"
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+        viewBox="0 0 1920 1080"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        <defs>
+          {/* Deep black background */}
+          <linearGradient id="icpBg2" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#010408" />
+            <stop offset="100%" stopColor="#000000" />
+          </linearGradient>
+
+          {/* Blue/white gradient for infinity logo — electric blue → white → electric blue */}
+          <linearGradient
+            id="icpGrad2"
+            gradientUnits="userSpaceOnUse"
+            x1="700"
+            y1="540"
+            x2="1220"
+            y2="540"
+          >
+            <stop offset="0%" stopColor="#29b6f6" />
+            <stop offset="35%" stopColor="#81d4fa" />
+            <stop offset="50%" stopColor="#ffffff" />
+            <stop offset="65%" stopColor="#81d4fa" />
+            <stop offset="100%" stopColor="#29b6f6" />
+          </linearGradient>
+
+          {/* Dark navy outer glow behind logo */}
+          <filter
+            id="icpLogoGlowOuter"
+            x="-50%"
+            y="-150%"
+            width="200%"
+            height="400%"
+          >
+            <feGaussianBlur stdDeviation="18" result="blur" />
+          </filter>
+
+          {/* Crisp inner glow on top of logo stroke */}
+          <filter
+            id="icpLogoGlow2"
+            x="-20%"
+            y="-60%"
+            width="140%"
+            height="220%"
+          >
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+
+          {/* Globe sphere edge darkening overlay */}
+          <radialGradient id="icpSphereShade" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#000000" stopOpacity="0" />
+            <stop offset="70%" stopColor="#000000" stopOpacity="0.04" />
+            <stop offset="100%" stopColor="#000000" stopOpacity="0.55" />
+          </radialGradient>
+
+          {/* Globe ambient glow — subtle blue halo */}
+          <radialGradient id="icpGlobeGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#0a2a6e" stopOpacity="0.18" />
+            <stop offset="55%" stopColor="#021030" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+          </radialGradient>
+
+          {/* Ambient diffuse glow for logo */}
+          <filter
+            id="icpLogoAmbient"
+            x="-100%"
+            y="-250%"
+            width="300%"
+            height="600%"
+          >
+            <feGaussianBlur stdDeviation="32" result="blur" />
+          </filter>
+        </defs>
+
+        {/* Background */}
+        <rect width="1920" height="1080" fill="url(#icpBg2)" />
+
+        {/* Ambient globe glow */}
+        <circle cx={GCX} cy={GCY} r={GR + 80} fill="url(#icpGlobeGlow)" />
+
+        {/* Full-screen pixel dot grid */}
+        <g>
+          {dots.map((d) => (
+            <rect
+              key={`icp-${Math.round(d.x * 10)}-${Math.round(d.y * 10)}`}
+              x={d.x - d.size / 2}
+              y={d.y - d.size / 2}
+              width={d.size}
+              height={d.size}
+              fill={d.col}
+              opacity={d.opacity}
+            />
+          ))}
+        </g>
+
+        {/* Sphere edge depth shading */}
+        <circle cx={GCX} cy={GCY} r={GR} fill="url(#icpSphereShade)" />
+
+        {/* ── Infinity Logo — centered at (960, 540) ───────────────────────
+            Dark navy outer glow → main blue/white stroke → white specular
+        ─────────────────────────────────────────────────────────────────── */}
+
+        {/* Outer dark glow (navy, wide diffuse) */}
+        <path
+          d={INF}
+          fill="none"
+          stroke="#001133"
+          strokeWidth="60"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.85"
+          filter="url(#icpLogoGlowOuter)"
+        />
+
+        {/* Ambient blue glow halo */}
+        <path
+          d={INF}
+          fill="none"
+          stroke="url(#icpGrad2)"
+          strokeWidth="44"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.18"
+          filter="url(#icpLogoAmbient)"
+        />
+
+        {/* Main crisp logo stroke */}
+        <path
+          d={INF}
+          fill="none"
+          stroke="url(#icpGrad2)"
+          strokeWidth="24"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="1"
+          filter="url(#icpLogoGlow2)"
+        />
+
+        {/* Inner white specular highlight */}
+        <path
+          d={INF}
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.30"
+        />
+      </svg>
+    );
+  };
+
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -5173,6 +9777,14 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ world }) => {
         return renderCyberpunkWorld();
       case "caffeineai":
         return renderCaffeineAIWorld();
+      case "zombietown":
+        return renderZombietownWorld();
+      case "halloween":
+        return renderHalloweenWorld();
+      case "tokyo":
+        return renderTokyoWorld();
+      case "internetcomputer":
+        return renderInternetcomputerWorld();
       default:
         return renderOriginalWorld();
     }

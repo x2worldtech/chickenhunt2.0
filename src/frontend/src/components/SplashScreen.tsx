@@ -27,9 +27,11 @@ interface Letter {
   direction: string;
 }
 
-const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
+// Fixed chicken color — always the classic warm brown. Never random, never changes.
+const FIXED_CHICKEN_COLOR = "#8B4513";
 
 const easeOutCubic = (t: number): number => 1 - (1 - t) ** 3;
+const easeOutQuart = (t: number): number => 1 - (1 - t) ** 4;
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -39,16 +41,16 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const lettersRef = useRef<Letter[]>([]);
   const completedRef = useRef(false);
 
+  // Create chicken always using the fixed color — never re-randomize
   const createChicken = useCallback(
-    (canvas: HTMLCanvasElement): SplashChicken => {
+    (canvas: HTMLCanvasElement, existingColor?: string): SplashChicken => {
       const size = 120;
       return {
         x: -size,
-        y: canvas.height / 2 - size / 2,
+        y: canvas.height * 0.38 - size / 2,
         speed: 2.5,
         size,
-        color:
-          CHICKEN_COLORS[Math.floor(Math.random() * CHICKEN_COLORS.length)],
+        color: existingColor ?? FIXED_CHICKEN_COLOR,
         wingPhase: 0,
       };
     },
@@ -57,10 +59,11 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
 
   const initLetters = useCallback((canvas: HTMLCanvasElement) => {
     const text = "CHICKEN HUNT";
-    const fontSize = Math.min(canvas.width * 0.08, 80);
-    const totalWidth = text.length * fontSize * 0.6;
+    const fontSize = Math.min(canvas.width * 0.1, 110);
+    const letterSpacing = fontSize * 0.72;
+    const totalWidth = (text.length - 1) * letterSpacing;
     const baseX = (canvas.width - totalWidth) / 2;
-    const centerY = canvas.height / 2;
+    const centerY = canvas.height * 0.5;
 
     const directions = [
       "top-left",
@@ -78,32 +81,32 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
     ];
 
     lettersRef.current = text.split("").map((char, i) => {
-      const targetX = baseX + i * fontSize * 0.6;
+      const targetX = baseX + i * letterSpacing;
       const dir = directions[i % directions.length];
       let sx = targetX;
-      let sy = -100;
+      let sy = -150;
 
       if (dir === "bottom") {
         sx = targetX;
-        sy = canvas.height + 100;
+        sy = canvas.height + 150;
       } else if (dir === "left") {
-        sx = -200;
+        sx = -250;
         sy = centerY;
       } else if (dir === "right") {
-        sx = canvas.width + 200;
+        sx = canvas.width + 250;
         sy = centerY;
       } else if (dir === "top-left") {
-        sx = -150;
-        sy = -150;
+        sx = -200;
+        sy = -200;
       } else if (dir === "top-right") {
-        sx = canvas.width + 150;
-        sy = -150;
+        sx = canvas.width + 200;
+        sy = -200;
       } else if (dir === "bottom-left") {
-        sx = -150;
-        sy = canvas.height + 150;
+        sx = -200;
+        sy = canvas.height + 200;
       } else if (dir === "bottom-right") {
-        sx = canvas.width + 150;
-        sy = canvas.height + 150;
+        sx = canvas.width + 200;
+        sy = canvas.height + 200;
       }
 
       return {
@@ -115,7 +118,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         currentX: sx,
         currentY: sy,
         progress: 0,
-        delay: i * 100,
+        delay: i * 90,
         direction: dir,
       };
     });
@@ -126,7 +129,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       const { x, y, size, color, wingPhase } = c;
       ctx.save();
       ctx.translate(x + size / 2, y + size / 2);
-      ctx.scale(-1, 1); // left-to-right, flip
+      ctx.scale(-1, 1);
 
       const wingOffset = Math.sin(wingPhase) * 0.3;
       const wingRotation = Math.sin(wingPhase) * 0.4;
@@ -136,7 +139,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       ctx.beginPath();
       ctx.ellipse(0, 0, size * 0.35, size * 0.25, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = "#654321";
+      ctx.strokeStyle = "#3d1a00";
       ctx.lineWidth = 2;
       ctx.stroke();
 
@@ -160,7 +163,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         [size * 0.3, -size * 0.05, size * 0.15, size * 0.08, Math.PI * 0.3],
         [size * 0.32, size * 0.02, size * 0.12, size * 0.06, Math.PI * 0.1],
         [size * 0.34, size * 0.08, size * 0.1, size * 0.05, -Math.PI * 0.1],
-      ]) {
+      ] as [number, number, number, number, number][]) {
         ctx.beginPath();
         ctx.ellipse(ex, ey, rx, ry, rot, 0, Math.PI * 2);
         ctx.fill();
@@ -179,7 +182,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         Math.PI * 2,
       );
       ctx.fill();
-      ctx.strokeStyle = "#654321";
+      ctx.strokeStyle = "#3d1a00";
       ctx.lineWidth = 2;
       ctx.stroke();
 
@@ -274,7 +277,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         Math.PI * 2,
       );
       ctx.fill();
-      ctx.strokeStyle = "#654321";
+      ctx.strokeStyle = "#3d1a00";
       ctx.lineWidth = 2;
       ctx.stroke();
       ctx.globalAlpha = 1;
@@ -304,24 +307,141 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
     [],
   );
 
-  const drawLetter = useCallback(
+  const drawBackground = useCallback(
+    (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
+      // Deep cinematic near-black base
+      ctx.fillStyle = "#09080a";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Subtle radial vignette — very slightly lighter center for depth
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const r = Math.max(canvas.width, canvas.height) * 0.75;
+      const vignette = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      vignette.addColorStop(0, "rgba(30, 22, 18, 0.55)");
+      vignette.addColorStop(0.45, "rgba(12, 9, 8, 0.25)");
+      vignette.addColorStop(1, "rgba(0, 0, 0, 0.82)");
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Subtle warm center glow (cinematic amber/warm tone)
+      const centerGlow = ctx.createRadialGradient(
+        cx,
+        cy * 0.92,
+        0,
+        cx,
+        cy * 0.92,
+        canvas.height * 0.55,
+      );
+      centerGlow.addColorStop(0, "rgba(90, 55, 20, 0.18)");
+      centerGlow.addColorStop(0.5, "rgba(50, 28, 8, 0.08)");
+      centerGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = centerGlow;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    },
+    [],
+  );
+
+  const drawTitle = useCallback(
     (
       ctx: CanvasRenderingContext2D,
-      letter: Letter,
       canvas: HTMLCanvasElement,
+      elapsed: number,
     ) => {
-      const fontSize = Math.min(canvas.width * 0.08, 80);
-      ctx.save();
-      ctx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillStyle = "white";
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 4;
-      ctx.lineJoin = "round";
-      ctx.strokeText(letter.char, letter.currentX, letter.currentY);
-      ctx.fillText(letter.char, letter.currentX, letter.currentY);
-      ctx.restore();
+      const fontSize = Math.min(canvas.width * 0.1, 110);
+      const centerY = Math.round(canvas.height * 0.5);
+
+      // Disable image smoothing for crisp rendering
+      ctx.imageSmoothingEnabled = false;
+
+      // Draw each animated letter
+      for (const letter of lettersRef.current) {
+        if (letter.char === " ") continue;
+
+        // Round positions to nearest pixel for sharp text
+        const px = Math.round(letter.currentX);
+        const py = Math.round(letter.currentY);
+
+        ctx.save();
+        ctx.font = `900 ${fontSize}px Cinzel`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "alphabetic";
+
+        // Fade in opacity as letter lands
+        const opacity = Math.min(letter.progress * 2, 1);
+        ctx.globalAlpha = opacity;
+
+        // Simplified 2-stop gold gradient — fewer stops = less antialiasing artifact
+        const grad = ctx.createLinearGradient(px, py - fontSize * 0.8, px, py);
+        grad.addColorStop(0, "#e8d5a3");
+        grad.addColorStop(1, "#c8a86b");
+
+        // Sharper shadow — reduced blur and offset
+        ctx.shadowColor = "rgba(0,0,0,0.9)";
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 2;
+
+        // Thinner stroke for definition without softening
+        ctx.strokeStyle = "rgba(0,0,0,0.85)";
+        ctx.lineWidth = fontSize * 0.03;
+        ctx.lineJoin = "round";
+        ctx.strokeText(letter.char, px, py);
+
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+
+        ctx.fillStyle = grad;
+        ctx.fillText(letter.char, px, py);
+
+        ctx.restore();
+      }
+
+      // Subtitle — "100% AI Made" — appears after main letters mostly settle
+      // Clamp progress to [0, 1] so easeOutQuart never receives values > 1,
+      // which would cause opacity to drop back toward 0 and create a blinking effect.
+      const subtitleProgress = Math.min(Math.max(0, (elapsed - 1600) / 600), 1);
+      if (subtitleProgress > 0) {
+        const subOpacity = easeOutQuart(subtitleProgress);
+        // Round subY to prevent sub-pixel blurriness
+        const subY = Math.round(centerY + fontSize * 0.72);
+        const subtitleFontSize = Math.round(Math.min(canvas.width * 0.02, 20));
+        const cx = Math.round(canvas.width / 2);
+
+        ctx.save();
+        // Use subOpacity directly — no multiplier — so once fade-in completes
+        // the text stays at exactly 1.0 (fully opaque, no blink, no pulse).
+        ctx.globalAlpha = subOpacity;
+        ctx.imageSmoothingEnabled = false;
+
+        const subtitleText = "100% AI Made";
+        ctx.font = `400 ${subtitleFontSize}px Cinzel`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const textW = ctx.measureText(subtitleText).width;
+
+        // Horizontal rules flanking the subtitle — all positions pixel-rounded
+        const gap = 16;
+        const ruleW = Math.round(Math.min(canvas.width * 0.1, 80));
+        const ruleY = subY;
+
+        ctx.strokeStyle = "rgba(200, 168, 107, 0.6)";
+        ctx.lineWidth = 0.8;
+
+        ctx.beginPath();
+        ctx.moveTo(Math.round(cx - textW / 2 - gap - ruleW), ruleY);
+        ctx.lineTo(Math.round(cx - textW / 2 - gap), ruleY);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(Math.round(cx + textW / 2 + gap), ruleY);
+        ctx.lineTo(Math.round(cx + textW / 2 + gap + ruleW), ruleY);
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(200, 168, 107, 0.9)";
+        ctx.fillText(subtitleText, cx, ruleY);
+
+        ctx.restore();
+      }
     },
     [],
   );
@@ -335,15 +455,8 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       if (startTimeRef.current === 0) startTimeRef.current = timestamp;
       const elapsed = timestamp - startTimeRef.current;
 
-      // Background gradient
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      grad.addColorStop(0, "#87CEEB");
-      grad.addColorStop(0.3, "#B0E0E6");
-      grad.addColorStop(0.7, "#FFE4B5");
-      grad.addColorStop(1, "#FFDAB9");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Draw premium dark background with vignette
+      drawBackground(ctx, canvas);
 
       // Update and draw chicken
       if (chickenRef.current) {
@@ -354,11 +467,11 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
         drawChicken(ctx, ch);
       }
 
-      // Animate and draw letters
+      // Animate letters
       for (const letter of lettersRef.current) {
         if (elapsed >= letter.delay) {
           const le = elapsed - letter.delay;
-          const dur = 1200;
+          const dur = 1100;
           const raw = Math.min(le / dur, 1);
           letter.progress = easeOutCubic(raw);
           letter.currentX =
@@ -366,11 +479,13 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           letter.currentY =
             letter.startY + (letter.targetY - letter.startY) * letter.progress;
         }
-        drawLetter(ctx, letter, canvas);
       }
 
-      // Auto-advance after 3 seconds
-      if (elapsed >= 3000) {
+      // Draw title (letters + subtitle)
+      drawTitle(ctx, canvas, elapsed);
+
+      // Auto-advance after 3.2 seconds
+      if (elapsed >= 3200) {
         completedRef.current = true;
         onComplete();
         return;
@@ -378,7 +493,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
 
       animationIdRef.current = requestAnimationFrame(animate);
     },
-    [drawChicken, drawLetter, onComplete],
+    [drawBackground, drawChicken, drawTitle, onComplete],
   );
 
   useEffect(() => {
@@ -388,7 +503,15 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      chickenRef.current = createChicken(canvas);
+      // Preserve the existing chicken color on resize — never re-randomize
+      const existingColor = chickenRef.current?.color ?? FIXED_CHICKEN_COLOR;
+      const existing = chickenRef.current;
+      chickenRef.current = createChicken(canvas, existingColor);
+      // Preserve wing phase and x position so the animation continues smoothly
+      if (existing) {
+        chickenRef.current.x = existing.x;
+        chickenRef.current.wingPhase = existing.wingPhase;
+      }
       initLetters(canvas);
     };
 
@@ -396,7 +519,17 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
     window.addEventListener("resize", resize);
     startTimeRef.current = 0;
     completedRef.current = false;
-    animationIdRef.current = requestAnimationFrame(animate);
+
+    // Wait for Cinzel font to be fully loaded before starting animation
+    // This prevents blurry fallback-font rendering on first frames
+    document.fonts
+      .load("900 110px Cinzel")
+      .catch(() => {})
+      .finally(() => {
+        if (!completedRef.current) {
+          animationIdRef.current = requestAnimationFrame(animate);
+        }
+      });
 
     return () => {
       window.removeEventListener("resize", resize);
@@ -405,7 +538,10 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   }, [createChicken, initLetters, animate]);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <div
+      className="fixed inset-0 z-50 overflow-hidden"
+      style={{ background: "#09080a" }}
+    >
       <canvas ref={canvasRef} className="absolute inset-0" />
     </div>
   );

@@ -184,6 +184,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
   const rainSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const aiSoundGainRef = useRef<GainNode | null>(null);
   const aiSoundSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const zombieSoundGainRef = useRef<GainNode | null>(null);
+  const zombieSoundSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const touchTrackersRef = useRef<Map<number, TouchTracker>>(new Map());
 
   const gameStateRef = useRef({
@@ -551,6 +553,146 @@ const GameScreen: React.FC<GameScreenProps> = ({
       if (aiSoundSourceRef.current) {
         const src = aiSoundSourceRef.current;
         aiSoundSourceRef.current = null;
+        setTimeout(() => {
+          try {
+            src.stop();
+          } catch {
+            /* ignore */
+          }
+        }, 900);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const createZombieSound = useCallback(() => {
+    const audioContext = audioContextRef.current;
+    if (!audioContext) return;
+    try {
+      if (audioContext.state === "suspended") audioContext.resume();
+      if (zombieSoundSourceRef.current) {
+        try {
+          zombieSoundSourceRef.current.stop();
+        } catch {
+          /* ignore */
+        }
+        zombieSoundSourceRef.current = null;
+      }
+      if (!zombieSoundGainRef.current) {
+        const gainNode = audioContext.createGain();
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(
+          0.18,
+          audioContext.currentTime + 2.5,
+        );
+        gainNode.connect(audioContext.destination);
+        zombieSoundGainRef.current = gainNode;
+      } else {
+        zombieSoundGainRef.current.gain.setValueAtTime(
+          0,
+          audioContext.currentTime,
+        );
+        zombieSoundGainRef.current.gain.linearRampToValueAtTime(
+          0.18,
+          audioContext.currentTime + 2.5,
+        );
+      }
+      // Low eerie drone oscillator — deep groan
+      const droneOsc = audioContext.createOscillator();
+      droneOsc.type = "sawtooth";
+      droneOsc.frequency.setValueAtTime(38, audioContext.currentTime);
+      droneOsc.frequency.linearRampToValueAtTime(
+        42,
+        audioContext.currentTime + 6,
+      );
+      droneOsc.frequency.linearRampToValueAtTime(
+        36,
+        audioContext.currentTime + 12,
+      );
+      const droneFilter = audioContext.createBiquadFilter();
+      droneFilter.type = "lowpass";
+      droneFilter.frequency.setValueAtTime(120, audioContext.currentTime);
+      const droneGain = audioContext.createGain();
+      droneGain.gain.setValueAtTime(0.45, audioContext.currentTime);
+      droneOsc.connect(droneFilter);
+      droneFilter.connect(droneGain);
+      droneGain.connect(zombieSoundGainRef.current);
+      droneOsc.start();
+
+      // Wind noise — filtered low to sound like eerie wind moaning
+      const bufferSize = audioContext.sampleRate * 4;
+      const noiseBuffer = audioContext.createBuffer(
+        1,
+        bufferSize,
+        audioContext.sampleRate,
+      );
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.6;
+      }
+      const noiseSource = audioContext.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+      noiseSource.loop = true;
+      // Very low bandpass — wind moan
+      const windFilter = audioContext.createBiquadFilter();
+      windFilter.type = "bandpass";
+      windFilter.frequency.setValueAtTime(80, audioContext.currentTime);
+      windFilter.Q.setValueAtTime(0.4, audioContext.currentTime);
+      const windFilter2 = audioContext.createBiquadFilter();
+      windFilter2.type = "lowpass";
+      windFilter2.frequency.setValueAtTime(300, audioContext.currentTime);
+      noiseSource.connect(windFilter);
+      windFilter.connect(windFilter2);
+      windFilter2.connect(zombieSoundGainRef.current);
+      noiseSource.start();
+      zombieSoundSourceRef.current = noiseSource;
+
+      // Mid-range moan oscillator — subtle undulating pitch
+      const moanOsc = audioContext.createOscillator();
+      moanOsc.type = "sine";
+      moanOsc.frequency.setValueAtTime(90, audioContext.currentTime);
+      moanOsc.frequency.linearRampToValueAtTime(
+        75,
+        audioContext.currentTime + 3,
+      );
+      moanOsc.frequency.linearRampToValueAtTime(
+        95,
+        audioContext.currentTime + 7,
+      );
+      moanOsc.frequency.linearRampToValueAtTime(
+        80,
+        audioContext.currentTime + 11,
+      );
+      const moanGain = audioContext.createGain();
+      moanGain.gain.setValueAtTime(0.2, audioContext.currentTime);
+      const moanFilter = audioContext.createBiquadFilter();
+      moanFilter.type = "lowpass";
+      moanFilter.frequency.setValueAtTime(200, audioContext.currentTime);
+      moanOsc.connect(moanFilter);
+      moanFilter.connect(moanGain);
+      moanGain.connect(zombieSoundGainRef.current);
+      moanOsc.start();
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const stopZombieSound = useCallback(() => {
+    try {
+      if (zombieSoundGainRef.current && audioContextRef.current) {
+        zombieSoundGainRef.current.gain.setValueAtTime(
+          zombieSoundGainRef.current.gain.value,
+          audioContextRef.current.currentTime,
+        );
+        zombieSoundGainRef.current.gain.linearRampToValueAtTime(
+          0,
+          audioContextRef.current.currentTime + 0.8,
+        );
+      }
+      if (zombieSoundSourceRef.current) {
+        const src = zombieSoundSourceRef.current;
+        zombieSoundSourceRef.current = null;
         setTimeout(() => {
           try {
             src.stop();
@@ -1623,6 +1765,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
     stopBackgroundMusic();
     stopRainSound();
     stopAISound();
+    stopZombieSound();
     setScoreMultiplier({ isActive: false, endTime: 0 });
     touchTrackersRef.current.clear();
     const durationMin = Math.round(
@@ -1673,6 +1816,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
     stopBackgroundMusic,
     stopRainSound,
     stopAISound,
+    stopZombieSound,
     sessionStats,
     gameStatistics,
     updateStatistics,
@@ -1884,6 +2028,23 @@ const GameScreen: React.FC<GameScreenProps> = ({
       stopAISound();
     };
   }, [selectedWorld, currentView, createAISound, stopAISound]);
+
+  // ─── ZombieTown ambient sound effect ─────────────────────────────────────────
+
+  useEffect(() => {
+    const isGameActive =
+      currentView === "game" &&
+      gameStateRef.current.isRunning &&
+      !gameStateRef.current.gameEnded;
+    if (selectedWorld === "zombietown" && isGameActive) {
+      createZombieSound();
+    } else {
+      stopZombieSound();
+    }
+    return () => {
+      stopZombieSound();
+    };
+  }, [selectedWorld, currentView, createZombieSound, stopZombieSound]);
 
   // ─── Canvas setup / init ─────────────────────────────────────────────────────
 
