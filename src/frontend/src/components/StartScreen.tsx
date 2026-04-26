@@ -74,6 +74,7 @@ const WORLDS: { id: BackgroundWorld; name: string }[] = [
   { id: "windows", name: "Windows XP" },
   { id: "bitcoin", name: "Bitcoin" },
   { id: "matrix", name: "Matrix" },
+  { id: "ocean", name: "Ocean" },
 ];
 
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
@@ -94,6 +95,7 @@ const START_BUTTON_CLASSES: Record<BackgroundWorld, string> = {
   windows: "start-game-button-windows",
   bitcoin: "start-game-button-bitcoin",
   matrix: "start-game-button-matrix",
+  ocean: "start-game-button-ocean",
 };
 
 const StartScreen: React.FC<StartScreenProps> = ({

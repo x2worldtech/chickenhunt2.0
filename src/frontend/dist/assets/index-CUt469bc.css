@@ -3118,6 +3118,26 @@ body {
   border: 2px solid #00ff41 !important;
 }
 
+.start-game-button-ocean {
+  background: linear-gradient(135deg, #010d1a 0%, #012a3a 45%, #01384a 100%);
+  color: #40e0d0 !important;
+  text-shadow: 0 0 12px rgba(64, 224, 208, 0.85), 0 0 24px
+    rgba(0, 180, 200, 0.45);
+  box-shadow: 0 4px 16px rgba(0, 160, 180, 0.4), 0 2px 6px rgba(0, 0, 0, 0.7), 0
+    0 0 2px rgba(64, 224, 208, 0.25), inset 0 1px 0 rgba(100, 240, 230, 0.15);
+  border: 2px solid #0090a8 !important;
+}
+
+.start-game-button-ocean:hover {
+  background: linear-gradient(135deg, #011828 0%, #013d54 45%, #014a62 100%);
+  color: #7fffd4 !important;
+  text-shadow: 0 0 16px rgba(127, 255, 212, 0.95), 0 0 32px
+    rgba(64, 224, 208, 0.6);
+  box-shadow: 0 6px 22px rgba(0, 180, 200, 0.55), 0 3px 8px rgba(0, 0, 0, 0.7),
+    0 0 0 2px rgba(127, 255, 212, 0.45), inset 0 1px 0 rgba(150, 255, 235, 0.25);
+  border: 2px solid #40e0d0 !important;
+}
+
 /* Tips container styling - Default for all worlds except snowy */
 .tips-container-default {
   border: 1px solid rgba(255, 255, 255, 0.2);

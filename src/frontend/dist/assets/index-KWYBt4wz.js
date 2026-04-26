@@ -44309,6 +44309,1945 @@ const BackgroundRenderer = ({ world }) => {
       ]
     }
   );
+  const renderOceanWorld = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1200 800",
+      preserveAspectRatio: "xMidYMid slice",
+      style: { width: "100%", height: "100%", display: "block" },
+      "aria-label": "Ocean world",
+      role: "img",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("defs", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "oceanBg", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#020c1a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "25%", stopColor: "#031528" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "55%", stopColor: "#041c35" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "80%", stopColor: "#03101f" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#010a14" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "seabedGrad", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#3d2c1a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "60%", stopColor: "#2a1e10" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#1a120a" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "rayGrad1", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#1a5e8a", stopOpacity: "0.35" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "60%", stopColor: "#0d3f5e", stopOpacity: "0.12" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#061f30", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "rayGrad2", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#1a7080", stopOpacity: "0.28" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "55%", stopColor: "#0d4050", stopOpacity: "0.09" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#041a22", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "rayGrad3", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#134f78", stopOpacity: "0.22" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "#0a2f48", stopOpacity: "0.07" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#030e18", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "bioGlow1", cx: "50%", cy: "40%", r: "55%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0a3d5c", stopOpacity: "0.5" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#010d1a", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "bioGlow2", cx: "20%", cy: "60%", r: "35%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#063344", stopOpacity: "0.35" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#010d1a", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "brainCoralGrad", cx: "50%", cy: "40%", r: "55%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#ff8c55" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#c04428" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "fanCoralGrad1", x1: "0", y1: "1", x2: "0", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#cc3399" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#ff66cc" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "tubeCoral1", x1: "0", y1: "1", x2: "0", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#1a4a6e" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#3ab5e0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "tubeCoral2", x1: "0", y1: "1", x2: "0", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#5a1a6e" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#c066ee" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "kelpGrad1", x1: "0", y1: "1", x2: "0.3", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0d2e10" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "60%", stopColor: "#1a5e20" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#2a8a30" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "kelpGrad2", x1: "0", y1: "1", x2: "0.2", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0a2a12" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "60%", stopColor: "#157020" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#229a2a" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "depthOverlay", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#010a14", stopOpacity: "0.6" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "40%", stopColor: "#010a14", stopOpacity: "0" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "75%", stopColor: "#010a14", stopOpacity: "0.15" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#010308", stopOpacity: "0.7" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "vigOcean", cx: "50%", cy: "50%", r: "70%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#010a14", stopOpacity: "0" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#000408", stopOpacity: "0.75" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "plankGlow", cx: "50%", cy: "50%", r: "50%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#7ff0e8", stopOpacity: "1" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#40c8d0", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "plankGlowG", cx: "50%", cy: "50%", r: "50%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#80ffb0", stopOpacity: "1" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#30d070", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "plankGlowCyan", cx: "38%", cy: "38%", r: "62%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#c8fffc", stopOpacity: "0.95" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "45%", stopColor: "#7ff0e8", stopOpacity: "0.75" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#20b0c0", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "plankGlowTeal", cx: "38%", cy: "38%", r: "62%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#b0fff4", stopOpacity: "0.9" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "45%", stopColor: "#50e8d8", stopOpacity: "0.65" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#10907c", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "plankGlowGreen", cx: "38%", cy: "38%", r: "62%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#ccffe0", stopOpacity: "0.9" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "45%", stopColor: "#80ffb0", stopOpacity: "0.7" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#20a050", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "plankGlowBlue", cx: "38%", cy: "38%", r: "62%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#e0f8ff", stopOpacity: "0.85" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "45%", stopColor: "#b0f0ff", stopOpacity: "0.55" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#2060a0", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "algaeBlade1", x1: "0.5", y1: "1", x2: "0.5", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0a3a0e" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "40%", stopColor: "#0d5c1a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "75%", stopColor: "#156b22" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#1e8a30" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "algaeBlade2", x1: "0.5", y1: "1", x2: "0.6", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#092e12" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "40%", stopColor: "#0c5218" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "75%", stopColor: "#14621e" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#1a7a28" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "algaeBlade3", x1: "0.5", y1: "1", x2: "0.4", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#08322a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "40%", stopColor: "#0a6b50" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "75%", stopColor: "#0f7a5a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#168c68" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "algaeBlade4", x1: "0.5", y1: "1", x2: "0.55", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0b3d14" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "#137020" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#1c8c2c" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "glow", x: "-50%", y: "-50%", width: "200%", height: "200%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "2.5", result: "blur" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "softGlow", x: "-80%", y: "-80%", width: "360%", height: "360%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "4", result: "blur" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("symbol", { id: "plk-radiol", viewBox: "-6 -6 12 12", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "0", cy: "0", r: "2", fill: "url(#plankGlowCyan)" }),
+            [0, 45, 90, 135, 180, 225, 270, 315].map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "line",
+              {
+                x1: Math.cos(a2 * Math.PI / 180) * 2.2,
+                y1: Math.sin(a2 * Math.PI / 180) * 2.2,
+                x2: Math.cos(a2 * Math.PI / 180) * 5.5,
+                y2: Math.sin(a2 * Math.PI / 180) * 5.5,
+                stroke: "#7ff0e8",
+                strokeWidth: "0.5",
+                strokeLinecap: "round"
+              },
+              `r-${a2}`
+            )),
+            [0, 45, 90, 135, 180, 225, 270, 315].map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "circle",
+              {
+                cx: Math.cos(a2 * Math.PI / 180) * 5.5,
+                cy: Math.sin(a2 * Math.PI / 180) * 5.5,
+                r: "0.4",
+                fill: "#b0f8f4"
+              },
+              `rt-${a2}`
+            ))
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("symbol", { id: "plk-radiol6", viewBox: "-6 -6 12 12", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "0", cy: "0", r: "2.2", fill: "url(#plankGlowTeal)" }),
+            [0, 60, 120, 180, 240, 300].map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "line",
+              {
+                x1: Math.cos(a2 * Math.PI / 180) * 2.4,
+                y1: Math.sin(a2 * Math.PI / 180) * 2.4,
+                x2: Math.cos(a2 * Math.PI / 180) * 5.8,
+                y2: Math.sin(a2 * Math.PI / 180) * 5.8,
+                stroke: "#50e8d8",
+                strokeWidth: "0.55",
+                strokeLinecap: "round"
+              },
+              `r6-${a2}`
+            )),
+            [30, 90, 150, 210, 270, 330].map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "line",
+              {
+                x1: Math.cos(a2 * Math.PI / 180) * 1.8,
+                y1: Math.sin(a2 * Math.PI / 180) * 1.8,
+                x2: Math.cos(a2 * Math.PI / 180) * 3.8,
+                y2: Math.sin(a2 * Math.PI / 180) * 3.8,
+                stroke: "#50e8d8",
+                strokeWidth: "0.35",
+                strokeLinecap: "round",
+                opacity: "0.6"
+              },
+              `r6b-${a2}`
+            ))
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("symbol", { id: "plk-copepod", viewBox: "-5 -8 10 14", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "1", rx: "2.2", ry: "4", fill: "url(#plankGlowGreen)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "ellipse",
+              {
+                cx: "0",
+                cy: "-3.5",
+                rx: "1.1",
+                ry: "1.5",
+                fill: "#a0ffcc",
+                opacity: "0.7"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "line",
+              {
+                x1: "-0.5",
+                y1: "-5",
+                x2: "-2.2",
+                y2: "-7.5",
+                stroke: "#80ffb0",
+                strokeWidth: "0.45",
+                strokeLinecap: "round"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "line",
+              {
+                x1: "0.5",
+                y1: "-5",
+                x2: "2.4",
+                y2: "-7.2",
+                stroke: "#80ffb0",
+                strokeWidth: "0.45",
+                strokeLinecap: "round"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "line",
+              {
+                x1: "-1.8",
+                y1: "-1",
+                x2: "-4",
+                y2: "-2",
+                stroke: "#60d890",
+                strokeWidth: "0.4",
+                strokeLinecap: "round",
+                opacity: "0.7"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "line",
+              {
+                x1: "1.8",
+                y1: "-1",
+                x2: "4",
+                y2: "-1.5",
+                stroke: "#60d890",
+                strokeWidth: "0.4",
+                strokeLinecap: "round",
+                opacity: "0.7"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("symbol", { id: "plk-dino", viewBox: "-5 -5 10 10", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "path",
+              {
+                d: "M0,-3.8 C2.5,-3.2 4,0 3,2.5 C2,4.5 -1,4.2 -2.5,2 C-4,-0.5 -2.8,-3.5 0,-3.8 Z",
+                fill: "url(#plankGlowBlue)",
+                opacity: "0.85"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "path",
+              {
+                d: "M2.8,-1 Q5.5,1.5 3.5,4.5",
+                stroke: "#b0f0ff",
+                strokeWidth: "0.5",
+                fill: "none",
+                strokeLinecap: "round",
+                opacity: "0.7"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "path",
+              {
+                d: "M-1.5,3.8 Q-3.5,5.5 -2,7",
+                stroke: "#b0f0ff",
+                strokeWidth: "0.4",
+                fill: "none",
+                strokeLinecap: "round",
+                opacity: "0.55"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("symbol", { id: "plk-jelly", viewBox: "-5 -4 10 14", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "path",
+              {
+                d: "M-3.5,0 Q0,-4 3.5,0 L3.5,2 Q0,4.5 -3.5,2 Z",
+                fill: "url(#plankGlowCyan)",
+                opacity: "0.8"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "path",
+              {
+                d: "M-3.5,1 Q0,5 3.5,1",
+                stroke: "#7ff0e8",
+                strokeWidth: "0.5",
+                fill: "none",
+                opacity: "0.6"
+              }
+            ),
+            [-2.5, -1, 0, 1, 2.5].map((tx) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "path",
+              {
+                d: `M${tx},2.5 Q${tx + 0.5},6 ${tx},9`,
+                stroke: "#7ff0e8",
+                strokeWidth: "0.4",
+                fill: "none",
+                strokeLinecap: "round",
+                opacity: "0.55"
+              },
+              `jt-${tx}`
+            ))
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("symbol", { id: "plk-cell", viewBox: "-4 -4 8 8", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "0", cy: "0", r: "3", fill: "url(#plankGlowTeal)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "-0.8", cy: "-0.8", r: "0.8", fill: "#e0fffc", opacity: "0.6" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("symbol", { id: "plk-orb", viewBox: "-4 -4 8 8", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "0", cy: "0", r: "3", fill: "url(#plankGlowGreen)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "-0.7", cy: "-0.8", r: "0.7", fill: "#e0fff0", opacity: "0.55" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#oceanBg)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#bioGlow1)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#bioGlow2)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "180,0 280,0 520,800 390,800", fill: "url(#rayGrad1)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "350,0 420,0 620,800 530,800", fill: "url(#rayGrad2)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "550,0 600,0 760,800 700,800", fill: "url(#rayGrad3)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "700,0 770,0 920,800 840,800", fill: "url(#rayGrad2)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "900,0 960,0 1080,800 1000,800", fill: "url(#rayGrad1)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "50,0 90,0 260,800 190,800", fill: "url(#rayGrad3)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "1100,0 1150,0 1200,700 1170,700", fill: "url(#rayGrad3)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M0,740 Q60,730 130,745 Q200,758 300,742 Q420,728 520,746 Q640,762 750,744 Q860,728 960,748 Q1060,762 1140,745 Q1180,738 1200,742 L1200,800 L0,800 Z",
+            fill: "url(#seabedGrad)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "80", cy: "762", rx: "60", ry: "8", fill: "#3a2814", opacity: "0.5" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "240", cy: "755", rx: "45", ry: "6", fill: "#3a2814", opacity: "0.4" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "450", cy: "760", rx: "70", ry: "9", fill: "#3a2814", opacity: "0.5" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "680", cy: "754", rx: "55", ry: "7", fill: "#3a2814", opacity: "0.4" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "900", cy: "758", rx: "65", ry: "8", fill: "#3a2814", opacity: "0.45" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1100", cy: "753", rx: "50", ry: "6", fill: "#3a2814", opacity: "0.4" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "145", cy: "748", rx: "35", ry: "22", fill: "#1e1208" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "152", cy: "744", rx: "28", ry: "18", fill: "#261a0e" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "970", cy: "752", rx: "42", ry: "26", fill: "#1e1208" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "975", cy: "746", rx: "32", ry: "20", fill: "#261a0e" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "580", cy: "744", rx: "28", ry: "18", fill: "#1e1208" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "585", cy: "740", rx: "20", ry: "14", fill: "#2a1c0e" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1120", cy: "749", rx: "38", ry: "24", fill: "#1c1006" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1125", cy: "743", rx: "29", ry: "18", fill: "#261808" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M60,760 Q40,720 55,680 Q70,640 48,600 Q28,560 50,510 Q68,465 52,420 Q38,385 58,340",
+            stroke: "url(#kelpGrad1)",
+            strokeWidth: "7",
+            fill: "none",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M75,758 Q95,715 78,670 Q62,630 80,585 Q96,545 76,500 Q58,462 78,415 Q96,375 80,330",
+            stroke: "url(#kelpGrad2)",
+            strokeWidth: "6",
+            fill: "none",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M42,762 Q22,718 38,672 Q52,630 34,588 Q18,548 38,502",
+            stroke: "url(#kelpGrad1)",
+            strokeWidth: "5",
+            fill: "none",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M90,756 Q112,710 96,662 Q80,620 100,574 Q118,534 100,488",
+            stroke: "url(#kelpGrad2)",
+            strokeWidth: "4",
+            fill: "none",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "55",
+            cy: "680",
+            rx: "20",
+            ry: "7",
+            fill: "#1d6020",
+            opacity: "0.8",
+            transform: "rotate(-25,55,680)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "50",
+            cy: "600",
+            rx: "18",
+            ry: "6",
+            fill: "#1a5a1e",
+            opacity: "0.75",
+            transform: "rotate(20,50,600)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "78",
+            cy: "670",
+            rx: "16",
+            ry: "5",
+            fill: "#226630",
+            opacity: "0.8",
+            transform: "rotate(15,78,670)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "80",
+            cy: "585",
+            rx: "18",
+            ry: "6",
+            fill: "#1e6428",
+            opacity: "0.75",
+            transform: "rotate(-18,80,585)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M480,762 Q460,716 475,668 Q490,625 472,578 Q455,536 472,488 Q488,450 470,405",
+            stroke: "url(#kelpGrad1)",
+            strokeWidth: "7",
+            fill: "none",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M498,758 Q518,712 502,664 Q486,622 505,576 Q522,535 504,489 Q488,452 506,408",
+            stroke: "url(#kelpGrad2)",
+            strokeWidth: "5",
+            fill: "none",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M462,760 Q442,714 458,666 Q472,624 454,578",
+            stroke: "url(#kelpGrad1)",
+            strokeWidth: "4",
+            fill: "none",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "475",
+            cy: "668",
+            rx: "19",
+            ry: "6",
+            fill: "#1c5e1e",
+            opacity: "0.8",
+            transform: "rotate(-20,475,668)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "472",
+            cy: "578",
+            rx: "17",
+            ry: "6",
+            fill: "#1a5820",
+            opacity: "0.75",
+            transform: "rotate(22,472,578)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "502",
+            cy: "664",
+            rx: "16",
+            ry: "5",
+            fill: "#22602e",
+            opacity: "0.8",
+            transform: "rotate(14,502,664)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M1080,762 Q1058,716 1074,668 Q1090,625 1072,578 Q1055,536 1072,488 Q1088,450 1072,405",
+            stroke: "url(#kelpGrad2)",
+            strokeWidth: "7",
+            fill: "none",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M1098,758 Q1118,712 1102,664 Q1086,622 1105,576 Q1122,535 1104,489",
+            stroke: "url(#kelpGrad1)",
+            strokeWidth: "5",
+            fill: "none",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M1062,760 Q1042,714 1058,666 Q1072,624 1054,578",
+            stroke: "url(#kelpGrad2)",
+            strokeWidth: "4",
+            fill: "none",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "1074",
+            cy: "668",
+            rx: "19",
+            ry: "6",
+            fill: "#1c5e1e",
+            opacity: "0.8",
+            transform: "rotate(20,1074,668)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "1072",
+            cy: "578",
+            rx: "17",
+            ry: "6",
+            fill: "#1a5820",
+            opacity: "0.75",
+            transform: "rotate(-22,1072,578)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.92", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M178,762 C175,740 168,715 172,688 C176,662 170,640 175,615 C179,592 174,572 178,548",
+              fill: "url(#algaeBlade1)",
+              stroke: "none"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M186,762 C184,740 178,714 183,687 C188,660 182,638 188,612 C193,590 188,568 192,545",
+              fill: "url(#algaeBlade2)",
+              stroke: "none",
+              opacity: "0.88"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M170,762 C166,742 158,720 162,696 C166,673 160,652 163,630 C166,611 161,592 163,570",
+              fill: "url(#algaeBlade3)",
+              stroke: "none",
+              opacity: "0.78"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M194,762 C193,745 187,722 192,700 C197,679 192,658 196,638",
+              fill: "url(#algaeBlade4)",
+              stroke: "none",
+              opacity: "0.72"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M162,762 C157,748 150,730 153,712 C156,694 150,676 152,658",
+              fill: "url(#algaeBlade2)",
+              stroke: "none",
+              opacity: "0.62"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M181,762 C179,742 176,715 178,688 C180,662 176,640 178,615",
+              stroke: "#2aa838",
+              strokeWidth: "0.8",
+              fill: "none",
+              opacity: "0.45"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M189,762 C188,742 185,715 187,688 C189,661 185,638 188,612",
+              stroke: "#1e9030",
+              strokeWidth: "0.7",
+              fill: "none",
+              opacity: "0.4"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M165,762 C163,744 160,722 162,698 C164,675 160,654 162,632",
+              stroke: "#158c50",
+              strokeWidth: "0.7",
+              fill: "none",
+              opacity: "0.38"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M176,720 Q171,705 173,690 Q175,675 170,660",
+              stroke: "#22aa3a",
+              strokeWidth: "1.2",
+              fill: "none",
+              opacity: "0.3",
+              strokeLinecap: "round"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.88", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M336,762 C333,743 326,718 330,692 C334,668 328,646 332,622 C336,600 330,580 333,558",
+              fill: "url(#algaeBlade2)",
+              stroke: "none"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M345,762 C344,744 338,720 343,695 C348,671 343,650 348,627 C352,607 347,587 350,565",
+              fill: "url(#algaeBlade1)",
+              stroke: "none",
+              opacity: "0.85"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M325,762 C321,745 313,724 317,703 C321,683 315,663 317,645",
+              fill: "url(#algaeBlade3)",
+              stroke: "none",
+              opacity: "0.75"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M355,762 C354,748 349,728 353,710 C357,693 352,676 354,658",
+              fill: "url(#algaeBlade4)",
+              stroke: "none",
+              opacity: "0.65"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M339,762 C337,744 334,719 336,693 C338,668 334,647 336,622",
+              stroke: "#22a436",
+              strokeWidth: "0.8",
+              fill: "none",
+              opacity: "0.42"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M347,762 C346,744 343,720 346,695 C349,671 345,650 348,627",
+              stroke: "#1a9040",
+              strokeWidth: "0.7",
+              fill: "none",
+              opacity: "0.38"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M343,700 Q337,683 340,666 Q343,649 337,633",
+              stroke: "#20a060",
+              strokeWidth: "1.1",
+              fill: "none",
+              opacity: "0.28",
+              strokeLinecap: "round"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.9", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M635,762 C631,742 622,716 627,689 C632,663 625,641 630,615 C634,592 628,570 631,545",
+              fill: "url(#algaeBlade3)",
+              stroke: "none"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M645,762 C643,743 637,718 642,692 C647,667 641,645 646,621 C650,599 644,578 647,555",
+              fill: "url(#algaeBlade1)",
+              stroke: "none",
+              opacity: "0.82"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M624,762 C619,744 611,721 614,699 C617,677 611,657 614,637 C616,619 611,600 613,582",
+              fill: "url(#algaeBlade2)",
+              stroke: "none",
+              opacity: "0.72"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M654,762 C652,747 646,726 651,707 C655,689 650,671 652,653",
+              fill: "url(#algaeBlade4)",
+              stroke: "none",
+              opacity: "0.68"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M614,762 C609,749 601,733 603,717 C605,701 600,685 601,668",
+              fill: "url(#algaeBlade3)",
+              stroke: "none",
+              opacity: "0.55"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M638,762 C636,743 633,718 635,692 C637,666 633,642 636,616",
+              stroke: "#168c60",
+              strokeWidth: "0.85",
+              fill: "none",
+              opacity: "0.45"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M647,762 C646,743 643,718 646,692 C649,667 645,645 648,621",
+              stroke: "#1a9428",
+              strokeWidth: "0.75",
+              fill: "none",
+              opacity: "0.4"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M629,716 Q623,698 626,680 Q629,662 623,645",
+              stroke: "#18a468",
+              strokeWidth: "1.2",
+              fill: "none",
+              opacity: "0.3",
+              strokeLinecap: "round"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.87", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M816,762 C813,743 806,718 810,692 C814,667 808,645 812,621 C816,599 810,579 813,556",
+              fill: "url(#algaeBlade1)",
+              stroke: "none"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M826,762 C824,744 818,720 823,695 C828,671 822,650 827,627",
+              fill: "url(#algaeBlade2)",
+              stroke: "none",
+              opacity: "0.83"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M805,762 C801,745 793,724 797,703 C800,682 794,663 797,644",
+              fill: "url(#algaeBlade3)",
+              stroke: "none",
+              opacity: "0.72"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M835,762 C834,748 828,729 832,712 C836,696 830,679 832,661",
+              fill: "url(#algaeBlade4)",
+              stroke: "none",
+              opacity: "0.65"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M819,762 C817,744 814,719 816,693 C818,668 814,646 816,622",
+              stroke: "#20a030",
+              strokeWidth: "0.8",
+              fill: "none",
+              opacity: "0.4"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M828,762 C827,744 824,720 827,695 C829,671 825,650 828,627",
+              stroke: "#168850",
+              strokeWidth: "0.7",
+              fill: "none",
+              opacity: "0.36"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M824,710 Q818,692 820,674 Q823,657 817,640",
+              stroke: "#1a9c3a",
+              strokeWidth: "1.1",
+              fill: "none",
+              opacity: "0.28",
+              strokeLinecap: "round"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.86", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M1156,762 C1153,743 1146,718 1150,692 C1154,667 1148,645 1152,621 C1155,600 1150,580 1152,558",
+              fill: "url(#algaeBlade2)",
+              stroke: "none"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M1165,762 C1164,744 1158,720 1163,695 C1167,671 1161,650 1165,627",
+              fill: "url(#algaeBlade1)",
+              stroke: "none",
+              opacity: "0.82"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M1145,762 C1141,745 1133,724 1137,703 C1140,682 1134,662 1137,643",
+              fill: "url(#algaeBlade3)",
+              stroke: "none",
+              opacity: "0.72"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M1173,762 C1172,748 1166,729 1170,712 C1174,696 1169,679 1171,661",
+              fill: "url(#algaeBlade4)",
+              stroke: "none",
+              opacity: "0.62"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M1159,762 C1157,744 1154,719 1156,693 C1158,668 1154,646 1156,621",
+              stroke: "#1e9e2e",
+              strokeWidth: "0.8",
+              fill: "none",
+              opacity: "0.4"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M1167,762 C1166,744 1163,720 1166,695 C1168,671 1164,650 1167,627",
+              stroke: "#14845a",
+              strokeWidth: "0.7",
+              fill: "none",
+              opacity: "0.36"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M1153,718 Q1147,700 1149,682 Q1152,665 1146,648",
+              stroke: "#16a054",
+              strokeWidth: "1.1",
+              fill: "none",
+              opacity: "0.27",
+              strokeLinecap: "round"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#softGlow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "220",
+              cy: "755",
+              rx: "55",
+              ry: "38",
+              fill: "url(#brainCoralGrad)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "220",
+              cy: "755",
+              rx: "48",
+              ry: "32",
+              fill: "none",
+              stroke: "#e85a1a",
+              strokeWidth: "1.5",
+              opacity: "0.4"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M175,748 Q185,742 195,750 Q205,758 215,748 Q225,740 235,750 Q245,758 255,748 Q261,742 265,752",
+              stroke: "#c94020",
+              strokeWidth: "2.5",
+              fill: "none",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M180,760 Q192,752 204,762 Q216,770 228,760 Q240,752 252,762 Q260,768 264,762",
+              stroke: "#c94020",
+              strokeWidth: "2.5",
+              fill: "none",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M178,755 Q190,747 202,755 Q214,763 226,755 Q238,747 250,755 Q258,760 263,756",
+              stroke: "#b83818",
+              strokeWidth: "1.5",
+              fill: "none",
+              opacity: "0.5"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#softGlow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "880", cy: "756", rx: "48", ry: "34", fill: "#e06030" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "880",
+              cy: "756",
+              rx: "41",
+              ry: "28",
+              fill: "none",
+              stroke: "#c04820",
+              strokeWidth: "1.5",
+              opacity: "0.4"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M836,748 Q847,742 858,750 Q869,758 878,748 Q889,740 898,750 Q907,758 920,748",
+              stroke: "#b03818",
+              strokeWidth: "2",
+              fill: "none",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M838,760 Q850,752 862,762 Q874,770 884,760 Q895,752 906,760 Q914,768 922,762",
+              stroke: "#b03818",
+              strokeWidth: "2",
+              fill: "none",
+              opacity: "0.7"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M120,760 L120,710 L100,680 M120,710 L140,675 M120,720 L105,695 M120,720 L136,692 M100,680 L88,658 M100,680 L112,652 M140,675 L128,645 M140,675 L155,648",
+              stroke: "#ff6622",
+              strokeWidth: "4",
+              strokeLinecap: "round",
+              fill: "none"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M88,658 L78,638 M88,658 L98,632 M112,652 L104,628 M112,652 L122,626 M128,645 L118,622 M155,648 L148,622 M155,648 L165,620",
+              stroke: "#ff7733",
+              strokeWidth: "3",
+              strokeLinecap: "round",
+              fill: "none"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "78", cy: "638", r: "4", fill: "#ff9955" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "98", cy: "632", r: "4", fill: "#ff9955" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "104", cy: "628", r: "3", fill: "#ff8844" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "122", cy: "626", r: "4", fill: "#ffaa55" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "118", cy: "622", r: "3", fill: "#ff9944" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "148", cy: "622", r: "4", fill: "#ffaa55" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "165", cy: "620", r: "3", fill: "#ff9944" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M560,762 L560,715 L542,688 M560,715 L580,682 M560,724 L544,700 M560,724 L576,698 M542,688 L530,665 M542,688 L554,660 M580,682 L566,655 M580,682 L594,652",
+              stroke: "#ff44aa",
+              strokeWidth: "4",
+              strokeLinecap: "round",
+              fill: "none"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M530,665 L520,645 M530,665 L540,640 M554,660 L545,635 M554,660 L564,632 M566,655 L556,628 M594,652 L586,626 M594,652 L604,622",
+              stroke: "#ff55bb",
+              strokeWidth: "3",
+              strokeLinecap: "round",
+              fill: "none"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "520", cy: "645", r: "4", fill: "#ff88cc" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "540", cy: "640", r: "4", fill: "#ffaadd" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "545", cy: "635", r: "3", fill: "#ff88cc" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "564", cy: "632", r: "4", fill: "#ffbbee" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "556", cy: "628", r: "3", fill: "#ff99dd" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "586", cy: "626", r: "4", fill: "#ffbbee" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "604", cy: "622", r: "3", fill: "#ff99dd" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M1020,762 L1020,718 L1003,690 M1020,718 L1038,685 M1020,727 L1006,703 M1020,727 L1034,700 M1003,690 L991,668 M1003,690 L1015,662 M1038,685 L1026,658 M1038,685 L1052,655",
+              stroke: "#ffcc22",
+              strokeWidth: "4",
+              strokeLinecap: "round",
+              fill: "none"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M991,668 L982,648 M991,668 L1001,642 M1015,662 L1006,638 M1015,662 L1025,633 M1026,658 L1016,632 M1052,655 L1044,629 M1052,655 L1062,626",
+              stroke: "#ffdd33",
+              strokeWidth: "3",
+              strokeLinecap: "round",
+              fill: "none"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "982", cy: "648", r: "4", fill: "#ffee66" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "1001", cy: "642", r: "4", fill: "#ffee66" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "1006", cy: "638", r: "3", fill: "#ffdd55" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "1025", cy: "633", r: "4", fill: "#ffff77" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "1016", cy: "632", r: "3", fill: "#ffee66" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "1044", cy: "629", r: "4", fill: "#ffff77" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "1062", cy: "626", r: "3", fill: "#ffee66" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#softGlow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "720",
+              y1: "760",
+              x2: "690",
+              y2: "680",
+              stroke: "#cc44aa",
+              strokeWidth: "3"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "720",
+              y1: "760",
+              x2: "700",
+              y2: "672",
+              stroke: "#cc44aa",
+              strokeWidth: "3"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "720",
+              y1: "760",
+              x2: "712",
+              y2: "668",
+              stroke: "#cc44aa",
+              strokeWidth: "3"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "720",
+              y1: "760",
+              x2: "722",
+              y2: "665",
+              stroke: "#cc44aa",
+              strokeWidth: "3"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "720",
+              y1: "760",
+              x2: "732",
+              y2: "669",
+              stroke: "#cc44aa",
+              strokeWidth: "3"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "720",
+              y1: "760",
+              x2: "742",
+              y2: "675",
+              stroke: "#cc44aa",
+              strokeWidth: "3"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "720",
+              y1: "760",
+              x2: "750",
+              y2: "683",
+              stroke: "#cc44aa",
+              strokeWidth: "3"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "720",
+              y1: "760",
+              x2: "755",
+              y2: "695",
+              stroke: "#cc44aa",
+              strokeWidth: "2.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "720",
+              y1: "760",
+              x2: "680",
+              y2: "696",
+              stroke: "#cc44aa",
+              strokeWidth: "2.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M685,700 Q700,690 715,685 Q730,680 748,687",
+              stroke: "#dd55bb",
+              strokeWidth: "1.5",
+              fill: "none",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M683,715 Q698,705 714,700 Q730,695 748,701",
+              stroke: "#dd55bb",
+              strokeWidth: "1.5",
+              fill: "none",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M683,730 Q698,720 714,715 Q730,710 748,716",
+              stroke: "#dd55bb",
+              strokeWidth: "1.5",
+              fill: "none",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M685,744 Q700,735 715,730 Q730,726 748,731",
+              stroke: "#dd55bb",
+              strokeWidth: "1.5",
+              fill: "none",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M688,698 Q700,706 705,720 Q708,734 706,748",
+              stroke: "#ee66cc",
+              strokeWidth: "1",
+              fill: "none",
+              opacity: "0.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M706,686 Q710,698 712,712 Q714,728 713,748",
+              stroke: "#ee66cc",
+              strokeWidth: "1",
+              fill: "none",
+              opacity: "0.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M722,684 Q724,698 724,714 Q724,730 724,748",
+              stroke: "#ee66cc",
+              strokeWidth: "1",
+              fill: "none",
+              opacity: "0.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M736,688 Q736,702 733,716 Q730,730 730,748",
+              stroke: "#ee66cc",
+              strokeWidth: "1",
+              fill: "none",
+              opacity: "0.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M748,695 Q744,708 740,722 Q736,736 737,748",
+              stroke: "#ee66cc",
+              strokeWidth: "1",
+              fill: "none",
+              opacity: "0.5"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#softGlow)", opacity: "0.9", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "30",
+              y1: "762",
+              x2: "14",
+              y2: "710",
+              stroke: "#ff5533",
+              strokeWidth: "2.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "30",
+              y1: "762",
+              x2: "20",
+              y2: "705",
+              stroke: "#ff5533",
+              strokeWidth: "2.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "30",
+              y1: "762",
+              x2: "26",
+              y2: "702",
+              stroke: "#ff5533",
+              strokeWidth: "2.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "30",
+              y1: "762",
+              x2: "34",
+              y2: "702",
+              stroke: "#ff5533",
+              strokeWidth: "2.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "30",
+              y1: "762",
+              x2: "40",
+              y2: "706",
+              stroke: "#ff5533",
+              strokeWidth: "2.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "30",
+              y1: "762",
+              x2: "46",
+              y2: "713",
+              stroke: "#ff5533",
+              strokeWidth: "2.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M12,718 Q22,714 30,712 Q38,710 46,716",
+              stroke: "#ff7755",
+              strokeWidth: "1.2",
+              fill: "none",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M11,730 Q22,726 30,724 Q38,722 46,728",
+              stroke: "#ff7755",
+              strokeWidth: "1.2",
+              fill: "none",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M12,742 Q22,738 30,736 Q38,734 46,740",
+              stroke: "#ff7755",
+              strokeWidth: "1.2",
+              fill: "none",
+              opacity: "0.7"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "290",
+              y: "722",
+              width: "10",
+              height: "40",
+              rx: "5",
+              fill: "url(#tubeCoral1)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "304",
+              y: "715",
+              width: "9",
+              height: "47",
+              rx: "4",
+              fill: "url(#tubeCoral2)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "317",
+              y: "720",
+              width: "10",
+              height: "42",
+              rx: "5",
+              fill: "url(#tubeCoral1)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "330",
+              y: "712",
+              width: "8",
+              height: "50",
+              rx: "4",
+              fill: "url(#tubeCoral2)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "342",
+              y: "718",
+              width: "9",
+              height: "44",
+              rx: "4",
+              fill: "url(#tubeCoral1)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "295", cy: "722", r: "6", fill: "#5ad8f0" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "308", cy: "715", r: "6", fill: "#d088ff" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "322", cy: "720", r: "6", fill: "#5ad8f0" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "334", cy: "712", r: "5", fill: "#c070ee" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "346", cy: "718", r: "6", fill: "#5ad8f0" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "740",
+              y: "724",
+              width: "10",
+              height: "38",
+              rx: "5",
+              fill: "url(#tubeCoral2)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "754",
+              y: "717",
+              width: "9",
+              height: "45",
+              rx: "4",
+              fill: "url(#tubeCoral1)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "767",
+              y: "722",
+              width: "10",
+              height: "40",
+              rx: "5",
+              fill: "url(#tubeCoral2)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "780",
+              y: "714",
+              width: "8",
+              height: "48",
+              rx: "4",
+              fill: "url(#tubeCoral1)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "792",
+              y: "720",
+              width: "9",
+              height: "42",
+              rx: "4",
+              fill: "url(#tubeCoral2)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "745", cy: "724", r: "6", fill: "#c070ee" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "758", cy: "717", r: "6", fill: "#5ad8f0" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "772", cy: "722", r: "6", fill: "#d088ff" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "784", cy: "714", r: "5", fill: "#5ad8f0" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "796", cy: "720", r: "6", fill: "#c070ee" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "420", cy: "755", r: "18", fill: "#8B0020", opacity: "0.85" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "420", cy: "755", r: "13", fill: "#cc1133", opacity: "0.9" }),
+          [0, 40, 80, 120, 160, 200, 240, 280, 320].map((angle) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: 420,
+              y1: 755,
+              x2: 420 + Math.cos(angle * Math.PI / 180) * 20,
+              y2: 755 + Math.sin(angle * Math.PI / 180) * 20,
+              stroke: "#ff3355",
+              strokeWidth: "2",
+              strokeLinecap: "round"
+            },
+            `anemone-ray-${angle}`
+          )),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "420", cy: "735", r: "3", fill: "#ff6688" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "434", cy: "741", r: "3", fill: "#ff6688" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "437", cy: "757", r: "3", fill: "#ff6688" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "430", cy: "770", r: "3", fill: "#ff6688" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "417", cy: "775", r: "3", fill: "#ff6688" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "404", cy: "771", r: "3", fill: "#ff6688" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "400", cy: "758", r: "3", fill: "#ff6688" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "406", cy: "743", r: "3", fill: "#ff6688" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "420", cy: "740", r: "3", fill: "#ff6688" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("g", { opacity: "0.55", fill: "#0a2a3a", children: [0, 1, 2, 3, 4, 5].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "g",
+          {
+            transform: `translate(${300 + i * 22},${260 + i % 3 * 12})`,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "7", ry: "3" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "-7,0 -13,-4 -13,4" })
+            ]
+          },
+          `fish1-${i}`
+        )) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("g", { opacity: "0.5", fill: "#0a2838", children: [0, 1, 2, 3, 4].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "g",
+          {
+            transform: `translate(${820 + i * 18},${380 + i % 2 * 14})`,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "6", ry: "2.5" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "-6,0 -11,-3 -11,3" })
+            ]
+          },
+          `fish2-${i}`
+        )) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("g", { opacity: "0.45", fill: "#0c2c3c", children: [0, 1, 2, 3].map((i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "g",
+          {
+            transform: `translate(${150 + i * 16},${320 + i % 2 * 10})`,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "5", ry: "2" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "-5,0 -9,-2.5 -9,2.5" })
+            ]
+          },
+          `fish3-${i}`
+        )) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.6", fill: "#0a2030", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1050", cy: "440", rx: "16", ry: "7" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "1034,440 1022,432 1022,448" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1056", cy: "438", rx: "3", ry: "3", fill: "#1a4060" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.55", fill: "#0a2030", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "200", cy: "480", rx: "14", ry: "6" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "186,480 175,473 175,487" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "205", cy: "478", rx: "2.5", ry: "2.5", fill: "#1a3a55" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "130",
+            cy: "700",
+            r: "5",
+            fill: "none",
+            stroke: "#3aaccc",
+            strokeWidth: "1.5",
+            opacity: "0.6"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "136",
+            cy: "655",
+            r: "4",
+            fill: "none",
+            stroke: "#3aaccc",
+            strokeWidth: "1.2",
+            opacity: "0.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "128",
+            cy: "608",
+            r: "6",
+            fill: "none",
+            stroke: "#3aaccc",
+            strokeWidth: "1.5",
+            opacity: "0.45"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "133",
+            cy: "558",
+            r: "4",
+            fill: "none",
+            stroke: "#3aaccc",
+            strokeWidth: "1.2",
+            opacity: "0.35"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "126",
+            cy: "510",
+            r: "5",
+            fill: "none",
+            stroke: "#3aaccc",
+            strokeWidth: "1",
+            opacity: "0.25"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "520",
+            cy: "710",
+            r: "4",
+            fill: "none",
+            stroke: "#3ab8cc",
+            strokeWidth: "1.2",
+            opacity: "0.6"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "525",
+            cy: "665",
+            r: "5",
+            fill: "none",
+            stroke: "#3ab8cc",
+            strokeWidth: "1.5",
+            opacity: "0.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "518",
+            cy: "618",
+            r: "3",
+            fill: "none",
+            stroke: "#3ab8cc",
+            strokeWidth: "1",
+            opacity: "0.4"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "523",
+            cy: "572",
+            r: "5",
+            fill: "none",
+            stroke: "#3ab8cc",
+            strokeWidth: "1.2",
+            opacity: "0.3"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "516",
+            cy: "525",
+            r: "4",
+            fill: "none",
+            stroke: "#3ab8cc",
+            strokeWidth: "1",
+            opacity: "0.2"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "360",
+            cy: "640",
+            r: "3",
+            fill: "none",
+            stroke: "#3ab0c0",
+            strokeWidth: "1",
+            opacity: "0.45"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "680",
+            cy: "620",
+            r: "4",
+            fill: "none",
+            stroke: "#3ab0c0",
+            strokeWidth: "1.2",
+            opacity: "0.4"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "820",
+            cy: "680",
+            r: "3",
+            fill: "none",
+            stroke: "#3ab0c0",
+            strokeWidth: "1",
+            opacity: "0.45"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "940",
+            cy: "650",
+            r: "5",
+            fill: "none",
+            stroke: "#3ab0c0",
+            strokeWidth: "1.2",
+            opacity: "0.4"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "1000",
+            cy: "590",
+            r: "3",
+            fill: "none",
+            stroke: "#3ab0c0",
+            strokeWidth: "1",
+            opacity: "0.3"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "240",
+            cy: "560",
+            r: "4",
+            fill: "none",
+            stroke: "#3ab0c0",
+            strokeWidth: "1",
+            opacity: "0.35"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "770",
+            cy: "540",
+            r: "3",
+            fill: "none",
+            stroke: "#3ab0c0",
+            strokeWidth: "1",
+            opacity: "0.28"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "1100",
+            cy: "620",
+            r: "4",
+            fill: "none",
+            stroke: "#3ab0c0",
+            strokeWidth: "1.2",
+            opacity: "0.4"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glow)", opacity: "0.88", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "407", y: "107", width: "12", height: "12" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "648", y: "82", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "828", y: "127", width: "14", height: "14" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "207", y: "147", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "988", y: "97", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "747", y: "52", width: "9", height: "9" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "307", y: "72", width: "12", height: "12" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "908", y: "65", width: "13", height: "13" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "1067", y: "42", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "527", y: "57", width: "15", height: "15" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "88", y: "67", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "1108", y: "82", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-copepod", x: "168", y: "37", width: "9", height: "13" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-copepod", x: "418", y: "112", width: "8", height: "12" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-copepod", x: "658", y: "89", width: "9", height: "13" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-copepod", x: "998", y: "103", width: "8", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "62", y: "74", width: "7", height: "7" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "534", y: "63", width: "8", height: "8" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "754", y: "58", width: "7", height: "7" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "1116", y: "88", width: "7", height: "7" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glow)", opacity: "0.8", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "127", y: "207", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-jelly", x: "368", y: "190", width: "12", height: "16" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "598", y: "228", width: "13", height: "13" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-copepod", x: "778", y: "183", width: "8", height: "12" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "1038", y: "203", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-dino", x: "248", y: "168", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "958", y: "158", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-jelly", x: "468", y: "143", width: "11", height: "15" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "1138", y: "188", width: "8", height: "8" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "38", y: "178", width: "9", height: "9" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-copepod", x: "708", y: "163", width: "9", height: "13" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-dino", x: "868", y: "220", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "1128", y: "195", width: "9", height: "9" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "310", y: "140", width: "7", height: "7" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-jelly", x: "560", y: "108", width: "10", height: "14" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "820", y: "145", width: "8", height: "8" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glow)", opacity: "0.72", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-dino", x: "188", y: "290", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-jelly", x: "438", y: "268", width: "13", height: "17" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "688", y: "298", width: "12", height: "12" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-copepod", x: "938", y: "278", width: "8", height: "12" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-dino", x: "68", y: "328", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-jelly", x: "1148", y: "313", width: "12", height: "16" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "318", y: "343", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "568", y: "318", width: "9", height: "9" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "818", y: "348", width: "8", height: "8" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-dino", x: "1058", y: "333", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "150", y: "370", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-jelly", x: "730", y: "350", width: "11", height: "15" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-copepod", x: "480", y: "382", width: "9", height: "13" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "1178", y: "368", width: "7", height: "7" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "264", y: "360", width: "9", height: "9" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "858", y: "388", width: "12", height: "12" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-dino", x: "988", y: "305", width: "9", height: "9" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "448", y: "255", width: "6", height: "6" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glow)", opacity: "0.64", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-jelly", x: "148", y: "420", width: "12", height: "16" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "378", y: "440", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-dino", x: "608", y: "410", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-copepod", x: "838", y: "450", width: "8", height: "12" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "1088", y: "425", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "38", y: "470", width: "9", height: "9" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "258", y: "460", width: "8", height: "8" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-jelly", x: "488", y: "480", width: "12", height: "16" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "738", y: "470", width: "13", height: "13" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-dino", x: "988", y: "460", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "1168", y: "480", width: "8", height: "8" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "560", y: "440", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-copepod", x: "910", y: "412", width: "9", height: "13" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "1050", y: "395", width: "9", height: "9" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#softGlow)", opacity: "0.55", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "97", y: "540", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "326", y: "510", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-jelly", x: "577", y: "550", width: "14", height: "18" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "788", y: "520", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "1047", y: "545", width: "12", height: "12" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "207", y: "590", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol6", x: "447", y: "570", width: "13", height: "13" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "677", y: "600", width: "10", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-jelly", x: "917", y: "580", width: "12", height: "16" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-radiol", x: "1167", y: "560", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-dino", x: "340", y: "555", width: "11", height: "11" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-copepod", x: "750", y: "542", width: "9", height: "13" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "1080", y: "510", width: "10", height: "10" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "68", y: "136", width: "6", height: "6" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "189", y: "124", width: "6", height: "6" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "424", y: "99", width: "6", height: "6" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "704", y: "119", width: "6", height: "6" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "979", y: "92", width: "6", height: "6" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "1134", y: "109", width: "6", height: "6" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "284", y: "254", width: "5", height: "5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "549", y: "269", width: "5", height: "5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "864", y: "242", width: "5", height: "5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "1014", y: "276", width: "5", height: "5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "139", y: "384", width: "5", height: "5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "674", y: "396", width: "5", height: "5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "1084", y: "412", width: "5", height: "5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "450", y: "330", width: "5", height: "5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "780", y: "310", width: "5", height: "5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "1148", y: "352", width: "5", height: "5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-cell", x: "58", y: "528", width: "5", height: "5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("use", { href: "#plk-orb", x: "1190", y: "498", width: "5", height: "5" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#depthOverlay)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#vigOcean)" })
+      ]
+    }
+  );
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -44339,6 +46278,8 @@ const BackgroundRenderer = ({ world }) => {
         return renderBitcoinWorld();
       case "matrix":
         return renderMatrixWorld();
+      case "ocean":
+        return renderOceanWorld();
       default:
         return renderOriginalWorld();
     }
@@ -52448,7 +54389,8 @@ const WORLDS = [
   { id: "tokyo", name: "Tokyo" },
   { id: "windows", name: "Windows XP" },
   { id: "bitcoin", name: "Bitcoin" },
-  { id: "matrix", name: "Matrix" }
+  { id: "matrix", name: "Matrix" },
+  { id: "ocean", name: "Ocean" }
 ];
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
 const START_BUTTON_CLASSES = {
@@ -52466,7 +54408,8 @@ const START_BUTTON_CLASSES = {
   tokyo: "start-game-button-tokyo",
   windows: "start-game-button-windows",
   bitcoin: "start-game-button-bitcoin",
-  matrix: "start-game-button-matrix"
+  matrix: "start-game-button-matrix",
+  ocean: "start-game-button-ocean"
 };
 const StartScreen = ({
   onStartGame,
@@ -53067,7 +55010,8 @@ const VALID_WORLDS = [
   "tokyo",
   "windows",
   "bitcoin",
-  "matrix"
+  "matrix",
+  "ocean"
 ];
 const DEFAULT_PLAYER_DATA = {
   level: 1,
