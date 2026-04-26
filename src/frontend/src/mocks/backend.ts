@@ -3,6 +3,7 @@ import type {
   ClanDetails,
   ClanMessage,
   ClanSummary,
+  DirectMessage,
   FileMetadata,
   GameStatistics,
   HttpResponse,
@@ -82,6 +83,8 @@ export const mockBackend: backendInterface = {
   saveGameStatistics: async () => undefined,
   searchClans: async (): Promise<ClanSummary[]> => [],
   sendClanMessage: async () => err("not implemented"),
+  sendDirectMessage: async () => err("not implemented"),
+  getDirectMessages: async (): Promise<{ __kind__: "ok"; ok: DirectMessage[] } | { __kind__: "err"; err: string }> => ({ __kind__: "ok", ok: [] }),
   setApproval: async () => undefined,
   updateClan: async () => err("not implemented"),
 };

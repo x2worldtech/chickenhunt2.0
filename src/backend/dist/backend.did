@@ -7,15 +7,23 @@ type UserRole =
 type UserProfileWithChangeStatus = 
  record {
    bio: text;
+   githubUrl: opt text;
    hasChangedName: bool;
    name: text;
+   telegramUrl: opt text;
+   xUrl: opt text;
+   youtubeUrl: opt text;
  };
 type UserProfile = 
  record {
    bannerImageUrl: opt text;
    bio: text;
+   githubUrl: opt text;
    name: text;
    profilePictureUrl: opt text;
+   telegramUrl: opt text;
+   xUrl: opt text;
+   youtubeUrl: opt text;
  };
 type UserInfo = 
  record {
@@ -96,6 +104,14 @@ type FileMetadata =
    mimeType: text;
    path: text;
    size: nat;
+ };
+type DirectMessage = 
+ record {
+   id: nat;
+   recipientId: principal;
+   senderId: principal;
+   "text": text;
+   timestamp: int;
  };
 type ClanSummary = 
  record {
@@ -180,6 +196,11 @@ service : {
   getCurrentUserProfileWithChangeStatus: () ->
    (opt UserProfileWithChangeStatus) query;
   getCurrentUserRole: () -> (UserRole) query;
+  getDirectMessages: (otherUserId: principal, limit: nat, before: opt nat) ->
+   (variant {
+      err: text;
+      ok: vec DirectMessage;
+    }) query;
   getFriends: () -> (vec PrincipalInfo) query;
   getLeaderboard: () -> (vec record {
                                text;
@@ -223,6 +244,11 @@ service : {
    (variant {
       err: text;
       ok: ClanMessage;
+    });
+  sendDirectMessage: (recipientId: principal, "text": text) ->
+   (variant {
+      err: text;
+      ok: DirectMessage;
     });
   setApproval: (user: principal, approval: ApprovalStatus) -> ();
   updateClan: (clanId: nat, description: text, joinMode: JoinMode, emblemId:

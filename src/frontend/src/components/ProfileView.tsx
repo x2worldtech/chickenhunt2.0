@@ -232,6 +232,14 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   const [usernameError, setUsernameError] = useState("");
   const [bioError, setBioError] = useState("");
   const [copySuccess, setCopySuccess] = useState(false);
+  const [editedXUrl, setEditedXUrl] = useState("");
+  const [editedTelegramUrl, setEditedTelegramUrl] = useState("");
+  const [editedYoutubeUrl, setEditedYoutubeUrl] = useState("");
+  const [editedGithubUrl, setEditedGithubUrl] = useState("");
+  const [xUrlError, setXUrlError] = useState("");
+  const [telegramUrlError, setTelegramUrlError] = useState("");
+  const [youtubeUrlError, setYoutubeUrlError] = useState("");
+  const [githubUrlError, setGithubUrlError] = useState("");
   const [profilePicturePath, setProfilePicturePath] = useState<string | null>(
     null,
   );
@@ -284,6 +292,19 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   useEffect(() => {
     setEditedUsername(userProfile?.name ?? "");
     setEditedBio(userProfile?.bio ?? "");
+    const p = userProfile as
+      | {
+          xUrl?: string;
+          telegramUrl?: string;
+          youtubeUrl?: string;
+          githubUrl?: string;
+        }
+      | null
+      | undefined;
+    setEditedXUrl(p?.xUrl ?? "");
+    setEditedTelegramUrl(p?.telegramUrl ?? "");
+    setEditedYoutubeUrl(p?.youtubeUrl ?? "");
+    setEditedGithubUrl(p?.githubUrl ?? "");
   }, [userProfile]);
 
   // Load image paths from storage (backend takes priority over localStorage)
@@ -344,17 +365,82 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     return "";
   };
 
+  const validateXUrl = (url: string): string => {
+    if (!url.trim()) return "";
+    if (
+      /^https?:\/\/(www\.)?(x\.com|twitter\.com)\/[A-Za-z0-9_]{1,50}\/?$/.test(
+        url.trim(),
+      )
+    )
+      return "";
+    return "Must be https://x.com/username or https://twitter.com/username";
+  };
+
+  const validateTelegramUrl = (url: string): string => {
+    if (!url.trim()) return "";
+    if (
+      /^https?:\/\/(www\.)?(t\.me|telegram\.me)\/[A-Za-z0-9_]{4,50}\/?$/.test(
+        url.trim(),
+      )
+    )
+      return "";
+    return "Must be https://t.me/username or https://telegram.me/username";
+  };
+
+  const validateYoutubeUrl = (url: string): string => {
+    if (!url.trim()) return "";
+    if (
+      /^https?:\/\/(www\.)?youtube\.com\/(@[A-Za-z0-9_.\-]{1,100}|c\/[A-Za-z0-9_.\-]{1,100}|user\/[A-Za-z0-9_.\-]{1,100})\/?$/.test(
+        url.trim(),
+      )
+    )
+      return "";
+    return "Must be https://youtube.com/@handle or /c/channel or /user/name";
+  };
+
+  const validateGithubUrl = (url: string): string => {
+    if (!url.trim()) return "";
+    if (
+      /^https?:\/\/(www\.)?github\.com\/[A-Za-z0-9_.\-]{1,100}\/?$/.test(
+        url.trim(),
+      )
+    )
+      return "";
+    return "Must be https://github.com/username";
+  };
+
   const handleSaveChanges = async () => {
     const usernameErr = canEditUsername()
       ? validateUsername(editedUsername)
       : "";
     const bioErr = validateBio(editedBio);
+    const xErr = validateXUrl(editedXUrl);
+    const tgErr = validateTelegramUrl(editedTelegramUrl);
+    const ytErr = validateYoutubeUrl(editedYoutubeUrl);
+    const ghErr = validateGithubUrl(editedGithubUrl);
+
     if (usernameErr) {
       setUsernameError(usernameErr);
       return;
     }
     if (bioErr) {
       setBioError(bioErr);
+      return;
+    }
+    if (xErr) {
+      setXUrlError(xErr);
+      return;
+    }
+    if (tgErr) {
+      setTelegramUrlError(tgErr);
+      return;
+    }
+    if (ytErr) {
+      setYoutubeUrlError(ytErr);
+      return;
+    }
+    if (ghErr) {
+      setGithubUrlError(ghErr);
       return;
     }
 
@@ -368,10 +454,18 @@ const ProfileView: React.FC<ProfileViewProps> = ({
           : (userProfile?.name ?? getDefaultUsername()),
         bio: editedBio.trim(),
         hasChangedName: userProfile?.hasChangedName || isFirstChange,
+        xUrl: editedXUrl.trim() || undefined,
+        telegramUrl: editedTelegramUrl.trim() || undefined,
+        youtubeUrl: editedYoutubeUrl.trim() || undefined,
+        githubUrl: editedGithubUrl.trim() || undefined,
       });
       setIsEditMode(false);
       setUsernameError("");
       setBioError("");
+      setXUrlError("");
+      setTelegramUrlError("");
+      setYoutubeUrlError("");
+      setGithubUrlError("");
       setHeaderSymbolVisible(false);
     } catch (error) {
       if (error instanceof Error && error.message.includes("Name too long")) {
@@ -386,9 +480,26 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     setIsEditMode(false);
     setUsernameError("");
     setBioError("");
+    setXUrlError("");
+    setTelegramUrlError("");
+    setYoutubeUrlError("");
+    setGithubUrlError("");
     setHeaderSymbolVisible(false);
     setEditedUsername(userProfile?.name ?? "");
     setEditedBio(userProfile?.bio ?? "");
+    const p = userProfile as
+      | {
+          xUrl?: string;
+          telegramUrl?: string;
+          youtubeUrl?: string;
+          githubUrl?: string;
+        }
+      | null
+      | undefined;
+    setEditedXUrl(p?.xUrl ?? "");
+    setEditedTelegramUrl(p?.telegramUrl ?? "");
+    setEditedYoutubeUrl(p?.youtubeUrl ?? "");
+    setEditedGithubUrl(p?.githubUrl ?? "");
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -549,6 +660,16 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   const principalId = identity?.getPrincipal().toString() ?? "";
   const isLoggingIn = loginStatus === "logging-in";
   const currentTitle = getPlayerTitle(playerData.level);
+
+  const profileSocialLinks = userProfile as
+    | {
+        xUrl?: string;
+        telegramUrl?: string;
+        youtubeUrl?: string;
+        githubUrl?: string;
+      }
+    | null
+    | undefined;
 
   if (!isAuthenticated) {
     return (
@@ -840,44 +961,341 @@ const ProfileView: React.FC<ProfileViewProps> = ({
 
                 {/* Bio */}
                 {isEditMode ? (
-                  <div className="space-y-2 mb-4">
-                    <div className="relative">
-                      <textarea
-                        value={editedBio}
-                        onChange={handleBioChange}
-                        onKeyDown={handleBioKeyDown}
-                        onPaste={handleBioPaste}
-                        className="w-full text-sm text-black bg-white border-2 border-orange-300 rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500 transition-colors resize-none"
-                        placeholder="Tell us about yourself..."
-                        rows={3}
-                        maxLength={200}
-                        data-ocid="profile.bio_textarea"
-                      />
-                      <div className="absolute bottom-2 right-3 text-xs text-gray-500">
-                        {editedBio.length}/200
+                  <>
+                    <div className="space-y-2 mb-4">
+                      <div className="relative">
+                        <textarea
+                          value={editedBio}
+                          onChange={handleBioChange}
+                          onKeyDown={handleBioKeyDown}
+                          onPaste={handleBioPaste}
+                          className="w-full text-sm text-black bg-white border-2 border-orange-300 rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500 transition-colors resize-none"
+                          placeholder="Tell us about yourself..."
+                          rows={3}
+                          maxLength={200}
+                          data-ocid="profile.bio_textarea"
+                        />
+                        <div className="absolute bottom-2 right-3 text-xs text-gray-500">
+                          {editedBio.length}/200
+                        </div>
+                      </div>
+                      {bioError && (
+                        <p
+                          className="text-red-500 text-sm font-medium"
+                          data-ocid="profile.bio_error"
+                        >
+                          {bioError}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Social Links — edit mode */}
+                    <div className="space-y-3 mb-4">
+                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Social Links
+                      </h4>
+
+                      {/* X */}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-black">
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              role="img"
+                              aria-hidden="true"
+                            >
+                              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                            </svg>
+                          </span>
+                          <input
+                            type="url"
+                            value={editedXUrl}
+                            onChange={(e) => {
+                              setEditedXUrl(e.target.value);
+                              setXUrlError("");
+                            }}
+                            onBlur={() =>
+                              setXUrlError(validateXUrl(editedXUrl))
+                            }
+                            className="flex-1 text-sm text-black bg-white border-2 border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-orange-400 transition-colors"
+                            placeholder="https://x.com/yourusername"
+                            aria-label="X (Twitter) profile URL"
+                            data-ocid="profile.x_url_input"
+                          />
+                        </div>
+                        {xUrlError && (
+                          <p
+                            className="text-red-500 text-xs mt-1 ml-10"
+                            data-ocid="profile.x_url_error"
+                          >
+                            {xUrlError}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Telegram */}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg"
+                            style={{ backgroundColor: "#229ED9" }}
+                          >
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              role="img"
+                              aria-hidden="true"
+                            >
+                              <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                            </svg>
+                          </span>
+                          <input
+                            type="url"
+                            value={editedTelegramUrl}
+                            onChange={(e) => {
+                              setEditedTelegramUrl(e.target.value);
+                              setTelegramUrlError("");
+                            }}
+                            onBlur={() =>
+                              setTelegramUrlError(
+                                validateTelegramUrl(editedTelegramUrl),
+                              )
+                            }
+                            className="flex-1 text-sm text-black bg-white border-2 border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-orange-400 transition-colors"
+                            placeholder="https://t.me/yourusername"
+                            aria-label="Telegram profile URL"
+                            data-ocid="profile.telegram_url_input"
+                          />
+                        </div>
+                        {telegramUrlError && (
+                          <p
+                            className="text-red-500 text-xs mt-1 ml-10"
+                            data-ocid="profile.telegram_url_error"
+                          >
+                            {telegramUrlError}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* YouTube */}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg"
+                            style={{ backgroundColor: "#FF0000" }}
+                          >
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              role="img"
+                              aria-hidden="true"
+                            >
+                              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                            </svg>
+                          </span>
+                          <input
+                            type="url"
+                            value={editedYoutubeUrl}
+                            onChange={(e) => {
+                              setEditedYoutubeUrl(e.target.value);
+                              setYoutubeUrlError("");
+                            }}
+                            onBlur={() =>
+                              setYoutubeUrlError(
+                                validateYoutubeUrl(editedYoutubeUrl),
+                              )
+                            }
+                            className="flex-1 text-sm text-black bg-white border-2 border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-orange-400 transition-colors"
+                            placeholder="https://youtube.com/@yourchannel"
+                            aria-label="YouTube channel URL"
+                            data-ocid="profile.youtube_url_input"
+                          />
+                        </div>
+                        {youtubeUrlError && (
+                          <p
+                            className="text-red-500 text-xs mt-1 ml-10"
+                            data-ocid="profile.youtube_url_error"
+                          >
+                            {youtubeUrlError}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* GitHub */}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg"
+                            style={{ backgroundColor: "#181717" }}
+                          >
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              role="img"
+                              aria-hidden="true"
+                            >
+                              <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+                            </svg>
+                          </span>
+                          <input
+                            type="url"
+                            value={editedGithubUrl}
+                            onChange={(e) => {
+                              setEditedGithubUrl(e.target.value);
+                              setGithubUrlError("");
+                            }}
+                            onBlur={() =>
+                              setGithubUrlError(
+                                validateGithubUrl(editedGithubUrl),
+                              )
+                            }
+                            className="flex-1 text-sm text-black bg-white border-2 border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-orange-400 transition-colors"
+                            placeholder="https://github.com/yourusername"
+                            aria-label="GitHub profile URL"
+                            data-ocid="profile.github_url_input"
+                          />
+                        </div>
+                        {githubUrlError && (
+                          <p
+                            className="text-red-500 text-xs mt-1 ml-10"
+                            data-ocid="profile.github_url_error"
+                          >
+                            {githubUrlError}
+                          </p>
+                        )}
                       </div>
                     </div>
-                    {bioError && (
-                      <p
-                        className="text-red-500 text-sm font-medium"
-                        data-ocid="profile.bio_error"
-                      >
-                        {bioError}
-                      </p>
-                    )}
-                  </div>
+                  </>
                 ) : (
-                  <div className="mb-4">
-                    {displayBio ? (
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">
-                        {displayBio}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-gray-400 italic">
-                        No bio set.
-                      </p>
+                  <>
+                    <div className="mb-4">
+                      {displayBio ? (
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">
+                          {displayBio}
+                        </p>
+                      ) : (
+                        <p className="text-sm text-gray-400 italic">
+                          No bio set.
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Social Links — view mode */}
+                    {(profileSocialLinks?.xUrl ||
+                      profileSocialLinks?.telegramUrl ||
+                      profileSocialLinks?.youtubeUrl ||
+                      profileSocialLinks?.githubUrl) && (
+                      <div
+                        className="flex items-center gap-3 mb-4"
+                        data-ocid="profile.social_links"
+                      >
+                        {profileSocialLinks?.xUrl && (
+                          <a
+                            href={profileSocialLinks.xUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-9 h-9 flex items-center justify-center rounded-xl bg-black hover:opacity-80 transition-opacity shadow-sm"
+                            aria-label="X profile"
+                            data-ocid="profile.x_link"
+                          >
+                            <span className="sr-only">X profile</span>
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              aria-hidden="true"
+                            >
+                              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                            </svg>
+                          </a>
+                        )}
+                        {profileSocialLinks?.telegramUrl && (
+                          <a
+                            href={profileSocialLinks.telegramUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-9 h-9 flex items-center justify-center rounded-xl hover:opacity-80 transition-opacity shadow-sm"
+                            style={{ backgroundColor: "#229ED9" }}
+                            aria-label="Telegram profile"
+                            data-ocid="profile.telegram_link"
+                          >
+                            <span className="sr-only">Telegram profile</span>
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              aria-hidden="true"
+                            >
+                              <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                            </svg>
+                          </a>
+                        )}
+                        {profileSocialLinks?.youtubeUrl && (
+                          <a
+                            href={profileSocialLinks.youtubeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-9 h-9 flex items-center justify-center rounded-xl hover:opacity-80 transition-opacity shadow-sm"
+                            style={{ backgroundColor: "#FF0000" }}
+                            aria-label="YouTube channel"
+                            data-ocid="profile.youtube_link"
+                          >
+                            <span className="sr-only">YouTube channel</span>
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              aria-hidden="true"
+                            >
+                              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                            </svg>
+                          </a>
+                        )}
+                        {profileSocialLinks?.githubUrl && (
+                          <a
+                            href={profileSocialLinks.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-9 h-9 flex items-center justify-center rounded-xl hover:opacity-80 transition-opacity shadow-sm"
+                            style={{ backgroundColor: "#181717" }}
+                            aria-label="GitHub profile"
+                            data-ocid="profile.github_link"
+                          >
+                            <span className="sr-only">GitHub profile</span>
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              aria-hidden="true"
+                            >
+                              <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+                            </svg>
+                          </a>
+                        )}
+                      </div>
                     )}
-                  </div>
+                  </>
                 )}
               </div>
 

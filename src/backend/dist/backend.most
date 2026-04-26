@@ -24,6 +24,14 @@ type Clan__97583336 =
 type Data__159895909<T> = {var count : Nat__490723111; elements : [var ?T]};
 type Data__791452850<K, V> =
   {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type DirectMessage__582720846 =
+  {
+    id : Nat;
+    recipientId : Principal;
+    senderId : Principal;
+    text : Text;
+    timestamp : Int
+  };
 type GameStatistics__205091857 =
   {
     bestConsecutiveHits : Nat;
@@ -71,13 +79,25 @@ type Set__532252804<T> = Set__710576254<T>;
 type Set__710576254<T> =
   {var root : Node__92254746<T>; var size : Nat__490723111};
 type UserProfileWithChangeStatus__67597737 =
-  {bio : Text; hasChangedName : Bool; name : Text};
+  {
+    bio : Text;
+    githubUrl : ?Text;
+    hasChangedName : Bool;
+    name : Text;
+    telegramUrl : ?Text;
+    xUrl : ?Text;
+    youtubeUrl : ?Text
+  };
 type UserProfile__491224006 =
   {
     bannerImageUrl : ?Text;
     bio : Text;
+    githubUrl : ?Text;
     name : Text;
-    profilePictureUrl : ?Text
+    profilePictureUrl : ?Text;
+    telegramUrl : ?Text;
+    xUrl : ?Text;
+    youtubeUrl : ?Text
   };
 type UserRole__465239019 = {#admin; #guest; #user};
 actor {
@@ -98,8 +118,11 @@ actor {
       clanMessages :
         Map__605269027<Nat, List__415060402<ClanMessage__660768647>>;
       clans : Map__605269027<Nat, Clan__97583336>;
+      directMessages :
+        Map__605269027<Text, List__415060402<DirectMessage__582720846>>;
       friends : Map__605269027<Principal, Set__532252804<Principal>>;
       var nextClanId : Nat;
+      var nextDirectMessageId : Nat;
       var nextMessageId : Nat
     };
   stable storage :

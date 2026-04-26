@@ -11,6 +11,7 @@ module {
   public type SocialsState = Types.SocialsState;
   public type Clan = Types.Clan;
   public type ClanMessage = Types.ClanMessage;
+  public type DirectMessage = Types.DirectMessage;
   public type ClanSummary = Types.ClanSummary;
   public type ClanDetails = Types.ClanDetails;
   public type PrincipalInfo = Types.PrincipalInfo;
@@ -23,8 +24,10 @@ module {
       clans = Map.empty<Nat, Clan>();
       clanMessages = Map.empty<Nat, List.List<ClanMessage>>();
       friends = Map.empty<Principal, Set.Set<Principal>>();
+      directMessages = Map.empty<Text, List.List<DirectMessage>>();
       var nextClanId = 1;
       var nextMessageId = 1;
+      var nextDirectMessageId = 1;
     };
   };
 
@@ -420,6 +423,69 @@ module {
       case null false;
       case (?friendSet) friendSet.contains(userId);
     };
+  };
+
+  // ── Direct messages ────────────────────────────────────────────────────────
+
+  func makeConversationId(a : Principal, b : Principal) : Text {
+    let aText = a.toText();
+    let bText = b.toText();
+    if (aText.less(bText)) {
+      aText # "_" # bText
+    } else {
+      bText # "_" # aText
+    };
+  };
+
+  public func sendDirectMessage(
+    state : SocialsState,
+    caller : Principal,
+    recipientId : Principal,
+    text : Text,
+  ) : { #ok : DirectMessage; #err : Text } {
+    if (Principal.equal(caller, recipientId)) return #err("Cannot send a message to yourself");
+    if (text.size() == 0) return #err("Message text cannot be empty");
+    let convId = makeConversationId(caller, recipientId);
+    let id = state.nextDirectMessageId;
+    state.nextDirectMessageId += 1;
+    let msg : DirectMessage = {
+      id;
+      senderId = caller;
+      recipientId;
+      text;
+      timestamp = Time.now();
+    };
+    let msgs = switch (state.directMessages.get(convId)) {
+      case (?existing) existing;
+      case null {
+        let newList = List.empty<DirectMessage>();
+        state.directMessages.add(convId, newList);
+        newList;
+      };
+    };
+    msgs.add(msg);
+    #ok(msg);
+  };
+
+  public func getDirectMessages(
+    state : SocialsState,
+    caller : Principal,
+    otherUserId : Principal,
+    limit : Nat,
+    before : ?Nat,
+  ) : { #ok : [DirectMessage]; #err : Text } {
+    let convId = makeConversationId(caller, otherUserId);
+    let allMsgs : [DirectMessage] = switch (state.directMessages.get(convId)) {
+      case null [];
+      case (?msgs) msgs.toArray();
+    };
+    let filtered = switch (before) {
+      case null allMsgs;
+      case (?beforeId) allMsgs.filter(func(m : DirectMessage) : Bool { m.id < beforeId });
+    };
+    let reversed = filtered.reverse();
+    let count = if (limit < reversed.size()) limit else reversed.size();
+    #ok(reversed.sliceToArray(0, count));
   };
 
 };

@@ -6,6 +6,7 @@ import {
   type ClanDetails,
   type ClanMessage,
   type ClanSummary,
+  type DirectMessage,
   type GameStatistics,
   JoinMode,
   type PrincipalInfo,
@@ -25,26 +26,35 @@ export type {
   ClanDetails,
   ClanMessage,
   PrincipalInfo,
+  DirectMessage,
 };
 export { ApprovalStatus, UserRole, JoinMode };
 
 /**
- * Extended UserProfile that includes optional image URL fields.
+ * Extended UserProfile that includes optional image URL fields and social links.
  * These fields are added by the backend migration; older records
  * will simply not have them (undefined / empty string).
  */
 export interface UserProfileExtended extends UserProfile {
   profilePictureUrl?: string;
   bannerImageUrl?: string;
+  xUrl?: string;
+  telegramUrl?: string;
+  youtubeUrl?: string;
+  githubUrl?: string;
 }
 
 /**
- * Extended UserProfileWithChangeStatus that includes optional image URL fields.
+ * Extended UserProfileWithChangeStatus that includes optional image URL fields and social links.
  */
 export interface UserProfileWithChangeStatusExtended
   extends UserProfileWithChangeStatus {
   profilePictureUrl?: string;
   bannerImageUrl?: string;
+  xUrl?: string;
+  telegramUrl?: string;
+  youtubeUrl?: string;
+  githubUrl?: string;
 }
 
 export function useUserProfile() {
@@ -515,6 +525,51 @@ export function useSendClanMessage() {
     onSuccess: (_, { clanId }) => {
       queryClient.invalidateQueries({
         queryKey: ["clanMessages", clanId.toString()],
+      });
+    },
+  });
+}
+
+// ─── Direct Messages ──────────────────────────────────────────────────────────
+
+export function useDirectMessages(
+  otherUserId: Principal | null,
+  enabled: boolean,
+) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<DirectMessage[]>({
+    queryKey: ["directMessages", otherUserId?.toText()],
+    queryFn: async () => {
+      if (!actor || !otherUserId) return [];
+      const res = await actor.getDirectMessages(otherUserId, BigInt(50), null);
+      if (res.__kind__ === "ok") return res.ok;
+      return [];
+    },
+    enabled: !!actor && !isFetching && otherUserId !== null && enabled,
+    refetchInterval: 3000,
+  });
+}
+
+export function useSendDirectMessage() {
+  const { actor } = useActor(createActor);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      recipientId,
+      text,
+    }: {
+      recipientId: Principal;
+      text: string;
+    }) => {
+      if (!actor) throw new Error("No actor");
+      const res = await actor.sendDirectMessage(recipientId, text);
+      if (res.__kind__ === "ok") return res.ok;
+      throw new Error(res.err);
+    },
+    onSuccess: (_, { recipientId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["directMessages", recipientId.toText()],
       });
     },
   });

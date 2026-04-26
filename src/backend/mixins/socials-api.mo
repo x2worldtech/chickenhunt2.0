@@ -12,6 +12,7 @@ mixin (
   public type ClanSummary = Types.ClanSummary;
   public type ClanDetails = Types.ClanDetails;
   public type ClanMessage = Types.ClanMessage;
+  public type DirectMessage = Types.DirectMessage;
   public type PrincipalInfo = Types.PrincipalInfo;
   public type JoinMode = Types.JoinMode;
 
@@ -114,6 +115,23 @@ mixin (
 
   public query ({ caller }) func isFriend(userId : Principal) : async Bool {
     SocialsLib.isFriend(socialsState, caller, userId);
+  };
+
+  // ── Direct messages ──────────────────────────────────────────────────────
+
+  public shared ({ caller }) func sendDirectMessage(
+    recipientId : Principal,
+    text : Text,
+  ) : async { #ok : DirectMessage; #err : Text } {
+    SocialsLib.sendDirectMessage(socialsState, caller, recipientId, text);
+  };
+
+  public query ({ caller }) func getDirectMessages(
+    otherUserId : Principal,
+    limit : Nat,
+    before : ?Nat,
+  ) : async { #ok : [DirectMessage]; #err : Text } {
+    SocialsLib.getDirectMessages(socialsState, caller, otherUserId, limit, before);
   };
 
 };

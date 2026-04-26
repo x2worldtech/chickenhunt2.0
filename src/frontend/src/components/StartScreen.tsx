@@ -72,6 +72,8 @@ const WORLDS: { id: BackgroundWorld; name: string }[] = [
   { id: "halloween", name: "Halloween" },
   { id: "tokyo", name: "Tokyo" },
   { id: "windows", name: "Windows XP" },
+  { id: "bitcoin", name: "Bitcoin" },
+  { id: "matrix", name: "Matrix" },
 ];
 
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
@@ -90,6 +92,8 @@ const START_BUTTON_CLASSES: Record<BackgroundWorld, string> = {
   halloween: "start-game-button-halloween",
   tokyo: "start-game-button-tokyo",
   windows: "start-game-button-windows",
+  bitcoin: "start-game-button-bitcoin",
+  matrix: "start-game-button-matrix",
 };
 
 const StartScreen: React.FC<StartScreenProps> = ({

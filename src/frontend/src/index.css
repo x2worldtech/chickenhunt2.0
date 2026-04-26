@@ -551,6 +551,43 @@ body {
   border: 2px solid #3a8800 !important;
 }
 
+.start-game-button-bitcoin {
+  background: linear-gradient(135deg, #1a0a00 0%, #2a1200 40%, #1a0a00 100%);
+  color: #f7931a !important;
+  text-shadow: 0 0 12px rgba(247, 147, 26, 0.8), 0 0 24px
+    rgba(247, 147, 26, 0.4);
+  box-shadow: 0 4px 16px rgba(247, 147, 26, 0.4), 0 2px 6px rgba(0, 0, 0, 0.6),
+    0 0 0 2px rgba(247, 147, 26, 0.3), inset 0 1px 0 rgba(255, 180, 80, 0.2);
+  border: 2px solid #f7931a !important;
+}
+
+.start-game-button-bitcoin:hover {
+  background: linear-gradient(135deg, #2a1500 0%, #3d1e00 40%, #2a1500 100%);
+  color: #ffa500 !important;
+  text-shadow: 0 0 16px rgba(255, 165, 0, 0.9), 0 0 32px rgba(247, 147, 26, 0.6);
+  box-shadow: 0 6px 22px rgba(247, 147, 26, 0.6), 0 3px 8px rgba(0, 0, 0, 0.6),
+    0 0 0 2px rgba(255, 165, 0, 0.5), inset 0 1px 0 rgba(255, 200, 100, 0.3);
+  border: 2px solid #ffa500 !important;
+}
+
+.start-game-button-matrix {
+  background: linear-gradient(135deg, #000a02 0%, #001a05 40%, #000a02 100%);
+  color: #00ff41 !important;
+  text-shadow: 0 0 12px rgba(0, 255, 65, 0.9), 0 0 24px rgba(0, 204, 51, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 255, 65, 0.35), 0 2px 6px rgba(0, 0, 0, 0.7), 0
+    0 0 2px rgba(0, 255, 65, 0.25), inset 0 1px 0 rgba(0, 255, 65, 0.15);
+  border: 2px solid #00cc33 !important;
+}
+
+.start-game-button-matrix:hover {
+  background: linear-gradient(135deg, #001505 0%, #002a0a 40%, #001505 100%);
+  color: #00ff41 !important;
+  text-shadow: 0 0 16px rgba(0, 255, 65, 1), 0 0 32px rgba(0, 204, 51, 0.7);
+  box-shadow: 0 6px 22px rgba(0, 255, 65, 0.55), 0 3px 8px rgba(0, 0, 0, 0.7), 0
+    0 0 2px rgba(0, 255, 65, 0.45), inset 0 1px 0 rgba(0, 255, 100, 0.25);
+  border: 2px solid #00ff41 !important;
+}
+
 /* Tips container styling - Default for all worlds except snowy */
 .tips-container-default {
   border: 1px solid rgba(255, 255, 255, 0.2);

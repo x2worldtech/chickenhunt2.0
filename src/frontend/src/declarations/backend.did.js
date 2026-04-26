@@ -65,14 +65,29 @@ export const ClanMessage = IDL.Record({
 });
 export const UserProfile = IDL.Record({
   'bio' : IDL.Text,
+  'telegramUrl' : IDL.Opt(IDL.Text),
   'name' : IDL.Text,
+  'xUrl' : IDL.Opt(IDL.Text),
+  'githubUrl' : IDL.Opt(IDL.Text),
   'profilePictureUrl' : IDL.Opt(IDL.Text),
   'bannerImageUrl' : IDL.Opt(IDL.Text),
+  'youtubeUrl' : IDL.Opt(IDL.Text),
 });
 export const UserProfileWithChangeStatus = IDL.Record({
   'bio' : IDL.Text,
+  'telegramUrl' : IDL.Opt(IDL.Text),
   'name' : IDL.Text,
   'hasChangedName' : IDL.Bool,
+  'xUrl' : IDL.Opt(IDL.Text),
+  'githubUrl' : IDL.Opt(IDL.Text),
+  'youtubeUrl' : IDL.Opt(IDL.Text),
+});
+export const DirectMessage = IDL.Record({
+  'id' : IDL.Nat,
+  'text' : IDL.Text,
+  'timestamp' : IDL.Int,
+  'recipientId' : IDL.Principal,
+  'senderId' : IDL.Principal,
 });
 export const GameStatistics = IDL.Record({
   'totalShotsFired' : IDL.Nat,
@@ -184,6 +199,11 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getCurrentUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getDirectMessages' : IDL.Func(
+      [IDL.Principal, IDL.Nat, IDL.Opt(IDL.Nat)],
+      [IDL.Variant({ 'ok' : IDL.Vec(DirectMessage), 'err' : IDL.Text })],
+      ['query'],
+    ),
   'getFriends' : IDL.Func([], [IDL.Vec(PrincipalInfo)], ['query']),
   'getLeaderboard' : IDL.Func(
       [],
@@ -246,6 +266,11 @@ export const idlService = IDL.Service({
   'sendClanMessage' : IDL.Func(
       [IDL.Nat, IDL.Text],
       [IDL.Variant({ 'ok' : ClanMessage, 'err' : IDL.Text })],
+      [],
+    ),
+  'sendDirectMessage' : IDL.Func(
+      [IDL.Principal, IDL.Text],
+      [IDL.Variant({ 'ok' : DirectMessage, 'err' : IDL.Text })],
       [],
     ),
   'setApproval' : IDL.Func([IDL.Principal, ApprovalStatus], [], []),
@@ -316,14 +341,29 @@ export const idlFactory = ({ IDL }) => {
   });
   const UserProfile = IDL.Record({
     'bio' : IDL.Text,
+    'telegramUrl' : IDL.Opt(IDL.Text),
     'name' : IDL.Text,
+    'xUrl' : IDL.Opt(IDL.Text),
+    'githubUrl' : IDL.Opt(IDL.Text),
     'profilePictureUrl' : IDL.Opt(IDL.Text),
     'bannerImageUrl' : IDL.Opt(IDL.Text),
+    'youtubeUrl' : IDL.Opt(IDL.Text),
   });
   const UserProfileWithChangeStatus = IDL.Record({
     'bio' : IDL.Text,
+    'telegramUrl' : IDL.Opt(IDL.Text),
     'name' : IDL.Text,
     'hasChangedName' : IDL.Bool,
+    'xUrl' : IDL.Opt(IDL.Text),
+    'githubUrl' : IDL.Opt(IDL.Text),
+    'youtubeUrl' : IDL.Opt(IDL.Text),
+  });
+  const DirectMessage = IDL.Record({
+    'id' : IDL.Nat,
+    'text' : IDL.Text,
+    'timestamp' : IDL.Int,
+    'recipientId' : IDL.Principal,
+    'senderId' : IDL.Principal,
   });
   const GameStatistics = IDL.Record({
     'totalShotsFired' : IDL.Nat,
@@ -439,6 +479,11 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getCurrentUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getDirectMessages' : IDL.Func(
+        [IDL.Principal, IDL.Nat, IDL.Opt(IDL.Nat)],
+        [IDL.Variant({ 'ok' : IDL.Vec(DirectMessage), 'err' : IDL.Text })],
+        ['query'],
+      ),
     'getFriends' : IDL.Func([], [IDL.Vec(PrincipalInfo)], ['query']),
     'getLeaderboard' : IDL.Func(
         [],
@@ -501,6 +546,11 @@ export const idlFactory = ({ IDL }) => {
     'sendClanMessage' : IDL.Func(
         [IDL.Nat, IDL.Text],
         [IDL.Variant({ 'ok' : ClanMessage, 'err' : IDL.Text })],
+        [],
+      ),
+    'sendDirectMessage' : IDL.Func(
+        [IDL.Principal, IDL.Text],
+        [IDL.Variant({ 'ok' : DirectMessage, 'err' : IDL.Text })],
         [],
       ),
     'setApproval' : IDL.Func([IDL.Principal, ApprovalStatus], [], []),

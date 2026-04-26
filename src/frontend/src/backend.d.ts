@@ -13,6 +13,18 @@ export interface HttpRequest {
     body: Uint8Array;
     headers: Array<HeaderField>;
 }
+export interface DirectMessage {
+    id: bigint;
+    text: string;
+    timestamp: bigint;
+    recipientId: Principal;
+    senderId: Principal;
+}
+export interface FileMetadata {
+    path: string;
+    size: bigint;
+    mimeType: string;
+}
 export interface ClanSummary {
     id: bigint;
     ownerId: Principal;
@@ -22,11 +34,6 @@ export interface ClanSummary {
     description: string;
     maxMembers: bigint;
     emblemId: bigint;
-}
-export interface FileMetadata {
-    path: string;
-    size: bigint;
-    mimeType: string;
 }
 export interface StreamingToken {
     resource: string;
@@ -71,8 +78,12 @@ export type StreamingStrategy = {
 };
 export interface UserProfileWithChangeStatus {
     bio: string;
+    telegramUrl?: string;
     name: string;
     hasChangedName: boolean;
+    xUrl?: string;
+    githubUrl?: string;
+    youtubeUrl?: string;
 }
 export interface HttpResponse {
     body: Uint8Array;
@@ -107,9 +118,13 @@ export interface GameStatistics {
 }
 export interface UserProfile {
     bio: string;
+    telegramUrl?: string;
     name: string;
+    xUrl?: string;
+    githubUrl?: string;
     profilePictureUrl?: string;
     bannerImageUrl?: string;
+    youtubeUrl?: string;
 }
 export enum ApprovalStatus {
     pending = "pending",
@@ -185,6 +200,13 @@ export interface backendInterface {
     getCurrentUserProfile(): Promise<UserProfile | null>;
     getCurrentUserProfileWithChangeStatus(): Promise<UserProfileWithChangeStatus | null>;
     getCurrentUserRole(): Promise<UserRole>;
+    getDirectMessages(otherUserId: Principal, limit: bigint, before: bigint | null): Promise<{
+        __kind__: "ok";
+        ok: Array<DirectMessage>;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     getFriends(): Promise<Array<PrincipalInfo>>;
     getLeaderboard(): Promise<Array<[string, bigint, bigint]>>;
     getPendingJoinRequests(clanId: bigint): Promise<{
@@ -231,6 +253,13 @@ export interface backendInterface {
     sendClanMessage(clanId: bigint, text: string): Promise<{
         __kind__: "ok";
         ok: ClanMessage;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
+    sendDirectMessage(recipientId: Principal, text: string): Promise<{
+        __kind__: "ok";
+        ok: DirectMessage;
     } | {
         __kind__: "err";
         err: string;

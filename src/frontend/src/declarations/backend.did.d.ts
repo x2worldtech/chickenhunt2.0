@@ -43,6 +43,13 @@ export interface ClanSummary {
   'maxMembers' : bigint,
   'emblemId' : bigint,
 }
+export interface DirectMessage {
+  'id' : bigint,
+  'text' : string,
+  'timestamp' : bigint,
+  'recipientId' : Principal,
+  'senderId' : Principal,
+}
 export interface FileMetadata {
   'path' : string,
   'size' : bigint,
@@ -106,14 +113,22 @@ export interface UserInfo {
 }
 export interface UserProfile {
   'bio' : string,
+  'telegramUrl' : [] | [string],
   'name' : string,
+  'xUrl' : [] | [string],
+  'githubUrl' : [] | [string],
   'profilePictureUrl' : [] | [string],
   'bannerImageUrl' : [] | [string],
+  'youtubeUrl' : [] | [string],
 }
 export interface UserProfileWithChangeStatus {
   'bio' : string,
+  'telegramUrl' : [] | [string],
   'name' : string,
   'hasChangedName' : boolean,
+  'xUrl' : [] | [string],
+  'githubUrl' : [] | [string],
+  'youtubeUrl' : [] | [string],
 }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
@@ -163,6 +178,11 @@ export interface _SERVICE {
     [] | [UserProfileWithChangeStatus]
   >,
   'getCurrentUserRole' : ActorMethod<[], UserRole>,
+  'getDirectMessages' : ActorMethod<
+    [Principal, bigint, [] | [bigint]],
+    { 'ok' : Array<DirectMessage> } |
+      { 'err' : string }
+  >,
   'getFriends' : ActorMethod<[], Array<PrincipalInfo>>,
   'getLeaderboard' : ActorMethod<[], Array<[string, bigint, bigint]>>,
   'getPendingJoinRequests' : ActorMethod<
@@ -202,6 +222,11 @@ export interface _SERVICE {
   'sendClanMessage' : ActorMethod<
     [bigint, string],
     { 'ok' : ClanMessage } |
+      { 'err' : string }
+  >,
+  'sendDirectMessage' : ActorMethod<
+    [Principal, string],
+    { 'ok' : DirectMessage } |
       { 'err' : string }
   >,
   'setApproval' : ActorMethod<[Principal, ApprovalStatus], undefined>,

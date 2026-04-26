@@ -10315,6 +10315,3305 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ world }) => {
     </svg>
   );
 
+  const renderBitcoinWorld = () => (
+    <svg
+      role="img"
+      aria-label="Bitcoin blockchain world background"
+      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <defs>
+        {/* Deep black background */}
+        <linearGradient id="btcBgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#050505" />
+          <stop offset="100%" stopColor="#0a0800" />
+        </linearGradient>
+        {/* Orange radial glow centered on BTC logo */}
+        <radialGradient id="btcLogoGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#f7931a" stopOpacity="0.15" />
+          <stop offset="50%" stopColor="#f7931a" stopOpacity="0.06" />
+          <stop offset="100%" stopColor="#f7931a" stopOpacity="0" />
+        </radialGradient>
+        {/* Bitcoin circle fill gradient */}
+        <radialGradient id="btcCircleFill" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stopColor="#1a1000" />
+          <stop offset="60%" stopColor="#0d0d0d" />
+          <stop offset="100%" stopColor="#050500" />
+        </radialGradient>
+        {/* Block dark fill */}
+        <linearGradient id="btcBlockFill" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#1e1e1e" />
+          <stop offset="100%" stopColor="#141414" />
+        </linearGradient>
+        {/* Orange blur filter for logo glow layer */}
+        <filter
+          id="btcLogoGlowFilter"
+          x="-40%"
+          y="-40%"
+          width="180%"
+          height="180%"
+        >
+          <feGaussianBlur stdDeviation="10" result="blur" />
+        </filter>
+      </defs>
+
+      {/* === BACKGROUND === */}
+      <rect width="1200" height="800" fill="url(#btcBgGrad)" />
+
+      {/* === CIRCUIT GRID — very faint === */}
+      <g stroke="#1a1000" strokeWidth="0.5" opacity="0.7">
+        {/* Vertical lines every 60px */}
+        <line x1="60" y1="0" x2="60" y2="800" />
+        <line x1="120" y1="0" x2="120" y2="800" />
+        <line x1="180" y1="0" x2="180" y2="800" />
+        <line x1="240" y1="0" x2="240" y2="800" />
+        <line x1="300" y1="0" x2="300" y2="800" />
+        <line x1="360" y1="0" x2="360" y2="800" />
+        <line x1="420" y1="0" x2="420" y2="800" />
+        <line x1="480" y1="0" x2="480" y2="800" />
+        <line x1="540" y1="0" x2="540" y2="800" />
+        <line x1="600" y1="0" x2="600" y2="800" />
+        <line x1="660" y1="0" x2="660" y2="800" />
+        <line x1="720" y1="0" x2="720" y2="800" />
+        <line x1="780" y1="0" x2="780" y2="800" />
+        <line x1="840" y1="0" x2="840" y2="800" />
+        <line x1="900" y1="0" x2="900" y2="800" />
+        <line x1="960" y1="0" x2="960" y2="800" />
+        <line x1="1020" y1="0" x2="1020" y2="800" />
+        <line x1="1080" y1="0" x2="1080" y2="800" />
+        <line x1="1140" y1="0" x2="1140" y2="800" />
+        {/* Horizontal lines every 60px */}
+        <line x1="0" y1="60" x2="1200" y2="60" />
+        <line x1="0" y1="120" x2="1200" y2="120" />
+        <line x1="0" y1="180" x2="1200" y2="180" />
+        <line x1="0" y1="240" x2="1200" y2="240" />
+        <line x1="0" y1="300" x2="1200" y2="300" />
+        <line x1="0" y1="360" x2="1200" y2="360" />
+        <line x1="0" y1="420" x2="1200" y2="420" />
+        <line x1="0" y1="480" x2="1200" y2="480" />
+        <line x1="0" y1="540" x2="1200" y2="540" />
+        <line x1="0" y1="600" x2="1200" y2="600" />
+        <line x1="0" y1="660" x2="1200" y2="660" />
+        <line x1="0" y1="720" x2="1200" y2="720" />
+      </g>
+
+      {/* Grid junction dots */}
+      <g fill="#2a1800" opacity="0.8">
+        {[
+          60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 780, 840,
+          900, 960, 1020, 1080, 1140,
+        ].map((x) =>
+          [60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720].map(
+            (y) => <circle key={`${x}-${y}`} cx={x} cy={y} r="1.5" />,
+          ),
+        )}
+      </g>
+
+      {/* Diagonal circuit traces */}
+      <g stroke="#2a1500" strokeWidth="0.8" opacity="0.5" fill="none">
+        <path d="M60,120 L120,60" />
+        <path d="M180,60 L240,120 L300,60" />
+        <path d="M900,60 L960,120 L1020,60" />
+        <path d="M1080,120 L1140,60" />
+        <path d="M60,660 L120,720" />
+        <path d="M180,720 L240,660 L300,720" />
+        <path d="M900,720 L960,660 L1020,720" />
+        <path d="M1080,660 L1140,720" />
+      </g>
+
+      {/* === LARGE ORANGE GLOW BEHIND LOGO === */}
+      <ellipse cx="600" cy="350" rx="300" ry="280" fill="url(#btcLogoGlow)" />
+
+      {/* === BLOCKCHAIN NODES — top-left cluster === */}
+      <g>
+        {/* Block 1 */}
+        <rect
+          x="30"
+          y="50"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="43"
+          y1="66"
+          x2="102"
+          y2="66"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="43"
+          y1="76"
+          x2="102"
+          y2="76"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="43"
+          y1="86"
+          x2="88"
+          y2="86"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.3"
+        />
+        {/* Block 2 */}
+        <rect
+          x="150"
+          y="50"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="163"
+          y1="66"
+          x2="222"
+          y2="66"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="163"
+          y1="76"
+          x2="222"
+          y2="76"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="163"
+          y1="86"
+          x2="208"
+          y2="86"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.3"
+        />
+        {/* Chain link between 1 and 2 */}
+        <line
+          x1="115"
+          y1="76"
+          x2="150"
+          y2="76"
+          stroke="#888888"
+          strokeWidth="1"
+          opacity="0.6"
+        />
+        <polygon points="146,72 150,76 146,80" fill="#888888" opacity="0.6" />
+        {/* Block 3 */}
+        <rect
+          x="80"
+          y="145"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="93"
+          y1="161"
+          x2="152"
+          y2="161"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="93"
+          y1="171"
+          x2="152"
+          y2="171"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="93"
+          y1="181"
+          x2="138"
+          y2="181"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.3"
+        />
+        {/* Link from block 1 down */}
+        <line
+          x1="72"
+          y1="102"
+          x2="120"
+          y2="145"
+          stroke="#888888"
+          strokeWidth="1"
+          opacity="0.5"
+        />
+      </g>
+
+      {/* === BLOCKCHAIN NODES — top-right cluster === */}
+      <g>
+        <rect
+          x="985"
+          y="50"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="998"
+          y1="66"
+          x2="1057"
+          y2="66"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="998"
+          y1="76"
+          x2="1057"
+          y2="76"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="998"
+          y1="86"
+          x2="1043"
+          y2="86"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.3"
+        />
+        <rect
+          x="1100"
+          y="50"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="1113"
+          y1="66"
+          x2="1172"
+          y2="66"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="1113"
+          y1="76"
+          x2="1172"
+          y2="76"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="1113"
+          y1="86"
+          x2="1158"
+          y2="86"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.3"
+        />
+        <line
+          x1="1070"
+          y1="76"
+          x2="1100"
+          y2="76"
+          stroke="#888888"
+          strokeWidth="1"
+          opacity="0.6"
+        />
+        <polygon
+          points="1096,72 1100,76 1096,80"
+          fill="#888888"
+          opacity="0.6"
+        />
+        <rect
+          x="1040"
+          y="145"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="1053"
+          y1="161"
+          x2="1112"
+          y2="161"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="1053"
+          y1="171"
+          x2="1112"
+          y2="171"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="1053"
+          y1="181"
+          x2="1098"
+          y2="181"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.3"
+        />
+        <line
+          x1="1127"
+          y1="102"
+          x2="1082"
+          y2="145"
+          stroke="#888888"
+          strokeWidth="1"
+          opacity="0.5"
+        />
+      </g>
+
+      {/* === BLOCKCHAIN NODES — left-center === */}
+      <g>
+        <rect
+          x="25"
+          y="350"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="38"
+          y1="366"
+          x2="97"
+          y2="366"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="38"
+          y1="376"
+          x2="97"
+          y2="376"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="38"
+          y1="386"
+          x2="83"
+          y2="386"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.3"
+        />
+        <rect
+          x="25"
+          y="440"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="38"
+          y1="456"
+          x2="97"
+          y2="456"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="38"
+          y1="466"
+          x2="97"
+          y2="466"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="38"
+          y1="476"
+          x2="83"
+          y2="476"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.3"
+        />
+        <line
+          x1="67"
+          y1="402"
+          x2="67"
+          y2="440"
+          stroke="#888888"
+          strokeWidth="1"
+          opacity="0.6"
+        />
+        <polygon points="63,436 67,440 71,436" fill="#888888" opacity="0.6" />
+      </g>
+
+      {/* === BLOCKCHAIN NODES — right-center === */}
+      <g>
+        <rect
+          x="1090"
+          y="350"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="1103"
+          y1="366"
+          x2="1162"
+          y2="366"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="1103"
+          y1="376"
+          x2="1162"
+          y2="376"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="1103"
+          y1="386"
+          x2="1148"
+          y2="386"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.3"
+        />
+        <rect
+          x="1090"
+          y="440"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="1103"
+          y1="456"
+          x2="1162"
+          y2="456"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="1103"
+          y1="466"
+          x2="1162"
+          y2="466"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="1103"
+          y1="476"
+          x2="1148"
+          y2="476"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.3"
+        />
+        <line
+          x1="1132"
+          y1="402"
+          x2="1132"
+          y2="440"
+          stroke="#888888"
+          strokeWidth="1"
+          opacity="0.6"
+        />
+        <polygon
+          points="1128,436 1132,440 1136,436"
+          fill="#888888"
+          opacity="0.6"
+        />
+      </g>
+
+      {/* === BLOCKCHAIN NODES — bottom-left === */}
+      <g>
+        <rect
+          x="30"
+          y="650"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="43"
+          y1="666"
+          x2="102"
+          y2="666"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="43"
+          y1="676"
+          x2="102"
+          y2="676"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="43"
+          y1="686"
+          x2="88"
+          y2="686"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.3"
+        />
+        <rect
+          x="150"
+          y="700"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="163"
+          y1="716"
+          x2="222"
+          y2="716"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="163"
+          y1="726"
+          x2="222"
+          y2="726"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="115"
+          y1="676"
+          x2="150"
+          y2="726"
+          stroke="#888888"
+          strokeWidth="1"
+          opacity="0.5"
+        />
+      </g>
+
+      {/* === BLOCKCHAIN NODES — bottom-right === */}
+      <g>
+        <rect
+          x="985"
+          y="650"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="998"
+          y1="666"
+          x2="1057"
+          y2="666"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="998"
+          y1="676"
+          x2="1057"
+          y2="676"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="998"
+          y1="686"
+          x2="1043"
+          y2="686"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.3"
+        />
+        <rect
+          x="1100"
+          y="700"
+          width="85"
+          height="52"
+          rx="6"
+          fill="url(#btcBlockFill)"
+          stroke="#f7931a"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="1113"
+          y1="716"
+          x2="1172"
+          y2="716"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.5"
+        />
+        <line
+          x1="1113"
+          y1="726"
+          x2="1172"
+          y2="726"
+          stroke="#cccccc"
+          strokeWidth="0.8"
+          opacity="0.4"
+        />
+        <line
+          x1="1070"
+          y1="676"
+          x2="1113"
+          y2="716"
+          stroke="#888888"
+          strokeWidth="1"
+          opacity="0.5"
+        />
+      </g>
+
+      {/* === BITCOIN LOGO — centered at 600,350 === */}
+
+      {/* Outer subtle glow ring */}
+      <circle cx="600" cy="350" r="250" fill="url(#btcLogoGlow)" />
+      <circle cx="600" cy="350" r="200" fill="url(#btcLogoGlow)" />
+
+      {/* Dashed outer ring */}
+      <circle
+        cx="600"
+        cy="350"
+        r="175"
+        fill="none"
+        stroke="#f7931a"
+        strokeWidth="2"
+        strokeDasharray="8 4"
+        opacity="0.6"
+      />
+
+      {/* Main circle */}
+      <circle
+        cx="600"
+        cy="350"
+        r="160"
+        fill="url(#btcCircleFill)"
+        stroke="#f7931a"
+        strokeWidth="6"
+      />
+
+      {/* Inner subtle radial glow on circle */}
+      <circle
+        cx="600"
+        cy="350"
+        r="155"
+        fill="none"
+        stroke="#ff9500"
+        strokeWidth="1"
+        opacity="0.2"
+      />
+      <circle
+        cx="600"
+        cy="350"
+        r="145"
+        fill="none"
+        stroke="#f7931a"
+        strokeWidth="0.5"
+        opacity="0.15"
+      />
+
+      {/* Official Bitcoin logo — authentic bitcoin.org ₿ SVG path */}
+      {/* Path natural bbox: x≈0..80, y≈0..120 → center offset: (-40, -60) */}
+      {/* Orange drop-shadow/glow layer rendered behind white logo */}
+      <g
+        transform="translate(600, 350) rotate(14) scale(1.7) translate(-40, -60)"
+        fill="#f7931a"
+        opacity="0.55"
+        filter="url(#btcLogoGlowFilter)"
+      >
+        <path d="M78.3 36.6c1.8-12.2-7.5-18.8-20.2-23.2l4.1-16.6-10.1-2.5-4 16.1c-2.7-.7-5.4-1.3-8.1-1.9l4.1-16.3-10.1-2.5-4.1 16.6c-2.2-.5-4.4-1-6.5-1.5l0 0-13.9-3.5-2.7 10.8s7.5 1.7 7.4 1.8c4.1 1 4.8 3.7 4.7 5.9l-4.7 18.8c.3.1.7.2 1.1.3-.4-.1-.7-.2-1.1-.3l-6.6 26.4c-.5 1.2-1.8 3-4.6 2.3.1.1-7.4-1.9-7.4-1.9l-5.1 11.5 13.2 3.3c2.4.6 4.8 1.2 7.2 1.9l-4.2 16.7 10.1 2.5 4.1-16.6c2.8.7 5.5 1.4 8.2 2.1l-4.1 16.5 10.1 2.5 4.2-16.8c17.3 3.3 30.3 1.9 35.8-13.6 4.4-12.6.2-19.9-9.3-24.6 6.6-1.5 11.6-5.9 12.9-14.7zm-23.1 32.4c-3.1 12.6-24.3 5.8-31.2 4.1l5.6-22.3c6.9 1.7 28.9 5.1 25.6 18.2zm3.1-32.7c-2.9 11.5-20.5 5.7-26.2 4.2l5-20.1c5.7 1.4 24.1 4.1 21.2 15.9z" />
+      </g>
+      {/* White official Bitcoin logo on top */}
+      <g
+        transform="translate(600, 350) rotate(14) scale(1.7) translate(-40, -60)"
+        fill="#ffffff"
+      >
+        <path d="M78.3 36.6c1.8-12.2-7.5-18.8-20.2-23.2l4.1-16.6-10.1-2.5-4 16.1c-2.7-.7-5.4-1.3-8.1-1.9l4.1-16.3-10.1-2.5-4.1 16.6c-2.2-.5-4.4-1-6.5-1.5l0 0-13.9-3.5-2.7 10.8s7.5 1.7 7.4 1.8c4.1 1 4.8 3.7 4.7 5.9l-4.7 18.8c.3.1.7.2 1.1.3-.4-.1-.7-.2-1.1-.3l-6.6 26.4c-.5 1.2-1.8 3-4.6 2.3.1.1-7.4-1.9-7.4-1.9l-5.1 11.5 13.2 3.3c2.4.6 4.8 1.2 7.2 1.9l-4.2 16.7 10.1 2.5 4.1-16.6c2.8.7 5.5 1.4 8.2 2.1l-4.1 16.5 10.1 2.5 4.2-16.8c17.3 3.3 30.3 1.9 35.8-13.6 4.4-12.6.2-19.9-9.3-24.6 6.6-1.5 11.6-5.9 12.9-14.7zm-23.1 32.4c-3.1 12.6-24.3 5.8-31.2 4.1l5.6-22.3c6.9 1.7 28.9 5.1 25.6 18.2zm3.1-32.7c-2.9 11.5-20.5 5.7-26.2 4.2l5-20.1c5.7 1.4 24.1 4.1 21.2 15.9z" />
+      </g>
+    </svg>
+  );
+
+  const renderMatrixWorld = () => (
+    <svg
+      role="img"
+      aria-label="Matrix world background"
+      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <defs>
+        {/* Deep black background gradient */}
+        <linearGradient id="matrixBgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#000000" />
+          <stop offset="50%" stopColor="#010501" />
+          <stop offset="100%" stopColor="#000300" />
+        </linearGradient>
+
+        {/* Green ambient glow filter */}
+        <filter id="matrixGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+
+        {/* Subtle wide glow for leading chars */}
+        <filter
+          id="matrixLeadGlow"
+          x="-50%"
+          y="-50%"
+          width="200%"
+          height="200%"
+        >
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+
+        {/* Vignette overlay */}
+        <radialGradient id="matrixVignette" cx="50%" cy="50%" r="70%">
+          <stop offset="0%" stopColor="#000000" stopOpacity="0" />
+          <stop offset="75%" stopColor="#000000" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#000000" stopOpacity="0.6" />
+        </radialGradient>
+      </defs>
+
+      {/* Background */}
+      <rect width="1200" height="800" fill="url(#matrixBgGrad)" />
+
+      {/* ── CRT SCANLINES (horizontal, very faint) ── */}
+      <g opacity="0.06" stroke="#00ff41" strokeWidth="1">
+        <line x1="0" y1="10" x2="1200" y2="10" />
+        <line x1="0" y1="20" x2="1200" y2="20" />
+        <line x1="0" y1="30" x2="1200" y2="30" />
+        <line x1="0" y1="40" x2="1200" y2="40" />
+        <line x1="0" y1="50" x2="1200" y2="50" />
+        <line x1="0" y1="60" x2="1200" y2="60" />
+        <line x1="0" y1="70" x2="1200" y2="70" />
+        <line x1="0" y1="80" x2="1200" y2="80" />
+        <line x1="0" y1="90" x2="1200" y2="90" />
+        <line x1="0" y1="100" x2="1200" y2="100" />
+        <line x1="0" y1="110" x2="1200" y2="110" />
+        <line x1="0" y1="120" x2="1200" y2="120" />
+        <line x1="0" y1="130" x2="1200" y2="130" />
+        <line x1="0" y1="140" x2="1200" y2="140" />
+        <line x1="0" y1="150" x2="1200" y2="150" />
+        <line x1="0" y1="160" x2="1200" y2="160" />
+        <line x1="0" y1="170" x2="1200" y2="170" />
+        <line x1="0" y1="180" x2="1200" y2="180" />
+        <line x1="0" y1="190" x2="1200" y2="190" />
+        <line x1="0" y1="200" x2="1200" y2="200" />
+        <line x1="0" y1="210" x2="1200" y2="210" />
+        <line x1="0" y1="220" x2="1200" y2="220" />
+        <line x1="0" y1="230" x2="1200" y2="230" />
+        <line x1="0" y1="240" x2="1200" y2="240" />
+        <line x1="0" y1="250" x2="1200" y2="250" />
+        <line x1="0" y1="260" x2="1200" y2="260" />
+        <line x1="0" y1="270" x2="1200" y2="270" />
+        <line x1="0" y1="280" x2="1200" y2="280" />
+        <line x1="0" y1="290" x2="1200" y2="290" />
+        <line x1="0" y1="300" x2="1200" y2="300" />
+        <line x1="0" y1="310" x2="1200" y2="310" />
+        <line x1="0" y1="320" x2="1200" y2="320" />
+        <line x1="0" y1="330" x2="1200" y2="330" />
+        <line x1="0" y1="340" x2="1200" y2="340" />
+        <line x1="0" y1="350" x2="1200" y2="350" />
+        <line x1="0" y1="360" x2="1200" y2="360" />
+        <line x1="0" y1="370" x2="1200" y2="370" />
+        <line x1="0" y1="380" x2="1200" y2="380" />
+        <line x1="0" y1="390" x2="1200" y2="390" />
+        <line x1="0" y1="400" x2="1200" y2="400" />
+        <line x1="0" y1="410" x2="1200" y2="410" />
+        <line x1="0" y1="420" x2="1200" y2="420" />
+        <line x1="0" y1="430" x2="1200" y2="430" />
+        <line x1="0" y1="440" x2="1200" y2="440" />
+        <line x1="0" y1="450" x2="1200" y2="450" />
+        <line x1="0" y1="460" x2="1200" y2="460" />
+        <line x1="0" y1="470" x2="1200" y2="470" />
+        <line x1="0" y1="480" x2="1200" y2="480" />
+        <line x1="0" y1="490" x2="1200" y2="490" />
+        <line x1="0" y1="500" x2="1200" y2="500" />
+        <line x1="0" y1="510" x2="1200" y2="510" />
+        <line x1="0" y1="520" x2="1200" y2="520" />
+        <line x1="0" y1="530" x2="1200" y2="530" />
+        <line x1="0" y1="540" x2="1200" y2="540" />
+        <line x1="0" y1="550" x2="1200" y2="550" />
+        <line x1="0" y1="560" x2="1200" y2="560" />
+        <line x1="0" y1="570" x2="1200" y2="570" />
+        <line x1="0" y1="580" x2="1200" y2="580" />
+        <line x1="0" y1="590" x2="1200" y2="590" />
+        <line x1="0" y1="600" x2="1200" y2="600" />
+        <line x1="0" y1="610" x2="1200" y2="610" />
+        <line x1="0" y1="620" x2="1200" y2="620" />
+        <line x1="0" y1="630" x2="1200" y2="630" />
+        <line x1="0" y1="640" x2="1200" y2="640" />
+        <line x1="0" y1="650" x2="1200" y2="650" />
+        <line x1="0" y1="660" x2="1200" y2="660" />
+        <line x1="0" y1="670" x2="1200" y2="670" />
+        <line x1="0" y1="680" x2="1200" y2="680" />
+        <line x1="0" y1="690" x2="1200" y2="690" />
+        <line x1="0" y1="700" x2="1200" y2="700" />
+        <line x1="0" y1="710" x2="1200" y2="710" />
+        <line x1="0" y1="720" x2="1200" y2="720" />
+        <line x1="0" y1="730" x2="1200" y2="730" />
+        <line x1="0" y1="740" x2="1200" y2="740" />
+        <line x1="0" y1="750" x2="1200" y2="750" />
+        <line x1="0" y1="760" x2="1200" y2="760" />
+        <line x1="0" y1="770" x2="1200" y2="770" />
+        <line x1="0" y1="780" x2="1200" y2="780" />
+        <line x1="0" y1="790" x2="1200" y2="790" />
+        <line x1="0" y1="800" x2="1200" y2="800" />
+      </g>
+
+      {/* ── COLUMN DEFINITIONS ──
+          30 columns across 1200px (every ~40px)
+          Each column: faint trail chars, medium chars, bright mid, white lead
+          All y positions are static "frozen rain" at different stages
+      ── */}
+
+      {/* === VERY FAINT DEEP TRAIL CHARS — darkest green === */}
+      <g
+        fontFamily="'Courier New', Courier, monospace"
+        fontSize="13"
+        fill="#003311"
+        opacity="0.7"
+      >
+        {/* Col 0 x=18 */}
+        <text x="18" y="680">
+          ﾊ
+        </text>
+        <text x="18" y="665">
+          7
+        </text>
+        <text x="18" y="650">
+          ﾐ
+        </text>
+        <text x="18" y="635">
+          4
+        </text>
+        <text x="18" y="620">
+          ﾑ
+        </text>
+        {/* Col 1 x=58 */}
+        <text x="58" y="720">
+          ﾂ
+        </text>
+        <text x="58" y="705">
+          2
+        </text>
+        <text x="58" y="690">
+          ﾃ
+        </text>
+        <text x="58" y="675">
+          9
+        </text>
+        <text x="58" y="660">
+          ﾄ
+        </text>
+        <text x="58" y="645">
+          1
+        </text>
+        {/* Col 2 x=98 */}
+        <text x="98" y="780">
+          ﾅ
+        </text>
+        <text x="98" y="765">
+          6
+        </text>
+        <text x="98" y="750">
+          ﾆ
+        </text>
+        <text x="98" y="735">
+          3
+        </text>
+        <text x="98" y="720">
+          ﾇ
+        </text>
+        {/* Col 3 x=138 */}
+        <text x="138" y="640">
+          ﾈ
+        </text>
+        <text x="138" y="625">
+          8
+        </text>
+        <text x="138" y="610">
+          ﾉ
+        </text>
+        <text x="138" y="595">
+          5
+        </text>
+        {/* Col 4 x=178 */}
+        <text x="178" y="760">
+          ﾊ
+        </text>
+        <text x="178" y="745">
+          0
+        </text>
+        <text x="178" y="730">
+          ﾋ
+        </text>
+        <text x="178" y="715">
+          7
+        </text>
+        <text x="178" y="700">
+          ﾌ
+        </text>
+        {/* Col 5 x=218 */}
+        <text x="218" y="690">
+          ﾍ
+        </text>
+        <text x="218" y="675">
+          4
+        </text>
+        <text x="218" y="660">
+          ﾎ
+        </text>
+        <text x="218" y="645">
+          2
+        </text>
+        {/* Col 6 x=258 */}
+        <text x="258" y="800">
+          ﾏ
+        </text>
+        <text x="258" y="785">
+          9
+        </text>
+        <text x="258" y="770">
+          ﾐ
+        </text>
+        <text x="258" y="755">
+          1
+        </text>
+        <text x="258" y="740">
+          ﾑ
+        </text>
+        {/* Col 7 x=298 */}
+        <text x="298" y="600">
+          ﾒ
+        </text>
+        <text x="298" y="585">
+          6
+        </text>
+        <text x="298" y="570">
+          ﾓ
+        </text>
+        <text x="298" y="555">
+          3
+        </text>
+        {/* Col 8 x=338 */}
+        <text x="338" y="730">
+          ﾔ
+        </text>
+        <text x="338" y="715">
+          5
+        </text>
+        <text x="338" y="700">
+          ﾕ
+        </text>
+        <text x="338" y="685">
+          8
+        </text>
+        {/* Col 9 x=378 */}
+        <text x="378" y="670">
+          ﾖ
+        </text>
+        <text x="378" y="655">
+          2
+        </text>
+        <text x="378" y="640">
+          ﾗ
+        </text>
+        <text x="378" y="625">
+          7
+        </text>
+        {/* Col 10 x=418 */}
+        <text x="418" y="790">
+          ﾘ
+        </text>
+        <text x="418" y="775">
+          0
+        </text>
+        <text x="418" y="760">
+          ﾙ
+        </text>
+        <text x="418" y="745">
+          4
+        </text>
+        <text x="418" y="730">
+          ﾚ
+        </text>
+        {/* Col 11 x=458 */}
+        <text x="458" y="620">
+          ﾛ
+        </text>
+        <text x="458" y="605">
+          9
+        </text>
+        <text x="458" y="590">
+          ﾜ
+        </text>
+        <text x="458" y="575">
+          1
+        </text>
+        {/* Col 12 x=498 */}
+        <text x="498" y="750">
+          ﾝ
+        </text>
+        <text x="498" y="735">
+          6
+        </text>
+        <text x="498" y="720">
+          ﾞ
+        </text>
+        <text x="498" y="705">
+          3
+        </text>
+        {/* Col 13 x=538 */}
+        <text x="538" y="700">
+          ﾟ
+        </text>
+        <text x="538" y="685">
+          5
+        </text>
+        <text x="538" y="670">
+          ﾠ
+        </text>
+        <text x="538" y="655">
+          8
+        </text>
+        {/* Col 14 x=578 */}
+        <text x="578" y="760">
+          ﾡ
+        </text>
+        <text x="578" y="745">
+          2
+        </text>
+        <text x="578" y="730">
+          ﾢ
+        </text>
+        <text x="578" y="715">
+          7
+        </text>
+        {/* Col 15 x=618 */}
+        <text x="618" y="640">
+          ﾣ
+        </text>
+        <text x="618" y="625">
+          4
+        </text>
+        <text x="618" y="610">
+          ﾤ
+        </text>
+        <text x="618" y="595">
+          0
+        </text>
+        {/* Col 16 x=658 */}
+        <text x="658" y="800">
+          ﾥ
+        </text>
+        <text x="658" y="785">
+          9
+        </text>
+        <text x="658" y="770">
+          ﾦ
+        </text>
+        <text x="658" y="755">
+          1
+        </text>
+        <text x="658" y="740">
+          ﾧ
+        </text>
+        {/* Col 17 x=698 */}
+        <text x="698" y="710">
+          ﾨ
+        </text>
+        <text x="698" y="695">
+          6
+        </text>
+        <text x="698" y="680">
+          ﾩ
+        </text>
+        <text x="698" y="665">
+          3
+        </text>
+        {/* Col 18 x=738 */}
+        <text x="738" y="790">
+          ﾪ
+        </text>
+        <text x="738" y="775">
+          5
+        </text>
+        <text x="738" y="760">
+          ﾫ
+        </text>
+        <text x="738" y="745">
+          8
+        </text>
+        {/* Col 19 x=778 */}
+        <text x="778" y="680">
+          ﾬ
+        </text>
+        <text x="778" y="665">
+          2
+        </text>
+        <text x="778" y="650">
+          ﾭ
+        </text>
+        <text x="778" y="635">
+          7
+        </text>
+        {/* Col 20 x=818 */}
+        <text x="818" y="730">
+          ﾮ
+        </text>
+        <text x="818" y="715">
+          0
+        </text>
+        <text x="818" y="700">
+          ﾯ
+        </text>
+        <text x="818" y="685">
+          4
+        </text>
+        {/* Col 21 x=858 */}
+        <text x="858" y="770">
+          ﾰ
+        </text>
+        <text x="858" y="755">
+          9
+        </text>
+        <text x="858" y="740">
+          ﾱ
+        </text>
+        <text x="858" y="725">
+          1
+        </text>
+        {/* Col 22 x=898 */}
+        <text x="898" y="650">
+          ﾲ
+        </text>
+        <text x="898" y="635">
+          6
+        </text>
+        <text x="898" y="620">
+          ﾳ
+        </text>
+        <text x="898" y="605">
+          3
+        </text>
+        {/* Col 23 x=938 */}
+        <text x="938" y="800">
+          ﾴ
+        </text>
+        <text x="938" y="785">
+          5
+        </text>
+        <text x="938" y="770">
+          ﾵ
+        </text>
+        <text x="938" y="755">
+          8
+        </text>
+        {/* Col 24 x=978 */}
+        <text x="978" y="720">
+          ﾶ
+        </text>
+        <text x="978" y="705">
+          2
+        </text>
+        <text x="978" y="690">
+          ﾷ
+        </text>
+        <text x="978" y="675">
+          7
+        </text>
+        {/* Col 25 x=1018 */}
+        <text x="1018" y="760">
+          ﾸ
+        </text>
+        <text x="1018" y="745">
+          0
+        </text>
+        <text x="1018" y="730">
+          ﾹ
+        </text>
+        <text x="1018" y="715">
+          4
+        </text>
+        {/* Col 26 x=1058 */}
+        <text x="1058" y="690">
+          ﾺ
+        </text>
+        <text x="1058" y="675">
+          9
+        </text>
+        <text x="1058" y="660">
+          ﾻ
+        </text>
+        <text x="1058" y="645">
+          1
+        </text>
+        {/* Col 27 x=1098 */}
+        <text x="1098" y="800">
+          ﾼ
+        </text>
+        <text x="1098" y="785">
+          6
+        </text>
+        <text x="1098" y="770">
+          ﾽ
+        </text>
+        <text x="1098" y="755">
+          3
+        </text>
+        {/* Col 28 x=1138 */}
+        <text x="1138" y="740">
+          ﾾ
+        </text>
+        <text x="1138" y="725">
+          5
+        </text>
+        <text x="1138" y="710">
+          ｦ
+        </text>
+        <text x="1138" y="695">
+          8
+        </text>
+        {/* Col 29 x=1178 */}
+        <text x="1178" y="680">
+          ｧ
+        </text>
+        <text x="1178" y="665">
+          2
+        </text>
+        <text x="1178" y="650">
+          ｨ
+        </text>
+        <text x="1178" y="635">
+          7
+        </text>
+      </g>
+
+      {/* === MEDIUM TRAIL CHARS — mid-dark green === */}
+      <g
+        fontFamily="'Courier New', Courier, monospace"
+        fontSize="14"
+        fill="#007722"
+        opacity="0.85"
+        filter="url(#matrixGlow)"
+      >
+        {/* Col 0 */}
+        <text x="17" y="580">
+          ﾂ
+        </text>
+        <text x="17" y="565">
+          3
+        </text>
+        <text x="17" y="550">
+          ﾃ
+        </text>
+        <text x="17" y="535">
+          6
+        </text>
+        {/* Col 1 */}
+        <text x="57" y="560">
+          ﾊ
+        </text>
+        <text x="57" y="545">
+          1
+        </text>
+        <text x="57" y="530">
+          ﾋ
+        </text>
+        <text x="57" y="515">
+          4
+        </text>
+        {/* Col 2 */}
+        <text x="97" y="620">
+          ﾌ
+        </text>
+        <text x="97" y="605">
+          8
+        </text>
+        <text x="97" y="590">
+          ﾍ
+        </text>
+        <text x="97" y="575">
+          5
+        </text>
+        {/* Col 3 */}
+        <text x="137" y="510">
+          ﾎ
+        </text>
+        <text x="137" y="495">
+          2
+        </text>
+        <text x="137" y="480">
+          ﾏ
+        </text>
+        <text x="137" y="465">
+          9
+        </text>
+        {/* Col 4 */}
+        <text x="177" y="605">
+          ﾐ
+        </text>
+        <text x="177" y="590">
+          0
+        </text>
+        <text x="177" y="575">
+          ﾑ
+        </text>
+        <text x="177" y="560">
+          7
+        </text>
+        {/* Col 5 */}
+        <text x="217" y="555">
+          ﾒ
+        </text>
+        <text x="217" y="540">
+          4
+        </text>
+        <text x="217" y="525">
+          ﾓ
+        </text>
+        <text x="217" y="510">
+          1
+        </text>
+        {/* Col 6 */}
+        <text x="257" y="645">
+          ﾔ
+        </text>
+        <text x="257" y="630">
+          6
+        </text>
+        <text x="257" y="615">
+          ﾕ
+        </text>
+        <text x="257" y="600">
+          3
+        </text>
+        {/* Col 7 */}
+        <text x="297" y="490">
+          ﾖ
+        </text>
+        <text x="297" y="475">
+          8
+        </text>
+        <text x="297" y="460">
+          ﾗ
+        </text>
+        <text x="297" y="445">
+          5
+        </text>
+        {/* Col 8 */}
+        <text x="337" y="610">
+          ﾘ
+        </text>
+        <text x="337" y="595">
+          2
+        </text>
+        <text x="337" y="580">
+          ﾙ
+        </text>
+        <text x="337" y="565">
+          9
+        </text>
+        {/* Col 9 */}
+        <text x="377" y="545">
+          ﾚ
+        </text>
+        <text x="377" y="530">
+          7
+        </text>
+        <text x="377" y="515">
+          ﾛ
+        </text>
+        <text x="377" y="500">
+          4
+        </text>
+        {/* Col 10 */}
+        <text x="417" y="635">
+          ﾜ
+        </text>
+        <text x="417" y="620">
+          1
+        </text>
+        <text x="417" y="605">
+          ﾝ
+        </text>
+        <text x="417" y="590">
+          6
+        </text>
+        {/* Col 11 */}
+        <text x="457" y="500">
+          ｦ
+        </text>
+        <text x="457" y="485">
+          3
+        </text>
+        <text x="457" y="470">
+          ｧ
+        </text>
+        <text x="457" y="455">
+          0
+        </text>
+        {/* Col 12 */}
+        <text x="497" y="625">
+          ｨ
+        </text>
+        <text x="497" y="610">
+          8
+        </text>
+        <text x="497" y="595">
+          ｩ
+        </text>
+        <text x="497" y="580">
+          5
+        </text>
+        {/* Col 13 */}
+        <text x="537" y="575">
+          ｪ
+        </text>
+        <text x="537" y="560">
+          2
+        </text>
+        <text x="537" y="545">
+          ｫ
+        </text>
+        <text x="537" y="530">
+          9
+        </text>
+        {/* Col 14 */}
+        <text x="577" y="630">
+          ｬ
+        </text>
+        <text x="577" y="615">
+          7
+        </text>
+        <text x="577" y="600">
+          ｭ
+        </text>
+        <text x="577" y="585">
+          4
+        </text>
+        {/* Col 15 */}
+        <text x="617" y="520">
+          ｮ
+        </text>
+        <text x="617" y="505">
+          1
+        </text>
+        <text x="617" y="490">
+          ｯ
+        </text>
+        <text x="617" y="475">
+          6
+        </text>
+        {/* Col 16 */}
+        <text x="657" y="650">
+          ｰ
+        </text>
+        <text x="657" y="635">
+          3
+        </text>
+        <text x="657" y="620">
+          ｱ
+        </text>
+        <text x="657" y="605">
+          8
+        </text>
+        {/* Col 17 */}
+        <text x="697" y="600">
+          ｲ
+        </text>
+        <text x="697" y="585">
+          5
+        </text>
+        <text x="697" y="570">
+          ｳ
+        </text>
+        <text x="697" y="555">
+          2
+        </text>
+        {/* Col 18 */}
+        <text x="737" y="665">
+          ｴ
+        </text>
+        <text x="737" y="650">
+          0
+        </text>
+        <text x="737" y="635">
+          ｵ
+        </text>
+        <text x="737" y="620">
+          7
+        </text>
+        {/* Col 19 */}
+        <text x="777" y="565">
+          ｶ
+        </text>
+        <text x="777" y="550">
+          4
+        </text>
+        <text x="777" y="535">
+          ｷ
+        </text>
+        <text x="777" y="520">
+          1
+        </text>
+        {/* Col 20 */}
+        <text x="817" y="620">
+          ｸ
+        </text>
+        <text x="817" y="605">
+          9
+        </text>
+        <text x="817" y="590">
+          ｹ
+        </text>
+        <text x="817" y="575">
+          6
+        </text>
+        {/* Col 21 */}
+        <text x="857" y="650">
+          ｺ
+        </text>
+        <text x="857" y="635">
+          3
+        </text>
+        <text x="857" y="620">
+          ｻ
+        </text>
+        <text x="857" y="605">
+          8
+        </text>
+        {/* Col 22 */}
+        <text x="897" y="545">
+          ｼ
+        </text>
+        <text x="897" y="530">
+          5
+        </text>
+        <text x="897" y="515">
+          ｽ
+        </text>
+        <text x="897" y="500">
+          2
+        </text>
+        {/* Col 23 */}
+        <text x="937" y="665">
+          ｾ
+        </text>
+        <text x="937" y="650">
+          7
+        </text>
+        <text x="937" y="635">
+          ｿ
+        </text>
+        <text x="937" y="620">
+          0
+        </text>
+        {/* Col 24 */}
+        <text x="977" y="610">
+          ﾀ
+        </text>
+        <text x="977" y="595">
+          4
+        </text>
+        <text x="977" y="580">
+          ﾁ
+        </text>
+        <text x="977" y="565">
+          9
+        </text>
+        {/* Col 25 */}
+        <text x="1017" y="655">
+          ﾂ
+        </text>
+        <text x="1017" y="640">
+          1
+        </text>
+        <text x="1017" y="625">
+          ﾃ
+        </text>
+        <text x="1017" y="610">
+          6
+        </text>
+        {/* Col 26 */}
+        <text x="1057" y="580">
+          ﾄ
+        </text>
+        <text x="1057" y="565">
+          3
+        </text>
+        <text x="1057" y="550">
+          ﾅ
+        </text>
+        <text x="1057" y="535">
+          8
+        </text>
+        {/* Col 27 */}
+        <text x="1097" y="670">
+          ﾆ
+        </text>
+        <text x="1097" y="655">
+          5
+        </text>
+        <text x="1097" y="640">
+          ﾇ
+        </text>
+        <text x="1097" y="625">
+          2
+        </text>
+        {/* Col 28 */}
+        <text x="1137" y="625">
+          ﾈ
+        </text>
+        <text x="1137" y="610">
+          7
+        </text>
+        <text x="1137" y="595">
+          ﾉ
+        </text>
+        <text x="1137" y="580">
+          4
+        </text>
+        {/* Col 29 */}
+        <text x="1177" y="570">
+          ﾊ
+        </text>
+        <text x="1177" y="555">
+          0
+        </text>
+        <text x="1177" y="540">
+          ﾋ
+        </text>
+        <text x="1177" y="525">
+          9
+        </text>
+      </g>
+
+      {/* === MID-BRIGHT CHARS — medium green === */}
+      <g
+        fontFamily="'Courier New', Courier, monospace"
+        fontSize="14"
+        fill="#00cc33"
+        opacity="0.9"
+        filter="url(#matrixGlow)"
+      >
+        {/* Col 0 */}
+        <text x="16" y="450">
+          ﾌ
+        </text>
+        <text x="16" y="436">
+          9
+        </text>
+        <text x="16" y="422">
+          ﾍ
+        </text>
+        <text x="16" y="408">
+          2
+        </text>
+        {/* Col 1 */}
+        <text x="56" y="430">
+          ﾎ
+        </text>
+        <text x="56" y="416">
+          7
+        </text>
+        <text x="56" y="402">
+          ﾏ
+        </text>
+        <text x="56" y="388">
+          4
+        </text>
+        {/* Col 2 */}
+        <text x="96" y="490">
+          ﾐ
+        </text>
+        <text x="96" y="476">
+          1
+        </text>
+        <text x="96" y="462">
+          ﾑ
+        </text>
+        <text x="96" y="448">
+          6
+        </text>
+        {/* Col 3 */}
+        <text x="136" y="385">
+          ﾒ
+        </text>
+        <text x="136" y="371">
+          3
+        </text>
+        <text x="136" y="357">
+          ﾓ
+        </text>
+        <text x="136" y="343">
+          0
+        </text>
+        {/* Col 4 */}
+        <text x="176" y="480">
+          ﾔ
+        </text>
+        <text x="176" y="466">
+          5
+        </text>
+        <text x="176" y="452">
+          ﾕ
+        </text>
+        <text x="176" y="438">
+          8
+        </text>
+        {/* Col 5 */}
+        <text x="216" y="425">
+          ﾖ
+        </text>
+        <text x="216" y="411">
+          2
+        </text>
+        <text x="216" y="397">
+          ﾗ
+        </text>
+        <text x="216" y="383">
+          9
+        </text>
+        {/* Col 6 */}
+        <text x="256" y="510">
+          ﾘ
+        </text>
+        <text x="256" y="496">
+          7
+        </text>
+        <text x="256" y="482">
+          ﾙ
+        </text>
+        <text x="256" y="468">
+          4
+        </text>
+        {/* Col 7 */}
+        <text x="296" y="365">
+          ﾚ
+        </text>
+        <text x="296" y="351">
+          1
+        </text>
+        <text x="296" y="337">
+          ﾛ
+        </text>
+        <text x="296" y="323">
+          6
+        </text>
+        {/* Col 8 */}
+        <text x="336" y="470">
+          ﾜ
+        </text>
+        <text x="336" y="456">
+          3
+        </text>
+        <text x="336" y="442">
+          ﾝ
+        </text>
+        <text x="336" y="428">
+          0
+        </text>
+        {/* Col 9 */}
+        <text x="376" y="415">
+          ｦ
+        </text>
+        <text x="376" y="401">
+          8
+        </text>
+        <text x="376" y="387">
+          ｧ
+        </text>
+        <text x="376" y="373">
+          5
+        </text>
+        {/* Col 10 */}
+        <text x="416" y="500">
+          ｨ
+        </text>
+        <text x="416" y="486">
+          2
+        </text>
+        <text x="416" y="472">
+          ｩ
+        </text>
+        <text x="416" y="458">
+          9
+        </text>
+        {/* Col 11 */}
+        <text x="456" y="380">
+          ｪ
+        </text>
+        <text x="456" y="366">
+          7
+        </text>
+        <text x="456" y="352">
+          ｫ
+        </text>
+        <text x="456" y="338">
+          4
+        </text>
+        {/* Col 12 */}
+        <text x="496" y="495">
+          ｬ
+        </text>
+        <text x="496" y="481">
+          1
+        </text>
+        <text x="496" y="467">
+          ｭ
+        </text>
+        <text x="496" y="453">
+          6
+        </text>
+        {/* Col 13 */}
+        <text x="536" y="450">
+          ｮ
+        </text>
+        <text x="536" y="436">
+          3
+        </text>
+        <text x="536" y="422">
+          ｯ
+        </text>
+        <text x="536" y="408">
+          8
+        </text>
+        {/* Col 14 */}
+        <text x="576" y="510">
+          ｰ
+        </text>
+        <text x="576" y="496">
+          5
+        </text>
+        <text x="576" y="482">
+          ｱ
+        </text>
+        <text x="576" y="468">
+          2
+        </text>
+        {/* Col 15 */}
+        <text x="616" y="395">
+          ｲ
+        </text>
+        <text x="616" y="381">
+          0
+        </text>
+        <text x="616" y="367">
+          ｳ
+        </text>
+        <text x="616" y="353">
+          7
+        </text>
+        {/* Col 16 */}
+        <text x="656" y="520">
+          ｴ
+        </text>
+        <text x="656" y="506">
+          4
+        </text>
+        <text x="656" y="492">
+          ｵ
+        </text>
+        <text x="656" y="478">
+          1
+        </text>
+        {/* Col 17 */}
+        <text x="696" y="470">
+          ｶ
+        </text>
+        <text x="696" y="456">
+          9
+        </text>
+        <text x="696" y="442">
+          ｷ
+        </text>
+        <text x="696" y="428">
+          6
+        </text>
+        {/* Col 18 */}
+        <text x="736" y="535">
+          ｸ
+        </text>
+        <text x="736" y="521">
+          3
+        </text>
+        <text x="736" y="507">
+          ｹ
+        </text>
+        <text x="736" y="493">
+          8
+        </text>
+        {/* Col 19 */}
+        <text x="776" y="440">
+          ｺ
+        </text>
+        <text x="776" y="426">
+          5
+        </text>
+        <text x="776" y="412">
+          ｻ
+        </text>
+        <text x="776" y="398">
+          2
+        </text>
+        {/* Col 20 */}
+        <text x="816" y="490">
+          ｼ
+        </text>
+        <text x="816" y="476">
+          0
+        </text>
+        <text x="816" y="462">
+          ｽ
+        </text>
+        <text x="816" y="448">
+          7
+        </text>
+        {/* Col 21 */}
+        <text x="856" y="520">
+          ｾ
+        </text>
+        <text x="856" y="506">
+          4
+        </text>
+        <text x="856" y="492">
+          ｿ
+        </text>
+        <text x="856" y="478">
+          1
+        </text>
+        {/* Col 22 */}
+        <text x="896" y="415">
+          ﾀ
+        </text>
+        <text x="896" y="401">
+          6
+        </text>
+        <text x="896" y="387">
+          ﾁ
+        </text>
+        <text x="896" y="373">
+          3
+        </text>
+        {/* Col 23 */}
+        <text x="936" y="535">
+          ﾂ
+        </text>
+        <text x="936" y="521">
+          8
+        </text>
+        <text x="936" y="507">
+          ﾃ
+        </text>
+        <text x="936" y="493">
+          5
+        </text>
+        {/* Col 24 */}
+        <text x="976" y="480">
+          ﾄ
+        </text>
+        <text x="976" y="466">
+          2
+        </text>
+        <text x="976" y="452">
+          ﾅ
+        </text>
+        <text x="976" y="438">
+          9
+        </text>
+        {/* Col 25 */}
+        <text x="1016" y="525">
+          ﾆ
+        </text>
+        <text x="1016" y="511">
+          7
+        </text>
+        <text x="1016" y="497">
+          ﾇ
+        </text>
+        <text x="1016" y="483">
+          4
+        </text>
+        {/* Col 26 */}
+        <text x="1056" y="455">
+          ﾈ
+        </text>
+        <text x="1056" y="441">
+          1
+        </text>
+        <text x="1056" y="427">
+          ﾉ
+        </text>
+        <text x="1056" y="413">
+          6
+        </text>
+        {/* Col 27 */}
+        <text x="1096" y="540">
+          ﾊ
+        </text>
+        <text x="1096" y="526">
+          3
+        </text>
+        <text x="1096" y="512">
+          ﾋ
+        </text>
+        <text x="1096" y="498">
+          0
+        </text>
+        {/* Col 28 */}
+        <text x="1136" y="500">
+          ﾌ
+        </text>
+        <text x="1136" y="486">
+          8
+        </text>
+        <text x="1136" y="472">
+          ﾍ
+        </text>
+        <text x="1136" y="458">
+          5
+        </text>
+        {/* Col 29 */}
+        <text x="1176" y="445">
+          ﾎ
+        </text>
+        <text x="1176" y="431">
+          2
+        </text>
+        <text x="1176" y="417">
+          ﾏ
+        </text>
+        <text x="1176" y="403">
+          7
+        </text>
+      </g>
+
+      {/* === BRIGHT GREEN CHARS — upper-mid columns === */}
+      <g
+        fontFamily="'Courier New', Courier, monospace"
+        fontSize="15"
+        fill="#00ff41"
+        opacity="0.95"
+        filter="url(#matrixGlow)"
+      >
+        {/* Col 0 */}
+        <text x="15" y="340">
+          ﾐ
+        </text>
+        <text x="15" y="325">
+          5
+        </text>
+        <text x="15" y="310">
+          ﾑ
+        </text>
+        {/* Col 1 */}
+        <text x="55" y="310">
+          ﾒ
+        </text>
+        <text x="55" y="295">
+          0
+        </text>
+        <text x="55" y="280">
+          ﾓ
+        </text>
+        {/* Col 2 */}
+        <text x="95" y="370">
+          ﾔ
+        </text>
+        <text x="95" y="355">
+          8
+        </text>
+        <text x="95" y="340">
+          ﾕ
+        </text>
+        {/* Col 3 */}
+        <text x="135" y="270">
+          ﾖ
+        </text>
+        <text x="135" y="255">
+          3
+        </text>
+        <text x="135" y="240">
+          ﾗ
+        </text>
+        {/* Col 4 */}
+        <text x="175" y="355">
+          ﾘ
+        </text>
+        <text x="175" y="340">
+          6
+        </text>
+        <text x="175" y="325">
+          ﾙ
+        </text>
+        {/* Col 5 */}
+        <text x="215" y="300">
+          ﾚ
+        </text>
+        <text x="215" y="285">
+          1
+        </text>
+        <text x="215" y="270">
+          ﾛ
+        </text>
+        {/* Col 6 */}
+        <text x="255" y="390">
+          ﾜ
+        </text>
+        <text x="255" y="375">
+          9
+        </text>
+        <text x="255" y="360">
+          ﾝ
+        </text>
+        {/* Col 7 */}
+        <text x="295" y="240">
+          ｦ
+        </text>
+        <text x="295" y="225">
+          4
+        </text>
+        <text x="295" y="210">
+          ｧ
+        </text>
+        {/* Col 8 */}
+        <text x="335" y="355">
+          ｨ
+        </text>
+        <text x="335" y="340">
+          7
+        </text>
+        <text x="335" y="325">
+          ｩ
+        </text>
+        {/* Col 9 */}
+        <text x="375" y="295">
+          ｪ
+        </text>
+        <text x="375" y="280">
+          2
+        </text>
+        <text x="375" y="265">
+          ｫ
+        </text>
+        {/* Col 10 */}
+        <text x="415" y="385">
+          ｬ
+        </text>
+        <text x="415" y="370">
+          5
+        </text>
+        <text x="415" y="355">
+          ｭ
+        </text>
+        {/* Col 11 */}
+        <text x="455" y="265">
+          ｮ
+        </text>
+        <text x="455" y="250">
+          0
+        </text>
+        <text x="455" y="235">
+          ｯ
+        </text>
+        {/* Col 12 */}
+        <text x="495" y="380">
+          ｰ
+        </text>
+        <text x="495" y="365">
+          8
+        </text>
+        <text x="495" y="350">
+          ｱ
+        </text>
+        {/* Col 13 */}
+        <text x="535" y="325">
+          ｲ
+        </text>
+        <text x="535" y="310">
+          3
+        </text>
+        <text x="535" y="295">
+          ｳ
+        </text>
+        {/* Col 14 */}
+        <text x="575" y="395">
+          ｴ
+        </text>
+        <text x="575" y="380">
+          6
+        </text>
+        <text x="575" y="365">
+          ｵ
+        </text>
+        {/* Col 15 */}
+        <text x="615" y="280">
+          ｶ
+        </text>
+        <text x="615" y="265">
+          1
+        </text>
+        <text x="615" y="250">
+          ｷ
+        </text>
+        {/* Col 16 */}
+        <text x="655" y="400">
+          ｸ
+        </text>
+        <text x="655" y="385">
+          9
+        </text>
+        <text x="655" y="370">
+          ｹ
+        </text>
+        {/* Col 17 */}
+        <text x="695" y="350">
+          ｺ
+        </text>
+        <text x="695" y="335">
+          4
+        </text>
+        <text x="695" y="320">
+          ｻ
+        </text>
+        {/* Col 18 */}
+        <text x="735" y="415">
+          ｼ
+        </text>
+        <text x="735" y="400">
+          7
+        </text>
+        <text x="735" y="385">
+          ｽ
+        </text>
+        {/* Col 19 */}
+        <text x="775" y="320">
+          ｾ
+        </text>
+        <text x="775" y="305">
+          2
+        </text>
+        <text x="775" y="290">
+          ｿ
+        </text>
+        {/* Col 20 */}
+        <text x="815" y="375">
+          ﾀ
+        </text>
+        <text x="815" y="360">
+          5
+        </text>
+        <text x="815" y="345">
+          ﾁ
+        </text>
+        {/* Col 21 */}
+        <text x="855" y="400">
+          ﾂ
+        </text>
+        <text x="855" y="385">
+          0
+        </text>
+        <text x="855" y="370">
+          ﾃ
+        </text>
+        {/* Col 22 */}
+        <text x="895" y="295">
+          ﾄ
+        </text>
+        <text x="895" y="280">
+          8
+        </text>
+        <text x="895" y="265">
+          ﾅ
+        </text>
+        {/* Col 23 */}
+        <text x="935" y="415">
+          ﾆ
+        </text>
+        <text x="935" y="400">
+          3
+        </text>
+        <text x="935" y="385">
+          ﾇ
+        </text>
+        {/* Col 24 */}
+        <text x="975" y="360">
+          ﾈ
+        </text>
+        <text x="975" y="345">
+          6
+        </text>
+        <text x="975" y="330">
+          ﾉ
+        </text>
+        {/* Col 25 */}
+        <text x="1015" y="405">
+          ﾊ
+        </text>
+        <text x="1015" y="390">
+          1
+        </text>
+        <text x="1015" y="375">
+          ﾋ
+        </text>
+        {/* Col 26 */}
+        <text x="1055" y="335">
+          ﾌ
+        </text>
+        <text x="1055" y="320">
+          9
+        </text>
+        <text x="1055" y="305">
+          ﾍ
+        </text>
+        {/* Col 27 */}
+        <text x="1095" y="420">
+          ﾎ
+        </text>
+        <text x="1095" y="405">
+          4
+        </text>
+        <text x="1095" y="390">
+          ﾏ
+        </text>
+        {/* Col 28 */}
+        <text x="1135" y="385">
+          ﾐ
+        </text>
+        <text x="1135" y="370">
+          7
+        </text>
+        <text x="1135" y="355">
+          ﾑ
+        </text>
+        {/* Col 29 */}
+        <text x="1175" y="330">
+          ﾒ
+        </text>
+        <text x="1175" y="315">
+          2
+        </text>
+        <text x="1175" y="300">
+          ﾓ
+        </text>
+      </g>
+
+      {/* === WHITE/NEAR-WHITE LEADING CHARS — top of each column === */}
+      {/* Every ~5th column gets a bright white leader for classic look */}
+      <g
+        fontFamily="'Courier New', Courier, monospace"
+        fontSize="16"
+        fill="#e0ffe0"
+        filter="url(#matrixLeadGlow)"
+      >
+        <text x="14" y="295">
+          ﾔ
+        </text>
+        <text x="94" y="325">
+          ﾕ
+        </text>
+        <text x="134" y="225">
+          ﾖ
+        </text>
+        <text x="254" y="345">
+          ﾗ
+        </text>
+        <text x="374" y="250">
+          ﾘ
+        </text>
+        <text x="454" y="220">
+          ﾙ
+        </text>
+        <text x="574" y="350">
+          ﾚ
+        </text>
+        <text x="694" y="305">
+          ﾛ
+        </text>
+        <text x="774" y="275">
+          ﾜ
+        </text>
+        <text x="894" y="250">
+          ﾝ
+        </text>
+        <text x="1014" y="360">
+          ｦ
+        </text>
+        <text x="1094" y="375">
+          ｧ
+        </text>
+        <text x="1174" y="285">
+          ｨ
+        </text>
+      </g>
+
+      {/* === UPPER HALF — fresh top section chars to fill gaps === */}
+      <g
+        fontFamily="'Courier New', Courier, monospace"
+        fontSize="13"
+        fill="#00aa28"
+        opacity="0.8"
+        filter="url(#matrixGlow)"
+      >
+        {/* Scattered upper chars to fill upper half density */}
+        <text x="18" y="200">
+          ﾏ
+        </text>
+        <text x="18" y="186">
+          7
+        </text>
+        <text x="18" y="172">
+          ﾐ
+        </text>
+        <text x="38" y="160">
+          4
+        </text>
+        <text x="38" y="145">
+          ﾑ
+        </text>
+        <text x="38" y="130">
+          1
+        </text>
+        <text x="58" y="220">
+          ﾒ
+        </text>
+        <text x="58" y="206">
+          9
+        </text>
+        <text x="58" y="192">
+          ﾓ
+        </text>
+        <text x="78" y="140">
+          6
+        </text>
+        <text x="78" y="125">
+          ﾔ
+        </text>
+        <text x="78" y="110">
+          3
+        </text>
+        <text x="98" y="240">
+          ﾕ
+        </text>
+        <text x="98" y="226">
+          0
+        </text>
+        <text x="98" y="212">
+          ﾖ
+        </text>
+        <text x="118" y="175">
+          8
+        </text>
+        <text x="118" y="160">
+          ﾗ
+        </text>
+        <text x="118" y="145">
+          5
+        </text>
+        <text x="138" y="185">
+          2
+        </text>
+        <text x="138" y="170">
+          ﾘ
+        </text>
+        <text x="158" y="210">
+          ﾙ
+        </text>
+        <text x="158" y="195">
+          7
+        </text>
+        <text x="158" y="180">
+          ﾚ
+        </text>
+        <text x="178" y="255">
+          4
+        </text>
+        <text x="178" y="240">
+          ﾛ
+        </text>
+        <text x="178" y="225">
+          1
+        </text>
+        <text x="198" y="155">
+          ﾜ
+        </text>
+        <text x="198" y="140">
+          9
+        </text>
+        <text x="198" y="125">
+          ﾝ
+        </text>
+        <text x="218" y="200">
+          6
+        </text>
+        <text x="218" y="185">
+          ｦ
+        </text>
+        <text x="218" y="170">
+          3
+        </text>
+        <text x="238" y="230">
+          0
+        </text>
+        <text x="238" y="215">
+          ｧ
+        </text>
+        <text x="258" y="265">
+          ｨ
+        </text>
+        <text x="258" y="250">
+          8
+        </text>
+        <text x="258" y="235">
+          ｩ
+        </text>
+        <text x="278" y="145">
+          5
+        </text>
+        <text x="278" y="130">
+          ｪ
+        </text>
+        <text x="278" y="115">
+          2
+        </text>
+        <text x="298" y="175">
+          ｫ
+        </text>
+        <text x="298" y="160">
+          7
+        </text>
+        <text x="298" y="145">
+          ｬ
+        </text>
+        <text x="318" y="220">
+          4
+        </text>
+        <text x="318" y="205">
+          ｭ
+        </text>
+        <text x="318" y="190">
+          1
+        </text>
+        <text x="338" y="255">
+          ｮ
+        </text>
+        <text x="338" y="240">
+          9
+        </text>
+        <text x="338" y="225">
+          ｯ
+        </text>
+        <text x="358" y="135">
+          6
+        </text>
+        <text x="358" y="120">
+          ｰ
+        </text>
+        <text x="358" y="105">
+          3
+        </text>
+        <text x="378" y="195">
+          0
+        </text>
+        <text x="378" y="180">
+          ｱ
+        </text>
+        <text x="378" y="165">
+          8
+        </text>
+        <text x="398" y="235">
+          ｲ
+        </text>
+        <text x="398" y="220">
+          5
+        </text>
+        <text x="418" y="270">
+          2
+        </text>
+        <text x="418" y="255">
+          ｳ
+        </text>
+        <text x="418" y="240">
+          7
+        </text>
+        <text x="438" y="160">
+          ｴ
+        </text>
+        <text x="438" y="145">
+          4
+        </text>
+        <text x="438" y="130">
+          ｵ
+        </text>
+        <text x="458" y="180">
+          1
+        </text>
+        <text x="458" y="165">
+          ｶ
+        </text>
+        <text x="458" y="150">
+          9
+        </text>
+        <text x="478" y="210">
+          ｷ
+        </text>
+        <text x="478" y="195">
+          6
+        </text>
+        <text x="498" y="260">
+          ｸ
+        </text>
+        <text x="498" y="245">
+          3
+        </text>
+        <text x="498" y="230">
+          ｹ
+        </text>
+        <text x="518" y="150">
+          0
+        </text>
+        <text x="518" y="135">
+          ｺ
+        </text>
+        <text x="518" y="120">
+          8
+        </text>
+        <text x="538" y="230">
+          ｻ
+        </text>
+        <text x="538" y="215">
+          5
+        </text>
+        <text x="538" y="200">
+          ｼ
+        </text>
+        <text x="558" y="170">
+          2
+        </text>
+        <text x="558" y="155">
+          ｽ
+        </text>
+        <text x="558" y="140">
+          7
+        </text>
+        <text x="578" y="265">
+          ｾ
+        </text>
+        <text x="578" y="250">
+          4
+        </text>
+        <text x="598" y="195">
+          1
+        </text>
+        <text x="598" y="180">
+          ｿ
+        </text>
+        <text x="598" y="165">
+          9
+        </text>
+        <text x="618" y="160">
+          ﾀ
+        </text>
+        <text x="618" y="145">
+          6
+        </text>
+        <text x="618" y="130">
+          ﾁ
+        </text>
+        <text x="638" y="245">
+          3
+        </text>
+        <text x="638" y="230">
+          ﾂ
+        </text>
+        <text x="638" y="215">
+          0
+        </text>
+        <text x="658" y="280">
+          ﾃ
+        </text>
+        <text x="658" y="265">
+          8
+        </text>
+        <text x="678" y="185">
+          5
+        </text>
+        <text x="678" y="170">
+          ﾄ
+        </text>
+        <text x="678" y="155">
+          2
+        </text>
+        <text x="698" y="225">
+          ﾅ
+        </text>
+        <text x="698" y="210">
+          7
+        </text>
+        <text x="698" y="195">
+          ﾆ
+        </text>
+        <text x="718" y="165">
+          4
+        </text>
+        <text x="718" y="150">
+          ﾇ
+        </text>
+        <text x="718" y="135">
+          1
+        </text>
+        <text x="738" y="290">
+          ﾈ
+        </text>
+        <text x="738" y="275">
+          9
+        </text>
+        <text x="758" y="200">
+          6
+        </text>
+        <text x="758" y="185">
+          ﾉ
+        </text>
+        <text x="758" y="170">
+          3
+        </text>
+        <text x="778" y="220">
+          0
+        </text>
+        <text x="778" y="205">
+          ﾊ
+        </text>
+        <text x="778" y="190">
+          8
+        </text>
+        <text x="798" y="155">
+          ﾋ
+        </text>
+        <text x="798" y="140">
+          5
+        </text>
+        <text x="798" y="125">
+          ﾌ
+        </text>
+        <text x="818" y="270">
+          2
+        </text>
+        <text x="818" y="255">
+          ﾍ
+        </text>
+        <text x="838" y="190">
+          7
+        </text>
+        <text x="838" y="175">
+          ﾎ
+        </text>
+        <text x="838" y="160">
+          4
+        </text>
+        <text x="858" y="285">
+          1
+        </text>
+        <text x="858" y="270">
+          ﾏ
+        </text>
+        <text x="858" y="255">
+          9
+        </text>
+        <text x="878" y="165">
+          ﾐ
+        </text>
+        <text x="878" y="150">
+          6
+        </text>
+        <text x="878" y="135">
+          ﾑ
+        </text>
+        <text x="898" y="200">
+          3
+        </text>
+        <text x="898" y="185">
+          ﾒ
+        </text>
+        <text x="918" y="235">
+          0
+        </text>
+        <text x="918" y="220">
+          ﾓ
+        </text>
+        <text x="918" y="205">
+          8
+        </text>
+        <text x="938" y="175">
+          ﾔ
+        </text>
+        <text x="938" y="160">
+          5
+        </text>
+        <text x="938" y="145">
+          ﾕ
+        </text>
+        <text x="958" y="295">
+          2
+        </text>
+        <text x="958" y="280">
+          ﾖ
+        </text>
+        <text x="978" y="210">
+          7
+        </text>
+        <text x="978" y="195">
+          ﾗ
+        </text>
+        <text x="978" y="180">
+          4
+        </text>
+        <text x="998" y="250">
+          ﾘ
+        </text>
+        <text x="998" y="235">
+          1
+        </text>
+        <text x="998" y="220">
+          ﾙ
+        </text>
+        <text x="1018" y="180">
+          9
+        </text>
+        <text x="1018" y="165">
+          ﾚ
+        </text>
+        <text x="1018" y="150">
+          6
+        </text>
+        <text x="1038" y="270">
+          ﾛ
+        </text>
+        <text x="1038" y="255">
+          3
+        </text>
+        <text x="1058" y="195">
+          0
+        </text>
+        <text x="1058" y="180">
+          ﾜ
+        </text>
+        <text x="1058" y="165">
+          8
+        </text>
+        <text x="1078" y="235">
+          ﾝ
+        </text>
+        <text x="1078" y="220">
+          5
+        </text>
+        <text x="1078" y="205">
+          ｦ
+        </text>
+        <text x="1098" y="175">
+          2
+        </text>
+        <text x="1098" y="160">
+          ｧ
+        </text>
+        <text x="1098" y="145">
+          7
+        </text>
+        <text x="1118" y="280">
+          ｨ
+        </text>
+        <text x="1118" y="265">
+          4
+        </text>
+        <text x="1138" y="205">
+          1
+        </text>
+        <text x="1138" y="190">
+          ｩ
+        </text>
+        <text x="1138" y="175">
+          9
+        </text>
+        <text x="1158" y="245">
+          ｪ
+        </text>
+        <text x="1158" y="230">
+          6
+        </text>
+        <text x="1158" y="215">
+          ｫ
+        </text>
+        <text x="1178" y="190">
+          3
+        </text>
+        <text x="1178" y="175">
+          ｬ
+        </text>
+        <text x="1178" y="160">
+          0
+        </text>
+      </g>
+
+      {/* === TOP REGION CHARS — near top of viewbox for full coverage === */}
+      <g
+        fontFamily="'Courier New', Courier, monospace"
+        fontSize="12"
+        fill="#005519"
+        opacity="0.75"
+      >
+        <text x="28" y="85">
+          6
+        </text>
+        <text x="28" y="72">
+          ﾂ
+        </text>
+        <text x="28" y="58">
+          3
+        </text>
+        <text x="68" y="75">
+          ﾃ
+        </text>
+        <text x="68" y="62">
+          9
+        </text>
+        <text x="68" y="48">
+          ﾄ
+        </text>
+        <text x="108" y="90">
+          1
+        </text>
+        <text x="108" y="76">
+          ﾅ
+        </text>
+        <text x="108" y="62">
+          7
+        </text>
+        <text x="148" y="68">
+          ﾆ
+        </text>
+        <text x="148" y="54">
+          4
+        </text>
+        <text x="148" y="40">
+          ﾇ
+        </text>
+        <text x="188" y="82">
+          ﾈ
+        </text>
+        <text x="188" y="68">
+          0
+        </text>
+        <text x="188" y="54">
+          ﾉ
+        </text>
+        <text x="228" y="72">
+          8
+        </text>
+        <text x="228" y="58">
+          ﾊ
+        </text>
+        <text x="228" y="44">
+          5
+        </text>
+        <text x="268" y="88">
+          ﾋ
+        </text>
+        <text x="268" y="74">
+          2
+        </text>
+        <text x="268" y="60">
+          ﾌ
+        </text>
+        <text x="308" y="60">
+          ﾍ
+        </text>
+        <text x="308" y="46">
+          7
+        </text>
+        <text x="308" y="32">
+          ﾎ
+        </text>
+        <text x="348" y="80">
+          ﾏ
+        </text>
+        <text x="348" y="66">
+          4
+        </text>
+        <text x="348" y="52">
+          ﾐ
+        </text>
+        <text x="388" y="65">
+          1
+        </text>
+        <text x="388" y="51">
+          ﾑ
+        </text>
+        <text x="388" y="37">
+          9
+        </text>
+        <text x="428" y="85">
+          ﾒ
+        </text>
+        <text x="428" y="71">
+          6
+        </text>
+        <text x="428" y="57">
+          ﾓ
+        </text>
+        <text x="468" y="70">
+          3
+        </text>
+        <text x="468" y="56">
+          ﾔ
+        </text>
+        <text x="468" y="42">
+          0
+        </text>
+        <text x="508" y="78">
+          ﾕ
+        </text>
+        <text x="508" y="64">
+          8
+        </text>
+        <text x="508" y="50">
+          ﾖ
+        </text>
+        <text x="548" y="62">
+          5
+        </text>
+        <text x="548" y="48">
+          ﾗ
+        </text>
+        <text x="548" y="34">
+          2
+        </text>
+        <text x="588" y="88">
+          ﾘ
+        </text>
+        <text x="588" y="74">
+          7
+        </text>
+        <text x="588" y="60">
+          ﾙ
+        </text>
+        <text x="628" y="55">
+          4
+        </text>
+        <text x="628" y="41">
+          ﾚ
+        </text>
+        <text x="628" y="27">
+          1
+        </text>
+        <text x="668" y="82">
+          ﾛ
+        </text>
+        <text x="668" y="68">
+          9
+        </text>
+        <text x="668" y="54">
+          ﾜ
+        </text>
+        <text x="708" y="68">
+          6
+        </text>
+        <text x="708" y="54">
+          ﾝ
+        </text>
+        <text x="708" y="40">
+          3
+        </text>
+        <text x="748" y="90">
+          ｦ
+        </text>
+        <text x="748" y="76">
+          0
+        </text>
+        <text x="748" y="62">
+          ｧ
+        </text>
+        <text x="788" y="60">
+          8
+        </text>
+        <text x="788" y="46">
+          ｨ
+        </text>
+        <text x="788" y="32">
+          5
+        </text>
+        <text x="828" y="78">
+          ｩ
+        </text>
+        <text x="828" y="64">
+          2
+        </text>
+        <text x="828" y="50">
+          ｪ
+        </text>
+        <text x="868" y="66">
+          7
+        </text>
+        <text x="868" y="52">
+          ｫ
+        </text>
+        <text x="868" y="38">
+          4
+        </text>
+        <text x="908" y="84">
+          ｬ
+        </text>
+        <text x="908" y="70">
+          1
+        </text>
+        <text x="908" y="56">
+          ｭ
+        </text>
+        <text x="948" y="58">
+          9
+        </text>
+        <text x="948" y="44">
+          ｮ
+        </text>
+        <text x="948" y="30">
+          6
+        </text>
+        <text x="988" y="80">
+          ｯ
+        </text>
+        <text x="988" y="66">
+          3
+        </text>
+        <text x="988" y="52">
+          ｰ
+        </text>
+        <text x="1028" y="72">
+          0
+        </text>
+        <text x="1028" y="58">
+          ｱ
+        </text>
+        <text x="1028" y="44">
+          8
+        </text>
+        <text x="1068" y="86">
+          ｲ
+        </text>
+        <text x="1068" y="72">
+          5
+        </text>
+        <text x="1068" y="58">
+          ｳ
+        </text>
+        <text x="1108" y="64">
+          2
+        </text>
+        <text x="1108" y="50">
+          ｴ
+        </text>
+        <text x="1108" y="36">
+          7
+        </text>
+        <text x="1148" y="82">
+          ｵ
+        </text>
+        <text x="1148" y="68">
+          4
+        </text>
+        <text x="1148" y="54">
+          ｶ
+        </text>
+        <text x="1188" y="70">
+          1
+        </text>
+        <text x="1188" y="56">
+          ｷ
+        </text>
+        <text x="1188" y="42">
+          9
+        </text>
+      </g>
+
+      {/* Vignette overlay for cinematic depth */}
+      <rect width="1200" height="800" fill="url(#matrixVignette)" />
+    </svg>
+  );
+
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -10341,6 +13640,10 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ world }) => {
         return renderTokyoWorld();
       case "windows":
         return renderWindowsWorld();
+      case "bitcoin":
+        return renderBitcoinWorld();
+      case "matrix":
+        return renderMatrixWorld();
       default:
         return renderOriginalWorld();
     }

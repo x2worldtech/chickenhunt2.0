@@ -27,7 +27,9 @@ export type BackgroundWorld =
   | "zombietown"
   | "halloween"
   | "tokyo"
-  | "windows";
+  | "windows"
+  | "bitcoin"
+  | "matrix";
 
 export interface PlayerData {
   level: number;
@@ -87,6 +89,8 @@ const VALID_WORLDS: BackgroundWorld[] = [
   "halloween",
   "tokyo",
   "windows",
+  "bitcoin",
+  "matrix",
 ];
 
 const DEFAULT_PLAYER_DATA: PlayerData = {

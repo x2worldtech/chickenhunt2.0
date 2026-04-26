@@ -33,6 +33,15 @@ module {
     timestamp : Int;
   };
 
+  // ── Direct message entity ──────────────────────────────────────────────────
+  public type DirectMessage = {
+    id : Nat;
+    senderId : Principal;
+    recipientId : Principal;
+    text : Text;
+    timestamp : Int;
+  };
+
   // ── Shared/public types (no var, no mutable containers) ───────────────────
 
   public type PrincipalInfo = {
@@ -75,8 +84,11 @@ module {
     clanMessages : Map.Map<Nat, List.List<ClanMessage>>;
     // principal -> set of friend principals (bidirectional)
     friends : Map.Map<Principal, Set.Set<Principal>>;
+    // conversationId (sorted pair of principals joined with '_') -> List of direct messages
+    directMessages : Map.Map<Text, List.List<DirectMessage>>;
     var nextClanId : Nat;
     var nextMessageId : Nat;
+    var nextDirectMessageId : Nat;
   };
 
 };

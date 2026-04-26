@@ -9,6 +9,8 @@ import SocialsApi "mixins/socials-api";
 
 
 
+
+
 persistent actor {
     // ── Auth state ──────────────────────────────────────────────────────────
     let multiUserState = MultiUserSystem.initState();
@@ -54,6 +56,10 @@ persistent actor {
         bio : Text;
         profilePictureUrl : ?Text;
         bannerImageUrl : ?Text;
+        xUrl : ?Text;
+        telegramUrl : ?Text;
+        youtubeUrl : ?Text;
+        githubUrl : ?Text;
     };
 
     let userProfiles = Map.empty<Principal, UserProfile>();
@@ -78,6 +84,10 @@ persistent actor {
         name : Text;
         bio : Text;
         hasChangedName : Bool;
+        xUrl : ?Text;
+        telegramUrl : ?Text;
+        youtubeUrl : ?Text;
+        githubUrl : ?Text;
     };
 
     let userProfilesWithChangeStatus = Map.empty<Principal, UserProfileWithChangeStatus>();

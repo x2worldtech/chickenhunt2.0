@@ -46,6 +46,7 @@ import {
   useUpdateClan,
   useUserClans,
 } from "../hooks/useQueries";
+import DirectMessageChatView from "./DirectMessageChatView";
 import PlayerProfileScreen from "./PlayerProfileScreen";
 
 // ─── Image upload constants ────────────────────────────────────────────────────
@@ -110,7 +111,14 @@ type View =
   | { kind: "clanDetails"; clanId: bigint }
   | { kind: "pendingRequests"; clanId: bigint }
   | { kind: "clanChat"; clan: ClanSummary | ClanDetails }
-  | { kind: "memberProfile"; member: PrincipalInfo };
+  | { kind: "memberProfile"; member: PrincipalInfo }
+  | {
+      kind: "directMessageChat";
+      otherPrincipal: Principal;
+      otherName: string;
+      otherAvatar?: string;
+      returnTo: View;
+    };
 
 interface SocialsViewProps {
   isAuthenticated: boolean;
@@ -224,8 +232,27 @@ const SocialsView: React.FC<SocialsViewProps> = ({ isAuthenticated }) => {
           member={view.member}
           myPrincipal={myPrincipal}
           onBack={() => setView({ kind: "clans" })}
+          onOpenDM={(userId, userName) =>
+            setView({
+              kind: "directMessageChat",
+              otherPrincipal: userId,
+              otherName: userName,
+              returnTo: view,
+            })
+          }
         />
       </div>
+    );
+  }
+
+  if (view.kind === "directMessageChat") {
+    return (
+      <DirectMessageChatView
+        otherPrincipal={view.otherPrincipal}
+        otherName={view.otherName}
+        otherAvatar={view.otherAvatar}
+        onBack={() => setView(view.returnTo)}
+      />
     );
   }
 
@@ -280,6 +307,14 @@ const SocialsView: React.FC<SocialsViewProps> = ({ isAuthenticated }) => {
             myPrincipal={myPrincipal}
             onOpenClan={(id) => setView({ kind: "clanDetails", clanId: id })}
             onClanCreated={() => setClanSection("mine")}
+            onOpenDM={(userId, userName) =>
+              setView({
+                kind: "directMessageChat",
+                otherPrincipal: userId,
+                otherName: userName,
+                returnTo: { kind: "clans" },
+              })
+            }
           />
         ) : (
           <FriendsPanel
@@ -299,6 +334,7 @@ interface ClansPanelProps {
   myPrincipal: Principal | null;
   onOpenClan: (id: bigint) => void;
   onClanCreated: () => void;
+  onOpenDM: (userId: Principal, userName: string) => void;
 }
 
 const ClansPanel: React.FC<ClansPanelProps> = ({
@@ -307,6 +343,7 @@ const ClansPanel: React.FC<ClansPanelProps> = ({
   myPrincipal,
   onOpenClan,
   onClanCreated,
+  onOpenDM,
 }) => {
   const { data: userClans } = useUserClans(myPrincipal);
   const isInClan = (userClans ?? []).length > 0;
@@ -346,6 +383,7 @@ const ClansPanel: React.FC<ClansPanelProps> = ({
             onOpenClan={onOpenClan}
             onGoSearch={() => onSectionChange("search")}
             onGoCreate={() => onSectionChange("create")}
+            onOpenDM={onOpenDM}
           />
         )}
         {section === "search" && (
@@ -369,6 +407,7 @@ interface MyClansProps {
   onOpenClan: (id: bigint) => void;
   onGoSearch: () => void;
   onGoCreate: () => void;
+  onOpenDM: (userId: Principal, userName: string) => void;
 }
 
 const MyClansSection: React.FC<MyClansProps> = ({
@@ -376,6 +415,7 @@ const MyClansSection: React.FC<MyClansProps> = ({
   onOpenClan,
   onGoSearch,
   onGoCreate,
+  onOpenDM,
 }) => {
   const { data: myClans, isLoading, error } = useUserClans(myPrincipal);
 
@@ -451,6 +491,7 @@ const MyClansSection: React.FC<MyClansProps> = ({
         myPrincipal={myPrincipal}
         onOpenChat={() => onOpenClan(clan.id)}
         onOpenPending={() => onOpenClan(clan.id)}
+        onOpenDM={onOpenDM}
       />
     </div>
   );
@@ -463,6 +504,7 @@ interface MyClanInlineDetailsProps {
   myPrincipal: Principal | null;
   onOpenChat: () => void;
   onOpenPending: () => void;
+  onOpenDM: (userId: Principal, userName: string) => void;
 }
 
 const MyClanInlineDetails: React.FC<MyClanInlineDetailsProps> = ({
@@ -470,6 +512,7 @@ const MyClanInlineDetails: React.FC<MyClanInlineDetailsProps> = ({
   myPrincipal,
   onOpenChat,
   onOpenPending,
+  onOpenDM,
 }) => {
   const { data: clan, isLoading, error } = useClanDetails(clanId);
   const leaveClan = useLeaveClan();
@@ -514,6 +557,7 @@ const MyClanInlineDetails: React.FC<MyClanInlineDetailsProps> = ({
         member={memberProfileOpen}
         myPrincipal={myPrincipal}
         onBack={() => setMemberProfileOpen(null)}
+        onOpenDM={onOpenDM}
       />
     );
   }
@@ -2017,12 +2061,14 @@ interface MemberProfileViewProps {
   member: PrincipalInfo;
   myPrincipal: Principal | null;
   onBack: () => void;
+  onOpenDM?: (userId: Principal, userName: string) => void;
 }
 
 const MemberProfileView: React.FC<MemberProfileViewProps> = ({
   member,
   myPrincipal,
   onBack,
+  onOpenDM,
 }) => {
   const isOwnProfile = myPrincipal?.toText() === member.principal.toText();
   return (
@@ -2032,6 +2078,7 @@ const MemberProfileView: React.FC<MemberProfileViewProps> = ({
       fallbackLevel={Number(member.level)}
       isOwnProfile={isOwnProfile}
       onBack={onBack}
+      onOpenDM={isOwnProfile ? undefined : onOpenDM}
     />
   );
 };
