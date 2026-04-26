@@ -46248,6 +46248,1574 @@ const BackgroundRenderer = ({ world }) => {
       ]
     }
   );
+  const renderMinecraftWorld = () => {
+    const grassAX = [0, 16, 32, 48, 64, 80, 96, 112, 128, 144];
+    const grassStepX = [160, 176, 192, 208, 224];
+    const grassBX = [
+      240,
+      256,
+      272,
+      288,
+      304,
+      320,
+      336,
+      352,
+      368,
+      384,
+      400,
+      416,
+      432,
+      448,
+      464
+    ];
+    const waterVX = [480, 496, 512, 528, 544, 560, 576, 592, 608, 624];
+    const waterHY = [496, 512];
+    const grassCX = [656, 672, 688, 704, 720, 736, 752, 768, 784];
+    const grassStep2X = [800, 816, 832, 848, 864];
+    const grassDX = [
+      880,
+      896,
+      912,
+      928,
+      944,
+      960,
+      976,
+      992,
+      1008,
+      1024,
+      1040,
+      1056,
+      1072,
+      1088,
+      1104,
+      1120,
+      1136,
+      1152,
+      1168,
+      1184
+    ];
+    const expStoneData = [
+      { x: 960, shade: "#7E7E7E" },
+      { x: 976, shade: "#727272" },
+      { x: 992, shade: "#7E7E7E" },
+      { x: 1008, shade: "#727272" }
+    ];
+    const gravelData = [
+      { x: 720, shade: "#999999" },
+      { x: 736, shade: "#888888" },
+      { x: 752, shade: "#999999" }
+    ];
+    const trunk1Y = [432, 448, 464, 480, 496];
+    const trunk2Y = [416, 432, 448, 464];
+    const leaves1 = [];
+    for (let r2 = 0; r2 < 4; r2++) {
+      for (let c2 = 0; c2 < 4; c2++) {
+        leaves1.push({
+          lx: 84 + c2 * 16,
+          ly: 384 + r2 * 16,
+          edge: r2 === 0 || r2 === 3 || c2 === 0 || c2 === 3,
+          id: `${r2}-${c2}`
+        });
+      }
+    }
+    const leaves2 = [];
+    for (let r2 = 0; r2 < 3; r2++) {
+      for (let c2 = 0; c2 < 4; c2++) {
+        leaves2.push({
+          lx: 1004 + c2 * 16,
+          ly: 368 + r2 * 16,
+          edge: r2 === 0 || r2 === 2 || c2 === 0 || c2 === 3,
+          id: `${r2}-${c2}`
+        });
+      }
+    }
+    const dirtBlocks = [];
+    for (let row = 0; row < 5; row++) {
+      for (let col = 0; col < 75; col++) {
+        dirtBlocks.push({
+          x: col * 16,
+          y: 528 + row * 16,
+          shade: (col + row) % 2 === 0 ? "#8B5E3C" : "#7A5230"
+        });
+      }
+    }
+    const stoneBlocks = [];
+    for (let row = 0; row < 12; row++) {
+      for (let col = 0; col < 75; col++) {
+        const s2 = (col + row) % 3;
+        stoneBlocks.push({
+          x: col * 16,
+          y: 608 + row * 16,
+          shade: s2 === 0 ? "#6A6A6A" : s2 === 1 ? "#767676" : "#7E7E7E"
+        });
+      }
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "svg",
+      {
+        role: "img",
+        "aria-label": "Minecraft world background",
+        className: "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+        viewBox: "0 0 1200 800",
+        preserveAspectRatio: "xMidYMid slice",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("defs", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "mcSky", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#87CEEB" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "65%", stopColor: "#B8E0F5" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#D8EEFA" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "mcGrassTop", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#6FC040" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#5D9B3B" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "mcGrassSide", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#5D9B3B" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#4C7A2E" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "mcWater", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#4488EE" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "30%", stopColor: "#3366CC" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#2244AA" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "mcStone", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#8A8A8A" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#6E6E6E" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "mcSun", x1: "0%", y1: "0%", x2: "100%", y2: "100%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#FFF176" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#FFD600" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "radialGradient",
+              {
+                id: "mcVignette",
+                cx: "50%",
+                cy: "50%",
+                r: "70%",
+                fx: "50%",
+                fy: "50%",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "55%", stopColor: "transparent" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "rgba(0,0,0,0.28)" })
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "0", width: "1200", height: "480", fill: "url(#mcSky)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1090",
+              y: "34",
+              width: "20",
+              height: "20",
+              fill: "#FFD600",
+              opacity: "0.85"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1090",
+              y: "14",
+              width: "20",
+              height: "16",
+              fill: "#FFD600",
+              opacity: "0.55"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1090",
+              y: "118",
+              width: "20",
+              height: "20",
+              fill: "#FFD600",
+              opacity: "0.85"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1090",
+              y: "138",
+              width: "20",
+              height: "16",
+              fill: "#FFD600",
+              opacity: "0.55"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1050",
+              y: "76",
+              width: "20",
+              height: "20",
+              fill: "#FFD600",
+              opacity: "0.85"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1032",
+              y: "76",
+              width: "16",
+              height: "20",
+              fill: "#FFD600",
+              opacity: "0.55"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1134",
+              y: "76",
+              width: "20",
+              height: "20",
+              fill: "#FFD600",
+              opacity: "0.85"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1154",
+              y: "76",
+              width: "16",
+              height: "20",
+              fill: "#FFD600",
+              opacity: "0.55"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1056",
+              y: "40",
+              width: "16",
+              height: "16",
+              fill: "#FFD600",
+              opacity: "0.65"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1128",
+              y: "40",
+              width: "16",
+              height: "16",
+              fill: "#FFD600",
+              opacity: "0.65"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1056",
+              y: "116",
+              width: "16",
+              height: "16",
+              fill: "#FFD600",
+              opacity: "0.65"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1128",
+              y: "116",
+              width: "16",
+              height: "16",
+              fill: "#FFD600",
+              opacity: "0.65"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1070", y: "54", width: "60", height: "60", fill: "url(#mcSun)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1070",
+              y: "54",
+              width: "30",
+              height: "30",
+              fill: "#FFF9C4",
+              opacity: "0.45"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "1100",
+              y: "84",
+              width: "30",
+              height: "30",
+              fill: "#F9A825",
+              opacity: "0.35"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "80", y: "80", width: "32", height: "32", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "112", y: "64", width: "32", height: "48", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "144", y: "64", width: "48", height: "48", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "192", y: "80", width: "32", height: "32", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "224", y: "96", width: "32", height: "16", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "80",
+              y: "96",
+              width: "176",
+              height: "8",
+              fill: "#D8D8D8",
+              opacity: "0.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "500", y: "52", width: "32", height: "32", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "532", y: "36", width: "48", height: "48", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "580", y: "36", width: "64", height: "48", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "644", y: "52", width: "48", height: "32", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "692", y: "68", width: "32", height: "16", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "500",
+              y: "68",
+              width: "224",
+              height: "8",
+              fill: "#D8D8D8",
+              opacity: "0.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "840", y: "100", width: "32", height: "32", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "872", y: "84", width: "48", height: "48", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "920", y: "84", width: "48", height: "48", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "968", y: "100", width: "32", height: "32", fill: "#FFFFFF" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "840",
+              y: "116",
+              width: "160",
+              height: "8",
+              fill: "#D8D8D8",
+              opacity: "0.5"
+            }
+          ),
+          stoneBlocks.map((b2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: b2.x, y: b2.y, width: "16", height: "16", fill: b2.shade }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: b2.x,
+                y: b2.y,
+                width: "16",
+                height: "2",
+                fill: "#909090",
+                opacity: "0.4"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: b2.x,
+                y: b2.y,
+                width: "2",
+                height: "16",
+                fill: "#909090",
+                opacity: "0.4"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: b2.x + 14,
+                y: b2.y,
+                width: "2",
+                height: "16",
+                fill: "#585858",
+                opacity: "0.35"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: b2.x,
+                y: b2.y + 14,
+                width: "16",
+                height: "2",
+                fill: "#585858",
+                opacity: "0.35"
+              }
+            )
+          ] }, `st-${b2.x}-${b2.y}`)),
+          dirtBlocks.map((b2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: b2.x, y: b2.y, width: "16", height: "16", fill: b2.shade }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: b2.x,
+                y: b2.y,
+                width: "16",
+                height: "2",
+                fill: "#A07040",
+                opacity: "0.35"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: b2.x,
+                y: b2.y,
+                width: "2",
+                height: "16",
+                fill: "#A07040",
+                opacity: "0.35"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: b2.x + 14,
+                y: b2.y,
+                width: "2",
+                height: "16",
+                fill: "#5A3520",
+                opacity: "0.3"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: b2.x,
+                y: b2.y + 14,
+                width: "16",
+                height: "2",
+                fill: "#5A3520",
+                opacity: "0.3"
+              }
+            )
+          ] }, `di-${b2.x}-${b2.y}`)),
+          grassAX.map((bx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 512,
+                width: "16",
+                height: "4",
+                fill: "url(#mcGrassTop)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 516,
+                width: "16",
+                height: "12",
+                fill: "url(#mcGrassSide)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 512,
+                width: "16",
+                height: "1",
+                fill: "#8FD44F",
+                opacity: "0.6"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 512,
+                width: "1",
+                height: "16",
+                fill: "#7DC442",
+                opacity: "0.4"
+              }
+            )
+          ] }, `gA-${bx}`)),
+          grassStepX.map((bx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 496,
+                width: "16",
+                height: "4",
+                fill: "url(#mcGrassTop)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 500,
+                width: "16",
+                height: "12",
+                fill: "url(#mcGrassSide)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 496,
+                width: "16",
+                height: "1",
+                fill: "#8FD44F",
+                opacity: "0.6"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: bx, y: 512, width: "16", height: "16", fill: "#8B5E3C" })
+          ] }, `gSt-${bx}`)),
+          grassBX.map((bx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 496,
+                width: "16",
+                height: "4",
+                fill: "url(#mcGrassTop)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 500,
+                width: "16",
+                height: "12",
+                fill: "url(#mcGrassSide)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 496,
+                width: "16",
+                height: "1",
+                fill: "#8FD44F",
+                opacity: "0.6"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 496,
+                width: "1",
+                height: "16",
+                fill: "#7DC442",
+                opacity: "0.4"
+              }
+            )
+          ] }, `gB-${bx}`)),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "480", y: "496", width: "160", height: "32", fill: "url(#mcWater)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "480",
+              y: "496",
+              width: "160",
+              height: "4",
+              fill: "#6AABFF",
+              opacity: "0.6"
+            }
+          ),
+          waterVX.map((vx) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: vx,
+              y: 496,
+              width: "1",
+              height: "32",
+              fill: "#2244AA",
+              opacity: "0.25"
+            },
+            `wv-${vx}`
+          )),
+          waterHY.map((hy) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: 480,
+              y: hy,
+              width: "160",
+              height: "1",
+              fill: "#2244AA",
+              opacity: "0.25"
+            },
+            `wh-${hy}`
+          )),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "464", y: "496", width: "16", height: "32", fill: "#8B5E3C" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "464", y: "496", width: "16", height: "4", fill: "url(#mcGrassTop)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "640", y: "496", width: "16", height: "32", fill: "#8B5E3C" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "640", y: "496", width: "16", height: "4", fill: "url(#mcGrassTop)" }),
+          grassCX.map((bx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 496,
+                width: "16",
+                height: "4",
+                fill: "url(#mcGrassTop)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 500,
+                width: "16",
+                height: "12",
+                fill: "url(#mcGrassSide)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 496,
+                width: "16",
+                height: "1",
+                fill: "#8FD44F",
+                opacity: "0.6"
+              }
+            )
+          ] }, `gC-${bx}`)),
+          grassStep2X.map((bx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 480,
+                width: "16",
+                height: "4",
+                fill: "url(#mcGrassTop)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 484,
+                width: "16",
+                height: "12",
+                fill: "url(#mcGrassSide)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 480,
+                width: "16",
+                height: "1",
+                fill: "#8FD44F",
+                opacity: "0.6"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: bx, y: 496, width: "16", height: "16", fill: "#8B5E3C" })
+          ] }, `gSt2-${bx}`)),
+          grassDX.map((bx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 480,
+                width: "16",
+                height: "4",
+                fill: "url(#mcGrassTop)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 484,
+                width: "16",
+                height: "12",
+                fill: "url(#mcGrassSide)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 480,
+                width: "16",
+                height: "1",
+                fill: "#8FD44F",
+                opacity: "0.6"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: bx,
+                y: 480,
+                width: "1",
+                height: "16",
+                fill: "#7DC442",
+                opacity: "0.4"
+              }
+            )
+          ] }, `gD-${bx}`)),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "320", y: "496", width: "48", height: "32", fill: "#1A1A1A" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "316", y: "492", width: "56", height: "8", fill: "url(#mcStone)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "316", y: "492", width: "8", height: "40", fill: "url(#mcStone)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "364", y: "492", width: "8", height: "40", fill: "url(#mcStone)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "316",
+              y: "492",
+              width: "56",
+              height: "2",
+              fill: "#909090",
+              opacity: "0.4"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "316",
+              y: "492",
+              width: "2",
+              height: "40",
+              fill: "#909090",
+              opacity: "0.4"
+            }
+          ),
+          expStoneData.map((s2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: s2.x, y: 484, width: "16", height: "12", fill: s2.shade }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: s2.x,
+                y: 484,
+                width: "16",
+                height: "2",
+                fill: "#909090",
+                opacity: "0.45"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: s2.x,
+                y: 484,
+                width: "2",
+                height: "12",
+                fill: "#909090",
+                opacity: "0.45"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: s2.x + 14,
+                y: 484,
+                width: "2",
+                height: "12",
+                fill: "#585858",
+                opacity: "0.3"
+              }
+            )
+          ] }, `es-${s2.x}`)),
+          gravelData.map((g2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: g2.x, y: 496, width: "16", height: "4", fill: g2.shade }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: g2.x + 3,
+                y: 497,
+                width: "3",
+                height: "2",
+                fill: "#777",
+                opacity: "0.5"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: g2.x + 10,
+                y: 498,
+                width: "3",
+                height: "2",
+                fill: "#AAAAAA",
+                opacity: "0.5"
+              }
+            )
+          ] }, `gr-${g2.x}`)),
+          trunk1Y.map((ty) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: 100, y: ty, width: "16", height: "16", fill: "#5C3A1E" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: 116, y: ty, width: "16", height: "16", fill: "#4A2C14" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: 100,
+                y: ty,
+                width: "4",
+                height: "16",
+                fill: "#7A5030",
+                opacity: "0.5"
+              }
+            )
+          ] }, `t1-${ty}`)),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "100", y: "512", width: "32", height: "16", fill: "#5C3A1E" }),
+          leaves1.map((l) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: l.lx,
+                y: l.ly,
+                width: "16",
+                height: "16",
+                fill: l.edge ? "#2E7A1E" : "#3E9E2A"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: l.lx,
+                y: l.ly,
+                width: "16",
+                height: "2",
+                fill: "#4DB832",
+                opacity: "0.4"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: l.lx,
+                y: l.ly,
+                width: "2",
+                height: "16",
+                fill: "#4DB832",
+                opacity: "0.4"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: l.lx + 14,
+                y: l.ly,
+                width: "2",
+                height: "16",
+                fill: "#1E5A12",
+                opacity: "0.3"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: l.lx,
+                y: l.ly + 14,
+                width: "16",
+                height: "2",
+                fill: "#1E5A12",
+                opacity: "0.3"
+              }
+            )
+          ] }, `l1-${l.id}`)),
+          trunk2Y.map((ty) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: 1020, y: ty, width: "16", height: "16", fill: "#5C3A1E" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: 1036, y: ty, width: "16", height: "16", fill: "#4A2C14" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: 1020,
+                y: ty,
+                width: "4",
+                height: "16",
+                fill: "#7A5030",
+                opacity: "0.5"
+              }
+            )
+          ] }, `t2-${ty}`)),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1020", y: "480", width: "32", height: "16", fill: "#5C3A1E" }),
+          leaves2.map((l) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: l.lx,
+                y: l.ly,
+                width: "16",
+                height: "16",
+                fill: l.edge ? "#2E7A1E" : "#3E9E2A"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: l.lx,
+                y: l.ly,
+                width: "16",
+                height: "2",
+                fill: "#4DB832",
+                opacity: "0.4"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: l.lx,
+                y: l.ly,
+                width: "2",
+                height: "16",
+                fill: "#4DB832",
+                opacity: "0.4"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: l.lx + 14,
+                y: l.ly,
+                width: "2",
+                height: "16",
+                fill: "#1E5A12",
+                opacity: "0.3"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: l.lx,
+                y: l.ly + 14,
+                width: "16",
+                height: "2",
+                fill: "#1E5A12",
+                opacity: "0.3"
+              }
+            )
+          ] }, `l2-${l.id}`)),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "50", y: "500", width: "4", height: "12", fill: "#5CBF2A" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "58", y: "502", width: "3", height: "10", fill: "#4CAF20" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "64", y: "499", width: "4", height: "13", fill: "#5CBF2A" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "72", y: "501", width: "3", height: "11", fill: "#6FD030" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "448", y: "484", width: "4", height: "12", fill: "#5CBF2A" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "456", y: "485", width: "3", height: "11", fill: "#4CAF20" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "658", y: "484", width: "4", height: "12", fill: "#5CBF2A" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "666", y: "486", width: "3", height: "10", fill: "#6FD030" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "900", y: "468", width: "4", height: "12", fill: "#5CBF2A" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "908", y: "470", width: "3", height: "10", fill: "#4CAF20" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "916", y: "467", width: "4", height: "13", fill: "#5CBF2A" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1080", y: "468", width: "4", height: "12", fill: "#5CBF2A" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1088", y: "470", width: "3", height: "10", fill: "#6FD030" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1150", y: "468", width: "4", height: "12", fill: "#5CBF2A" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1158", y: "469", width: "3", height: "11", fill: "#4CAF20" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "0", width: "1200", height: "800", fill: "url(#mcVignette)" })
+        ]
+      }
+    );
+  };
+  const renderPumpFunWorld = () => {
+    const chart1Candles = [
+      { o: 0.78, c: 0.62, l: 0.85, h: 0.55, green: true },
+      { o: 0.62, c: 0.48, l: 0.68, h: 0.42, green: true },
+      { o: 0.48, c: 0.55, l: 0.45, h: 0.6, green: false },
+      { o: 0.55, c: 0.38, l: 0.6, h: 0.32, green: true },
+      { o: 0.38, c: 0.28, l: 0.42, h: 0.22, green: true },
+      { o: 0.28, c: 0.34, l: 0.25, h: 0.38, green: false },
+      { o: 0.34, c: 0.2, l: 0.38, h: 0.14, green: true },
+      { o: 0.2, c: 0.12, l: 0.24, h: 0.08, green: true },
+      { o: 0.12, c: 0.18, l: 0.1, h: 0.22, green: false },
+      { o: 0.18, c: 0.08, l: 0.22, h: 0.04, green: true },
+      { o: 0.08, c: 0.14, l: 0.06, h: 0.18, green: false },
+      { o: 0.14, c: 0.05, l: 0.18, h: 0.02, green: true }
+    ];
+    const chart2Candles = [
+      { o: 0.82, c: 0.7, l: 0.88, h: 0.64, green: true },
+      { o: 0.7, c: 0.75, l: 0.66, h: 0.8, green: false },
+      { o: 0.75, c: 0.58, l: 0.8, h: 0.52, green: true },
+      { o: 0.58, c: 0.45, l: 0.62, h: 0.38, green: true },
+      { o: 0.45, c: 0.5, l: 0.42, h: 0.55, green: false },
+      { o: 0.5, c: 0.32, l: 0.54, h: 0.26, green: true },
+      { o: 0.32, c: 0.38, l: 0.28, h: 0.42, green: false },
+      { o: 0.38, c: 0.22, l: 0.42, h: 0.16, green: true },
+      { o: 0.22, c: 0.14, l: 0.26, h: 0.1, green: true },
+      { o: 0.14, c: 0.2, l: 0.1, h: 0.24, green: false },
+      { o: 0.2, c: 0.1, l: 0.24, h: 0.06, green: true },
+      { o: 0.1, c: 0.04, l: 0.14, h: 0.01, green: true }
+    ];
+    const chart3Candles = [
+      { o: 0.75, c: 0.65, l: 0.82, h: 0.58, green: true },
+      { o: 0.65, c: 0.7, l: 0.6, h: 0.76, green: false },
+      { o: 0.7, c: 0.52, l: 0.74, h: 0.46, green: true },
+      { o: 0.52, c: 0.42, l: 0.56, h: 0.36, green: true },
+      { o: 0.42, c: 0.48, l: 0.38, h: 0.52, green: false },
+      { o: 0.48, c: 0.3, l: 0.52, h: 0.24, green: true },
+      { o: 0.3, c: 0.22, l: 0.34, h: 0.16, green: true },
+      { o: 0.22, c: 0.28, l: 0.18, h: 0.32, green: false },
+      { o: 0.28, c: 0.14, l: 0.32, h: 0.08, green: true },
+      { o: 0.14, c: 0.06, l: 0.18, h: 0.02, green: true },
+      { o: 0.06, c: 0.1, l: 0.04, h: 0.14, green: false },
+      { o: 0.1, c: 0.03, l: 0.14, h: 0.01, green: true }
+    ];
+    const chart4Candles = [
+      { o: 0.8, c: 0.68, l: 0.86, h: 0.62, green: true },
+      { o: 0.68, c: 0.58, l: 0.72, h: 0.52, green: true },
+      { o: 0.58, c: 0.64, l: 0.54, h: 0.7, green: false },
+      { o: 0.64, c: 0.44, l: 0.68, h: 0.38, green: true },
+      { o: 0.44, c: 0.35, l: 0.48, h: 0.28, green: true },
+      { o: 0.35, c: 0.42, l: 0.3, h: 0.48, green: false },
+      { o: 0.42, c: 0.25, l: 0.46, h: 0.18, green: true },
+      { o: 0.25, c: 0.16, l: 0.28, h: 0.1, green: true },
+      { o: 0.16, c: 0.22, l: 0.12, h: 0.26, green: false },
+      { o: 0.22, c: 0.1, l: 0.26, h: 0.06, green: true },
+      { o: 0.1, c: 0.04, l: 0.14, h: 0.01, green: true }
+    ];
+    const renderCandles = (candles, W2, H2, padX, padY) => {
+      const chartW = W2 - padX * 2;
+      const chartH = H2 - padY * 2;
+      const step = chartW / candles.length;
+      const bodyW = Math.max(step * 0.55, 4);
+      return candles.map((c2, i) => {
+        const cx = padX + i * step + step / 2;
+        const color = c2.green ? "#26D96B" : "#EF4444";
+        const dimColor = c2.green ? "#1AAD54" : "#CC2222";
+        const openY = padY + c2.o * chartH;
+        const closeY = padY + c2.c * chartH;
+        const lowY = padY + c2.l * chartH;
+        const highY = padY + c2.h * chartH;
+        const bodyTop = Math.min(openY, closeY);
+        const bodyH = Math.max(Math.abs(closeY - openY), 2);
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "g",
+          {
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "line",
+                {
+                  x1: cx,
+                  y1: highY,
+                  x2: cx,
+                  y2: lowY,
+                  stroke: dimColor,
+                  strokeWidth: "1.5"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "rect",
+                {
+                  x: cx - bodyW / 2,
+                  y: bodyTop,
+                  width: bodyW,
+                  height: bodyH,
+                  fill: color,
+                  rx: "1"
+                }
+              ),
+              c2.green && bodyH > 6 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "rect",
+                {
+                  x: cx - bodyW / 2 + 1,
+                  y: bodyTop + 1,
+                  width: bodyW * 0.35,
+                  height: Math.min(bodyH - 2, 8),
+                  fill: "white",
+                  opacity: "0.18",
+                  rx: "1"
+                }
+              )
+            ]
+          },
+          `cd-${Math.round(c2.o * 100)}-${Math.round(c2.c * 100)}-${Math.round(c2.h * 100)}`
+        );
+      });
+    };
+    const renderLineOverlay = (candles, W2, H2, glowId, padX, padY) => {
+      const chartW = W2 - padX * 2;
+      const chartH = H2 - padY * 2;
+      const step = chartW / candles.length;
+      const pts = candles.map((c2, i) => {
+        const cx = padX + i * step + step / 2;
+        const cy = padY + c2.c * chartH;
+        return `${cx},${cy}`;
+      }).join(" ");
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "polyline",
+        {
+          points: pts,
+          fill: "none",
+          stroke: "#00FF88",
+          strokeWidth: "2",
+          strokeLinejoin: "round",
+          filter: `url(#${glowId})`,
+          opacity: "0.85"
+        }
+      );
+    };
+    const C1 = { x: 50, y: 40, w: 260, h: 180 };
+    const C2 = { x: 870, y: 40, w: 260, h: 180 };
+    const C3 = { x: 50, y: 560, w: 260, h: 180 };
+    const C4 = { x: 870, y: 560, w: 260, h: 180 };
+    const PX = 480;
+    const PY = 340;
+    const PW = 240;
+    const PH = 100;
+    const PR = 50;
+    const PCX = 600;
+    const PCY = 390;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "svg",
+      {
+        role: "img",
+        "aria-label": "pump.fun world background",
+        className: "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+        viewBox: "0 0 1200 800",
+        preserveAspectRatio: "xMidYMid slice",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("defs", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "pfBgCenter", cx: "50%", cy: "45%", r: "65%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0D1F12" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "55%", stopColor: "#090F0A" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#050505" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "pfGlow1", cx: "50%", cy: "50%", r: "50%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0A5C20", stopOpacity: "0.16" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#0A5C20", stopOpacity: "0" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "pfGlow2", cx: "50%", cy: "50%", r: "50%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0A3D2A", stopOpacity: "0.13" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#0A3D2A", stopOpacity: "0" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "pfGlow3", cx: "50%", cy: "50%", r: "50%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#2A2A2A", stopOpacity: "0.10" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#2A2A2A", stopOpacity: "0" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "pfPillGreen", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#BAEFD4" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "45%", stopColor: "#7CC8A0" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#4D9E72" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "pfPillWhite", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#FFFFFF" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "55%", stopColor: "#F2F2F2" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#E0E0E0" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "pfPillSheen", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#FFFFFF", stopOpacity: "0.22" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "40%", stopColor: "#FFFFFF", stopOpacity: "0.04" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#000000", stopOpacity: "0.12" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "filter",
+              {
+                id: "pfPillShadow",
+                x: "-30%",
+                y: "-30%",
+                width: "160%",
+                height: "160%",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "feDropShadow",
+                  {
+                    dx: "0",
+                    dy: "10",
+                    stdDeviation: "12",
+                    floodColor: "#000000",
+                    floodOpacity: "0.65"
+                  }
+                )
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "pfPillGlow", x: "-50%", y: "-50%", width: "200%", height: "200%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "14", result: "blur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feFlood", { floodColor: "#7CC8A0", floodOpacity: "0.25", result: "color" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feComposite", { in: "color", in2: "blur", operator: "in", result: "glow" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "glow" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "pfLineGlow1", x: "-5%", y: "-40%", width: "110%", height: "180%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "2", result: "blur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "pfLineGlow2", x: "-5%", y: "-40%", width: "110%", height: "180%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "2", result: "blur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "pfLineGlow3", x: "-5%", y: "-40%", width: "110%", height: "180%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "2", result: "blur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "pfLineGlow4", x: "-5%", y: "-40%", width: "110%", height: "180%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "2", result: "blur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "pfChartBg", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0D1A0F", stopOpacity: "0.85" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#060C07", stopOpacity: "0.90" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "pfVignette", cx: "50%", cy: "50%", r: "72%", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#000000", stopOpacity: "0" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "70%", stopColor: "#000000", stopOpacity: "0.05" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#000000", stopOpacity: "0.60" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("clipPath", { id: "pfClipLeft", children: /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: PX, y: PY - PH, width: PCX - PX, height: PH * 3 }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("clipPath", { id: "pfClipRight", children: /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: PCX, y: PY - PH, width: PW - (PCX - PX), height: PH * 3 }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("clipPath", { id: "pfClipPill", children: /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: PX, y: PY, width: PW, height: PH, rx: PR }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "#080E09" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#pfBgCenter)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "300", cy: "250", rx: "200", ry: "200", fill: "url(#pfGlow1)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "900", cy: "700", rx: "180", ry: "180", fill: "url(#pfGlow2)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1100", cy: "150", rx: "150", ry: "150", fill: "url(#pfGlow3)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { stroke: "#152A18", strokeWidth: "0.5", opacity: "0.20", children: [
+            [80, 160, 240, 320, 400, 480, 560, 640, 720].map((y2) => /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "0", y1: y2, x2: "1200", y2 }, `gh${y2}`)),
+            [100, 200, 300, 400, 500, 600, 700, 800, 900, 1e3, 1100].map(
+              (x2) => /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: x2, y1: "0", x2, y2: "800" }, `gv${x2}`)
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("g", { stroke: "#FFFFFF", strokeWidth: "0.8", opacity: "0.03", children: [
+            20,
+            60,
+            100,
+            140,
+            180,
+            220,
+            260,
+            300,
+            340,
+            380,
+            420,
+            460,
+            500,
+            540,
+            580,
+            620,
+            660,
+            700,
+            740,
+            780
+          ].map((y2) => /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "0", y1: y2, x2: "1200", y2 }, `sl${y2}`)) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: `translate(${C1.x}, ${C1.y})`, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "0",
+                y: "0",
+                width: C1.w,
+                height: C1.h,
+                rx: "5",
+                fill: "url(#pfChartBg)",
+                stroke: "#1A3A20",
+                strokeWidth: "0.8",
+                strokeOpacity: "0.5"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("g", { stroke: "#1A3A20", strokeWidth: "0.5", opacity: "0.4", children: [0.25, 0.5, 0.75].map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "line",
+              {
+                x1: "10",
+                y1: 10 + f * (C1.h - 20),
+                x2: C1.w - 8,
+                y2: 10 + f * (C1.h - 20)
+              },
+              f
+            )) }),
+            renderCandles(chart1Candles, C1.w, C1.h, 10, 10),
+            renderLineOverlay(chart1Candles, C1.w, C1.h, "pfLineGlow1", 10, 10),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "0",
+                y: "0",
+                width: C1.w,
+                height: "2",
+                rx: "1",
+                fill: "#26D96B",
+                opacity: "0.55"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: `translate(${C2.x}, ${C2.y})`, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "0",
+                y: "0",
+                width: C2.w,
+                height: C2.h,
+                rx: "5",
+                fill: "url(#pfChartBg)",
+                stroke: "#1A3A20",
+                strokeWidth: "0.8",
+                strokeOpacity: "0.5"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("g", { stroke: "#1A3A20", strokeWidth: "0.5", opacity: "0.4", children: [0.25, 0.5, 0.75].map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "line",
+              {
+                x1: "10",
+                y1: 10 + f * (C2.h - 20),
+                x2: C2.w - 8,
+                y2: 10 + f * (C2.h - 20)
+              },
+              f
+            )) }),
+            renderCandles(chart2Candles, C2.w, C2.h, 10, 10),
+            renderLineOverlay(chart2Candles, C2.w, C2.h, "pfLineGlow2", 10, 10),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "0",
+                y: "0",
+                width: C2.w,
+                height: "2",
+                rx: "1",
+                fill: "#26D96B",
+                opacity: "0.55"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: `translate(${C3.x}, ${C3.y})`, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "0",
+                y: "0",
+                width: C3.w,
+                height: C3.h,
+                rx: "5",
+                fill: "url(#pfChartBg)",
+                stroke: "#1A3A20",
+                strokeWidth: "0.8",
+                strokeOpacity: "0.5"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("g", { stroke: "#1A3A20", strokeWidth: "0.5", opacity: "0.4", children: [0.25, 0.5, 0.75].map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "line",
+              {
+                x1: "10",
+                y1: 10 + f * (C3.h - 20),
+                x2: C3.w - 8,
+                y2: 10 + f * (C3.h - 20)
+              },
+              f
+            )) }),
+            renderCandles(chart3Candles, C3.w, C3.h, 10, 10),
+            renderLineOverlay(chart3Candles, C3.w, C3.h, "pfLineGlow3", 10, 10),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "0",
+                y: "0",
+                width: C3.w,
+                height: "2",
+                rx: "1",
+                fill: "#26D96B",
+                opacity: "0.55"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: `translate(${C4.x}, ${C4.y})`, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "0",
+                y: "0",
+                width: C4.w,
+                height: C4.h,
+                rx: "5",
+                fill: "url(#pfChartBg)",
+                stroke: "#1A3A20",
+                strokeWidth: "0.8",
+                strokeOpacity: "0.5"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("g", { stroke: "#1A3A20", strokeWidth: "0.5", opacity: "0.4", children: [0.25, 0.5, 0.75].map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "line",
+              {
+                x1: "10",
+                y1: 10 + f * (C4.h - 20),
+                x2: C4.w - 8,
+                y2: 10 + f * (C4.h - 20)
+              },
+              f
+            )) }),
+            renderCandles(chart4Candles, C4.w, C4.h, 10, 10),
+            renderLineOverlay(chart4Candles, C4.w, C4.h, "pfLineGlow4", 10, 10),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "0",
+                y: "0",
+                width: C4.w,
+                height: "2",
+                rx: "1",
+                fill: "#26D96B",
+                opacity: "0.55"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("g", { filter: "url(#pfPillGlow)", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: PX,
+              y: PY,
+              width: PW,
+              height: PH,
+              rx: PR,
+              fill: "#7CC8A0",
+              opacity: "0.35",
+              transform: `rotate(-30 ${PCX} ${PCY})`
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("g", { filter: "url(#pfPillShadow)", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: PX,
+              y: PY,
+              width: PW,
+              height: PH,
+              rx: PR,
+              fill: "#1A2E24",
+              transform: `rotate(-30 ${PCX} ${PCY})`
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: `rotate(-30 ${PCX} ${PCY})`, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: PX,
+                y: PY,
+                width: PW,
+                height: PH,
+                rx: PR,
+                fill: "url(#pfPillGreen)",
+                clipPath: "url(#pfClipLeft)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: PX,
+                y: PY,
+                width: PW,
+                height: PH,
+                rx: PR,
+                fill: "url(#pfPillWhite)",
+                clipPath: "url(#pfClipRight)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: PX,
+                y: PY,
+                width: PW,
+                height: PH,
+                rx: PR,
+                fill: "url(#pfPillSheen)",
+                clipPath: "url(#pfClipPill)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: PCX - 1.5,
+                y: PY,
+                width: 3,
+                height: PH,
+                fill: "#A0A0A0",
+                opacity: 0.7
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "ellipse",
+              {
+                cx: PCX - 55,
+                cy: PY + 22,
+                rx: "32",
+                ry: "7",
+                fill: "white",
+                opacity: "0.30",
+                clipPath: "url(#pfClipLeft)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "ellipse",
+              {
+                cx: PCX - 68,
+                cy: PY + 36,
+                rx: "16",
+                ry: "4",
+                fill: "white",
+                opacity: "0.20",
+                clipPath: "url(#pfClipLeft)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "ellipse",
+              {
+                cx: PCX - 78,
+                cy: PY + 50,
+                rx: "8",
+                ry: "2.5",
+                fill: "white",
+                opacity: "0.14",
+                clipPath: "url(#pfClipLeft)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "ellipse",
+              {
+                cx: PCX + 50,
+                cy: PY + 20,
+                rx: "26",
+                ry: "6",
+                fill: "white",
+                opacity: "0.14",
+                clipPath: "url(#pfClipRight)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: PX,
+                y: PY,
+                width: PW,
+                height: PH,
+                rx: PR,
+                fill: "none",
+                stroke: "#2D4A3E",
+                strokeWidth: "5.5"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#pfVignette)" })
+        ]
+      }
+    );
+  };
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -46280,6 +47848,10 @@ const BackgroundRenderer = ({ world }) => {
         return renderMatrixWorld();
       case "ocean":
         return renderOceanWorld();
+      case "minecraft":
+        return renderMinecraftWorld();
+      case "pumpfun":
+        return renderPumpFunWorld();
       default:
         return renderOriginalWorld();
     }
@@ -54390,7 +55962,9 @@ const WORLDS = [
   { id: "windows", name: "Windows XP" },
   { id: "bitcoin", name: "Bitcoin" },
   { id: "matrix", name: "Matrix" },
-  { id: "ocean", name: "Ocean" }
+  { id: "ocean", name: "Ocean" },
+  { id: "minecraft", name: "Minecraft" },
+  { id: "pumpfun", name: "pump.fun" }
 ];
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
 const START_BUTTON_CLASSES = {
@@ -54409,7 +55983,9 @@ const START_BUTTON_CLASSES = {
   windows: "start-game-button-windows",
   bitcoin: "start-game-button-bitcoin",
   matrix: "start-game-button-matrix",
-  ocean: "start-game-button-ocean"
+  ocean: "start-game-button-ocean",
+  minecraft: "start-game-button-minecraft",
+  pumpfun: "start-game-button-pumpfun"
 };
 const StartScreen = ({
   onStartGame,
@@ -55011,7 +56587,9 @@ const VALID_WORLDS = [
   "windows",
   "bitcoin",
   "matrix",
-  "ocean"
+  "ocean",
+  "minecraft",
+  "pumpfun"
 ];
 const DEFAULT_PLAYER_DATA = {
   level: 1,
