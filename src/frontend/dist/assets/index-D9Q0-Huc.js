@@ -41298,273 +41298,932 @@ const BackgroundRenderer = ({ world }) => {
       ]
     }
   );
-  const renderInternetcomputerWorld = () => {
-    const GCX = 960;
-    const GCY = 540;
-    const GR = 520;
-    const S2 = 5;
-    const GAP = 8;
-    const landRects = [
-      // North America
-      [-140, 72, -60, 50],
-      [-130, 50, -60, 24],
-      [-120, 24, -80, 10],
-      [-100, 28, -83, 18],
-      [-84, 18, -75, 8],
-      // Greenland
-      [-58, 84, -18, 60],
-      // South America
-      [-80, 12, -34, -10],
-      [-75, -10, -34, -35],
-      [-73, -35, -48, -56],
-      // Europe
-      [-10, 71, 30, 55],
-      [-10, 55, 35, 36],
-      [0, 44, 40, 36],
-      [20, 36, 30, 33],
-      // Africa
-      [-18, 38, 52, 15],
-      [-18, 15, 52, -5],
-      [-20, -5, 50, -35],
-      // Asia (main)
-      [26, 72, 180, 50],
-      [40, 50, 180, 20],
-      [60, 20, 145, 0],
-      // Indian subcontinent
-      [65, 35, 92, 5],
-      // Southeast Asia
-      [95, 28, 115, 5],
-      [100, 5, 120, -8],
-      // Japan
-      [130, 45, 145, 31],
-      // Indonesia
-      [95, -2, 145, -10],
-      // Australia
-      [113, -15, 154, -40],
-      // New Zealand
-      [166, -34, 178, -47],
-      // UK/Ireland
-      [-10, 61, 2, 50],
-      // Scandinavia
-      [4, 72, 32, 56],
-      // Alaska
-      [-168, 72, -140, 54]
-    ];
-    function isOnLand(lon, lat) {
-      return landRects.some(
-        ([lo, laMax, hi, laMin]) => lon >= lo && lon <= hi && lat <= laMax && lat >= laMin
-      );
-    }
-    const lonCenter = 10;
-    const landCols = [
-      "#4fc3f7",
-      // light sky blue
-      "#81d4fa",
-      // pale blue
-      "#e0f7ff",
-      // near-white blue
-      "#29b6f6",
-      // electric blue
-      "#b3e5fc",
-      // very light blue
-      "#0288d1"
-      // medium blue
-    ];
-    const dots = [];
-    for (let sy = 0; sy < 1080; sy += GAP) {
-      for (let sx = 0; sx < 1920; sx += GAP) {
-        const cx = sx + S2 / 2;
-        const cy = sy + S2 / 2;
-        const dx = cx - GCX;
-        const dy = cy - GCY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist <= GR) {
-          const latRad = Math.asin(Math.max(-1, Math.min(1, -dy / GR)));
-          const cosLat = Math.cos(latRad);
-          if (cosLat === 0) continue;
-          const sinLonRel = dx / (GR * cosLat);
-          if (sinLonRel < -1 || sinLonRel > 1) continue;
-          const lonRad = Math.asin(sinLonRel);
-          const lat = latRad * 180 / Math.PI;
-          const lon = lonCenter + lonRad * 180 / Math.PI;
-          const edgeFactor = 1 - dist / GR;
-          if (isOnLand(lon, lat)) {
-            const opacity = 0.4 + edgeFactor * 0.58;
-            const dotSize = S2 * (0.5 + edgeFactor * 0.5);
-            const colorIdx = Math.abs(Math.floor(dx / 22) + Math.floor(dy / 22)) % landCols.length;
-            dots.push({
-              x: cx,
-              y: cy,
-              opacity,
-              size: dotSize,
-              col: landCols[colorIdx]
-            });
-          } else {
-            const opacity = 0.06 + edgeFactor * 0.1;
-            const dotSize = S2 * (0.38 + edgeFactor * 0.3);
-            dots.push({ x: cx, y: cy, opacity, size: dotSize, col: "#1a3a5c" });
-          }
-        } else {
-          const spaceFade = Math.max(0, 1 - (dist - GR) / 400);
-          const opacity = spaceFade * 0.055;
-          if (opacity < 8e-3) continue;
-          dots.push({ x: cx, y: cy, opacity, size: S2 * 0.55, col: "#0d1f3c" });
-        }
-      }
-    }
-    const INF = "M 960,540 C 960,452 1022,408 1085,408 C 1168,408 1220,468 1220,540 C 1220,612 1168,672 1085,672 C 1022,672 960,628 960,540 C 960,452 898,408 835,408 C 752,408 700,468 700,540 C 700,612 752,672 835,672 C 898,672 960,628 960,540 Z";
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "svg",
-      {
-        role: "img",
-        "aria-label": "Internet Computer world background",
-        className: "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
-        viewBox: "0 0 1920 1080",
-        preserveAspectRatio: "xMidYMid slice",
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("defs", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "icpBg2", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#010408" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#000000" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "linearGradient",
-              {
-                id: "icpGrad2",
-                gradientUnits: "userSpaceOnUse",
-                x1: "700",
-                y1: "540",
-                x2: "1220",
-                y2: "540",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#29b6f6" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "35%", stopColor: "#81d4fa" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "#ffffff" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "65%", stopColor: "#81d4fa" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#29b6f6" })
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "filter",
-              {
-                id: "icpLogoGlowOuter",
-                x: "-50%",
-                y: "-150%",
-                width: "200%",
-                height: "400%",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "18", result: "blur" })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "filter",
-              {
-                id: "icpLogoGlow2",
-                x: "-20%",
-                y: "-60%",
-                width: "140%",
-                height: "220%",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "3", result: "blur" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
-                  ] })
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "icpSphereShade", cx: "50%", cy: "50%", r: "50%", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#000000", stopOpacity: "0" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "70%", stopColor: "#000000", stopOpacity: "0.04" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#000000", stopOpacity: "0.55" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "icpGlobeGlow", cx: "50%", cy: "50%", r: "50%", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0a2a6e", stopOpacity: "0.18" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "55%", stopColor: "#021030", stopOpacity: "0.08" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#000000", stopOpacity: "0" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "filter",
-              {
-                id: "icpLogoAmbient",
-                x: "-100%",
-                y: "-250%",
-                width: "300%",
-                height: "600%",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "32", result: "blur" })
-              }
-            )
+  const renderWindowsWorld = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      role: "img",
+      "aria-label": "Windows XP world background",
+      className: "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+      viewBox: "0 0 1200 800",
+      preserveAspectRatio: "xMidYMid slice",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("defs", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpSky", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#1a6fb5" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "45%", stopColor: "#3a8fd4" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "80%", stopColor: "#6ab8e8" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#87ceeb" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1920", height: "1080", fill: "url(#icpBg2)" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: GCX, cy: GCY, r: GR + 80, fill: "url(#icpGlobeGlow)" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("g", { children: dots.map((d2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpHillMain", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#5dc43a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "30%", stopColor: "#3da832" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "70%", stopColor: "#2e8c20" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#1d6614" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpHillFar", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#4ab82e" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#2a7a18" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpHillLight", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#78d854" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#4aac30" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpTaskbar", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#3a6abf" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "8%", stopColor: "#2c5db5" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "#1f4e9c" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "92%", stopColor: "#193f88" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#152f6e" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpTaskbarHL", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#6699dd", stopOpacity: "0.9" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#3366bb", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpStartBtn", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#66cc44" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "40%", stopColor: "#44aa22" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "60%", stopColor: "#338811" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#226600" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpStartHL", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#aaeebb", stopOpacity: "0.7" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#44aa22", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpTray", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#12357a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "#1a4590" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#1e4ea0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "wxpCloud1", cx: "40%", cy: "30%", r: "70%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#ffffff" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "60%", stopColor: "#f0f6ff" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#d8eeff", stopOpacity: "0.3" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "wxpCloud2", cx: "50%", cy: "35%", r: "65%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#ffffff" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "55%", stopColor: "#edf4ff" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#cce4ff", stopOpacity: "0.25" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpFolder", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#ffd44f" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "40%", stopColor: "#f0b800" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#d49000" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpScreen", x1: "0%", y1: "0%", x2: "100%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#6699cc" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#335588" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("filter", { id: "wxpTextShadow", x: "-20%", y: "-30%", width: "140%", height: "160%", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "feDropShadow",
+            {
+              dx: "1",
+              dy: "1",
+              stdDeviation: "1.5",
+              floodColor: "#000000",
+              floodOpacity: "0.85"
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "wxpIE", cx: "30%", cy: "30%", r: "70%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#66bbff" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#0055cc" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpBin", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#b8d8ee" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#7aaac8" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "wxpNet", x1: "0%", y1: "0%", x2: "100%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#ccddff" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#8899dd" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "wxpHillShadow", cx: "50%", cy: "80%", r: "60%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#000000", stopOpacity: "0.12" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#000000", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "wxpHillTopLight", cx: "50%", cy: "0%", r: "80%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#b8ff88", stopOpacity: "0.35" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#b8ff88", stopOpacity: "0" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "760", fill: "url(#wxpSky)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.97", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "240", cy: "110", rx: "90", ry: "55", fill: "url(#wxpCloud1)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "180", cy: "128", rx: "62", ry: "42", fill: "url(#wxpCloud1)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "295", cy: "130", rx: "70", ry: "40", fill: "url(#wxpCloud1)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "340", cy: "120", rx: "52", ry: "35", fill: "url(#wxpCloud1)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "145", cy: "138", rx: "40", ry: "28", fill: "url(#wxpCloud2)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "370", cy: "132", rx: "38", ry: "25", fill: "url(#wxpCloud2)" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.93", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "850", cy: "85", rx: "80", ry: "48", fill: "url(#wxpCloud1)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "795", cy: "102", rx: "55", ry: "36", fill: "url(#wxpCloud1)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "900", cy: "104", rx: "62", ry: "35", fill: "url(#wxpCloud1)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "940", cy: "97", rx: "45", ry: "30", fill: "url(#wxpCloud2)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "768", cy: "112", rx: "36", ry: "24", fill: "url(#wxpCloud2)" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.88", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1100", cy: "140", rx: "65", ry: "38", fill: "url(#wxpCloud1)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1055", cy: "156", rx: "42", ry: "28", fill: "url(#wxpCloud1)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1145", cy: "154", rx: "48", ry: "30", fill: "url(#wxpCloud2)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1175", cy: "148", rx: "30", ry: "20", fill: "url(#wxpCloud2)" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.82", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "490", cy: "65", rx: "55", ry: "30", fill: "url(#wxpCloud2)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "450", cy: "78", rx: "38", ry: "22", fill: "url(#wxpCloud2)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "535", cy: "76", rx: "42", ry: "25", fill: "url(#wxpCloud2)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "568", cy: "71", rx: "30", ry: "18", fill: "url(#wxpCloud2)" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M0,600 Q180,490 380,520 Q560,548 760,510 Q940,475 1100,505 Q1160,515 1200,510 L1200,760 L0,760 Z",
+            fill: "url(#wxpHillFar)",
+            opacity: "0.6"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M-20,760 Q60,650 200,595 Q380,530 550,510 Q680,498 780,510 Q900,526 1000,570 Q1100,610 1220,700 L1220,760 Z",
+            fill: "url(#wxpHillMain)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M-20,760 Q80,680 200,660 Q340,638 440,660 Q500,672 560,690 L560,760 Z",
+            fill: "url(#wxpHillLight)",
+            opacity: "0.85"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M700,760 Q820,700 950,680 Q1060,666 1150,690 Q1185,700 1220,720 L1220,760 Z",
+            fill: "url(#wxpHillLight)",
+            opacity: "0.8"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "600", cy: "640", rx: "600", ry: "180", fill: "url(#wxpHillShadow)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M150,600 Q380,515 600,508 Q820,503 1000,558 Q1060,576 1100,600 Q900,540 680,530 Q480,522 300,565 Z",
+            fill: "url(#wxpHillTopLight)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(40, 48)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
             "rect",
             {
-              x: d2.x - d2.size / 2,
-              y: d2.y - d2.size / 2,
-              width: d2.size,
-              height: d2.size,
-              fill: d2.col,
-              opacity: d2.opacity
-            },
-            `icp-${Math.round(d2.x * 10)}-${Math.round(d2.y * 10)}`
-          )) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: GCX, cy: GCY, r: GR, fill: "url(#icpSphereShade)" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "path",
-            {
-              d: INF,
-              fill: "none",
-              stroke: "#001133",
-              strokeWidth: "60",
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              opacity: "0.85",
-              filter: "url(#icpLogoGlowOuter)"
+              x: "2",
+              y: "4",
+              width: "42",
+              height: "30",
+              rx: "2",
+              fill: "#e8e4dc",
+              stroke: "#a0a0a0",
+              strokeWidth: "1.2"
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "path",
+            "rect",
             {
-              d: INF,
-              fill: "none",
-              stroke: "url(#icpGrad2)",
-              strokeWidth: "44",
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              opacity: "0.18",
-              filter: "url(#icpLogoAmbient)"
+              x: "6",
+              y: "7",
+              width: "34",
+              height: "22",
+              rx: "1",
+              fill: "url(#wxpScreen)"
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "path",
+            "rect",
             {
-              d: INF,
-              fill: "none",
-              stroke: "url(#icpGrad2)",
-              strokeWidth: "24",
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              opacity: "1",
-              filter: "url(#icpLogoGlow2)"
+              x: "7",
+              y: "8",
+              width: "12",
+              height: "4",
+              rx: "1",
+              fill: "#ffffff",
+              opacity: "0.3"
             }
           ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "17", y: "33", width: "12", height: "5", rx: "1", fill: "#c8c4bc" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "path",
+            "rect",
             {
-              d: INF,
-              fill: "none",
-              stroke: "#ffffff",
-              strokeWidth: "5",
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              opacity: "0.30"
+              x: "12",
+              y: "37",
+              width: "22",
+              height: "5",
+              rx: "2",
+              fill: "#b8b4ac",
+              stroke: "#909090",
+              strokeWidth: "0.8"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "38", cy: "29", r: "2", fill: "#44cc44" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "text",
+            {
+              x: "23",
+              y: "58",
+              textAnchor: "middle",
+              fontFamily: "Tahoma, sans-serif",
+              fontSize: "9",
+              fill: "#ffffff",
+              filter: "url(#wxpTextShadow)",
+              fontWeight: "bold",
+              children: "My Computer"
             }
           )
-        ]
-      }
-    );
-  };
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(40, 130)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M2,8 Q2,4 6,4 L16,4 Q18,4 20,6 L22,8 L44,8 Q46,8 46,10 L46,38 Q46,40 44,40 L4,40 Q2,40 2,38 Z",
+              fill: "url(#wxpFolder)",
+              stroke: "#c88800",
+              strokeWidth: "1"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "2",
+              y: "12",
+              width: "44",
+              height: "28",
+              rx: "1.5",
+              fill: "#fcc340",
+              stroke: "#c88800",
+              strokeWidth: "1"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M2,12 L46,12",
+              stroke: "#ffe480",
+              strokeWidth: "1.5",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "24", cy: "22", rx: "16", ry: "6", fill: "#ffffff", opacity: "0.2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "text",
+            {
+              x: "23",
+              y: "56",
+              textAnchor: "middle",
+              fontFamily: "Tahoma, sans-serif",
+              fontSize: "9",
+              fill: "#ffffff",
+              filter: "url(#wxpTextShadow)",
+              fontWeight: "bold",
+              children: "My Documents"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(40, 218)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "circle",
+            {
+              cx: "23",
+              cy: "23",
+              r: "22",
+              fill: "url(#wxpIE)",
+              stroke: "#003399",
+              strokeWidth: "1"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "circle",
+            {
+              cx: "23",
+              cy: "23",
+              r: "22",
+              fill: "none",
+              stroke: "#88ccff",
+              strokeWidth: "1",
+              opacity: "0.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M14,22 Q14,12 23,12 Q32,12 32,20 L18,20 Q18,28 25,28 Q29,28 31,26",
+              fill: "none",
+              stroke: "#ffffff",
+              strokeWidth: "3.5",
+              strokeLinecap: "round"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "18",
+              y1: "20",
+              x2: "32",
+              y2: "20",
+              stroke: "#ffffff",
+              strokeWidth: "3.5",
+              strokeLinecap: "round"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M5,32 Q12,42 30,36 Q44,30 42,18",
+              fill: "none",
+              stroke: "#ffcc00",
+              strokeWidth: "2.5",
+              strokeLinecap: "round",
+              opacity: "0.9"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "16",
+              cy: "15",
+              rx: "6",
+              ry: "4",
+              fill: "#ffffff",
+              opacity: "0.3",
+              transform: "rotate(-30 16 15)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "text",
+            {
+              x: "23",
+              y: "58",
+              textAnchor: "middle",
+              fontFamily: "Tahoma, sans-serif",
+              fontSize: "9",
+              fill: "#ffffff",
+              filter: "url(#wxpTextShadow)",
+              fontWeight: "bold",
+              children: "Internet Explorer"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(40, 308)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M10,14 L14,42 Q14,44 16,44 L30,44 Q32,44 32,42 L36,14 Z",
+              fill: "url(#wxpBin)",
+              stroke: "#6699bb",
+              strokeWidth: "1"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "7",
+              y: "10",
+              width: "32",
+              height: "5",
+              rx: "2",
+              fill: "#c8ddf0",
+              stroke: "#6699bb",
+              strokeWidth: "1"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M18,10 Q18,6 23,6 Q28,6 28,10",
+              fill: "none",
+              stroke: "#7aabcc",
+              strokeWidth: "2",
+              strokeLinecap: "round"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "18",
+              y1: "18",
+              x2: "16",
+              y2: "40",
+              stroke: "#aaccdd",
+              strokeWidth: "1",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "23",
+              y1: "17",
+              x2: "23",
+              y2: "41",
+              stroke: "#aaccdd",
+              strokeWidth: "1",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "28",
+              y1: "18",
+              x2: "30",
+              y2: "40",
+              stroke: "#aaccdd",
+              strokeWidth: "1",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "23",
+              cy: "12",
+              rx: "10",
+              ry: "2.5",
+              fill: "#ffffff",
+              opacity: "0.4"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "text",
+            {
+              x: "23",
+              y: "60",
+              textAnchor: "middle",
+              fontFamily: "Tahoma, sans-serif",
+              fontSize: "9",
+              fill: "#ffffff",
+              filter: "url(#wxpTextShadow)",
+              fontWeight: "bold",
+              children: "Recycle Bin"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(40, 400)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "0",
+              y: "10",
+              width: "22",
+              height: "16",
+              rx: "1.5",
+              fill: "url(#wxpNet)",
+              stroke: "#6677cc",
+              strokeWidth: "1"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "2", y: "12", width: "18", height: "10", rx: "1", fill: "#335599" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "8", y: "26", width: "6", height: "3", fill: "#8899cc" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "5", y: "28", width: "12", height: "3", rx: "1", fill: "#7788bb" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "24",
+              y: "8",
+              width: "22",
+              height: "16",
+              rx: "1.5",
+              fill: "url(#wxpNet)",
+              stroke: "#6677cc",
+              strokeWidth: "1"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "26", y: "10", width: "18", height: "10", rx: "1", fill: "#335599" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "32", y: "24", width: "6", height: "3", fill: "#8899cc" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "29", y: "26", width: "12", height: "3", rx: "1", fill: "#7788bb" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M22,18 Q28,30 28,18",
+              fill: "none",
+              stroke: "#ffcc44",
+              strokeWidth: "2",
+              strokeLinecap: "round"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "circle",
+            {
+              cx: "35",
+              cy: "15",
+              r: "4",
+              fill: "none",
+              stroke: "#aabbff",
+              strokeWidth: "1",
+              opacity: "0.8"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "35",
+              y1: "11",
+              x2: "35",
+              y2: "19",
+              stroke: "#aabbff",
+              strokeWidth: "0.8",
+              opacity: "0.8"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "31",
+              y1: "15",
+              x2: "39",
+              y2: "15",
+              stroke: "#aabbff",
+              strokeWidth: "0.8",
+              opacity: "0.8"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "text",
+            {
+              x: "23",
+              y: "55",
+              textAnchor: "middle",
+              fontFamily: "Tahoma, sans-serif",
+              fontSize: "9",
+              fill: "#ffffff",
+              filter: "url(#wxpTextShadow)",
+              fontWeight: "bold",
+              children: "My Network"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "text",
+            {
+              x: "23",
+              y: "65",
+              textAnchor: "middle",
+              fontFamily: "Tahoma, sans-serif",
+              fontSize: "9",
+              fill: "#ffffff",
+              filter: "url(#wxpTextShadow)",
+              fontWeight: "bold",
+              children: "Places"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "760", width: "1200", height: "40", fill: "url(#wxpTaskbar)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "760",
+            width: "1200",
+            height: "8",
+            fill: "url(#wxpTaskbarHL)",
+            opacity: "0.6"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "line",
+          {
+            x1: "0",
+            y1: "760",
+            x2: "1200",
+            y2: "760",
+            stroke: "#5588dd",
+            strokeWidth: "1",
+            opacity: "0.8"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M0,762 L0,798 L110,798 Q118,798 118,790 L118,770 Q118,762 110,762 Z",
+            fill: "url(#wxpStartBtn)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M0,762 L0,780 L118,780 L118,770 Q118,762 110,762 Z",
+            fill: "url(#wxpStartHL)",
+            opacity: "0.45"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M0,762 L0,798 L110,798 Q118,798 118,790 L118,770 Q118,762 110,762 Z",
+            fill: "none",
+            stroke: "#2a6600",
+            strokeWidth: "1.5",
+            opacity: "0.7"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M1,763 L1,797 L108,797 Q116,797 116,789 L116,771 Q116,763 108,763 Z",
+            fill: "none",
+            stroke: "#88ee44",
+            strokeWidth: "1",
+            opacity: "0.3"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M12,770 L22,768 L22,779 L12,780 Z",
+            fill: "#ff3333",
+            opacity: "0.95"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M24,768 L34,766 L34,777 L24,778 Z",
+            fill: "#33cc33",
+            opacity: "0.95"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M12,781 L22,780 L22,791 L12,793 Z",
+            fill: "#3366ff",
+            opacity: "0.95"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M24,779 L34,778 L34,789 L24,790 Z",
+            fill: "#ffcc00",
+            opacity: "0.95"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M11,766 L35,764 L35,793 L11,795 Z",
+            fill: "none",
+            stroke: "#ffffff",
+            strokeWidth: "0.5",
+            opacity: "0.25"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "text",
+          {
+            x: "42",
+            y: "785",
+            fontFamily: "Tahoma, Franklin Gothic Medium, sans-serif",
+            fontSize: "16",
+            fontWeight: "bold",
+            fill: "#ffffff",
+            letterSpacing: "1",
+            style: { textShadow: "1px 1px 2px rgba(0,0,0,0.6)" },
+            children: "start"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "text",
+          {
+            x: "43",
+            y: "786",
+            fontFamily: "Tahoma, Franklin Gothic Medium, sans-serif",
+            fontSize: "16",
+            fontWeight: "bold",
+            fill: "#000000",
+            letterSpacing: "1",
+            opacity: "0.35",
+            children: "start"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "text",
+          {
+            x: "42",
+            y: "785",
+            fontFamily: "Tahoma, Franklin Gothic Medium, sans-serif",
+            fontSize: "16",
+            fontWeight: "bold",
+            fill: "#ffffff",
+            letterSpacing: "1",
+            children: "start"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "line",
+          {
+            x1: "122",
+            y1: "763",
+            x2: "122",
+            y2: "797",
+            stroke: "#4477cc",
+            strokeWidth: "1",
+            opacity: "0.6"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "line",
+          {
+            x1: "123",
+            y1: "763",
+            x2: "123",
+            y2: "797",
+            stroke: "#224499",
+            strokeWidth: "1",
+            opacity: "0.4"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M1010,763 Q1008,763 1008,766 L1008,796 Q1008,797 1010,797 L1200,797 L1200,763 Z",
+            fill: "url(#wxpTray)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M1010,763 Q1008,763 1008,766 L1008,796 Q1008,797 1010,797 L1200,797 L1200,763 Z",
+            fill: "none",
+            stroke: "#1a3d8f",
+            strokeWidth: "1",
+            opacity: "0.6"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "line",
+          {
+            x1: "1011",
+            y1: "763",
+            x2: "1011",
+            y2: "797",
+            stroke: "#3366aa",
+            strokeWidth: "1",
+            opacity: "0.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "line",
+          {
+            x1: "1012",
+            y1: "763",
+            x2: "1012",
+            y2: "797",
+            stroke: "#5588cc",
+            strokeWidth: "1",
+            opacity: "0.3"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(1025, 772)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "0",
+              y: "2",
+              width: "8",
+              height: "10",
+              rx: "1",
+              fill: "#c0d8f8",
+              opacity: "0.9"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M8,0 L16,6 L16,8 L8,14 Z", fill: "#c0d8f8", opacity: "0.9" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M18,4 Q22,7 18,10",
+              fill: "none",
+              stroke: "#c0d8f8",
+              strokeWidth: "1.5",
+              strokeLinecap: "round",
+              opacity: "0.8"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M20,1 Q26,7 20,13",
+              fill: "none",
+              stroke: "#c0d8f8",
+              strokeWidth: "1.5",
+              strokeLinecap: "round",
+              opacity: "0.5"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(1070, 773)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "0",
+              y: "0",
+              width: "12",
+              height: "9",
+              rx: "1",
+              fill: "none",
+              stroke: "#c0d8f8",
+              strokeWidth: "1.2",
+              opacity: "0.9"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "5",
+              y1: "9",
+              x2: "7",
+              y2: "12",
+              stroke: "#c0d8f8",
+              strokeWidth: "1.2",
+              opacity: "0.8"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "3",
+              y: "12",
+              width: "6",
+              height: "2",
+              rx: "0.5",
+              fill: "#c0d8f8",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "10",
+              y: "3",
+              width: "12",
+              height: "9",
+              rx: "1",
+              fill: "none",
+              stroke: "#c0d8f8",
+              strokeWidth: "1.2",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "15",
+              y1: "12",
+              x2: "17",
+              y2: "15",
+              stroke: "#c0d8f8",
+              strokeWidth: "1.2",
+              opacity: "0.6"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "13",
+              y: "15",
+              width: "6",
+              height: "2",
+              rx: "0.5",
+              fill: "#c0d8f8",
+              opacity: "0.5"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "line",
+          {
+            x1: "1112",
+            y1: "768",
+            x2: "1112",
+            y2: "792",
+            stroke: "#3366aa",
+            strokeWidth: "1",
+            opacity: "0.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "text",
+          {
+            x: "1156",
+            y: "782",
+            textAnchor: "middle",
+            fontFamily: "Tahoma, sans-serif",
+            fontSize: "12",
+            fill: "#ffffff",
+            fontWeight: "bold",
+            opacity: "0.95",
+            children: "3:14 PM"
+          }
+        )
+      ]
+    }
+  );
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -41589,8 +42248,8 @@ const BackgroundRenderer = ({ world }) => {
         return renderHalloweenWorld();
       case "tokyo":
         return renderTokyoWorld();
-      case "internetcomputer":
-        return renderInternetcomputerWorld();
+      case "windows":
+        return renderWindowsWorld();
       default:
         return renderOriginalWorld();
     }
@@ -48779,7 +49438,7 @@ const WORLDS = [
   { id: "zombietown", name: "ZombieTown" },
   { id: "halloween", name: "Halloween" },
   { id: "tokyo", name: "Tokyo" },
-  { id: "internetcomputer", name: "Internet Computer" }
+  { id: "windows", name: "Windows XP" }
 ];
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
 const START_BUTTON_CLASSES = {
@@ -48795,7 +49454,7 @@ const START_BUTTON_CLASSES = {
   zombietown: "start-game-button-zombietown",
   halloween: "start-game-button-halloween",
   tokyo: "start-game-button-tokyo",
-  internetcomputer: "start-game-button-internetcomputer"
+  windows: "start-game-button-windows"
 };
 const StartScreen = ({
   onStartGame,
@@ -49394,7 +50053,7 @@ const VALID_WORLDS = [
   "zombietown",
   "halloween",
   "tokyo",
-  "internetcomputer"
+  "windows"
 ];
 const DEFAULT_PLAYER_DATA = {
   level: 1,

@@ -532,28 +532,23 @@ body {
   border: 4px solid #cc2020 !important;
 }
 
-.start-game-button-internetcomputer {
-  background: linear-gradient(135deg, #000000 0%, #030d1f 50%, #001433 100%);
-  color: #00d2ff !important;
-  text-shadow: 0 0 10px rgba(0, 210, 255, 0.9), 0 0 22px rgba(0, 180, 255, 0.6),
-    0 0 38px rgba(0, 120, 255, 0.3);
-  box-shadow: 0 8px 24px rgba(0, 100, 255, 0.4), 0 4px 12px rgba(0, 0, 0, 0.8),
-    0 0 0 2px rgba(0, 210, 255, 0.4), inset 0 0 18px rgba(0, 80, 200, 0.1);
-  border: 4px solid #0055cc !important;
+/* Windows XP world start button */
+.start-game-button-windows {
+  background: linear-gradient(180deg, #66cc44 0%, #44aa22 40%, #2a7a10 100%);
+  color: #ffffff !important;
+  text-shadow: 1px 1px 2px rgba(0, 80, 0, 0.8), 0 0 8px rgba(0, 200, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 100, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4), 0 0
+    0 2px rgba(100, 220, 60, 0.5), inset 0 1px 0 rgba(180, 255, 120, 0.4);
+  border: 2px solid #2a6600 !important;
 }
 
-.start-game-button-internetcomputer:hover {
-  background: linear-gradient(135deg, #000a1a 0%, #041828 50%, #002255 100%);
-  color: #00e8ff !important;
-  text-shadow: 0 0 14px rgba(0, 232, 255, 1), 0 0 28px rgba(0, 200, 255, 0.85),
-    0 0 50px rgba(0, 150, 255, 0.5);
-  box-shadow:
-    0 12px 32px rgba(0, 130, 255, 0.6),
-    0 6px 16px rgba(0, 0, 0, 0.9),
-    0 0 0 2px rgba(0, 232, 255, 0.7),
-    0 0 24px rgba(0, 100, 255, 0.3),
-    inset 0 0 26px rgba(0, 80, 200, 0.15);
-  border: 4px solid #00aaff !important;
+.start-game-button-windows:hover {
+  background: linear-gradient(180deg, #88dd66 0%, #55bb33 40%, #368818 100%);
+  color: #ffffff !important;
+  text-shadow: 1px 1px 2px rgba(0, 80, 0, 0.9), 0 0 12px rgba(100, 255, 50, 0.5);
+  box-shadow: 0 6px 18px rgba(50, 150, 0, 0.6), 0 3px 8px rgba(0, 0, 0, 0.4), 0
+    0 0 2px rgba(150, 255, 80, 0.6), inset 0 1px 0 rgba(200, 255, 150, 0.5);
+  border: 2px solid #3a8800 !important;
 }
 
 /* Tips container styling - Default for all worlds except snowy */

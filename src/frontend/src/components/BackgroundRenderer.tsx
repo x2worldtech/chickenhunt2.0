@@ -9451,313 +9451,869 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ world }) => {
     </svg>
   );
 
-  const renderInternetcomputerWorld = () => {
-    /* ─── Full-screen square-pixel world-map ─────────────────────────────────
-       Canvas: 1920 × 1080  |  Globe center: (960, 540)  |  Globe radius: 520
-       Dots inside globe sphere → continent map, colored blue/white shades
-       Dots outside globe sphere → very dark navy (#080d1a) for deep-space feel
-       Infinity logo: centered at (960, 540), ~700px wide, blue/white scheme
-    ─────────────────────────────────────────────────────────────────────── */
-    const GCX = 960;
-    const GCY = 540;
-    const GR = 520; // large enough to dominate the scene
-    const S = 5; // dot size px
-    const GAP = 8; // grid step (dot + spacing)
+  const renderWindowsWorld = () => (
+    <svg
+      role="img"
+      aria-label="Windows XP world background"
+      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <defs>
+        {/* Sky gradient — iconic Bliss blue */}
+        <linearGradient id="wxpSky" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#1a6fb5" />
+          <stop offset="45%" stopColor="#3a8fd4" />
+          <stop offset="80%" stopColor="#6ab8e8" />
+          <stop offset="100%" stopColor="#87ceeb" />
+        </linearGradient>
+        {/* Hill gradient — rich lush green */}
+        <linearGradient id="wxpHillMain" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#5dc43a" />
+          <stop offset="30%" stopColor="#3da832" />
+          <stop offset="70%" stopColor="#2e8c20" />
+          <stop offset="100%" stopColor="#1d6614" />
+        </linearGradient>
+        <linearGradient id="wxpHillFar" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#4ab82e" />
+          <stop offset="100%" stopColor="#2a7a18" />
+        </linearGradient>
+        <linearGradient id="wxpHillLight" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#78d854" />
+          <stop offset="100%" stopColor="#4aac30" />
+        </linearGradient>
+        {/* Taskbar gradient — classic XP deep blue */}
+        <linearGradient id="wxpTaskbar" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#3a6abf" />
+          <stop offset="8%" stopColor="#2c5db5" />
+          <stop offset="50%" stopColor="#1f4e9c" />
+          <stop offset="92%" stopColor="#193f88" />
+          <stop offset="100%" stopColor="#152f6e" />
+        </linearGradient>
+        {/* Taskbar top highlight */}
+        <linearGradient id="wxpTaskbarHL" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#6699dd" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#3366bb" stopOpacity="0" />
+        </linearGradient>
+        {/* Start button green gradient */}
+        <linearGradient id="wxpStartBtn" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#66cc44" />
+          <stop offset="40%" stopColor="#44aa22" />
+          <stop offset="60%" stopColor="#338811" />
+          <stop offset="100%" stopColor="#226600" />
+        </linearGradient>
+        {/* Start button highlight */}
+        <linearGradient id="wxpStartHL" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#aaeebb" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#44aa22" stopOpacity="0" />
+        </linearGradient>
+        {/* System tray inset */}
+        <linearGradient id="wxpTray" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#12357a" />
+          <stop offset="50%" stopColor="#1a4590" />
+          <stop offset="100%" stopColor="#1e4ea0" />
+        </linearGradient>
+        {/* Cloud gradients */}
+        <radialGradient id="wxpCloud1" cx="40%" cy="30%" r="70%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="60%" stopColor="#f0f6ff" />
+          <stop offset="100%" stopColor="#d8eeff" stopOpacity="0.3" />
+        </radialGradient>
+        <radialGradient id="wxpCloud2" cx="50%" cy="35%" r="65%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="55%" stopColor="#edf4ff" />
+          <stop offset="100%" stopColor="#cce4ff" stopOpacity="0.25" />
+        </radialGradient>
+        {/* Icon folder gradient */}
+        <linearGradient id="wxpFolder" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffd44f" />
+          <stop offset="40%" stopColor="#f0b800" />
+          <stop offset="100%" stopColor="#d49000" />
+        </linearGradient>
+        {/* Monitor screen */}
+        <linearGradient id="wxpScreen" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#6699cc" />
+          <stop offset="100%" stopColor="#335588" />
+        </linearGradient>
+        {/* Icon label text shadow filter */}
+        <filter id="wxpTextShadow" x="-20%" y="-30%" width="140%" height="160%">
+          <feDropShadow
+            dx="1"
+            dy="1"
+            stdDeviation="1.5"
+            floodColor="#000000"
+            floodOpacity="0.85"
+          />
+        </filter>
+        {/* IE logo gradient */}
+        <radialGradient id="wxpIE" cx="30%" cy="30%" r="70%">
+          <stop offset="0%" stopColor="#66bbff" />
+          <stop offset="100%" stopColor="#0055cc" />
+        </radialGradient>
+        {/* Recycle bin gradient */}
+        <linearGradient id="wxpBin" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#b8d8ee" />
+          <stop offset="100%" stopColor="#7aaac8" />
+        </linearGradient>
+        {/* Network gradient */}
+        <linearGradient id="wxpNet" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#ccddff" />
+          <stop offset="100%" stopColor="#8899dd" />
+        </linearGradient>
+        {/* Hill depth shadow */}
+        <radialGradient id="wxpHillShadow" cx="50%" cy="80%" r="60%">
+          <stop offset="0%" stopColor="#000000" stopOpacity="0.12" />
+          <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+        </radialGradient>
+        {/* Hill highlight — sun-lit top */}
+        <radialGradient id="wxpHillTopLight" cx="50%" cy="0%" r="80%">
+          <stop offset="0%" stopColor="#b8ff88" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#b8ff88" stopOpacity="0" />
+        </radialGradient>
+      </defs>
 
-    const landRects: [number, number, number, number][] = [
-      // North America
-      [-140, 72, -60, 50],
-      [-130, 50, -60, 24],
-      [-120, 24, -80, 10],
-      [-100, 28, -83, 18],
-      [-84, 18, -75, 8],
-      // Greenland
-      [-58, 84, -18, 60],
-      // South America
-      [-80, 12, -34, -10],
-      [-75, -10, -34, -35],
-      [-73, -35, -48, -56],
-      // Europe
-      [-10, 71, 30, 55],
-      [-10, 55, 35, 36],
-      [0, 44, 40, 36],
-      [20, 36, 30, 33],
-      // Africa
-      [-18, 38, 52, 15],
-      [-18, 15, 52, -5],
-      [-20, -5, 50, -35],
-      // Asia (main)
-      [26, 72, 180, 50],
-      [40, 50, 180, 20],
-      [60, 20, 145, 0],
-      // Indian subcontinent
-      [65, 35, 92, 5],
-      // Southeast Asia
-      [95, 28, 115, 5],
-      [100, 5, 120, -8],
-      // Japan
-      [130, 45, 145, 31],
-      // Indonesia
-      [95, -2, 145, -10],
-      // Australia
-      [113, -15, 154, -40],
-      // New Zealand
-      [166, -34, 178, -47],
-      // UK/Ireland
-      [-10, 61, 2, 50],
-      // Scandinavia
-      [4, 72, 32, 56],
-      // Alaska
-      [-168, 72, -140, 54],
-    ];
+      {/* ═══════════════════════════════════════
+          SKY
+      ═══════════════════════════════════════ */}
+      <rect width="1200" height="760" fill="url(#wxpSky)" />
 
-    function isOnLand(lon: number, lat: number): boolean {
-      return landRects.some(
-        ([lo, laMax, hi, laMin]) =>
-          lon >= lo && lon <= hi && lat <= laMax && lat >= laMin,
-      );
-    }
+      {/* ═══════════════════════════════════════
+          CLOUDS — soft multi-circle puffs
+      ═══════════════════════════════════════ */}
 
-    const lonCenter = 10;
+      {/* Cloud A — large center-left */}
+      <g opacity="0.97">
+        <ellipse cx="240" cy="110" rx="90" ry="55" fill="url(#wxpCloud1)" />
+        <ellipse cx="180" cy="128" rx="62" ry="42" fill="url(#wxpCloud1)" />
+        <ellipse cx="295" cy="130" rx="70" ry="40" fill="url(#wxpCloud1)" />
+        <ellipse cx="340" cy="120" rx="52" ry="35" fill="url(#wxpCloud1)" />
+        <ellipse cx="145" cy="138" rx="40" ry="28" fill="url(#wxpCloud2)" />
+        <ellipse cx="370" cy="132" rx="38" ry="25" fill="url(#wxpCloud2)" />
+      </g>
 
-    // Land dot color palette — blue/white shades
-    const landCols = [
-      "#4fc3f7", // light sky blue
-      "#81d4fa", // pale blue
-      "#e0f7ff", // near-white blue
-      "#29b6f6", // electric blue
-      "#b3e5fc", // very light blue
-      "#0288d1", // medium blue
-    ];
+      {/* Cloud B — medium upper right */}
+      <g opacity="0.93">
+        <ellipse cx="850" cy="85" rx="80" ry="48" fill="url(#wxpCloud1)" />
+        <ellipse cx="795" cy="102" rx="55" ry="36" fill="url(#wxpCloud1)" />
+        <ellipse cx="900" cy="104" rx="62" ry="35" fill="url(#wxpCloud1)" />
+        <ellipse cx="940" cy="97" rx="45" ry="30" fill="url(#wxpCloud2)" />
+        <ellipse cx="768" cy="112" rx="36" ry="24" fill="url(#wxpCloud2)" />
+      </g>
 
-    interface DotEntry {
-      x: number;
-      y: number;
-      opacity: number;
-      size: number;
-      col: string;
-    }
-    const dots: DotEntry[] = [];
+      {/* Cloud C — small far right */}
+      <g opacity="0.88">
+        <ellipse cx="1100" cy="140" rx="65" ry="38" fill="url(#wxpCloud1)" />
+        <ellipse cx="1055" cy="156" rx="42" ry="28" fill="url(#wxpCloud1)" />
+        <ellipse cx="1145" cy="154" rx="48" ry="30" fill="url(#wxpCloud2)" />
+        <ellipse cx="1175" cy="148" rx="30" ry="20" fill="url(#wxpCloud2)" />
+      </g>
 
-    // Full-screen grid: cover 0..1920 x 0..1080
-    for (let sy = 0; sy < 1080; sy += GAP) {
-      for (let sx = 0; sx < 1920; sx += GAP) {
-        const cx = sx + S / 2;
-        const cy = sy + S / 2;
-        const dx = cx - GCX;
-        const dy = cy - GCY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+      {/* Cloud D — wispy left far */}
+      <g opacity="0.82">
+        <ellipse cx="490" cy="65" rx="55" ry="30" fill="url(#wxpCloud2)" />
+        <ellipse cx="450" cy="78" rx="38" ry="22" fill="url(#wxpCloud2)" />
+        <ellipse cx="535" cy="76" rx="42" ry="25" fill="url(#wxpCloud2)" />
+        <ellipse cx="568" cy="71" rx="30" ry="18" fill="url(#wxpCloud2)" />
+      </g>
 
-        if (dist <= GR) {
-          // Inside globe — try orthographic back-projection for continents
-          const latRad = Math.asin(Math.max(-1, Math.min(1, -dy / GR)));
-          const cosLat = Math.cos(latRad);
-          if (cosLat === 0) continue;
-          const sinLonRel = dx / (GR * cosLat);
-          if (sinLonRel < -1 || sinLonRel > 1) continue;
-          const lonRad = Math.asin(sinLonRel);
-          const lat = (latRad * 180) / Math.PI;
-          const lon = lonCenter + (lonRad * 180) / Math.PI;
+      {/* ═══════════════════════════════════════
+          HILLS — iconic Bliss rolling landscape
+      ═══════════════════════════════════════ */}
 
-          const edgeFactor = 1 - dist / GR; // 1=center, 0=edge
+      {/* Far background hill — lighter, more distant */}
+      <path
+        d="M0,600 Q180,490 380,520 Q560,548 760,510 Q940,475 1100,505 Q1160,515 1200,510 L1200,760 L0,760 Z"
+        fill="url(#wxpHillFar)"
+        opacity="0.6"
+      />
 
-          if (isOnLand(lon, lat)) {
-            // Continent dot — bright blue/white
-            const opacity = 0.4 + edgeFactor * 0.58;
-            const dotSize = S * (0.5 + edgeFactor * 0.5);
-            const colorIdx =
-              Math.abs(Math.floor(dx / 22) + Math.floor(dy / 22)) %
-              landCols.length;
-            dots.push({
-              x: cx,
-              y: cy,
-              opacity,
-              size: dotSize,
-              col: landCols[colorIdx],
-            });
-          } else {
-            // Ocean dot — subtle dark blue, fade at edges
-            const opacity = 0.06 + edgeFactor * 0.1;
-            const dotSize = S * (0.38 + edgeFactor * 0.3);
-            dots.push({ x: cx, y: cy, opacity, size: dotSize, col: "#1a3a5c" });
-          }
-        } else {
-          // Outside globe — deep space dots, very dim
-          // Fade out further from globe edge
-          const spaceFade = Math.max(0, 1 - (dist - GR) / 400);
-          const opacity = spaceFade * 0.055;
-          if (opacity < 0.008) continue; // skip invisible dots
-          dots.push({ x: cx, y: cy, opacity, size: S * 0.55, col: "#0d1f3c" });
-        }
-      }
-    }
+      {/* Main Bliss hill — the iconic giant green swell */}
+      <path
+        d="M-20,760 Q60,650 200,595 Q380,530 550,510 Q680,498 780,510 Q900,526 1000,570 Q1100,610 1220,700 L1220,760 Z"
+        fill="url(#wxpHillMain)"
+      />
 
-    // Infinity logo — lemniscate centered at (960, 540), ~700px wide, ~280px tall
-    // Right loop center: (960+175=1135, 540), Left loop center: (960-175=785, 540)
-    // Loop radius ~175px → logo spans from x=610 to x=1310
-    const INF =
-      "M 960,540 C 960,452 1022,408 1085,408 C 1168,408 1220,468 1220,540 C 1220,612 1168,672 1085,672 C 1022,672 960,628 960,540 C 960,452 898,408 835,408 C 752,408 700,468 700,540 C 700,612 752,672 835,672 C 898,672 960,628 960,540 Z";
+      {/* Left lower foreground hill */}
+      <path
+        d="M-20,760 Q80,680 200,660 Q340,638 440,660 Q500,672 560,690 L560,760 Z"
+        fill="url(#wxpHillLight)"
+        opacity="0.85"
+      />
 
-    return (
-      <svg
-        role="img"
-        aria-label="Internet Computer world background"
-        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-        viewBox="0 0 1920 1080"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        <defs>
-          {/* Deep black background */}
-          <linearGradient id="icpBg2" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#010408" />
-            <stop offset="100%" stopColor="#000000" />
-          </linearGradient>
+      {/* Right lower foreground hill */}
+      <path
+        d="M700,760 Q820,700 950,680 Q1060,666 1150,690 Q1185,700 1220,720 L1220,760 Z"
+        fill="url(#wxpHillLight)"
+        opacity="0.8"
+      />
 
-          {/* Blue/white gradient for infinity logo — electric blue → white → electric blue */}
-          <linearGradient
-            id="icpGrad2"
-            gradientUnits="userSpaceOnUse"
-            x1="700"
-            y1="540"
-            x2="1220"
-            y2="540"
-          >
-            <stop offset="0%" stopColor="#29b6f6" />
-            <stop offset="35%" stopColor="#81d4fa" />
-            <stop offset="50%" stopColor="#ffffff" />
-            <stop offset="65%" stopColor="#81d4fa" />
-            <stop offset="100%" stopColor="#29b6f6" />
-          </linearGradient>
+      {/* Hill shadow overlay for depth */}
+      <ellipse cx="600" cy="640" rx="600" ry="180" fill="url(#wxpHillShadow)" />
 
-          {/* Dark navy outer glow behind logo */}
-          <filter
-            id="icpLogoGlowOuter"
-            x="-50%"
-            y="-150%"
-            width="200%"
-            height="400%"
-          >
-            <feGaussianBlur stdDeviation="18" result="blur" />
-          </filter>
+      {/* Hill top highlight — sunlit ridge */}
+      <path
+        d="M150,600 Q380,515 600,508 Q820,503 1000,558 Q1060,576 1100,600 Q900,540 680,530 Q480,522 300,565 Z"
+        fill="url(#wxpHillTopLight)"
+      />
 
-          {/* Crisp inner glow on top of logo stroke */}
-          <filter
-            id="icpLogoGlow2"
-            x="-20%"
-            y="-60%"
-            width="140%"
-            height="220%"
-          >
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+      {/* ═══════════════════════════════════════
+          DESKTOP ICONS — left column
+      ═══════════════════════════════════════ */}
 
-          {/* Globe sphere edge darkening overlay */}
-          <radialGradient id="icpSphereShade" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#000000" stopOpacity="0" />
-            <stop offset="70%" stopColor="#000000" stopOpacity="0.04" />
-            <stop offset="100%" stopColor="#000000" stopOpacity="0.55" />
-          </radialGradient>
-
-          {/* Globe ambient glow — subtle blue halo */}
-          <radialGradient id="icpGlobeGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#0a2a6e" stopOpacity="0.18" />
-            <stop offset="55%" stopColor="#021030" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="#000000" stopOpacity="0" />
-          </radialGradient>
-
-          {/* Ambient diffuse glow for logo */}
-          <filter
-            id="icpLogoAmbient"
-            x="-100%"
-            y="-250%"
-            width="300%"
-            height="600%"
-          >
-            <feGaussianBlur stdDeviation="32" result="blur" />
-          </filter>
-        </defs>
-
-        {/* Background */}
-        <rect width="1920" height="1080" fill="url(#icpBg2)" />
-
-        {/* Ambient globe glow */}
-        <circle cx={GCX} cy={GCY} r={GR + 80} fill="url(#icpGlobeGlow)" />
-
-        {/* Full-screen pixel dot grid */}
-        <g>
-          {dots.map((d) => (
-            <rect
-              key={`icp-${Math.round(d.x * 10)}-${Math.round(d.y * 10)}`}
-              x={d.x - d.size / 2}
-              y={d.y - d.size / 2}
-              width={d.size}
-              height={d.size}
-              fill={d.col}
-              opacity={d.opacity}
-            />
-          ))}
-        </g>
-
-        {/* Sphere edge depth shading */}
-        <circle cx={GCX} cy={GCY} r={GR} fill="url(#icpSphereShade)" />
-
-        {/* ── Infinity Logo — centered at (960, 540) ───────────────────────
-            Dark navy outer glow → main blue/white stroke → white specular
-        ─────────────────────────────────────────────────────────────────── */}
-
-        {/* Outer dark glow (navy, wide diffuse) */}
-        <path
-          d={INF}
-          fill="none"
-          stroke="#001133"
-          strokeWidth="60"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.85"
-          filter="url(#icpLogoGlowOuter)"
+      {/* ── Icon 1: My Computer ── */}
+      <g transform="translate(40, 48)">
+        {/* Monitor body */}
+        <rect
+          x="2"
+          y="4"
+          width="42"
+          height="30"
+          rx="2"
+          fill="#e8e4dc"
+          stroke="#a0a0a0"
+          strokeWidth="1.2"
         />
-
-        {/* Ambient blue glow halo */}
-        <path
-          d={INF}
-          fill="none"
-          stroke="url(#icpGrad2)"
-          strokeWidth="44"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.18"
-          filter="url(#icpLogoAmbient)"
+        {/* Screen */}
+        <rect
+          x="6"
+          y="7"
+          width="34"
+          height="22"
+          rx="1"
+          fill="url(#wxpScreen)"
         />
-
-        {/* Main crisp logo stroke */}
-        <path
-          d={INF}
-          fill="none"
-          stroke="url(#icpGrad2)"
-          strokeWidth="24"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="1"
-          filter="url(#icpLogoGlow2)"
+        {/* Screen glare */}
+        <rect
+          x="7"
+          y="8"
+          width="12"
+          height="4"
+          rx="1"
+          fill="#ffffff"
+          opacity="0.3"
         />
+        {/* Neck */}
+        <rect x="17" y="33" width="12" height="5" rx="1" fill="#c8c4bc" />
+        {/* Base */}
+        <rect
+          x="12"
+          y="37"
+          width="22"
+          height="5"
+          rx="2"
+          fill="#b8b4ac"
+          stroke="#909090"
+          strokeWidth="0.8"
+        />
+        {/* Power LED */}
+        <circle cx="38" cy="29" r="2" fill="#44cc44" />
+        {/* Label */}
+        <text
+          x="23"
+          y="58"
+          textAnchor="middle"
+          fontFamily="Tahoma, sans-serif"
+          fontSize="9"
+          fill="#ffffff"
+          filter="url(#wxpTextShadow)"
+          fontWeight="bold"
+        >
+          My Computer
+        </text>
+      </g>
 
-        {/* Inner white specular highlight */}
+      {/* ── Icon 2: My Documents ── */}
+      <g transform="translate(40, 130)">
+        {/* Folder back */}
         <path
-          d={INF}
+          d="M2,8 Q2,4 6,4 L16,4 Q18,4 20,6 L22,8 L44,8 Q46,8 46,10 L46,38 Q46,40 44,40 L4,40 Q2,40 2,38 Z"
+          fill="url(#wxpFolder)"
+          stroke="#c88800"
+          strokeWidth="1"
+        />
+        {/* Folder front face */}
+        <rect
+          x="2"
+          y="12"
+          width="44"
+          height="28"
+          rx="1.5"
+          fill="#fcc340"
+          stroke="#c88800"
+          strokeWidth="1"
+        />
+        {/* Folder tab highlight */}
+        <path
+          d="M2,12 L46,12"
+          stroke="#ffe480"
+          strokeWidth="1.5"
+          opacity="0.7"
+        />
+        {/* Folder shine */}
+        <ellipse cx="24" cy="22" rx="16" ry="6" fill="#ffffff" opacity="0.2" />
+        {/* Label */}
+        <text
+          x="23"
+          y="56"
+          textAnchor="middle"
+          fontFamily="Tahoma, sans-serif"
+          fontSize="9"
+          fill="#ffffff"
+          filter="url(#wxpTextShadow)"
+          fontWeight="bold"
+        >
+          My Documents
+        </text>
+      </g>
+
+      {/* ── Icon 3: Internet Explorer ── */}
+      <g transform="translate(40, 218)">
+        {/* Circle "e" background disc */}
+        <circle
+          cx="23"
+          cy="23"
+          r="22"
+          fill="url(#wxpIE)"
+          stroke="#003399"
+          strokeWidth="1"
+        />
+        {/* Circle glow */}
+        <circle
+          cx="23"
+          cy="23"
+          r="22"
+          fill="none"
+          stroke="#88ccff"
+          strokeWidth="1"
+          opacity="0.5"
+        />
+        {/* IE "e" letterform — stylized */}
+        <path
+          d="M14,22 Q14,12 23,12 Q32,12 32,20 L18,20 Q18,28 25,28 Q29,28 31,26"
           fill="none"
           stroke="#ffffff"
-          strokeWidth="5"
+          strokeWidth="3.5"
           strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.30"
         />
-      </svg>
-    );
-  };
+        <line
+          x1="18"
+          y1="20"
+          x2="32"
+          y2="20"
+          stroke="#ffffff"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+        />
+        {/* Gold ring/orbit */}
+        <path
+          d="M5,32 Q12,42 30,36 Q44,30 42,18"
+          fill="none"
+          stroke="#ffcc00"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          opacity="0.9"
+        />
+        {/* Shine */}
+        <ellipse
+          cx="16"
+          cy="15"
+          rx="6"
+          ry="4"
+          fill="#ffffff"
+          opacity="0.3"
+          transform="rotate(-30 16 15)"
+        />
+        {/* Label */}
+        <text
+          x="23"
+          y="58"
+          textAnchor="middle"
+          fontFamily="Tahoma, sans-serif"
+          fontSize="9"
+          fill="#ffffff"
+          filter="url(#wxpTextShadow)"
+          fontWeight="bold"
+        >
+          Internet Explorer
+        </text>
+      </g>
+
+      {/* ── Icon 4: Recycle Bin (empty) ── */}
+      <g transform="translate(40, 308)">
+        {/* Bin body */}
+        <path
+          d="M10,14 L14,42 Q14,44 16,44 L30,44 Q32,44 32,42 L36,14 Z"
+          fill="url(#wxpBin)"
+          stroke="#6699bb"
+          strokeWidth="1"
+        />
+        {/* Bin lid */}
+        <rect
+          x="7"
+          y="10"
+          width="32"
+          height="5"
+          rx="2"
+          fill="#c8ddf0"
+          stroke="#6699bb"
+          strokeWidth="1"
+        />
+        {/* Bin handle */}
+        <path
+          d="M18,10 Q18,6 23,6 Q28,6 28,10"
+          fill="none"
+          stroke="#7aabcc"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        {/* Bin ribs for depth */}
+        <line
+          x1="18"
+          y1="18"
+          x2="16"
+          y2="40"
+          stroke="#aaccdd"
+          strokeWidth="1"
+          opacity="0.7"
+        />
+        <line
+          x1="23"
+          y1="17"
+          x2="23"
+          y2="41"
+          stroke="#aaccdd"
+          strokeWidth="1"
+          opacity="0.7"
+        />
+        <line
+          x1="28"
+          y1="18"
+          x2="30"
+          y2="40"
+          stroke="#aaccdd"
+          strokeWidth="1"
+          opacity="0.7"
+        />
+        {/* Shine on lid */}
+        <ellipse
+          cx="23"
+          cy="12"
+          rx="10"
+          ry="2.5"
+          fill="#ffffff"
+          opacity="0.4"
+        />
+        {/* Label */}
+        <text
+          x="23"
+          y="60"
+          textAnchor="middle"
+          fontFamily="Tahoma, sans-serif"
+          fontSize="9"
+          fill="#ffffff"
+          filter="url(#wxpTextShadow)"
+          fontWeight="bold"
+        >
+          Recycle Bin
+        </text>
+      </g>
+
+      {/* ── Icon 5: My Network Places ── */}
+      <g transform="translate(40, 400)">
+        {/* Monitor left */}
+        <rect
+          x="0"
+          y="10"
+          width="22"
+          height="16"
+          rx="1.5"
+          fill="url(#wxpNet)"
+          stroke="#6677cc"
+          strokeWidth="1"
+        />
+        <rect x="2" y="12" width="18" height="10" rx="1" fill="#335599" />
+        <rect x="8" y="26" width="6" height="3" fill="#8899cc" />
+        <rect x="5" y="28" width="12" height="3" rx="1" fill="#7788bb" />
+        {/* Monitor right (overlapping) */}
+        <rect
+          x="24"
+          y="8"
+          width="22"
+          height="16"
+          rx="1.5"
+          fill="url(#wxpNet)"
+          stroke="#6677cc"
+          strokeWidth="1"
+        />
+        <rect x="26" y="10" width="18" height="10" rx="1" fill="#335599" />
+        <rect x="32" y="24" width="6" height="3" fill="#8899cc" />
+        <rect x="29" y="26" width="12" height="3" rx="1" fill="#7788bb" />
+        {/* Connection cable between monitors */}
+        <path
+          d="M22,18 Q28,30 28,18"
+          fill="none"
+          stroke="#ffcc44"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        {/* Globe symbol on right monitor */}
+        <circle
+          cx="35"
+          cy="15"
+          r="4"
+          fill="none"
+          stroke="#aabbff"
+          strokeWidth="1"
+          opacity="0.8"
+        />
+        <line
+          x1="35"
+          y1="11"
+          x2="35"
+          y2="19"
+          stroke="#aabbff"
+          strokeWidth="0.8"
+          opacity="0.8"
+        />
+        <line
+          x1="31"
+          y1="15"
+          x2="39"
+          y2="15"
+          stroke="#aabbff"
+          strokeWidth="0.8"
+          opacity="0.8"
+        />
+        {/* Label */}
+        <text
+          x="23"
+          y="55"
+          textAnchor="middle"
+          fontFamily="Tahoma, sans-serif"
+          fontSize="9"
+          fill="#ffffff"
+          filter="url(#wxpTextShadow)"
+          fontWeight="bold"
+        >
+          My Network
+        </text>
+        <text
+          x="23"
+          y="65"
+          textAnchor="middle"
+          fontFamily="Tahoma, sans-serif"
+          fontSize="9"
+          fill="#ffffff"
+          filter="url(#wxpTextShadow)"
+          fontWeight="bold"
+        >
+          Places
+        </text>
+      </g>
+
+      {/* ═══════════════════════════════════════
+          TASKBAR — bottom bar, full width
+      ═══════════════════════════════════════ */}
+      <rect x="0" y="760" width="1200" height="40" fill="url(#wxpTaskbar)" />
+      {/* Top edge highlight */}
+      <rect
+        x="0"
+        y="760"
+        width="1200"
+        height="8"
+        fill="url(#wxpTaskbarHL)"
+        opacity="0.6"
+      />
+      {/* Subtle 1px top border line */}
+      <line
+        x1="0"
+        y1="760"
+        x2="1200"
+        y2="760"
+        stroke="#5588dd"
+        strokeWidth="1"
+        opacity="0.8"
+      />
+
+      {/* ── Start Button ── */}
+      {/* Button green background with rounded right corners */}
+      <path
+        d="M0,762 L0,798 L110,798 Q118,798 118,790 L118,770 Q118,762 110,762 Z"
+        fill="url(#wxpStartBtn)"
+      />
+      {/* Highlight top half */}
+      <path
+        d="M0,762 L0,780 L118,780 L118,770 Q118,762 110,762 Z"
+        fill="url(#wxpStartHL)"
+        opacity="0.45"
+      />
+      {/* Button border */}
+      <path
+        d="M0,762 L0,798 L110,798 Q118,798 118,790 L118,770 Q118,762 110,762 Z"
+        fill="none"
+        stroke="#2a6600"
+        strokeWidth="1.5"
+        opacity="0.7"
+      />
+      {/* Inner glow edge */}
+      <path
+        d="M1,763 L1,797 L108,797 Q116,797 116,789 L116,771 Q116,763 108,763 Z"
+        fill="none"
+        stroke="#88ee44"
+        strokeWidth="1"
+        opacity="0.3"
+      />
+
+      {/* Windows Flag Logo — 4 colored squares with perspective */}
+      {/* Red - top-left */}
+      <path
+        d="M12,770 L22,768 L22,779 L12,780 Z"
+        fill="#ff3333"
+        opacity="0.95"
+      />
+      {/* Green - top-right */}
+      <path
+        d="M24,768 L34,766 L34,777 L24,778 Z"
+        fill="#33cc33"
+        opacity="0.95"
+      />
+      {/* Blue - bottom-left */}
+      <path
+        d="M12,781 L22,780 L22,791 L12,793 Z"
+        fill="#3366ff"
+        opacity="0.95"
+      />
+      {/* Yellow - bottom-right */}
+      <path
+        d="M24,779 L34,778 L34,789 L24,790 Z"
+        fill="#ffcc00"
+        opacity="0.95"
+      />
+      {/* Flag glow effect */}
+      <path
+        d="M11,766 L35,764 L35,793 L11,795 Z"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="0.5"
+        opacity="0.25"
+      />
+
+      {/* "start" text — lowercase, white, bold Tahoma */}
+      <text
+        x="42"
+        y="785"
+        fontFamily="Tahoma, Franklin Gothic Medium, sans-serif"
+        fontSize="16"
+        fontWeight="bold"
+        fill="#ffffff"
+        letterSpacing="1"
+        style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.6)" }}
+      >
+        start
+      </text>
+      {/* Text drop shadow simulation */}
+      <text
+        x="43"
+        y="786"
+        fontFamily="Tahoma, Franklin Gothic Medium, sans-serif"
+        fontSize="16"
+        fontWeight="bold"
+        fill="#000000"
+        letterSpacing="1"
+        opacity="0.35"
+      >
+        start
+      </text>
+      <text
+        x="42"
+        y="785"
+        fontFamily="Tahoma, Franklin Gothic Medium, sans-serif"
+        fontSize="16"
+        fontWeight="bold"
+        fill="#ffffff"
+        letterSpacing="1"
+      >
+        start
+      </text>
+
+      {/* ── Taskbar separator after start button ── */}
+      <line
+        x1="122"
+        y1="763"
+        x2="122"
+        y2="797"
+        stroke="#4477cc"
+        strokeWidth="1"
+        opacity="0.6"
+      />
+      <line
+        x1="123"
+        y1="763"
+        x2="123"
+        y2="797"
+        stroke="#224499"
+        strokeWidth="1"
+        opacity="0.4"
+      />
+
+      {/* ── Empty taskbar area (for open windows) ── */}
+      {/* Just the gradient background is enough — empty */}
+
+      {/* ── System Tray — right side ── */}
+      {/* Tray inset background */}
+      <path
+        d="M1010,763 Q1008,763 1008,766 L1008,796 Q1008,797 1010,797 L1200,797 L1200,763 Z"
+        fill="url(#wxpTray)"
+      />
+      <path
+        d="M1010,763 Q1008,763 1008,766 L1008,796 Q1008,797 1010,797 L1200,797 L1200,763 Z"
+        fill="none"
+        stroke="#1a3d8f"
+        strokeWidth="1"
+        opacity="0.6"
+      />
+
+      {/* Tray separator on left edge */}
+      <line
+        x1="1011"
+        y1="763"
+        x2="1011"
+        y2="797"
+        stroke="#3366aa"
+        strokeWidth="1"
+        opacity="0.5"
+      />
+      <line
+        x1="1012"
+        y1="763"
+        x2="1012"
+        y2="797"
+        stroke="#5588cc"
+        strokeWidth="1"
+        opacity="0.3"
+      />
+
+      {/* Speaker icon */}
+      <g transform="translate(1025, 772)">
+        {/* Speaker body */}
+        <rect
+          x="0"
+          y="2"
+          width="8"
+          height="10"
+          rx="1"
+          fill="#c0d8f8"
+          opacity="0.9"
+        />
+        {/* Speaker cone */}
+        <path d="M8,0 L16,6 L16,8 L8,14 Z" fill="#c0d8f8" opacity="0.9" />
+        {/* Sound waves */}
+        <path
+          d="M18,4 Q22,7 18,10"
+          fill="none"
+          stroke="#c0d8f8"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.8"
+        />
+        <path
+          d="M20,1 Q26,7 20,13"
+          fill="none"
+          stroke="#c0d8f8"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.5"
+        />
+      </g>
+
+      {/* Network icon — two overlapping computer outlines */}
+      <g transform="translate(1070, 773)">
+        <rect
+          x="0"
+          y="0"
+          width="12"
+          height="9"
+          rx="1"
+          fill="none"
+          stroke="#c0d8f8"
+          strokeWidth="1.2"
+          opacity="0.9"
+        />
+        <line
+          x1="5"
+          y1="9"
+          x2="7"
+          y2="12"
+          stroke="#c0d8f8"
+          strokeWidth="1.2"
+          opacity="0.8"
+        />
+        <rect
+          x="3"
+          y="12"
+          width="6"
+          height="2"
+          rx="0.5"
+          fill="#c0d8f8"
+          opacity="0.7"
+        />
+        <rect
+          x="10"
+          y="3"
+          width="12"
+          height="9"
+          rx="1"
+          fill="none"
+          stroke="#c0d8f8"
+          strokeWidth="1.2"
+          opacity="0.7"
+        />
+        <line
+          x1="15"
+          y1="12"
+          x2="17"
+          y2="15"
+          stroke="#c0d8f8"
+          strokeWidth="1.2"
+          opacity="0.6"
+        />
+        <rect
+          x="13"
+          y="15"
+          width="6"
+          height="2"
+          rx="0.5"
+          fill="#c0d8f8"
+          opacity="0.5"
+        />
+      </g>
+
+      {/* Separator before clock */}
+      <line
+        x1="1112"
+        y1="768"
+        x2="1112"
+        y2="792"
+        stroke="#3366aa"
+        strokeWidth="1"
+        opacity="0.5"
+      />
+
+      {/* Clock — "3:14 PM" */}
+      <text
+        x="1156"
+        y="782"
+        textAnchor="middle"
+        fontFamily="Tahoma, sans-serif"
+        fontSize="12"
+        fill="#ffffff"
+        fontWeight="bold"
+        opacity="0.95"
+      >
+        3:14 PM
+      </text>
+    </svg>
+  );
 
   const renderWorld = () => {
     switch (world) {
@@ -9783,8 +10339,8 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ world }) => {
         return renderHalloweenWorld();
       case "tokyo":
         return renderTokyoWorld();
-      case "internetcomputer":
-        return renderInternetcomputerWorld();
+      case "windows":
+        return renderWindowsWorld();
       default:
         return renderOriginalWorld();
     }
