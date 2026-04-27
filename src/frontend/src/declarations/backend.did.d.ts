@@ -74,6 +74,7 @@ export interface GameStatistics {
   'goldenChickensShot' : bigint,
 }
 export type HeaderField = [string, string];
+export interface HttpHeader { 'value' : string, 'name' : string }
 export interface HttpRequest {
   'url' : string,
   'method' : string,
@@ -86,6 +87,11 @@ export interface HttpResponse {
   'streaming_strategy' : [] | [StreamingStrategy],
   'status_code' : number,
 }
+export interface HttpResponseRaw {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<HttpHeader>,
+}
 export type JoinMode = { 'open' : null } |
   { 'requestRequired' : null };
 export interface PrincipalInfo {
@@ -93,6 +99,11 @@ export interface PrincipalInfo {
   'name' : string,
   'level' : bigint,
   'avatarUrl' : [] | [string],
+}
+export interface PumpPriceData {
+  'change24h' : number,
+  'lastUpdated' : bigint,
+  'price' : number,
 }
 export type StreamingCallback = ActorMethod<
   [StreamingToken],
@@ -161,6 +172,7 @@ export interface _SERVICE {
   'fileUpload' : ActorMethod<[string, string, Uint8Array, boolean], undefined>,
   'getAllClans' : ActorMethod<[], Array<ClanSummary>>,
   'getApprovalStatus' : ActorMethod<[Principal], ApprovalStatus>,
+  'getCachedPumpFunPrice' : ActorMethod<[], PumpPriceData>,
   'getClan' : ActorMethod<
     [bigint],
     { 'ok' : ClanDetails } |
@@ -190,6 +202,7 @@ export interface _SERVICE {
     { 'ok' : Array<PrincipalInfo> } |
       { 'err' : string }
   >,
+  'getPumpFunPrice' : ActorMethod<[], PumpPriceData>,
   'getUserGameStats' : ActorMethod<[Principal], [] | [GameStatistics]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'getUserProfileWithChangeStatus' : ActorMethod<
@@ -230,6 +243,7 @@ export interface _SERVICE {
       { 'err' : string }
   >,
   'setApproval' : ActorMethod<[Principal, ApprovalStatus], undefined>,
+  'transformPumpResponse' : ActorMethod<[HttpResponseRaw], HttpResponseRaw>,
   'updateClan' : ActorMethod<
     [bigint, string, JoinMode, bigint],
     { 'ok' : ClanDetails } |

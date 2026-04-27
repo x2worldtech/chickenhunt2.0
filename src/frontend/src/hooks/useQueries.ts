@@ -691,3 +691,79 @@ export function useLeaderboardEntries() {
     enabled: !!actor && !isFetching,
   });
 }
+
+// ─── pump.fun live price (Binance REST, CoinGecko fallback) ───────────────────
+
+/** Minimal price shape — matches what BackgroundRenderer / GameScreen expect. */
+export interface PumpPriceData {
+  price: number;
+  change24h: number;
+}
+
+async function fetchFromBinance(symbol: string): Promise<PumpPriceData> {
+  const res = await fetch(
+    `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`,
+    { signal: AbortSignal.timeout(8_000) },
+  );
+  if (!res.ok) throw new Error(`Binance ${res.status}`);
+  const data = (await res.json()) as {
+    lastPrice: string;
+    priceChangePercent: string;
+  };
+  return {
+    price: Number.parseFloat(data.lastPrice),
+    change24h: Number.parseFloat(data.priceChangePercent),
+  };
+}
+
+async function fetchFromCoinGecko(coinId: string): Promise<PumpPriceData> {
+  const res = await fetch(
+    `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true`,
+    { signal: AbortSignal.timeout(8_000) },
+  );
+  if (!res.ok) throw new Error(`CoinGecko ${res.status}`);
+  const data = (await res.json()) as Record<
+    string,
+    { usd?: number; usd_24h_change?: number } | undefined
+  >;
+  const coin = data[coinId];
+  if (!coin?.usd) throw new Error("CoinGecko: no price data");
+  return {
+    price: coin.usd,
+    change24h: coin.usd_24h_change ?? 0,
+  };
+}
+
+export function usePumpFunPrice() {
+  return useQuery<PumpPriceData | null>({
+    queryKey: ["pumpFunPrice"],
+    queryFn: async () => {
+      try {
+        return await fetchFromBinance("PUMPUSDT");
+      } catch {
+        return await fetchFromCoinGecko("pump-fun");
+      }
+    },
+    staleTime: 5_000,
+    refetchInterval: 10_000,
+    placeholderData: (prev) => prev ?? null,
+  });
+}
+
+// ─── Bitcoin live price (Binance REST, CoinGecko fallback) ────────────────────
+
+export function useBitcoinPrice() {
+  return useQuery<PumpPriceData | null>({
+    queryKey: ["bitcoinPrice"],
+    queryFn: async () => {
+      try {
+        return await fetchFromBinance("BTCUSDT");
+      } catch {
+        return await fetchFromCoinGecko("bitcoin");
+      }
+    },
+    staleTime: 5_000,
+    refetchInterval: 10_000,
+    placeholderData: (prev) => prev ?? null,
+  });
+}

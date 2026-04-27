@@ -27454,6 +27454,11 @@ const ApprovalStatus = Variant({
   "approved": Null,
   "rejected": Null
 });
+const PumpPriceData = Record({
+  "change24h": Float64,
+  "lastUpdated": Int,
+  "price": Float64
+});
 const PrincipalInfo = Record({
   "principal": Principal2,
   "name": Text,
@@ -27561,6 +27566,12 @@ const UserInfo = Record({
   "role": UserRole,
   "approval": ApprovalStatus
 });
+const HttpHeader = Record({ "value": Text, "name": Text });
+const HttpResponseRaw = Record({
+  "status": Nat,
+  "body": Vec(Nat8),
+  "headers": Vec(HttpHeader)
+});
 Service({
   "addFriend": Func(
     [Principal2],
@@ -27597,6 +27608,7 @@ Service({
   ),
   "getAllClans": Func([], [Vec(ClanSummary)], ["query"]),
   "getApprovalStatus": Func([Principal2], [ApprovalStatus], ["query"]),
+  "getCachedPumpFunPrice": Func([], [PumpPriceData], ["query"]),
   "getClan": Func(
     [Nat],
     [Variant({ "ok": ClanDetails, "err": Text })],
@@ -27631,6 +27643,7 @@ Service({
     [Variant({ "ok": Vec(PrincipalInfo), "err": Text })],
     []
   ),
+  "getPumpFunPrice": Func([], [PumpPriceData], []),
   "getUserGameStats": Func(
     [Principal2],
     [Opt(GameStatistics)],
@@ -27690,6 +27703,11 @@ Service({
     []
   ),
   "setApproval": Func([Principal2, ApprovalStatus], [], []),
+  "transformPumpResponse": Func(
+    [HttpResponseRaw],
+    [HttpResponseRaw],
+    ["query"]
+  ),
   "updateClan": Func(
     [Nat, Text, JoinMode$1, Nat],
     [Variant({ "ok": ClanDetails, "err": Text })],
@@ -27725,6 +27743,11 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "pending": IDL2.Null,
     "approved": IDL2.Null,
     "rejected": IDL2.Null
+  });
+  const PumpPriceData2 = IDL2.Record({
+    "change24h": IDL2.Float64,
+    "lastUpdated": IDL2.Int,
+    "price": IDL2.Float64
   });
   const PrincipalInfo2 = IDL2.Record({
     "principal": IDL2.Principal,
@@ -27833,6 +27856,12 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "role": UserRole2,
     "approval": ApprovalStatus2
   });
+  const HttpHeader2 = IDL2.Record({ "value": IDL2.Text, "name": IDL2.Text });
+  const HttpResponseRaw2 = IDL2.Record({
+    "status": IDL2.Nat,
+    "body": IDL2.Vec(IDL2.Nat8),
+    "headers": IDL2.Vec(HttpHeader2)
+  });
   return IDL2.Service({
     "addFriend": IDL2.Func(
       [IDL2.Principal],
@@ -27873,6 +27902,7 @@ const idlFactory = ({ IDL: IDL2 }) => {
       [ApprovalStatus2],
       ["query"]
     ),
+    "getCachedPumpFunPrice": IDL2.Func([], [PumpPriceData2], ["query"]),
     "getClan": IDL2.Func(
       [IDL2.Nat],
       [IDL2.Variant({ "ok": ClanDetails2, "err": IDL2.Text })],
@@ -27907,6 +27937,7 @@ const idlFactory = ({ IDL: IDL2 }) => {
       [IDL2.Variant({ "ok": IDL2.Vec(PrincipalInfo2), "err": IDL2.Text })],
       []
     ),
+    "getPumpFunPrice": IDL2.Func([], [PumpPriceData2], []),
     "getUserGameStats": IDL2.Func(
       [IDL2.Principal],
       [IDL2.Opt(GameStatistics2)],
@@ -27966,6 +27997,11 @@ const idlFactory = ({ IDL: IDL2 }) => {
       []
     ),
     "setApproval": IDL2.Func([IDL2.Principal, ApprovalStatus2], [], []),
+    "transformPumpResponse": IDL2.Func(
+      [HttpResponseRaw2],
+      [HttpResponseRaw2],
+      ["query"]
+    ),
     "updateClan": IDL2.Func(
       [IDL2.Nat, IDL2.Text, JoinMode2, IDL2.Nat],
       [IDL2.Variant({ "ok": ClanDetails2, "err": IDL2.Text })],
@@ -28150,6 +28186,20 @@ class Backend {
       return from_candid_ApprovalStatus_n12(this._uploadFile, this._downloadFile, result);
     }
   }
+  async getCachedPumpFunPrice() {
+    if (this.processError) {
+      try {
+        const result = await this.actor.getCachedPumpFunPrice();
+        return result;
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.getCachedPumpFunPrice();
+      return result;
+    }
+  }
   async getClan(arg0) {
     if (this.processError) {
       try {
@@ -28288,6 +28338,20 @@ class Backend {
     } else {
       const result = await this.actor.getPendingJoinRequests(arg0);
       return from_candid_variant_n32(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async getPumpFunPrice() {
+    if (this.processError) {
+      try {
+        const result = await this.actor.getPumpFunPrice();
+        return result;
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.getPumpFunPrice();
+      return result;
     }
   }
   async getUserGameStats(arg0) {
@@ -28553,6 +28617,20 @@ class Backend {
       }
     } else {
       const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n51(this._uploadFile, this._downloadFile, arg1));
+      return result;
+    }
+  }
+  async transformPumpResponse(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.transformPumpResponse(arg0);
+        return result;
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.transformPumpResponse(arg0);
       return result;
     }
   }
@@ -29337,6 +29415,62 @@ function useLeaderboardEntries() {
       }));
     },
     enabled: !!actor && !isFetching
+  });
+}
+async function fetchFromBinance(symbol) {
+  const res = await fetch(
+    `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`,
+    { signal: AbortSignal.timeout(8e3) }
+  );
+  if (!res.ok) throw new Error(`Binance ${res.status}`);
+  const data = await res.json();
+  return {
+    price: Number.parseFloat(data.lastPrice),
+    change24h: Number.parseFloat(data.priceChangePercent)
+  };
+}
+async function fetchFromCoinGecko(coinId) {
+  const res = await fetch(
+    `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true`,
+    { signal: AbortSignal.timeout(8e3) }
+  );
+  if (!res.ok) throw new Error(`CoinGecko ${res.status}`);
+  const data = await res.json();
+  const coin = data[coinId];
+  if (!(coin == null ? void 0 : coin.usd)) throw new Error("CoinGecko: no price data");
+  return {
+    price: coin.usd,
+    change24h: coin.usd_24h_change ?? 0
+  };
+}
+function usePumpFunPrice() {
+  return useQuery({
+    queryKey: ["pumpFunPrice"],
+    queryFn: async () => {
+      try {
+        return await fetchFromBinance("PUMPUSDT");
+      } catch {
+        return await fetchFromCoinGecko("pump-fun");
+      }
+    },
+    staleTime: 5e3,
+    refetchInterval: 1e4,
+    placeholderData: (prev) => prev ?? null
+  });
+}
+function useBitcoinPrice() {
+  return useQuery({
+    queryKey: ["bitcoinPrice"],
+    queryFn: async () => {
+      try {
+        return await fetchFromBinance("BTCUSDT");
+      } catch {
+        return await fetchFromCoinGecko("bitcoin");
+      }
+    },
+    staleTime: 5e3,
+    refetchInterval: 1e4,
+    placeholderData: (prev) => prev ?? null
   });
 }
 /**
@@ -30583,7 +30717,11 @@ const AchievementsView = ({
     }
   );
 };
-const BackgroundRenderer = ({ world }) => {
+const BackgroundRenderer = ({
+  world,
+  pumpFunPrice,
+  btcPrice
+}) => {
   const renderOriginalWorld = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "svg",
     {
@@ -43372,7 +43510,86 @@ const BackgroundRenderer = ({ world }) => {
             fill: "#ffffff",
             children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M78.3 36.6c1.8-12.2-7.5-18.8-20.2-23.2l4.1-16.6-10.1-2.5-4 16.1c-2.7-.7-5.4-1.3-8.1-1.9l4.1-16.3-10.1-2.5-4.1 16.6c-2.2-.5-4.4-1-6.5-1.5l0 0-13.9-3.5-2.7 10.8s7.5 1.7 7.4 1.8c4.1 1 4.8 3.7 4.7 5.9l-4.7 18.8c.3.1.7.2 1.1.3-.4-.1-.7-.2-1.1-.3l-6.6 26.4c-.5 1.2-1.8 3-4.6 2.3.1.1-7.4-1.9-7.4-1.9l-5.1 11.5 13.2 3.3c2.4.6 4.8 1.2 7.2 1.9l-4.2 16.7 10.1 2.5 4.1-16.6c2.8.7 5.5 1.4 8.2 2.1l-4.1 16.5 10.1 2.5 4.2-16.8c17.3 3.3 30.3 1.9 35.8-13.6 4.4-12.6.2-19.9-9.3-24.6 6.6-1.5 11.6-5.9 12.9-14.7zm-23.1 32.4c-3.1 12.6-24.3 5.8-31.2 4.1l5.6-22.3c6.9 1.7 28.9 5.1 25.6 18.2zm3.1-32.7c-2.9 11.5-20.5 5.7-26.2 4.2l5-20.1c5.7 1.4 24.1 4.1 21.2 15.9z" })
           }
-        )
+        ),
+        (() => {
+          const priceStr = btcPrice ? `$${btcPrice.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "--";
+          const changeVal = btcPrice ? btcPrice.change24h : null;
+          const changeStr = changeVal !== null ? `${changeVal >= 0 ? "+" : ""}${changeVal.toFixed(2)}%` : "--";
+          const changeColor = changeVal === null ? "#9CA3AF" : changeVal >= 0 ? "#22C55E" : "#EF4444";
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(600, 590)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-110",
+                y: "-46",
+                width: "220",
+                height: "88",
+                rx: "8",
+                ry: "8",
+                fill: "#050505",
+                fillOpacity: "0.82",
+                stroke: "#3a2000",
+                strokeWidth: "1"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "text",
+              {
+                x: "0",
+                y: "-28",
+                textAnchor: "middle",
+                fontFamily: "'Courier New', Courier, monospace",
+                fontWeight: "400",
+                fontSize: "11",
+                fill: "#b06010",
+                opacity: "0.85",
+                letterSpacing: "2",
+                children: "BTC / USD"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "text",
+              {
+                x: "0",
+                y: "2",
+                textAnchor: "middle",
+                fontFamily: "'Courier New', Courier, monospace",
+                fontWeight: "700",
+                fontSize: "22",
+                fill: "#FFFFFF",
+                letterSpacing: "0.5",
+                children: priceStr
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-38",
+                y: "12",
+                width: "76",
+                height: "22",
+                rx: "4",
+                ry: "4",
+                fill: changeColor,
+                fillOpacity: "0.15"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "text",
+              {
+                x: "0",
+                y: "28",
+                textAnchor: "middle",
+                fontFamily: "'Courier New', Courier, monospace",
+                fontWeight: "600",
+                fontSize: "13",
+                fill: changeColor,
+                letterSpacing: "0.3",
+                children: changeStr
+              }
+            )
+          ] });
+        })()
       ]
     }
   );
@@ -47811,11 +48028,1167 @@ const BackgroundRenderer = ({ world }) => {
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#pfVignette)" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#pfVignette)" }),
+          (() => {
+            const priceStr = pumpFunPrice ? `$${pumpFunPrice.price < 0.01 ? pumpFunPrice.price.toFixed(6) : pumpFunPrice.price.toFixed(4)}` : "--";
+            const changeVal = pumpFunPrice ? pumpFunPrice.change24h : null;
+            const changeStr = changeVal !== null ? `${changeVal >= 0 ? "+" : ""}${changeVal.toFixed(2)}%` : "--";
+            const changeColor = changeVal === null ? "#9CA3AF" : changeVal >= 0 ? "#22C55E" : "#EF4444";
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(600, 590)", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "rect",
+                {
+                  x: "-110",
+                  y: "-46",
+                  width: "220",
+                  height: "88",
+                  rx: "8",
+                  ry: "8",
+                  fill: "#050505",
+                  fillOpacity: "0.82",
+                  stroke: "#1A3D26",
+                  strokeWidth: "1"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "0",
+                  y: "-28",
+                  textAnchor: "middle",
+                  fontFamily: "'Courier New', Courier, monospace",
+                  fontWeight: "400",
+                  fontSize: "11",
+                  fill: "#4B7A5E",
+                  opacity: "0.85",
+                  letterSpacing: "2",
+                  children: "PUMP / USD"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "0",
+                  y: "2",
+                  textAnchor: "middle",
+                  fontFamily: "'Courier New', Courier, monospace",
+                  fontWeight: "700",
+                  fontSize: "22",
+                  fill: "#FFFFFF",
+                  letterSpacing: "0.5",
+                  children: priceStr
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "rect",
+                {
+                  x: "-38",
+                  y: "12",
+                  width: "76",
+                  height: "22",
+                  rx: "4",
+                  ry: "4",
+                  fill: changeColor,
+                  fillOpacity: "0.15"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "0",
+                  y: "28",
+                  textAnchor: "middle",
+                  fontFamily: "'Courier New', Courier, monospace",
+                  fontWeight: "600",
+                  fontSize: "13",
+                  fill: changeColor,
+                  letterSpacing: "0.3",
+                  children: changeStr
+                }
+              )
+            ] });
+          })()
         ]
       }
     );
   };
+  const renderCoronaWorld = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 1200 800",
+      preserveAspectRatio: "xMidYMid slice",
+      style: { width: "100%", height: "100%", display: "block" },
+      "aria-label": "Corona world - Biosafety laboratory",
+      role: "img",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("defs", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "cLabWall", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#F8F8F8" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#EBEBEB" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "cLabCeil", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#FFFFFF" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#F2F2F2" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "cFloor", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#D8D8D8" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#C4C4C4" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "cBenchTop", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#DCDCDC" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#C8C8C8" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "cBenchFront", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#C0C0C0" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#A8A8A8" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "cHazmat", x1: "0", y1: "0", x2: "1", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#FF8C00" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "#FF6B00" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#DF5600" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "cMicroBase", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#484848" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#1E1E1E" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "cFluoGlow", cx: "50%", cy: "0%", r: "70%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#FFFFF5", stopOpacity: "0.7" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#FFFFF5", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "cVisor", x1: "0", y1: "0", x2: "1", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "rgba(190,230,255,0.9)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "rgba(100,175,240,0.75)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "cBioCirc", cx: "50%", cy: "50%", r: "50%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#FFE000" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#F0C000" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "cPetriRed", cx: "40%", cy: "35%", r: "65%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "rgba(255,190,170,0.75)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "60%", stopColor: "rgba(220,100,70,0.55)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "rgba(170,50,20,0.4)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "cPetriGreen", cx: "45%", cy: "40%", r: "55%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "rgba(190,230,190,0.75)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "65%", stopColor: "rgba(100,185,100,0.55)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "rgba(45,120,45,0.4)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "cShadow", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "rgba(0,0,0,0.12)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "rgba(0,0,0,0)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "tubeClear", x1: "0", y1: "0", x2: "1", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "rgba(240,248,255,0.82)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "rgba(200,225,255,0.65)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "tubeBlue", x1: "0", y1: "0", x2: "1", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "rgba(180,220,255,0.9)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "rgba(100,170,240,0.9)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "tubeOrange", x1: "0", y1: "0", x2: "1", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "rgba(255,180,80,0.9)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "rgba(230,120,0,0.9)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "tubeRed", x1: "0", y1: "0", x2: "1", y2: "0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "rgba(255,120,100,0.9)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "rgba(200,40,40,0.9)" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "0", width: "1200", height: "800", fill: "url(#cLabWall)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "0", width: "1200", height: "88", fill: "url(#cLabCeil)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "86", width: "1200", height: "5", fill: "#C5C5C5" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "100",
+            y: "10",
+            width: "200",
+            height: "26",
+            rx: "4",
+            fill: "#FFFEF0",
+            stroke: "#DADADA",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "104", y: "13", width: "192", height: "20", rx: "2", fill: "#FFFFF8" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "200",
+            cy: "23",
+            rx: "80",
+            ry: "10",
+            fill: "url(#cFluoGlow)",
+            opacity: "0.8"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "490",
+            y: "10",
+            width: "220",
+            height: "26",
+            rx: "4",
+            fill: "#FFFEF0",
+            stroke: "#DADADA",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "494", y: "13", width: "212", height: "20", rx: "2", fill: "#FFFFF8" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "600",
+            cy: "23",
+            rx: "85",
+            ry: "10",
+            fill: "url(#cFluoGlow)",
+            opacity: "0.8"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "880",
+            y: "10",
+            width: "210",
+            height: "26",
+            rx: "4",
+            fill: "#FFFEF0",
+            stroke: "#DADADA",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "884", y: "13", width: "202", height: "20", rx: "2", fill: "#FFFFF8" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "985",
+            cy: "23",
+            rx: "80",
+            ry: "10",
+            fill: "url(#cFluoGlow)",
+            opacity: "0.8"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "88", width: "1200", height: "7", fill: "#D2D2D2" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "475", width: "1200", height: "6", fill: "#C8C8C8" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "480", width: "1200", height: "200", fill: "#E2E2E2" }),
+        [200, 400, 600, 800, 1e3].map((px) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "line",
+          {
+            x1: px,
+            y1: "480",
+            x2: px,
+            y2: "680",
+            stroke: "#C2C2C2",
+            strokeWidth: "1.5"
+          },
+          `cwall${px}`
+        )),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "680", width: "1200", height: "120", fill: "url(#cFloor)" }),
+        [
+          80,
+          160,
+          240,
+          320,
+          400,
+          480,
+          560,
+          640,
+          720,
+          800,
+          880,
+          960,
+          1040,
+          1120
+        ].map((fx) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "line",
+          {
+            x1: fx,
+            y1: "680",
+            x2: fx,
+            y2: "800",
+            stroke: "#B5B5B5",
+            strokeWidth: "0.8",
+            opacity: "0.6"
+          },
+          `cfv${fx}`
+        )),
+        [740, 800].map((fy) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "line",
+          {
+            x1: "0",
+            y1: fy,
+            x2: "1200",
+            y2: fy,
+            stroke: "#B5B5B5",
+            strokeWidth: "0.8",
+            opacity: "0.6"
+          },
+          `cfh${fy}`
+        )),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "678", width: "1200", height: "10", fill: "url(#cShadow)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "385",
+            width: "1200",
+            height: "13",
+            rx: "2",
+            fill: "url(#cBenchTop)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "397", width: "1200", height: "85", fill: "url(#cBenchFront)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "385",
+            width: "1200",
+            height: "3",
+            fill: "rgba(255,255,255,0.55)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "482", width: "1200", height: "3", fill: "#909090" }),
+        [60, 340, 620, 880, 1122].map((bx) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: bx,
+            y: "397",
+            width: "16",
+            height: "85",
+            fill: "#A0A0A0"
+          },
+          `cmb${bx}`
+        )),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "484", width: "1200", height: "8", fill: "url(#cShadow)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "168", cy: "218", r: "50", fill: "url(#cBioCirc)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "168",
+            cy: "218",
+            r: "50",
+            fill: "none",
+            stroke: "#000000",
+            strokeWidth: "3"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(168,218)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { r: "9.5", fill: "#000000" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { r: "6.2", fill: "#F5C000" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M -9,-5.5 A 17 17 0 1 1 9,-5.5 A 9.5 9.5 0 0 0 -9,-5.5 Z",
+              fill: "#000000"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("g", { transform: "rotate(120)", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M -9,-5.5 A 17 17 0 1 1 9,-5.5 A 9.5 9.5 0 0 0 -9,-5.5 Z",
+              fill: "#000000"
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("g", { transform: "rotate(240)", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M -9,-5.5 A 17 17 0 1 1 9,-5.5 A 9.5 9.5 0 0 0 -9,-5.5 Z",
+              fill: "#000000"
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M -7.5,4.5 A 9.5 9.5 0 0 0 7.5,4.5 Z", fill: "#F5C000" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("g", { transform: "rotate(120)", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M -7.5,4.5 A 9.5 9.5 0 0 0 7.5,4.5 Z", fill: "#F5C000" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("g", { transform: "rotate(240)", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M -7.5,4.5 A 9.5 9.5 0 0 0 7.5,4.5 Z", fill: "#F5C000" }) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "text",
+          {
+            x: "168",
+            y: "280",
+            textAnchor: "middle",
+            fontFamily: "Arial,sans-serif",
+            fontSize: "10",
+            fontWeight: "bold",
+            fill: "#000000",
+            letterSpacing: "2",
+            children: "BIOHAZARD"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "975", cy: "198", r: "40", fill: "url(#cBioCirc)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "circle",
+          {
+            cx: "975",
+            cy: "198",
+            r: "40",
+            fill: "none",
+            stroke: "#000000",
+            strokeWidth: "2.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(975,198)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { r: "7.5", fill: "#000000" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { r: "4.9", fill: "#F5C000" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M -7.2,-4.4 A 13.6 13.6 0 1 1 7.2,-4.4 A 7.5 7.5 0 0 0 -7.2,-4.4 Z",
+              fill: "#000000"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("g", { transform: "rotate(120)", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M -7.2,-4.4 A 13.6 13.6 0 1 1 7.2,-4.4 A 7.5 7.5 0 0 0 -7.2,-4.4 Z",
+              fill: "#000000"
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("g", { transform: "rotate(240)", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M -7.2,-4.4 A 13.6 13.6 0 1 1 7.2,-4.4 A 7.5 7.5 0 0 0 -7.2,-4.4 Z",
+              fill: "#000000"
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M -6,3.6 A 7.5 7.5 0 0 0 6,3.6 Z", fill: "#F5C000" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("g", { transform: "rotate(120)", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M -6,3.6 A 7.5 7.5 0 0 0 6,3.6 Z", fill: "#F5C000" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("g", { transform: "rotate(240)", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M -6,3.6 A 7.5 7.5 0 0 0 6,3.6 Z", fill: "#F5C000" }) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "text",
+          {
+            x: "975",
+            y: "248",
+            textAnchor: "middle",
+            fontFamily: "Arial,sans-serif",
+            fontSize: "8.5",
+            fontWeight: "bold",
+            fill: "#000000",
+            letterSpacing: "1.5",
+            children: "BIOHAZARD"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "770", y: "95", width: "14", height: "9", rx: "2", fill: "#888888" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 777,104 L 777,118 Q 798,126 798,142",
+            fill: "none",
+            stroke: "#777777",
+            strokeWidth: "3",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "788", cy: "174", rx: "40", ry: "42", fill: "url(#cHazmat)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "788",
+            cy: "169",
+            rx: "21",
+            ry: "17",
+            fill: "url(#cVisor)",
+            stroke: "#CC5500",
+            strokeWidth: "2"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "781",
+            cy: "163",
+            rx: "6",
+            ry: "4.5",
+            fill: "rgba(255,255,255,0.32)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 750,183 Q 755,163 788,154 Q 821,163 826,183",
+            fill: "none",
+            stroke: "#CC5500",
+            strokeWidth: "1.5",
+            strokeDasharray: "4,3"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "788", cy: "210", rx: "40", ry: "9", fill: "#DF5600" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 750,210 Q 743,258 741,328 Q 741,368 749,378 Q 788,388 827,378 Q 835,368 835,328 Q 833,258 826,210 Z",
+            fill: "url(#cHazmat)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "line",
+          {
+            x1: "788",
+            y1: "213",
+            x2: "788",
+            y2: "378",
+            stroke: "#CC5500",
+            strokeWidth: "1.5",
+            strokeDasharray: "5,4"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "784",
+            y: "218",
+            width: "8",
+            height: "34",
+            rx: "2",
+            fill: "#DD6600",
+            stroke: "#AA4400",
+            strokeWidth: "1"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "782", y: "249", width: "12", height: "5", rx: "1", fill: "#AAAAAA" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "749",
+            y: "268",
+            width: "79",
+            height: "8",
+            rx: "2",
+            fill: "rgba(218,218,218,0.78)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 750,218 Q 720,238 712,288 Q 707,328 716,352 Q 723,364 733,356 Q 746,342 748,314 Q 752,278 755,248 Z",
+            fill: "url(#cHazmat)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 718,298 Q 724,293 733,296",
+            fill: "none",
+            stroke: "rgba(218,218,218,0.78)",
+            strokeWidth: "7",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "721", cy: "358", rx: "15", ry: "9", fill: "#2E2E2E" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 826,218 Q 856,238 864,288 Q 869,328 860,352 Q 853,364 843,356 Q 830,342 828,314 Q 824,278 821,248 Z",
+            fill: "url(#cHazmat)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 858,298 Q 852,293 843,296",
+            fill: "none",
+            stroke: "rgba(218,218,218,0.78)",
+            strokeWidth: "7",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "855", cy: "358", rx: "15", ry: "9", fill: "#2E2E2E" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 749,376 Q 745,418 743,458 Q 741,490 743,528 Q 746,553 756,558 Q 769,560 773,546 Q 777,528 777,498 Q 777,463 776,428 Q 776,403 773,378 Z",
+            fill: "url(#cHazmat)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "758", cy: "558", rx: "19", ry: "9", fill: "#252525" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 827,376 Q 831,418 833,458 Q 835,490 833,528 Q 830,553 820,558 Q 807,560 803,546 Q 799,528 799,498 Q 799,463 800,428 Q 800,403 803,378 Z",
+            fill: "url(#cHazmat)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "818", cy: "558", rx: "19", ry: "9", fill: "#252525" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "570",
+            width: "1200",
+            height: "13",
+            rx: "2",
+            fill: "url(#cBenchTop)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "582", width: "1200", height: "88", fill: "url(#cBenchFront)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "570",
+            width: "1200",
+            height: "3",
+            fill: "rgba(255,255,255,0.6)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "669", width: "1200", height: "3", fill: "#909090" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "671", width: "1200", height: "9", fill: "url(#cShadow)" }),
+        [80, 360, 640, 900, 1150].map((bx) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: bx,
+            y: "582",
+            width: "16",
+            height: "88",
+            fill: "#9E9E9E"
+          },
+          `cfb${bx}`
+        )),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "265", cy: "575", rx: "68", ry: "12", fill: "url(#cMicroBase)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "230",
+            y: "543",
+            width: "70",
+            height: "32",
+            rx: "4",
+            fill: "url(#cMicroBase)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "265", cy: "543", rx: "18", ry: "7", fill: "#2A2A2A" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "265",
+            cy: "541",
+            rx: "12",
+            ry: "4.5",
+            fill: "#C8C0A8",
+            opacity: "0.6"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "252",
+            y: "330",
+            width: "26",
+            height: "218",
+            rx: "5",
+            fill: "url(#cMicroBase)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "252",
+            y: "330",
+            width: "88",
+            height: "22",
+            rx: "5",
+            fill: "url(#cMicroBase)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "248",
+            cy: "440",
+            rx: "16",
+            ry: "16",
+            fill: "#303030",
+            stroke: "#555555",
+            strokeWidth: "2"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "248", cy: "440", rx: "10", ry: "10", fill: "#404040" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "248",
+            cy: "468",
+            rx: "13",
+            ry: "13",
+            fill: "#383838",
+            stroke: "#555555",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "248", cy: "468", rx: "8", ry: "8", fill: "#484848" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "270", y: "442", width: "80", height: "10", rx: "2", fill: "#505050" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "275", y: "434", width: "70", height: "8", rx: "2", fill: "#606060" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "278", y: "430", width: "8", height: "14", rx: "2", fill: "#404040" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "344", y: "430", width: "8", height: "14", rx: "2", fill: "#404040" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "298", y: "452", width: "30", height: "22", rx: "3", fill: "#444444" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "313", cy: "452", rx: "12", ry: "5", fill: "#303030" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "318", cy: "378", rx: "22", ry: "8", fill: "#383838" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "296", y: "378", width: "10", height: "34", rx: "3", fill: "#303030" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "313", y: "378", width: "10", height: "42", rx: "3", fill: "#303030" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "330", y: "378", width: "10", height: "28", rx: "3", fill: "#303030" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "301", cy: "413", rx: "5", ry: "4", fill: "#252525" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "318", cy: "421", rx: "6", ry: "4.5", fill: "#252525" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "335", cy: "407", rx: "5", ry: "4", fill: "#252525" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "322", y: "310", width: "18", height: "22", rx: "4", fill: "#404040" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "317", y: "303", width: "28", height: "11", rx: "4", fill: "#383838" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "331", cy: "302", rx: "15", ry: "6", fill: "#222222" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "331", cy: "302", rx: "9", ry: "3.5", fill: "#1A3A50", opacity: "0.8" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "960", cy: "395", rx: "50", ry: "9", fill: "url(#cMicroBase)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "930",
+            y: "372",
+            width: "54",
+            height: "23",
+            rx: "3",
+            fill: "url(#cMicroBase)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "957", cy: "372", rx: "13", ry: "5", fill: "#2A2A2A" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "957", cy: "370", rx: "9", ry: "3.5", fill: "#C8C0A8", opacity: "0.5" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "944",
+            y: "205",
+            width: "20",
+            height: "168",
+            rx: "4",
+            fill: "url(#cMicroBase)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "944",
+            y: "205",
+            width: "68",
+            height: "17",
+            rx: "4",
+            fill: "url(#cMicroBase)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "941",
+            cy: "290",
+            rx: "12",
+            ry: "12",
+            fill: "#303030",
+            stroke: "#555555",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "941", cy: "290", rx: "7.5", ry: "7.5", fill: "#404040" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "941",
+            cy: "310",
+            rx: "10",
+            ry: "10",
+            fill: "#383838",
+            stroke: "#555555",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "957", y: "302", width: "60", height: "8", rx: "2", fill: "#505050" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "961", y: "295", width: "52", height: "7", rx: "2", fill: "#606060" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "963", y: "291", width: "6", height: "11", rx: "1.5", fill: "#404040" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1003", y: "291", width: "6", height: "11", rx: "1.5", fill: "#404040" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "977", y: "310", width: "22", height: "16", rx: "2", fill: "#444444" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "995", cy: "248", rx: "16", ry: "6", fill: "#383838" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "979", y: "248", width: "8", height: "26", rx: "2", fill: "#303030" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "991", y: "248", width: "8", height: "32", rx: "2", fill: "#303030" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1003", y: "248", width: "8", height: "21", rx: "2", fill: "#303030" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "983", cy: "275", rx: "4", ry: "3", fill: "#252525" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "995", cy: "281", rx: "4.5", ry: "3.5", fill: "#252525" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1007", cy: "270", rx: "4", ry: "3", fill: "#252525" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "999", y: "214", width: "14", height: "17", rx: "3", fill: "#404040" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "995", y: "208", width: "22", height: "9", rx: "3", fill: "#383838" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1006", cy: "207", rx: "11", ry: "4.5", fill: "#222222" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "1006",
+            cy: "207",
+            rx: "6.5",
+            ry: "2.8",
+            fill: "#1A3A50",
+            opacity: "0.8"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "440", y: "354", width: "100", height: "36", rx: "3", fill: "#888888" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "443", y: "356", width: "94", height: "32", rx: "2", fill: "#AAAAAA" }),
+        [452, 465, 478, 491, 504, 517, 530].map((tx) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: tx,
+            cy: "372",
+            rx: "5",
+            ry: "5",
+            fill: "#888888"
+          },
+          `cth${tx}`
+        )),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "449",
+            y: "296",
+            width: "10",
+            height: "62",
+            rx: "5",
+            fill: "url(#tubeClear)",
+            stroke: "rgba(180,200,220,0.6)",
+            strokeWidth: "1"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "462",
+            y: "310",
+            width: "10",
+            height: "48",
+            rx: "5",
+            fill: "url(#tubeBlue)",
+            stroke: "rgba(100,160,240,0.6)",
+            strokeWidth: "1"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "475",
+            y: "302",
+            width: "10",
+            height: "56",
+            rx: "5",
+            fill: "url(#tubeOrange)",
+            stroke: "rgba(220,130,0,0.6)",
+            strokeWidth: "1"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "488",
+            y: "294",
+            width: "10",
+            height: "64",
+            rx: "5",
+            fill: "url(#tubeRed)",
+            stroke: "rgba(200,40,40,0.6)",
+            strokeWidth: "1"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "501",
+            y: "308",
+            width: "10",
+            height: "50",
+            rx: "5",
+            fill: "url(#tubeBlue)",
+            stroke: "rgba(100,160,240,0.6)",
+            strokeWidth: "1"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "514",
+            y: "300",
+            width: "10",
+            height: "58",
+            rx: "5",
+            fill: "url(#tubeOrange)",
+            stroke: "rgba(220,130,0,0.6)",
+            strokeWidth: "1"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "527",
+            y: "316",
+            width: "10",
+            height: "42",
+            rx: "5",
+            fill: "url(#tubeClear)",
+            stroke: "rgba(180,200,220,0.6)",
+            strokeWidth: "1"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "449", y: "294", width: "10", height: "6", rx: "3", fill: "#C8C8C8" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "462", y: "294", width: "10", height: "6", rx: "3", fill: "#5090C8" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "475", y: "294", width: "10", height: "6", rx: "3", fill: "#CC7800" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "488", y: "294", width: "10", height: "6", rx: "3", fill: "#C03030" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "501", y: "294", width: "10", height: "6", rx: "3", fill: "#5090C8" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "514", y: "294", width: "10", height: "6", rx: "3", fill: "#CC7800" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "527", y: "294", width: "10", height: "6", rx: "3", fill: "#C8C8C8" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "110",
+            cy: "574",
+            rx: "36",
+            ry: "12",
+            fill: "rgba(240,240,240,0.6)",
+            stroke: "#AAAAAA",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "110", cy: "572", rx: "32", ry: "10", fill: "url(#cPetriRed)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 92,570 Q 100,562 115,568 Q 122,572 118,578",
+            fill: "rgba(200,70,40,0.4)",
+            stroke: "none"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 100,576 Q 110,566 120,572",
+            fill: "none",
+            stroke: "rgba(180,50,20,0.35)",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "184",
+            cy: "574",
+            rx: "34",
+            ry: "11",
+            fill: "rgba(240,240,240,0.6)",
+            stroke: "#AAAAAA",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "184", cy: "572", rx: "30", ry: "9", fill: "url(#cPetriGreen)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 170,570 Q 178,562 190,567 Q 198,572 193,578",
+            fill: "rgba(60,140,60,0.4)",
+            stroke: "none"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "655",
+            cy: "388",
+            rx: "30",
+            ry: "10",
+            fill: "rgba(240,240,240,0.6)",
+            stroke: "#AAAAAA",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "655", cy: "386", rx: "26", ry: "8", fill: "url(#cPetriRed)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 638,384 Q 648,376 660,382 Q 668,387 663,393",
+            fill: "rgba(200,70,40,0.38)",
+            stroke: "none"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "720",
+            cy: "388",
+            rx: "28",
+            ry: "9",
+            fill: "rgba(240,240,240,0.6)",
+            stroke: "#AAAAAA",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "720", cy: "386", rx: "24", ry: "7.5", fill: "url(#cPetriGreen)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "370",
+            y: "566",
+            width: "68",
+            height: "22",
+            rx: "8",
+            fill: "rgba(200,230,255,0.7)",
+            stroke: "#888888",
+            strokeWidth: "2"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "391",
+            cy: "576",
+            rx: "14",
+            ry: "9",
+            fill: "rgba(170,210,255,0.65)",
+            stroke: "#777777",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "417",
+            cy: "576",
+            rx: "14",
+            ry: "9",
+            fill: "rgba(170,210,255,0.65)",
+            stroke: "#777777",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "404", y: "573", width: "8", height: "6", rx: "2", fill: "#999999" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 370,576 Q 360,573 355,578",
+            fill: "none",
+            stroke: "#888888",
+            strokeWidth: "2",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M 438,576 Q 448,573 453,578",
+            fill: "none",
+            stroke: "#888888",
+            strokeWidth: "2",
+            strokeLinecap: "round"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "508",
+            y: "545",
+            width: "16",
+            height: "28",
+            rx: "3",
+            fill: "rgba(220,240,255,0.8)",
+            stroke: "#AAAAAA",
+            strokeWidth: "1"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "508", y: "545", width: "16", height: "6", rx: "2", fill: "#4488CC" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "530",
+            y: "540",
+            width: "16",
+            height: "33",
+            rx: "3",
+            fill: "rgba(255,235,200,0.8)",
+            stroke: "#AAAAAA",
+            strokeWidth: "1"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "530", y: "540", width: "16", height: "6", rx: "2", fill: "#DD8800" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "552",
+            y: "548",
+            width: "16",
+            height: "25",
+            rx: "3",
+            fill: "rgba(240,220,240,0.8)",
+            stroke: "#AAAAAA",
+            strokeWidth: "1"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "552", y: "548", width: "16", height: "6", rx: "2", fill: "#8855AA" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "510",
+            y: "554",
+            width: "12",
+            height: "10",
+            fill: "rgba(255,255,255,0.9)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "532",
+            y: "549",
+            width: "12",
+            height: "10",
+            fill: "rgba(255,255,255,0.9)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "554",
+            y: "557",
+            width: "12",
+            height: "10",
+            fill: "rgba(255,255,255,0.9)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "1090",
+            y: "108",
+            width: "60",
+            height: "80",
+            rx: "3",
+            fill: "#ECECEC",
+            stroke: "#BBBBBB",
+            strokeWidth: "1.5"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1108", y: "103", width: "24", height: "14", rx: "4", fill: "#888888" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1112", y: "100", width: "16", height: "8", rx: "2", fill: "#555555" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1096", y: "125", width: "48", height: "2", rx: "1", fill: "#C0C0C0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1096", y: "131", width: "48", height: "2", rx: "1", fill: "#C0C0C0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1096", y: "137", width: "48", height: "2", rx: "1", fill: "#C0C0C0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1096", y: "143", width: "38", height: "2", rx: "1", fill: "#C0C0C0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1096", y: "149", width: "48", height: "2", rx: "1", fill: "#C0C0C0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1096", y: "155", width: "32", height: "2", rx: "1", fill: "#C0C0C0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1096", y: "161", width: "48", height: "2", rx: "1", fill: "#C0C0C0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1096", y: "167", width: "42", height: "2", rx: "1", fill: "#C0C0C0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "1096", y: "173", width: "48", height: "2", rx: "1", fill: "#C0C0C0" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "0",
+            width: "1200",
+            height: "800",
+            fill: "rgba(240,248,255,0.06)"
+          }
+        )
+      ]
+    }
+  );
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -47852,6 +49225,8 @@ const BackgroundRenderer = ({ world }) => {
         return renderMinecraftWorld();
       case "pumpfun":
         return renderPumpFunWorld();
+      case "corona":
+        return renderCoronaWorld();
       default:
         return renderOriginalWorld();
     }
@@ -53681,6 +55056,16 @@ const GameScreen = ({
   initialView = "game"
 }) => {
   const canvasRef = reactExports.useRef(null);
+  const { data: pumpFunPriceData } = usePumpFunPrice();
+  const pumpFunPrice = selectedWorld === "pumpfun" && pumpFunPriceData ? {
+    price: Number(pumpFunPriceData.price),
+    change24h: Number(pumpFunPriceData.change24h)
+  } : null;
+  const { data: btcPriceData } = useBitcoinPrice();
+  const btcPrice = selectedWorld === "bitcoin" && btcPriceData ? {
+    price: Number(btcPriceData.price),
+    change24h: Number(btcPriceData.change24h)
+  } : null;
   const audioContextRef = reactExports.useRef(null);
   const backgroundMusicGainRef = reactExports.useRef(null);
   const rainSoundGainRef = reactExports.useRef(null);
@@ -54665,6 +56050,713 @@ const GameScreen = ({
     },
     [drawExplosion]
   );
+  const drawPumpFunPill = reactExports.useCallback(
+    (ctx, chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x: x2, y: y2, size, type, direction, isGolden } = chicken;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let pw;
+      let ph;
+      if (chicken.distance === "far") {
+        pw = 50;
+        ph = 22;
+      } else if (chicken.distance === "medium") {
+        pw = 80;
+        ph = 34;
+      } else {
+        pw = 110;
+        ph = 48;
+      }
+      const pr = ph / 2;
+      const wingScale = pw / 130;
+      ctx.save();
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      const tiltRad = direction === "left-to-right" ? Math.PI * 40 / 180 : Math.PI * 40 / 180;
+      ctx.rotate(tiltRad);
+      if (type === "fast" && !isGolden) {
+        ctx.shadowColor = "#FF6600";
+        ctx.shadowBlur = 12;
+      }
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 16;
+      }
+      const ws = wingScale;
+      const wingFill = isGolden ? "#FFE066" : "rgba(255,255,255,0.95)";
+      const wingFillInner = isGolden ? "rgba(255,220,80,0.7)" : "rgba(230,240,255,0.75)";
+      const wingStroke = isGolden ? "#FFD700" : "#D4AF37";
+      const flapAngle = Math.sin(chicken.wingPhase) * 0.35;
+      const drawWingUp = () => {
+        ctx.fillStyle = wingFill;
+        ctx.strokeStyle = wingStroke;
+        ctx.lineWidth = 1 * ws;
+        ctx.globalAlpha = 0.97;
+        ctx.beginPath();
+        ctx.moveTo(-3 * ws, 0);
+        ctx.bezierCurveTo(
+          -8 * ws,
+          -10 * ws,
+          -4 * ws,
+          -20 * ws,
+          6 * ws,
+          -22 * ws
+        );
+        ctx.bezierCurveTo(4 * ws, -14 * ws, 2 * ws, -6 * ws, 3 * ws, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-2 * ws, -2 * ws);
+        ctx.bezierCurveTo(
+          -14 * ws,
+          -14 * ws,
+          -20 * ws,
+          -28 * ws,
+          -10 * ws,
+          -36 * ws
+        );
+        ctx.bezierCurveTo(-6 * ws, -28 * ws, 0 * ws, -16 * ws, 2 * ws, -4 * ws);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = wingFillInner;
+        ctx.beginPath();
+        ctx.moveTo(4 * ws, -1 * ws);
+        ctx.bezierCurveTo(
+          0 * ws,
+          -18 * ws,
+          -8 * ws,
+          -34 * ws,
+          -20 * ws,
+          -44 * ws
+        );
+        ctx.bezierCurveTo(
+          -24 * ws,
+          -36 * ws,
+          -18 * ws,
+          -22 * ws,
+          0 * ws,
+          -6 * ws
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = wingFill;
+        ctx.beginPath();
+        ctx.moveTo(2 * ws, -4 * ws);
+        ctx.bezierCurveTo(
+          -6 * ws,
+          -22 * ws,
+          -18 * ws,
+          -38 * ws,
+          -30 * ws,
+          -46 * ws
+        );
+        ctx.bezierCurveTo(
+          -30 * ws,
+          -38 * ws,
+          -22 * ws,
+          -26 * ws,
+          -4 * ws,
+          -10 * ws
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      };
+      ctx.save();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.translate(0, -ph / 2);
+      ctx.rotate(-flapAngle);
+      drawWingUp();
+      ctx.restore();
+      ctx.save();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.translate(0, ph / 2);
+      ctx.scale(1, -1);
+      ctx.rotate(flapAngle);
+      drawWingUp();
+      ctx.restore();
+      ctx.globalAlpha = 1;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-pw / 2, -ph / 2, pw / 2, ph);
+      ctx.clip();
+      const leftColor = isGolden ? "#FFD700" : "#4ADE80";
+      const leftColorEnd = isGolden ? "#F59E0B" : "#22C55E";
+      const lgLeft = ctx.createLinearGradient(
+        -pw / 2,
+        -ph / 2,
+        -pw / 2,
+        ph / 2
+      );
+      lgLeft.addColorStop(0, leftColor);
+      lgLeft.addColorStop(1, leftColorEnd);
+      ctx.fillStyle = lgLeft;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -ph / 2, pw, ph, pr);
+      ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, -ph / 2, pw / 2, ph);
+      ctx.clip();
+      const lgRight = ctx.createLinearGradient(0, -ph / 2, 0, ph / 2);
+      lgRight.addColorStop(0, "#FFFFFF");
+      lgRight.addColorStop(1, "#F0F0F0");
+      ctx.fillStyle = lgRight;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -ph / 2, pw, ph, pr);
+      ctx.fill();
+      ctx.restore();
+      ctx.strokeStyle = "#1a1a1a";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -ph / 2, pw, ph, pr);
+      ctx.stroke();
+      ctx.strokeStyle = "#888888";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, -ph / 2);
+      ctx.lineTo(0, ph / 2);
+      ctx.stroke();
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-pw / 2, -ph / 2, pw / 2, ph);
+      ctx.clip();
+      const glossGrad = ctx.createRadialGradient(
+        -pw * 0.25,
+        -ph * 0.25,
+        1,
+        -pw * 0.25,
+        -ph * 0.25,
+        ph * 0.55
+      );
+      glossGrad.addColorStop(0, "rgba(255,255,255,0.55)");
+      glossGrad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = glossGrad;
+      ctx.beginPath();
+      ctx.ellipse(
+        -pw * 0.2,
+        -ph * 0.2,
+        pw * 0.18,
+        ph * 0.22,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.restore();
+      ctx.restore();
+    },
+    [drawExplosion]
+  );
+  const drawBitcoinCoin = reactExports.useCallback(
+    (ctx, chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x: x2, y: y2, size, type, isGolden, wingPhase } = chicken;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let r2;
+      if (chicken.distance === "far") {
+        r2 = 14;
+      } else if (chicken.distance === "medium") {
+        r2 = 22;
+      } else {
+        r2 = 32;
+      }
+      const bob = Math.sin(wingPhase) * 2.5;
+      ctx.save();
+      ctx.translate(cx, cy + bob);
+      if (type === "fast" && !isGolden) {
+        ctx.shadowColor = "#FF6600";
+        ctx.shadowBlur = 12;
+      }
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      }
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.strokeStyle = isGolden ? "#B8860B" : "#B8860B";
+      ctx.lineWidth = r2 * 0.12;
+      ctx.stroke();
+      const grad = ctx.createRadialGradient(
+        -r2 * 0.3,
+        -r2 * 0.3,
+        r2 * 0.05,
+        0,
+        0,
+        r2
+      );
+      if (isGolden) {
+        grad.addColorStop(0, "#FFF176");
+        grad.addColorStop(0.45, "#FFD700");
+        grad.addColorStop(1, "#B8860B");
+      } else {
+        grad.addColorStop(0, "#FFE066");
+        grad.addColorStop(0.45, "#F7931A");
+        grad.addColorStop(1, "#8B5E00");
+      }
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.fill();
+      const gloss = ctx.createRadialGradient(
+        -r2 * 0.32,
+        -r2 * 0.32,
+        0,
+        -r2 * 0.32,
+        -r2 * 0.32,
+        r2 * 0.55
+      );
+      gloss.addColorStop(0, "rgba(255,255,255,0.55)");
+      gloss.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.fill();
+      const btcScale = r2 * 1.15 / 100;
+      ctx.save();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.translate(0, 0);
+      ctx.scale(btcScale, btcScale);
+      ctx.translate(-40, -60);
+      ctx.rotate(14 * Math.PI / 180);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.globalAlpha = 0.95;
+      const p2 = new Path2D(
+        "M78.3 36.6c1.8-12.2-7.5-18.8-20.2-23.2l4.1-16.6-10.1-2.5-4 16.1c-2.7-.7-5.4-1.3-8.1-1.9l4.1-16.3-10.1-2.5-4.1 16.6c-2.2-.5-4.4-1-6.5-1.5l0 0-13.9-3.5-2.7 10.8s7.5 1.7 7.4 1.8c4.1 1 4.8 3.7 4.7 5.9l-4.7 18.8c.3.1.7.2 1.1.3-.4-.1-.7-.2-1.1-.3l-6.6 26.4c-.5 1.2-1.8 3-4.6 2.3.1.1-7.4-1.9-7.4-1.9l-5.1 11.5 13.2 3.3c2.4.6 4.8 1.2 7.2 1.9l-4.2 16.7 10.1 2.5 4.1-16.6c2.8.7 5.5 1.4 8.2 2.1l-4.1 16.5 10.1 2.5 4.2-16.8c17.3 3.3 30.3 1.9 35.8-13.6 4.4-12.6.2-19.9-9.3-24.6 6.6-1.5 11.6-5.9 12.9-14.7zm-23.1 32.4c-3.1 12.6-24.3 5.8-31.2 4.1l5.6-22.3c6.9 1.7 28.9 5.1 25.6 18.2zm3.1-32.7c-2.9 11.5-20.5 5.7-26.2 4.2l5-20.1c5.7 1.4 24.1 4.1 21.2 15.9z"
+      );
+      ctx.fill(p2);
+      ctx.globalAlpha = 1;
+      ctx.restore();
+      ctx.restore();
+    },
+    [drawExplosion]
+  );
+  const drawOceanFish = reactExports.useCallback(
+    (ctx, chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x: x2, y: y2, size, wingPhase, direction, type, isGolden } = chicken;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let fw;
+      let fh;
+      if (chicken.distance === "far") {
+        fw = 48;
+        fh = 20;
+      } else if (chicken.distance === "medium") {
+        fw = 76;
+        fh = 32;
+      } else {
+        fw = 108;
+        fh = 46;
+      }
+      const tailWag = Math.sin(wingPhase) * 0.28;
+      const finFlutter = Math.sin(wingPhase * 1.3) * 0.18;
+      ctx.save();
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      } else if (type === "fast") {
+        ctx.shadowColor = "#00FFFF";
+        ctx.shadowBlur = 14;
+      } else {
+        ctx.shadowColor = "#00BFFF";
+        ctx.shadowBlur = 10;
+      }
+      ctx.save();
+      ctx.translate(fw * 0.38, 0);
+      ctx.rotate(tailWag);
+      const tailGrad = ctx.createLinearGradient(0, -fh * 0.6, 0, fh * 0.6);
+      tailGrad.addColorStop(
+        0,
+        isGolden ? "#FFE066" : type === "fast" ? "#FF8C00" : "#CE93D8"
+      );
+      tailGrad.addColorStop(
+        1,
+        isGolden ? "#F59E0B" : type === "fast" ? "#FF3D00" : "#7B1FA2"
+      );
+      ctx.fillStyle = tailGrad;
+      ctx.strokeStyle = isGolden ? "#B8860B" : type === "fast" ? "#CC2200" : "#4A148C";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(
+        fw * 0.18,
+        -fh * 0.55,
+        fw * 0.32,
+        -fh * 0.65,
+        fw * 0.42,
+        -fh * 0.55
+      );
+      ctx.bezierCurveTo(fw * 0.34, -fh * 0.18, fw * 0.2, -fh * 0.06, 0, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(
+        fw * 0.18,
+        fh * 0.55,
+        fw * 0.32,
+        fh * 0.65,
+        fw * 0.42,
+        fh * 0.55
+      );
+      ctx.bezierCurveTo(fw * 0.34, fh * 0.18, fw * 0.2, fh * 0.06, 0, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      const bodyGrad = ctx.createRadialGradient(
+        -fw * 0.15,
+        -fh * 0.1,
+        fh * 0.05,
+        0,
+        0,
+        fh * 0.72
+      );
+      if (isGolden) {
+        bodyGrad.addColorStop(0, "#FFF176");
+        bodyGrad.addColorStop(0.4, "#FFD700");
+        bodyGrad.addColorStop(1, "#B8860B");
+      } else if (type === "fast") {
+        bodyGrad.addColorStop(0, "#FFAB40");
+        bodyGrad.addColorStop(0.35, "#FF6B35");
+        bodyGrad.addColorStop(0.7, "#E53935");
+        bodyGrad.addColorStop(1, "#7B1FA2");
+      } else {
+        bodyGrad.addColorStop(0, "#80DEEA");
+        bodyGrad.addColorStop(0.3, "#26C6DA");
+        bodyGrad.addColorStop(0.65, "#F48FB1");
+        bodyGrad.addColorStop(1, "#7B1FA2");
+      }
+      ctx.fillStyle = bodyGrad;
+      ctx.strokeStyle = isGolden ? "#B8860B" : type === "fast" ? "#CC2200" : "#1565C0";
+      ctx.lineWidth = Math.max(1, fh * 0.04);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, fw * 0.42, fh * 0.42, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      const scaleColor = isGolden ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.2)";
+      ctx.strokeStyle = scaleColor;
+      ctx.lineWidth = Math.max(0.5, fh * 0.025);
+      const scaleRows = chicken.distance === "far" ? 2 : 3;
+      const scaleCols = chicken.distance === "far" ? 3 : 4;
+      for (let row = 0; row < scaleRows; row++) {
+        for (let col = 0; col < scaleCols; col++) {
+          const sx = -fw * 0.2 + col * fw * 0.14;
+          const sy = -fh * 0.15 + row * fh * 0.18;
+          const sr = fh * 0.1;
+          ctx.beginPath();
+          ctx.arc(sx, sy, sr, Math.PI * 0.2, Math.PI * 0.8);
+          ctx.stroke();
+        }
+      }
+      ctx.save();
+      ctx.rotate(finFlutter * 0.5);
+      const dorsalGrad = ctx.createLinearGradient(0, -fh * 0.42, 0, -fh * 0.85);
+      if (isGolden) {
+        dorsalGrad.addColorStop(0, "#FFE066");
+        dorsalGrad.addColorStop(1, "rgba(255,200,50,0)");
+      } else if (type === "fast") {
+        dorsalGrad.addColorStop(0, "#FF8C00");
+        dorsalGrad.addColorStop(1, "rgba(255,80,0,0)");
+      } else {
+        dorsalGrad.addColorStop(0, "#80DEEA");
+        dorsalGrad.addColorStop(1, "rgba(100,200,220,0)");
+      }
+      ctx.fillStyle = dorsalGrad;
+      ctx.strokeStyle = isGolden ? "#DAA520" : type === "fast" ? "#CC2200" : "#0097A7";
+      ctx.lineWidth = Math.max(0.8, fh * 0.03);
+      ctx.beginPath();
+      ctx.moveTo(-fw * 0.15, -fh * 0.38);
+      ctx.bezierCurveTo(
+        -fw * 0.05,
+        -fh * 0.85,
+        fw * 0.12,
+        -fh * 0.8,
+        fw * 0.22,
+        -fh * 0.38
+      );
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      ctx.save();
+      ctx.translate(-fw * 0.05, fh * 0.1);
+      ctx.rotate(finFlutter);
+      const pectColor = isGolden ? "rgba(255,220,50,0.7)" : type === "fast" ? "rgba(255,120,0,0.7)" : "rgba(180,240,255,0.7)";
+      ctx.fillStyle = pectColor;
+      ctx.strokeStyle = isGolden ? "#DAA520" : type === "fast" ? "#BB3300" : "#0097A7";
+      ctx.lineWidth = Math.max(0.6, fh * 0.025);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(
+        -fw * 0.08,
+        fh * 0.28,
+        fw * 0.08,
+        fh * 0.35,
+        fw * 0.18,
+        fh * 0.18
+      );
+      ctx.bezierCurveTo(fw * 0.08, fh * 0.08, -fw * 0.02, fh * 0.04, 0, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      const gloss = ctx.createRadialGradient(
+        -fw * 0.18,
+        -fh * 0.18,
+        0,
+        -fw * 0.08,
+        -fh * 0.08,
+        fh * 0.38
+      );
+      gloss.addColorStop(0, "rgba(255,255,255,0.5)");
+      gloss.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.ellipse(
+        -fw * 0.1,
+        -fh * 0.1,
+        fw * 0.22,
+        fh * 0.2,
+        -0.3,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      if (!isGolden) {
+        ctx.strokeStyle = type === "fast" ? "rgba(255,255,150,0.45)" : "rgba(255,255,255,0.35)";
+        ctx.lineWidth = Math.max(1, fh * 0.07);
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(-fw * 0.02, -fh * 0.36);
+        ctx.bezierCurveTo(
+          -fw * 0.02,
+          -fh * 0.1,
+          fw * 0.04,
+          fh * 0.1,
+          fw * 0,
+          fh * 0.36
+        );
+        ctx.stroke();
+      }
+      const eyeX = -fw * 0.28;
+      const eyeY = -fh * 0.06;
+      const eyeR = Math.max(2, fh * 0.1);
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.arc(eyeX, eyeY, eyeR, 0, Math.PI * 2);
+      ctx.fill();
+      const irisColor = isGolden ? "#FFB300" : type === "fast" ? "#FF5722" : "#00BCD4";
+      ctx.fillStyle = irisColor;
+      ctx.beginPath();
+      ctx.arc(eyeX - eyeR * 0.1, eyeY, eyeR * 0.72, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#000000";
+      ctx.beginPath();
+      ctx.arc(eyeX - eyeR * 0.15, eyeY, eyeR * 0.36, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,0.9)";
+      ctx.beginPath();
+      ctx.arc(
+        eyeX - eyeR * 0.2,
+        eyeY - eyeR * 0.28,
+        eyeR * 0.18,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.strokeStyle = isGolden ? "#B8860B" : "#1565C0";
+      ctx.lineWidth = Math.max(0.8, fh * 0.04);
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-fw * 0.41, -fh * 0.04);
+      ctx.quadraticCurveTo(-fw * 0.44, fh * 0.04, -fw * 0.41, fh * 0.1);
+      ctx.stroke();
+      const spotPositions = [
+        { sx: fw * 0.05, sy: -fh * 0.12, sr: fh * 0.05 },
+        { sx: fw * 0.15, sy: fh * 0.08, sr: fh * 0.04 },
+        { sx: -fw * 0.08, sy: fh * 0.14, sr: fh * 0.035 }
+      ];
+      for (const sp of spotPositions) {
+        const spotGlow = ctx.createRadialGradient(
+          sp.sx,
+          sp.sy,
+          0,
+          sp.sx,
+          sp.sy,
+          sp.sr
+        );
+        const spotColor = isGolden ? "rgba(255,240,100,0.85)" : type === "fast" ? "rgba(255,200,50,0.8)" : "rgba(150,255,255,0.75)";
+        const spotEdge = isGolden ? "rgba(255,180,0,0)" : type === "fast" ? "rgba(255,100,0,0)" : "rgba(0,200,200,0)";
+        spotGlow.addColorStop(0, spotColor);
+        spotGlow.addColorStop(1, spotEdge);
+        ctx.fillStyle = spotGlow;
+        ctx.beginPath();
+        ctx.arc(sp.sx, sp.sy, sp.sr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    },
+    [drawExplosion]
+  );
+  const drawCoronaVirus = reactExports.useCallback(
+    (ctx, chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x: x2, y: y2, size, wingPhase, direction, type, isGolden } = chicken;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let r2;
+      let spikeLen;
+      if (chicken.distance === "far") {
+        r2 = 16;
+        spikeLen = 10;
+      } else if (chicken.distance === "medium") {
+        r2 = 28;
+        spikeLen = 16;
+      } else {
+        r2 = 42;
+        spikeLen = 24;
+      }
+      ctx.save();
+      ctx.translate(cx, cy);
+      if (direction === "right-to-left") ctx.scale(-1, 1);
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      } else if (type === "fast") {
+        ctx.shadowColor = "#FF4500";
+        ctx.shadowBlur = 14;
+      } else {
+        ctx.shadowColor = "#CC0000";
+        ctx.shadowBlur = 8;
+      }
+      const NUM_SPIKES = 14;
+      for (let i = 0; i < NUM_SPIKES; i++) {
+        const angle = i / NUM_SPIKES * Math.PI * 2;
+        const tipR = r2 + spikeLen + Math.sin(wingPhase + i) * 0.5;
+        const stemX1 = Math.cos(angle) * r2 * 0.85;
+        const stemY1 = Math.sin(angle) * r2 * 0.85;
+        const tipX = Math.cos(angle) * (r2 + spikeLen);
+        const tipY = Math.sin(angle) * (r2 + spikeLen);
+        const bulbR = spikeLen * 0.28 + Math.sin(wingPhase + i) * 0.5;
+        ctx.strokeStyle = isGolden ? "#8B6914" : "#8B0000";
+        ctx.lineWidth = Math.max(1, r2 * 0.09);
+        ctx.lineCap = "round";
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.moveTo(stemX1, stemY1);
+        ctx.lineTo(tipX, tipY);
+        ctx.stroke();
+        const tipGrad = ctx.createRadialGradient(
+          tipX - bulbR * 0.3,
+          tipY - bulbR * 0.3,
+          bulbR * 0.1,
+          tipX,
+          tipY,
+          tipR * 0.12 + bulbR
+        );
+        if (isGolden) {
+          tipGrad.addColorStop(0, "#FFE066");
+          tipGrad.addColorStop(0.5, "#DAA520");
+          tipGrad.addColorStop(1, "#8B6914");
+        } else {
+          tipGrad.addColorStop(0, "#FF4444");
+          tipGrad.addColorStop(0.5, "#CC0000");
+          tipGrad.addColorStop(1, "#8B0000");
+        }
+        ctx.fillStyle = tipGrad;
+        ctx.beginPath();
+        ctx.arc(tipX, tipY, bulbR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      const bodyGrad = ctx.createRadialGradient(
+        -r2 * 0.3,
+        -r2 * 0.3,
+        r2 * 0.05,
+        0,
+        0,
+        r2
+      );
+      if (isGolden) {
+        bodyGrad.addColorStop(0, "#FFF8D6");
+        bodyGrad.addColorStop(0.35, "#FFD700");
+        bodyGrad.addColorStop(0.7, "#B8860B");
+        bodyGrad.addColorStop(1, "#8B6914");
+      } else {
+        bodyGrad.addColorStop(0, "#E8E8E8");
+        bodyGrad.addColorStop(0.35, "#C0C0C0");
+        bodyGrad.addColorStop(0.7, "#A8A8A8");
+        bodyGrad.addColorStop(1, "#6A6A6A");
+      }
+      ctx.fillStyle = bodyGrad;
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = isGolden ? "rgba(120,90,0,0.5)" : "rgba(80,80,80,0.5)";
+      ctx.lineWidth = Math.max(0.5, r2 * 0.04);
+      ctx.stroke();
+      const NUM_DOTS = 10;
+      for (let i = 0; i < NUM_DOTS; i++) {
+        const angle = i / NUM_DOTS * Math.PI * 2 + Math.PI * 0.15;
+        const dotDist = r2 * 0.62;
+        const dx = Math.cos(angle) * dotDist;
+        const dy = Math.sin(angle) * dotDist;
+        const dotR = Math.max(1.5, r2 * 0.1);
+        ctx.fillStyle = isGolden ? "#FFB300" : "#FFA500";
+        ctx.beginPath();
+        ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      const gloss = ctx.createRadialGradient(
+        -r2 * 0.32,
+        -r2 * 0.32,
+        r2 * 0.02,
+        -r2 * 0.2,
+        -r2 * 0.2,
+        r2 * 0.55
+      );
+      gloss.addColorStop(0, "rgba(255,255,255,0.55)");
+      gloss.addColorStop(0.5, "rgba(255,255,255,0.12)");
+      gloss.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    },
+    [drawExplosion]
+  );
   const drawStopwatch = reactExports.useCallback(
     (ctx, sw) => {
       if (sw.isExploding) {
@@ -55188,7 +57280,17 @@ const GameScreen = ({
             continue;
           }
         }
-        drawChicken(ctx, ch);
+        if (selectedWorld === "pumpfun") {
+          drawPumpFunPill(ctx, ch);
+        } else if (selectedWorld === "bitcoin") {
+          drawBitcoinCoin(ctx, ch);
+        } else if (selectedWorld === "ocean") {
+          drawOceanFish(ctx, ch);
+        } else if (selectedWorld === "corona") {
+          drawCoronaVirus(ctx, ch);
+        } else {
+          drawChicken(ctx, ch);
+        }
       }
       while (gs.chickens.length < 10) gs.chickens.push(createChicken());
       gs.animationId = requestAnimationFrame(gameLoop);
@@ -55197,7 +57299,12 @@ const GameScreen = ({
       createChicken,
       createStopwatch,
       drawChicken,
+      drawPumpFunPill,
+      drawBitcoinCoin,
+      drawOceanFish,
+      drawCoronaVirus,
       drawStopwatch,
+      selectedWorld,
       shouldSpawnStopwatch
     ]
   );
@@ -55374,8 +57481,15 @@ const GameScreen = ({
     stopAISound,
     generateGoldenChickenSpawnTimes
   ]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-full h-screen overflow-hidden", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(BackgroundRenderer, { world: selectedWorld }),
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed inset-0 overflow-hidden", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      BackgroundRenderer,
+      {
+        world: selectedWorld,
+        pumpFunPrice,
+        btcPrice
+      }
+    ),
     currentView === "game" && !gameEnded && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 left-4 z-10", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "score-container-left-aligned-compact bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5 relative", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-bold text-lg", children: [
@@ -55964,7 +58078,8 @@ const WORLDS = [
   { id: "matrix", name: "Matrix" },
   { id: "ocean", name: "Ocean" },
   { id: "minecraft", name: "Minecraft" },
-  { id: "pumpfun", name: "pump.fun" }
+  { id: "pumpfun", name: "pump.fun" },
+  { id: "corona", name: "Corona" }
 ];
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
 const START_BUTTON_CLASSES = {
@@ -55985,7 +58100,8 @@ const START_BUTTON_CLASSES = {
   matrix: "start-game-button-matrix",
   ocean: "start-game-button-ocean",
   minecraft: "start-game-button-minecraft",
-  pumpfun: "start-game-button-pumpfun"
+  pumpfun: "start-game-button-pumpfun",
+  corona: "start-game-button-corona"
 };
 const StartScreen = ({
   onStartGame,
@@ -55997,6 +58113,10 @@ const StartScreen = ({
 }) => {
   const { isAuthenticated } = useInternetIdentity();
   const [overlayView, setOverlayView] = reactExports.useState(null);
+  const isPumpFunSelected = selectedWorld === "pumpfun";
+  const isBitcoinSelected = selectedWorld === "bitcoin";
+  const { data: pumpPriceData } = usePumpFunPrice();
+  const { data: btcPriceData } = useBitcoinPrice();
   const [worldIndex, setWorldIndex] = reactExports.useState(() => {
     const idx = WORLDS.findIndex((w2) => w2.id === selectedWorld);
     return idx >= 0 ? idx : 0;
@@ -56008,9 +58128,22 @@ const StartScreen = ({
   const audioRef = reactExports.useRef(null);
   const touchStartXRef = reactExports.useRef(0);
   const touchCurXRef = reactExports.useRef(0);
+  const entityAlphaRef = reactExports.useRef(1);
+  const transitionPhaseRef = reactExports.useRef("idle");
+  const pendingEntityTypeRef = reactExports.useRef("chicken");
+  const activeEntityTypeRef = reactExports.useRef("chicken");
+  const pendingIsPumpFunRef = reactExports.useRef(false);
+  const activeIsPumpFunRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
     const idx = WORLDS.findIndex((w2) => w2.id === selectedWorld);
     if (idx >= 0) setWorldIndex(idx);
+  }, [selectedWorld]);
+  reactExports.useEffect(() => {
+    const nextType = selectedWorld === "pumpfun" ? "pumpfun" : selectedWorld === "bitcoin" ? "bitcoin" : selectedWorld === "ocean" ? "fish" : selectedWorld === "corona" ? "virus" : "chicken";
+    if (nextType === activeEntityTypeRef.current) return;
+    pendingEntityTypeRef.current = nextType;
+    pendingIsPumpFunRef.current = nextType === "pumpfun";
+    transitionPhaseRef.current = "fade-out";
   }, [selectedWorld]);
   reactExports.useEffect(() => {
     const id = setInterval(
@@ -56291,11 +58424,620 @@ const StartScreen = ({
     },
     []
   );
+  const drawPumpFunPill = reactExports.useCallback(
+    (ctx, c2) => {
+      const { x: x2, y: y2, size, wingPhase, direction } = c2;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let pw;
+      let ph;
+      if (size <= 25) {
+        pw = 50;
+        ph = 22;
+      } else if (size <= 40) {
+        pw = 80;
+        ph = 34;
+      } else {
+        pw = 110;
+        ph = 48;
+      }
+      const pr = ph / 2;
+      const ws = pw / 130;
+      ctx.save();
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      ctx.rotate(Math.PI * 40 / 180);
+      const flapAngle = Math.sin(wingPhase) * 0.35;
+      const wingFill = "rgba(255,255,255,0.95)";
+      const wingFillInner = "rgba(230,240,255,0.75)";
+      const wingStroke = "#D4AF37";
+      const drawWingUp = () => {
+        ctx.fillStyle = wingFill;
+        ctx.strokeStyle = wingStroke;
+        ctx.lineWidth = 1 * ws;
+        ctx.globalAlpha = 0.97 * entityAlphaRef.current;
+        ctx.beginPath();
+        ctx.moveTo(-3 * ws, 0);
+        ctx.bezierCurveTo(
+          -8 * ws,
+          -10 * ws,
+          -4 * ws,
+          -20 * ws,
+          6 * ws,
+          -22 * ws
+        );
+        ctx.bezierCurveTo(4 * ws, -14 * ws, 2 * ws, -6 * ws, 3 * ws, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-2 * ws, -2 * ws);
+        ctx.bezierCurveTo(
+          -14 * ws,
+          -14 * ws,
+          -20 * ws,
+          -28 * ws,
+          -10 * ws,
+          -36 * ws
+        );
+        ctx.bezierCurveTo(-6 * ws, -28 * ws, 0, -16 * ws, 2 * ws, -4 * ws);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = wingFillInner;
+        ctx.beginPath();
+        ctx.moveTo(4 * ws, -1 * ws);
+        ctx.bezierCurveTo(0, -18 * ws, -8 * ws, -34 * ws, -20 * ws, -44 * ws);
+        ctx.bezierCurveTo(-24 * ws, -36 * ws, -18 * ws, -22 * ws, 0, -6 * ws);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = wingFill;
+        ctx.beginPath();
+        ctx.moveTo(2 * ws, -4 * ws);
+        ctx.bezierCurveTo(
+          -6 * ws,
+          -22 * ws,
+          -18 * ws,
+          -38 * ws,
+          -30 * ws,
+          -46 * ws
+        );
+        ctx.bezierCurveTo(
+          -30 * ws,
+          -38 * ws,
+          -22 * ws,
+          -26 * ws,
+          -4 * ws,
+          -10 * ws
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      };
+      ctx.save();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.translate(0, -ph / 2);
+      ctx.rotate(-flapAngle);
+      drawWingUp();
+      ctx.restore();
+      ctx.save();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.translate(0, ph / 2);
+      ctx.scale(1, -1);
+      ctx.rotate(flapAngle);
+      drawWingUp();
+      ctx.restore();
+      ctx.globalAlpha = entityAlphaRef.current;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-pw / 2, -ph / 2, pw / 2, ph);
+      ctx.clip();
+      const lgLeft = ctx.createLinearGradient(
+        -pw / 2,
+        -ph / 2,
+        -pw / 2,
+        ph / 2
+      );
+      lgLeft.addColorStop(0, "#4ADE80");
+      lgLeft.addColorStop(1, "#22C55E");
+      ctx.fillStyle = lgLeft;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -ph / 2, pw, ph, pr);
+      ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, -ph / 2, pw / 2, ph);
+      ctx.clip();
+      const lgRight = ctx.createLinearGradient(0, -ph / 2, 0, ph / 2);
+      lgRight.addColorStop(0, "#FFFFFF");
+      lgRight.addColorStop(1, "#F0F0F0");
+      ctx.fillStyle = lgRight;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -ph / 2, pw, ph, pr);
+      ctx.fill();
+      ctx.restore();
+      ctx.strokeStyle = "#1a1a1a";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -ph / 2, pw, ph, pr);
+      ctx.stroke();
+      ctx.strokeStyle = "#888888";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, -ph / 2);
+      ctx.lineTo(0, ph / 2);
+      ctx.stroke();
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-pw / 2, -ph / 2, pw / 2, ph);
+      ctx.clip();
+      const glossGrad = ctx.createRadialGradient(
+        -pw * 0.25,
+        -ph * 0.25,
+        1,
+        -pw * 0.25,
+        -ph * 0.25,
+        ph * 0.55
+      );
+      glossGrad.addColorStop(0, "rgba(255,255,255,0.55)");
+      glossGrad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = glossGrad;
+      ctx.beginPath();
+      ctx.ellipse(
+        -pw * 0.2,
+        -ph * 0.2,
+        pw * 0.18,
+        ph * 0.22,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.restore();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    []
+  );
+  const drawBitcoinCoin = reactExports.useCallback(
+    (ctx, c2) => {
+      const { x: x2, y: y2, size, wingPhase, direction } = c2;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let r2;
+      if (size <= 25) {
+        r2 = 14;
+      } else if (size <= 40) {
+        r2 = 22;
+      } else {
+        r2 = 32;
+      }
+      const bob = Math.sin(wingPhase) * 2.5;
+      const alpha = entityAlphaRef.current;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy + bob);
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.strokeStyle = "#B8860B";
+      ctx.lineWidth = r2 * 0.12;
+      ctx.stroke();
+      const grad = ctx.createRadialGradient(
+        -r2 * 0.3,
+        -r2 * 0.3,
+        r2 * 0.05,
+        0,
+        0,
+        r2
+      );
+      grad.addColorStop(0, "#FFE066");
+      grad.addColorStop(0.45, "#F7931A");
+      grad.addColorStop(1, "#8B5E00");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.fill();
+      const gloss = ctx.createRadialGradient(
+        -r2 * 0.32,
+        -r2 * 0.32,
+        0,
+        -r2 * 0.32,
+        -r2 * 0.32,
+        r2 * 0.55
+      );
+      gloss.addColorStop(0, "rgba(255,255,255,0.55)");
+      gloss.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.fill();
+      const btcScale = r2 * 1.15 / 100;
+      ctx.save();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.scale(btcScale, btcScale);
+      ctx.translate(-40, -60);
+      ctx.rotate(14 * Math.PI / 180);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.globalAlpha = 0.95 * alpha;
+      const p2 = new Path2D(
+        "M78.3 36.6c1.8-12.2-7.5-18.8-20.2-23.2l4.1-16.6-10.1-2.5-4 16.1c-2.7-.7-5.4-1.3-8.1-1.9l4.1-16.3-10.1-2.5-4.1 16.6c-2.2-.5-4.4-1-6.5-1.5l0 0-13.9-3.5-2.7 10.8s7.5 1.7 7.4 1.8c4.1 1 4.8 3.7 4.7 5.9l-4.7 18.8c.3.1.7.2 1.1.3-.4-.1-.7-.2-1.1-.3l-6.6 26.4c-.5 1.2-1.8 3-4.6 2.3.1.1-7.4-1.9-7.4-1.9l-5.1 11.5 13.2 3.3c2.4.6 4.8 1.2 7.2 1.9l-4.2 16.7 10.1 2.5 4.1-16.6c2.8.7 5.5 1.4 8.2 2.1l-4.1 16.5 10.1 2.5 4.2-16.8c17.3 3.3 30.3 1.9 35.8-13.6 4.4-12.6.2-19.9-9.3-24.6 6.6-1.5 11.6-5.9 12.9-14.7zm-23.1 32.4c-3.1 12.6-24.3 5.8-31.2 4.1l5.6-22.3c6.9 1.7 28.9 5.1 25.6 18.2zm3.1-32.7c-2.9 11.5-20.5 5.7-26.2 4.2l5-20.1c5.7 1.4 24.1 4.1 21.2 15.9z"
+      );
+      ctx.fill(p2);
+      ctx.restore();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    []
+  );
+  const drawOceanFish = reactExports.useCallback(
+    (ctx, c2) => {
+      const { x: x2, y: y2, size, wingPhase, direction } = c2;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let fw;
+      let fh;
+      if (size <= 25) {
+        fw = 48;
+        fh = 20;
+      } else if (size <= 40) {
+        fw = 76;
+        fh = 32;
+      } else {
+        fw = 108;
+        fh = 46;
+      }
+      const tailWag = Math.sin(wingPhase) * 0.28;
+      const finFlutter = Math.sin(wingPhase * 1.3) * 0.18;
+      const alpha = entityAlphaRef.current;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      ctx.shadowColor = "#00BFFF";
+      ctx.shadowBlur = 10;
+      ctx.save();
+      ctx.translate(fw * 0.38, 0);
+      ctx.rotate(tailWag);
+      const tailGrad = ctx.createLinearGradient(0, -fh * 0.6, 0, fh * 0.6);
+      tailGrad.addColorStop(0, "#CE93D8");
+      tailGrad.addColorStop(1, "#7B1FA2");
+      ctx.fillStyle = tailGrad;
+      ctx.strokeStyle = "#4A148C";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(
+        fw * 0.18,
+        -fh * 0.55,
+        fw * 0.32,
+        -fh * 0.65,
+        fw * 0.42,
+        -fh * 0.55
+      );
+      ctx.bezierCurveTo(fw * 0.34, -fh * 0.18, fw * 0.2, -fh * 0.06, 0, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(
+        fw * 0.18,
+        fh * 0.55,
+        fw * 0.32,
+        fh * 0.65,
+        fw * 0.42,
+        fh * 0.55
+      );
+      ctx.bezierCurveTo(fw * 0.34, fh * 0.18, fw * 0.2, fh * 0.06, 0, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      const bodyGrad = ctx.createRadialGradient(
+        -fw * 0.15,
+        -fh * 0.1,
+        fh * 0.05,
+        0,
+        0,
+        fh * 0.72
+      );
+      bodyGrad.addColorStop(0, "#80DEEA");
+      bodyGrad.addColorStop(0.3, "#26C6DA");
+      bodyGrad.addColorStop(0.65, "#F48FB1");
+      bodyGrad.addColorStop(1, "#7B1FA2");
+      ctx.fillStyle = bodyGrad;
+      ctx.strokeStyle = "#1565C0";
+      ctx.lineWidth = Math.max(1, fh * 0.04);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, fw * 0.42, fh * 0.42, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(255,255,255,0.2)";
+      ctx.lineWidth = Math.max(0.5, fh * 0.025);
+      const scaleRows = size <= 25 ? 2 : 3;
+      const scaleCols = size <= 25 ? 3 : 4;
+      for (let row = 0; row < scaleRows; row++) {
+        for (let col = 0; col < scaleCols; col++) {
+          const sx = -fw * 0.2 + col * fw * 0.14;
+          const sy = -fh * 0.15 + row * fh * 0.18;
+          ctx.beginPath();
+          ctx.arc(sx, sy, fh * 0.1, Math.PI * 0.2, Math.PI * 0.8);
+          ctx.stroke();
+        }
+      }
+      ctx.save();
+      ctx.rotate(finFlutter * 0.5);
+      const dorsalGrad = ctx.createLinearGradient(0, -fh * 0.42, 0, -fh * 0.85);
+      dorsalGrad.addColorStop(0, "#80DEEA");
+      dorsalGrad.addColorStop(1, "rgba(100,200,220,0)");
+      ctx.fillStyle = dorsalGrad;
+      ctx.strokeStyle = "#0097A7";
+      ctx.lineWidth = Math.max(0.8, fh * 0.03);
+      ctx.beginPath();
+      ctx.moveTo(-fw * 0.15, -fh * 0.38);
+      ctx.bezierCurveTo(
+        -fw * 0.05,
+        -fh * 0.85,
+        fw * 0.12,
+        -fh * 0.8,
+        fw * 0.22,
+        -fh * 0.38
+      );
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      ctx.save();
+      ctx.translate(-fw * 0.05, fh * 0.1);
+      ctx.rotate(finFlutter);
+      ctx.fillStyle = "rgba(180,240,255,0.7)";
+      ctx.strokeStyle = "#0097A7";
+      ctx.lineWidth = Math.max(0.6, fh * 0.025);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(
+        -fw * 0.08,
+        fh * 0.28,
+        fw * 0.08,
+        fh * 0.35,
+        fw * 0.18,
+        fh * 0.18
+      );
+      ctx.bezierCurveTo(fw * 0.08, fh * 0.08, -fw * 0.02, fh * 0.04, 0, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      const gloss = ctx.createRadialGradient(
+        -fw * 0.18,
+        -fh * 0.18,
+        0,
+        -fw * 0.08,
+        -fh * 0.08,
+        fh * 0.38
+      );
+      gloss.addColorStop(0, "rgba(255,255,255,0.5)");
+      gloss.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.ellipse(
+        -fw * 0.1,
+        -fh * 0.1,
+        fw * 0.22,
+        fh * 0.2,
+        -0.3,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.35)";
+      ctx.lineWidth = Math.max(1, fh * 0.07);
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-fw * 0.02, -fh * 0.36);
+      ctx.bezierCurveTo(
+        -fw * 0.02,
+        -fh * 0.1,
+        fw * 0.04,
+        fh * 0.1,
+        fw * 0,
+        fh * 0.36
+      );
+      ctx.stroke();
+      const eyeX = -fw * 0.28;
+      const eyeY = -fh * 0.06;
+      const eyeR = Math.max(2, fh * 0.1);
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.arc(eyeX, eyeY, eyeR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#00BCD4";
+      ctx.beginPath();
+      ctx.arc(eyeX - eyeR * 0.1, eyeY, eyeR * 0.72, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#000000";
+      ctx.beginPath();
+      ctx.arc(eyeX - eyeR * 0.15, eyeY, eyeR * 0.36, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,0.9)";
+      ctx.beginPath();
+      ctx.arc(
+        eyeX - eyeR * 0.2,
+        eyeY - eyeR * 0.28,
+        eyeR * 0.18,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.strokeStyle = "#1565C0";
+      ctx.lineWidth = Math.max(0.8, fh * 0.04);
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-fw * 0.41, -fh * 0.04);
+      ctx.quadraticCurveTo(-fw * 0.44, fh * 0.04, -fw * 0.41, fh * 0.1);
+      ctx.stroke();
+      const spotPositions = [
+        { sx: fw * 0.05, sy: -fh * 0.12, sr: fh * 0.05 },
+        { sx: fw * 0.15, sy: fh * 0.08, sr: fh * 0.04 },
+        { sx: -fw * 0.08, sy: fh * 0.14, sr: fh * 0.035 }
+      ];
+      for (const sp of spotPositions) {
+        const spotGlow = ctx.createRadialGradient(
+          sp.sx,
+          sp.sy,
+          0,
+          sp.sx,
+          sp.sy,
+          sp.sr
+        );
+        spotGlow.addColorStop(0, "rgba(150,255,255,0.75)");
+        spotGlow.addColorStop(1, "rgba(0,200,200,0)");
+        ctx.fillStyle = spotGlow;
+        ctx.beginPath();
+        ctx.arc(sp.sx, sp.sy, sp.sr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    []
+  );
+  const drawCoronaVirus = reactExports.useCallback(
+    (ctx, c2) => {
+      const { x: x2, y: y2, size, wingPhase, direction } = c2;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let r2;
+      let spikeLen;
+      if (size <= 25) {
+        r2 = 16;
+        spikeLen = 10;
+      } else if (size <= 40) {
+        r2 = 28;
+        spikeLen = 16;
+      } else {
+        r2 = 42;
+        spikeLen = 24;
+      }
+      const alpha = entityAlphaRef.current;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      ctx.shadowColor = "#CC0000";
+      ctx.shadowBlur = 8;
+      const NUM_SPIKES = 14;
+      for (let i = 0; i < NUM_SPIKES; i++) {
+        const angle = i / NUM_SPIKES * Math.PI * 2;
+        const tipR = r2 + spikeLen + Math.sin(wingPhase + i) * 0.5;
+        const stemX1 = Math.cos(angle) * r2 * 0.85;
+        const stemY1 = Math.sin(angle) * r2 * 0.85;
+        const tipX = Math.cos(angle) * (r2 + spikeLen);
+        const tipY = Math.sin(angle) * (r2 + spikeLen);
+        const bulbR = spikeLen * 0.28 + Math.sin(wingPhase + i) * 0.5;
+        ctx.strokeStyle = "#8B0000";
+        ctx.lineWidth = Math.max(1, r2 * 0.09);
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(stemX1, stemY1);
+        ctx.lineTo(tipX, tipY);
+        ctx.stroke();
+        const tipGrad = ctx.createRadialGradient(
+          tipX - bulbR * 0.3,
+          tipY - bulbR * 0.3,
+          bulbR * 0.1,
+          tipX,
+          tipY,
+          tipR * 0.12 + bulbR
+        );
+        tipGrad.addColorStop(0, "#FF4444");
+        tipGrad.addColorStop(0.5, "#CC0000");
+        tipGrad.addColorStop(1, "#8B0000");
+        ctx.fillStyle = tipGrad;
+        ctx.beginPath();
+        ctx.arc(tipX, tipY, bulbR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      const bodyGrad = ctx.createRadialGradient(
+        -r2 * 0.3,
+        -r2 * 0.3,
+        r2 * 0.05,
+        0,
+        0,
+        r2
+      );
+      bodyGrad.addColorStop(0, "#E8E8E8");
+      bodyGrad.addColorStop(0.35, "#C0C0C0");
+      bodyGrad.addColorStop(0.7, "#A8A8A8");
+      bodyGrad.addColorStop(1, "#6A6A6A");
+      ctx.fillStyle = bodyGrad;
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(80,80,80,0.5)";
+      ctx.lineWidth = Math.max(0.5, r2 * 0.04);
+      ctx.stroke();
+      const NUM_DOTS = 10;
+      for (let i = 0; i < NUM_DOTS; i++) {
+        const angle = i / NUM_DOTS * Math.PI * 2 + Math.PI * 0.15;
+        const dotDist = r2 * 0.62;
+        const dx = Math.cos(angle) * dotDist;
+        const dy = Math.sin(angle) * dotDist;
+        const dotR = Math.max(1.5, r2 * 0.1);
+        ctx.fillStyle = "#FFA500";
+        ctx.beginPath();
+        ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      const gloss = ctx.createRadialGradient(
+        -r2 * 0.32,
+        -r2 * 0.32,
+        r2 * 0.02,
+        -r2 * 0.2,
+        -r2 * 0.2,
+        r2 * 0.55
+      );
+      gloss.addColorStop(0, "rgba(255,255,255,0.55)");
+      gloss.addColorStop(0.5, "rgba(255,255,255,0.12)");
+      gloss.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    []
+  );
   const animateChickens = reactExports.useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas == null ? void 0 : canvas.getContext("2d");
     if (!canvas || !ctx) return;
+    const FADE_STEP = 0.04;
+    const phase = transitionPhaseRef.current;
+    if (phase === "fade-out") {
+      entityAlphaRef.current = Math.max(0, entityAlphaRef.current - FADE_STEP);
+      if (entityAlphaRef.current === 0) {
+        activeEntityTypeRef.current = pendingEntityTypeRef.current;
+        activeIsPumpFunRef.current = pendingIsPumpFunRef.current;
+        chickensRef.current = [];
+        transitionPhaseRef.current = "fade-in";
+      }
+    } else if (phase === "fade-in") {
+      entityAlphaRef.current = Math.min(1, entityAlphaRef.current + FADE_STEP);
+      if (entityAlphaRef.current === 1) {
+        transitionPhaseRef.current = "idle";
+      }
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const activeType = activeEntityTypeRef.current;
+    const drawFn = activeType === "pumpfun" ? drawPumpFunPill : activeType === "bitcoin" ? drawBitcoinCoin : activeType === "fish" ? drawOceanFish : activeType === "virus" ? drawCoronaVirus : drawChicken;
     for (let i = chickensRef.current.length - 1; i >= 0; i--) {
       const ch = chickensRef.current[i];
       ch.x += ch.speed;
@@ -56306,15 +59048,36 @@ const StartScreen = ({
         chickensRef.current.push(makeChicken(canvas));
         continue;
       }
-      drawChicken(ctx, ch);
+      if (activeType === "chicken") {
+        ctx.save();
+        ctx.globalAlpha = entityAlphaRef.current;
+        drawFn(ctx, ch);
+        ctx.globalAlpha = 1;
+        ctx.restore();
+      } else {
+        drawFn(ctx, ch);
+      }
     }
     while (chickensRef.current.length < 4)
       chickensRef.current.push(makeChicken(canvas));
     animIdRef.current = requestAnimationFrame(animateChickens);
-  }, [makeChicken, drawChicken]);
+  }, [
+    makeChicken,
+    drawChicken,
+    drawPumpFunPill,
+    drawBitcoinCoin,
+    drawOceanFish,
+    drawCoronaVirus
+  ]);
+  const initialWorldRef = reactExports.useRef(selectedWorld);
   reactExports.useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const initType = initialWorldRef.current === "pumpfun" ? "pumpfun" : initialWorldRef.current === "bitcoin" ? "bitcoin" : initialWorldRef.current === "ocean" ? "fish" : initialWorldRef.current === "corona" ? "virus" : "chicken";
+    activeEntityTypeRef.current = initType;
+    activeIsPumpFunRef.current = initType === "pumpfun";
+    entityAlphaRef.current = 1;
+    transitionPhaseRef.current = "idle";
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -56350,7 +59113,81 @@ const StartScreen = ({
             style: { zIndex: 5 }
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed top-4 left-0 right-0 z-20 text-center pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "world-name-title", children: WORLDS[worldIndex].name }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed top-4 left-0 right-0 z-20 text-center pointer-events-none", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "world-name-title", children: WORLDS[worldIndex].name }),
+          isPumpFunSelected && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/60 backdrop-blur-sm border border-green-900/50", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                style: {
+                  fontFamily: "'Courier New', Courier, monospace",
+                  color: "#4B7A5E",
+                  opacity: 0.85
+                },
+                className: "text-xs tracking-widest leading-none",
+                children: "PUMP / USD"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  style: { fontFamily: "'Courier New', Courier, monospace" },
+                  className: "text-white font-bold text-base tracking-wide leading-none",
+                  children: pumpPriceData ? `$${pumpPriceData.price < 0.01 ? pumpPriceData.price.toFixed(6) : pumpPriceData.price.toFixed(4)}` : "--"
+                }
+              ),
+              pumpPriceData && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "span",
+                {
+                  style: { fontFamily: "'Courier New', Courier, monospace" },
+                  className: `text-xs font-semibold tracking-wide leading-none ${pumpPriceData.change24h >= 0 ? "text-green-400" : "text-red-400"}`,
+                  children: [
+                    pumpPriceData.change24h >= 0 ? "+" : "",
+                    pumpPriceData.change24h.toFixed(2),
+                    "%"
+                  ]
+                }
+              )
+            ] })
+          ] }),
+          isBitcoinSelected && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/60 backdrop-blur-sm border border-orange-900/50", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                style: {
+                  fontFamily: "'Courier New', Courier, monospace",
+                  color: "#b06010",
+                  opacity: 0.85
+                },
+                className: "text-xs tracking-widest leading-none",
+                children: "BTC / USD"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  style: { fontFamily: "'Courier New', Courier, monospace" },
+                  className: "text-white font-bold text-base tracking-wide leading-none",
+                  children: btcPriceData ? `$${btcPriceData.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "--"
+                }
+              ),
+              btcPriceData && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "span",
+                {
+                  style: { fontFamily: "'Courier New', Courier, monospace" },
+                  className: `text-xs font-semibold tracking-wide leading-none ${btcPriceData.change24h >= 0 ? "text-green-400" : "text-red-400"}`,
+                  children: [
+                    btcPriceData.change24h >= 0 ? "+" : "",
+                    btcPriceData.change24h.toFixed(2),
+                    "%"
+                  ]
+                }
+              )
+            ] })
+          ] })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
@@ -56589,7 +59426,8 @@ const VALID_WORLDS = [
   "matrix",
   "ocean",
   "minecraft",
-  "pumpfun"
+  "pumpfun",
+  "corona"
 ];
 const DEFAULT_PLAYER_DATA = {
   level: 1,

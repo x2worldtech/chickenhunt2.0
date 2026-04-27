@@ -1,11 +1,22 @@
 import type React from "react";
 import type { BackgroundWorld } from "../App";
 
-interface BackgroundRendererProps {
-  world: BackgroundWorld;
+interface PriceDisplay {
+  price: number;
+  change24h: number;
 }
 
-const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ world }) => {
+interface BackgroundRendererProps {
+  world: BackgroundWorld;
+  pumpFunPrice?: PriceDisplay | null;
+  btcPrice?: PriceDisplay | null;
+}
+
+const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
+  world,
+  pumpFunPrice,
+  btcPrice,
+}) => {
   const renderOriginalWorld = () => (
     <svg
       role="img"
@@ -11104,6 +11115,92 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ world }) => {
       >
         <path d="M78.3 36.6c1.8-12.2-7.5-18.8-20.2-23.2l4.1-16.6-10.1-2.5-4 16.1c-2.7-.7-5.4-1.3-8.1-1.9l4.1-16.3-10.1-2.5-4.1 16.6c-2.2-.5-4.4-1-6.5-1.5l0 0-13.9-3.5-2.7 10.8s7.5 1.7 7.4 1.8c4.1 1 4.8 3.7 4.7 5.9l-4.7 18.8c.3.1.7.2 1.1.3-.4-.1-.7-.2-1.1-.3l-6.6 26.4c-.5 1.2-1.8 3-4.6 2.3.1.1-7.4-1.9-7.4-1.9l-5.1 11.5 13.2 3.3c2.4.6 4.8 1.2 7.2 1.9l-4.2 16.7 10.1 2.5 4.1-16.6c2.8.7 5.5 1.4 8.2 2.1l-4.1 16.5 10.1 2.5 4.2-16.8c17.3 3.3 30.3 1.9 35.8-13.6 4.4-12.6.2-19.9-9.3-24.6 6.6-1.5 11.6-5.9 12.9-14.7zm-23.1 32.4c-3.1 12.6-24.3 5.8-31.2 4.1l5.6-22.3c6.9 1.7 28.9 5.1 25.6 18.2zm3.1-32.7c-2.9 11.5-20.5 5.7-26.2 4.2l5-20.1c5.7 1.4 24.1 4.1 21.2 15.9z" />
       </g>
+
+      {/* === LIVE BTC / USD PRICE OVERLAY === */}
+      {(() => {
+        const priceStr = btcPrice
+          ? `$${btcPrice.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+          : "--";
+        const changeVal = btcPrice ? btcPrice.change24h : null;
+        const changeStr =
+          changeVal !== null
+            ? `${changeVal >= 0 ? "+" : ""}${changeVal.toFixed(2)}%`
+            : "--";
+        const changeColor =
+          changeVal === null
+            ? "#9CA3AF"
+            : changeVal >= 0
+              ? "#22C55E"
+              : "#EF4444";
+
+        return (
+          <g transform="translate(600, 590)">
+            {/* Backdrop panel */}
+            <rect
+              x="-110"
+              y="-46"
+              width="220"
+              height="88"
+              rx="8"
+              ry="8"
+              fill="#050505"
+              fillOpacity="0.82"
+              stroke="#3a2000"
+              strokeWidth="1"
+            />
+            {/* BTC / USD label */}
+            <text
+              x="0"
+              y="-28"
+              textAnchor="middle"
+              fontFamily="'Courier New', Courier, monospace"
+              fontWeight="400"
+              fontSize="11"
+              fill="#b06010"
+              opacity="0.85"
+              letterSpacing="2"
+            >
+              BTC / USD
+            </text>
+            {/* Price */}
+            <text
+              x="0"
+              y="2"
+              textAnchor="middle"
+              fontFamily="'Courier New', Courier, monospace"
+              fontWeight="700"
+              fontSize="22"
+              fill="#FFFFFF"
+              letterSpacing="0.5"
+            >
+              {priceStr}
+            </text>
+            {/* Change badge */}
+            <rect
+              x="-38"
+              y="12"
+              width="76"
+              height="22"
+              rx="4"
+              ry="4"
+              fill={changeColor}
+              fillOpacity="0.15"
+            />
+            <text
+              x="0"
+              y="28"
+              textAnchor="middle"
+              fontFamily="'Courier New', Courier, monospace"
+              fontWeight="600"
+              fontSize="13"
+              fill={changeColor}
+              letterSpacing="0.3"
+            >
+              {changeStr}
+            </text>
+          </g>
+        );
+      })()}
     </svg>
   );
 
@@ -16692,9 +16789,1028 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ world }) => {
 
         {/* ── VIGNETTE ── */}
         <rect width="1200" height="800" fill="url(#pfVignette)" />
+
+        {/* ── LIVE PRICE OVERLAY ── */}
+        {(() => {
+          const priceStr = pumpFunPrice
+            ? `$${
+                pumpFunPrice.price < 0.01
+                  ? pumpFunPrice.price.toFixed(6)
+                  : pumpFunPrice.price.toFixed(4)
+              }`
+            : "--";
+          const changeVal = pumpFunPrice ? pumpFunPrice.change24h : null;
+          const changeStr =
+            changeVal !== null
+              ? `${changeVal >= 0 ? "+" : ""}${changeVal.toFixed(2)}%`
+              : "--";
+          const changeColor =
+            changeVal === null
+              ? "#9CA3AF"
+              : changeVal >= 0
+                ? "#22C55E"
+                : "#EF4444";
+
+          return (
+            <g transform="translate(600, 590)">
+              {/* Backdrop panel — tall enough for label + price + badge */}
+              <rect
+                x="-110"
+                y="-46"
+                width="220"
+                height="88"
+                rx="8"
+                ry="8"
+                fill="#050505"
+                fillOpacity="0.82"
+                stroke="#1A3D26"
+                strokeWidth="1"
+              />
+              {/* PUMP / USD label — small & muted, sits at top */}
+              <text
+                x="0"
+                y="-28"
+                textAnchor="middle"
+                fontFamily="'Courier New', Courier, monospace"
+                fontWeight="400"
+                fontSize="11"
+                fill="#4B7A5E"
+                opacity="0.85"
+                letterSpacing="2"
+              >
+                PUMP / USD
+              </text>
+              {/* Price — large & bright, clearly below label */}
+              <text
+                x="0"
+                y="2"
+                textAnchor="middle"
+                fontFamily="'Courier New', Courier, monospace"
+                fontWeight="700"
+                fontSize="22"
+                fill="#FFFFFF"
+                letterSpacing="0.5"
+              >
+                {priceStr}
+              </text>
+              {/* Change badge */}
+              <rect
+                x="-38"
+                y="12"
+                width="76"
+                height="22"
+                rx="4"
+                ry="4"
+                fill={changeColor}
+                fillOpacity="0.15"
+              />
+              <text
+                x="0"
+                y="28"
+                textAnchor="middle"
+                fontFamily="'Courier New', Courier, monospace"
+                fontWeight="600"
+                fontSize="13"
+                fill={changeColor}
+                letterSpacing="0.3"
+              >
+                {changeStr}
+              </text>
+            </g>
+          );
+        })()}
       </svg>
     );
   };
+
+  const renderCoronaWorld = () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="xMidYMid slice"
+      style={{ width: "100%", height: "100%", display: "block" }}
+      aria-label="Corona world - Biosafety laboratory"
+      role="img"
+    >
+      <defs>
+        <linearGradient id="cLabWall" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#F8F8F8" />
+          <stop offset="100%" stopColor="#EBEBEB" />
+        </linearGradient>
+        <linearGradient id="cLabCeil" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FFFFFF" />
+          <stop offset="100%" stopColor="#F2F2F2" />
+        </linearGradient>
+        <linearGradient id="cFloor" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#D8D8D8" />
+          <stop offset="100%" stopColor="#C4C4C4" />
+        </linearGradient>
+        <linearGradient id="cBenchTop" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#DCDCDC" />
+          <stop offset="100%" stopColor="#C8C8C8" />
+        </linearGradient>
+        <linearGradient id="cBenchFront" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#C0C0C0" />
+          <stop offset="100%" stopColor="#A8A8A8" />
+        </linearGradient>
+        <linearGradient id="cHazmat" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#FF8C00" />
+          <stop offset="50%" stopColor="#FF6B00" />
+          <stop offset="100%" stopColor="#DF5600" />
+        </linearGradient>
+        <linearGradient id="cMicroBase" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#484848" />
+          <stop offset="100%" stopColor="#1E1E1E" />
+        </linearGradient>
+        <radialGradient id="cFluoGlow" cx="50%" cy="0%" r="70%">
+          <stop offset="0%" stopColor="#FFFFF5" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#FFFFF5" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="cVisor" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="rgba(190,230,255,0.9)" />
+          <stop offset="100%" stopColor="rgba(100,175,240,0.75)" />
+        </linearGradient>
+        <radialGradient id="cBioCirc" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FFE000" />
+          <stop offset="100%" stopColor="#F0C000" />
+        </radialGradient>
+        <radialGradient id="cPetriRed" cx="40%" cy="35%" r="65%">
+          <stop offset="0%" stopColor="rgba(255,190,170,0.75)" />
+          <stop offset="60%" stopColor="rgba(220,100,70,0.55)" />
+          <stop offset="100%" stopColor="rgba(170,50,20,0.4)" />
+        </radialGradient>
+        <radialGradient id="cPetriGreen" cx="45%" cy="40%" r="55%">
+          <stop offset="0%" stopColor="rgba(190,230,190,0.75)" />
+          <stop offset="65%" stopColor="rgba(100,185,100,0.55)" />
+          <stop offset="100%" stopColor="rgba(45,120,45,0.4)" />
+        </radialGradient>
+        <linearGradient id="cShadow" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgba(0,0,0,0.12)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+        </linearGradient>
+        <linearGradient id="tubeClear" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="rgba(240,248,255,0.82)" />
+          <stop offset="100%" stopColor="rgba(200,225,255,0.65)" />
+        </linearGradient>
+        <linearGradient id="tubeBlue" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="rgba(180,220,255,0.9)" />
+          <stop offset="100%" stopColor="rgba(100,170,240,0.9)" />
+        </linearGradient>
+        <linearGradient id="tubeOrange" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="rgba(255,180,80,0.9)" />
+          <stop offset="100%" stopColor="rgba(230,120,0,0.9)" />
+        </linearGradient>
+        <linearGradient id="tubeRed" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="rgba(255,120,100,0.9)" />
+          <stop offset="100%" stopColor="rgba(200,40,40,0.9)" />
+        </linearGradient>
+      </defs>
+
+      {/* ── Background wall ── */}
+      <rect x="0" y="0" width="1200" height="800" fill="url(#cLabWall)" />
+
+      {/* ── Ceiling ── */}
+      <rect x="0" y="0" width="1200" height="88" fill="url(#cLabCeil)" />
+      <rect x="0" y="86" width="1200" height="5" fill="#C5C5C5" />
+
+      {/* ── Fluorescent ceiling light fixtures ── */}
+      <rect
+        x="100"
+        y="10"
+        width="200"
+        height="26"
+        rx="4"
+        fill="#FFFEF0"
+        stroke="#DADADA"
+        strokeWidth="1.5"
+      />
+      <rect x="104" y="13" width="192" height="20" rx="2" fill="#FFFFF8" />
+      <ellipse
+        cx="200"
+        cy="23"
+        rx="80"
+        ry="10"
+        fill="url(#cFluoGlow)"
+        opacity="0.8"
+      />
+
+      <rect
+        x="490"
+        y="10"
+        width="220"
+        height="26"
+        rx="4"
+        fill="#FFFEF0"
+        stroke="#DADADA"
+        strokeWidth="1.5"
+      />
+      <rect x="494" y="13" width="212" height="20" rx="2" fill="#FFFFF8" />
+      <ellipse
+        cx="600"
+        cy="23"
+        rx="85"
+        ry="10"
+        fill="url(#cFluoGlow)"
+        opacity="0.8"
+      />
+
+      <rect
+        x="880"
+        y="10"
+        width="210"
+        height="26"
+        rx="4"
+        fill="#FFFEF0"
+        stroke="#DADADA"
+        strokeWidth="1.5"
+      />
+      <rect x="884" y="13" width="202" height="20" rx="2" fill="#FFFFF8" />
+      <ellipse
+        cx="985"
+        cy="23"
+        rx="80"
+        ry="10"
+        fill="url(#cFluoGlow)"
+        opacity="0.8"
+      />
+
+      {/* Ceiling-wall molding */}
+      <rect x="0" y="88" width="1200" height="7" fill="#D2D2D2" />
+
+      {/* ── Wainscoting band (lower wall) ── */}
+      <rect x="0" y="475" width="1200" height="6" fill="#C8C8C8" />
+      <rect x="0" y="480" width="1200" height="200" fill="#E2E2E2" />
+      {[200, 400, 600, 800, 1000].map((px) => (
+        <line
+          key={`cwall${px}`}
+          x1={px}
+          y1="480"
+          x2={px}
+          y2="680"
+          stroke="#C2C2C2"
+          strokeWidth="1.5"
+        />
+      ))}
+
+      {/* ── Floor ── */}
+      <rect x="0" y="680" width="1200" height="120" fill="url(#cFloor)" />
+      {[
+        80, 160, 240, 320, 400, 480, 560, 640, 720, 800, 880, 960, 1040, 1120,
+      ].map((fx) => (
+        <line
+          key={`cfv${fx}`}
+          x1={fx}
+          y1="680"
+          x2={fx}
+          y2="800"
+          stroke="#B5B5B5"
+          strokeWidth="0.8"
+          opacity="0.6"
+        />
+      ))}
+      {[740, 800].map((fy) => (
+        <line
+          key={`cfh${fy}`}
+          x1="0"
+          y1={fy}
+          x2="1200"
+          y2={fy}
+          stroke="#B5B5B5"
+          strokeWidth="0.8"
+          opacity="0.6"
+        />
+      ))}
+      <rect x="0" y="678" width="1200" height="10" fill="url(#cShadow)" />
+
+      {/* ══════════════════════════════════════════
+          MID-GROUND BENCH (y ~385-490)
+      ══════════════════════════════════════════ */}
+      <rect
+        x="0"
+        y="385"
+        width="1200"
+        height="13"
+        rx="2"
+        fill="url(#cBenchTop)"
+      />
+      <rect x="0" y="397" width="1200" height="85" fill="url(#cBenchFront)" />
+      <rect
+        x="0"
+        y="385"
+        width="1200"
+        height="3"
+        fill="rgba(255,255,255,0.55)"
+      />
+      <rect x="0" y="482" width="1200" height="3" fill="#909090" />
+      {[60, 340, 620, 880, 1122].map((bx) => (
+        <rect
+          key={`cmb${bx}`}
+          x={bx}
+          y="397"
+          width="16"
+          height="85"
+          fill="#A0A0A0"
+        />
+      ))}
+      <rect x="0" y="484" width="1200" height="8" fill="url(#cShadow)" />
+
+      {/* ── Biohazard sign — left wall ── */}
+      <circle cx="168" cy="218" r="50" fill="url(#cBioCirc)" />
+      <circle
+        cx="168"
+        cy="218"
+        r="50"
+        fill="none"
+        stroke="#000000"
+        strokeWidth="3"
+      />
+      <g transform="translate(168,218)">
+        <circle r="9.5" fill="#000000" />
+        <circle r="6.2" fill="#F5C000" />
+        <path
+          d="M -9,-5.5 A 17 17 0 1 1 9,-5.5 A 9.5 9.5 0 0 0 -9,-5.5 Z"
+          fill="#000000"
+        />
+        <g transform="rotate(120)">
+          <path
+            d="M -9,-5.5 A 17 17 0 1 1 9,-5.5 A 9.5 9.5 0 0 0 -9,-5.5 Z"
+            fill="#000000"
+          />
+        </g>
+        <g transform="rotate(240)">
+          <path
+            d="M -9,-5.5 A 17 17 0 1 1 9,-5.5 A 9.5 9.5 0 0 0 -9,-5.5 Z"
+            fill="#000000"
+          />
+        </g>
+        <path d="M -7.5,4.5 A 9.5 9.5 0 0 0 7.5,4.5 Z" fill="#F5C000" />
+        <g transform="rotate(120)">
+          <path d="M -7.5,4.5 A 9.5 9.5 0 0 0 7.5,4.5 Z" fill="#F5C000" />
+        </g>
+        <g transform="rotate(240)">
+          <path d="M -7.5,4.5 A 9.5 9.5 0 0 0 7.5,4.5 Z" fill="#F5C000" />
+        </g>
+      </g>
+      <text
+        x="168"
+        y="280"
+        textAnchor="middle"
+        fontFamily="Arial,sans-serif"
+        fontSize="10"
+        fontWeight="bold"
+        fill="#000000"
+        letterSpacing="2"
+      >
+        BIOHAZARD
+      </text>
+
+      {/* ── Biohazard sign — right wall background ── */}
+      <circle cx="975" cy="198" r="40" fill="url(#cBioCirc)" />
+      <circle
+        cx="975"
+        cy="198"
+        r="40"
+        fill="none"
+        stroke="#000000"
+        strokeWidth="2.5"
+      />
+      <g transform="translate(975,198)">
+        <circle r="7.5" fill="#000000" />
+        <circle r="4.9" fill="#F5C000" />
+        <path
+          d="M -7.2,-4.4 A 13.6 13.6 0 1 1 7.2,-4.4 A 7.5 7.5 0 0 0 -7.2,-4.4 Z"
+          fill="#000000"
+        />
+        <g transform="rotate(120)">
+          <path
+            d="M -7.2,-4.4 A 13.6 13.6 0 1 1 7.2,-4.4 A 7.5 7.5 0 0 0 -7.2,-4.4 Z"
+            fill="#000000"
+          />
+        </g>
+        <g transform="rotate(240)">
+          <path
+            d="M -7.2,-4.4 A 13.6 13.6 0 1 1 7.2,-4.4 A 7.5 7.5 0 0 0 -7.2,-4.4 Z"
+            fill="#000000"
+          />
+        </g>
+        <path d="M -6,3.6 A 7.5 7.5 0 0 0 6,3.6 Z" fill="#F5C000" />
+        <g transform="rotate(120)">
+          <path d="M -6,3.6 A 7.5 7.5 0 0 0 6,3.6 Z" fill="#F5C000" />
+        </g>
+        <g transform="rotate(240)">
+          <path d="M -6,3.6 A 7.5 7.5 0 0 0 6,3.6 Z" fill="#F5C000" />
+        </g>
+      </g>
+      <text
+        x="975"
+        y="248"
+        textAnchor="middle"
+        fontFamily="Arial,sans-serif"
+        fontSize="8.5"
+        fontWeight="bold"
+        fill="#000000"
+        letterSpacing="1.5"
+      >
+        BIOHAZARD
+      </text>
+
+      {/* ══ ORANGE HAZMAT SUIT ══ */}
+      <rect x="770" y="95" width="14" height="9" rx="2" fill="#888888" />
+      <path
+        d="M 777,104 L 777,118 Q 798,126 798,142"
+        fill="none"
+        stroke="#777777"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <ellipse cx="788" cy="174" rx="40" ry="42" fill="url(#cHazmat)" />
+      <ellipse
+        cx="788"
+        cy="169"
+        rx="21"
+        ry="17"
+        fill="url(#cVisor)"
+        stroke="#CC5500"
+        strokeWidth="2"
+      />
+      <ellipse
+        cx="781"
+        cy="163"
+        rx="6"
+        ry="4.5"
+        fill="rgba(255,255,255,0.32)"
+      />
+      <path
+        d="M 750,183 Q 755,163 788,154 Q 821,163 826,183"
+        fill="none"
+        stroke="#CC5500"
+        strokeWidth="1.5"
+        strokeDasharray="4,3"
+      />
+      <ellipse cx="788" cy="210" rx="40" ry="9" fill="#DF5600" />
+      <path
+        d="M 750,210 Q 743,258 741,328 Q 741,368 749,378 Q 788,388 827,378 Q 835,368 835,328 Q 833,258 826,210 Z"
+        fill="url(#cHazmat)"
+      />
+      <line
+        x1="788"
+        y1="213"
+        x2="788"
+        y2="378"
+        stroke="#CC5500"
+        strokeWidth="1.5"
+        strokeDasharray="5,4"
+      />
+      <rect
+        x="784"
+        y="218"
+        width="8"
+        height="34"
+        rx="2"
+        fill="#DD6600"
+        stroke="#AA4400"
+        strokeWidth="1"
+      />
+      <rect x="782" y="249" width="12" height="5" rx="1" fill="#AAAAAA" />
+      <rect
+        x="749"
+        y="268"
+        width="79"
+        height="8"
+        rx="2"
+        fill="rgba(218,218,218,0.78)"
+      />
+      <path
+        d="M 750,218 Q 720,238 712,288 Q 707,328 716,352 Q 723,364 733,356 Q 746,342 748,314 Q 752,278 755,248 Z"
+        fill="url(#cHazmat)"
+      />
+      <path
+        d="M 718,298 Q 724,293 733,296"
+        fill="none"
+        stroke="rgba(218,218,218,0.78)"
+        strokeWidth="7"
+        strokeLinecap="round"
+      />
+      <ellipse cx="721" cy="358" rx="15" ry="9" fill="#2E2E2E" />
+      <path
+        d="M 826,218 Q 856,238 864,288 Q 869,328 860,352 Q 853,364 843,356 Q 830,342 828,314 Q 824,278 821,248 Z"
+        fill="url(#cHazmat)"
+      />
+      <path
+        d="M 858,298 Q 852,293 843,296"
+        fill="none"
+        stroke="rgba(218,218,218,0.78)"
+        strokeWidth="7"
+        strokeLinecap="round"
+      />
+      <ellipse cx="855" cy="358" rx="15" ry="9" fill="#2E2E2E" />
+      <path
+        d="M 749,376 Q 745,418 743,458 Q 741,490 743,528 Q 746,553 756,558 Q 769,560 773,546 Q 777,528 777,498 Q 777,463 776,428 Q 776,403 773,378 Z"
+        fill="url(#cHazmat)"
+      />
+      <ellipse cx="758" cy="558" rx="19" ry="9" fill="#252525" />
+      <path
+        d="M 827,376 Q 831,418 833,458 Q 835,490 833,528 Q 830,553 820,558 Q 807,560 803,546 Q 799,528 799,498 Q 799,463 800,428 Q 800,403 803,378 Z"
+        fill="url(#cHazmat)"
+      />
+      <ellipse cx="818" cy="558" rx="19" ry="9" fill="#252525" />
+
+      {/* ══ FOREGROUND BENCH (y ~570-670) ══ */}
+      <rect
+        x="0"
+        y="570"
+        width="1200"
+        height="13"
+        rx="2"
+        fill="url(#cBenchTop)"
+      />
+      <rect x="0" y="582" width="1200" height="88" fill="url(#cBenchFront)" />
+      <rect
+        x="0"
+        y="570"
+        width="1200"
+        height="3"
+        fill="rgba(255,255,255,0.6)"
+      />
+      <rect x="0" y="669" width="1200" height="3" fill="#909090" />
+      <rect x="0" y="671" width="1200" height="9" fill="url(#cShadow)" />
+      {[80, 360, 640, 900, 1150].map((bx) => (
+        <rect
+          key={`cfb${bx}`}
+          x={bx}
+          y="582"
+          width="16"
+          height="88"
+          fill="#9E9E9E"
+        />
+      ))}
+
+      {/* ══ LARGE MICROSCOPE — foreground left ══ */}
+      {/* Base */}
+      <ellipse cx="265" cy="575" rx="68" ry="12" fill="url(#cMicroBase)" />
+      <rect
+        x="230"
+        y="543"
+        width="70"
+        height="32"
+        rx="4"
+        fill="url(#cMicroBase)"
+      />
+      {/* Light port at base bottom */}
+      <ellipse cx="265" cy="543" rx="18" ry="7" fill="#2A2A2A" />
+      <ellipse
+        cx="265"
+        cy="541"
+        rx="12"
+        ry="4.5"
+        fill="#C8C0A8"
+        opacity="0.6"
+      />
+      {/* Arm - vertical pillar */}
+      <rect
+        x="252"
+        y="330"
+        width="26"
+        height="218"
+        rx="5"
+        fill="url(#cMicroBase)"
+      />
+      {/* C-arm horizontal top */}
+      <rect
+        x="252"
+        y="330"
+        width="88"
+        height="22"
+        rx="5"
+        fill="url(#cMicroBase)"
+      />
+      {/* Focus knobs on arm */}
+      <ellipse
+        cx="248"
+        cy="440"
+        rx="16"
+        ry="16"
+        fill="#303030"
+        stroke="#555555"
+        strokeWidth="2"
+      />
+      <ellipse cx="248" cy="440" rx="10" ry="10" fill="#404040" />
+      <ellipse
+        cx="248"
+        cy="468"
+        rx="13"
+        ry="13"
+        fill="#383838"
+        stroke="#555555"
+        strokeWidth="1.5"
+      />
+      <ellipse cx="248" cy="468" rx="8" ry="8" fill="#484848" />
+      {/* Stage platform */}
+      <rect x="270" y="442" width="80" height="10" rx="2" fill="#505050" />
+      <rect x="275" y="434" width="70" height="8" rx="2" fill="#606060" />
+      {/* Stage clips */}
+      <rect x="278" y="430" width="8" height="14" rx="2" fill="#404040" />
+      <rect x="344" y="430" width="8" height="14" rx="2" fill="#404040" />
+      {/* Condenser (below stage) */}
+      <rect x="298" y="452" width="30" height="22" rx="3" fill="#444444" />
+      <ellipse cx="313" cy="452" rx="12" ry="5" fill="#303030" />
+      {/* Nosepiece with objective lenses */}
+      <ellipse cx="318" cy="378" rx="22" ry="8" fill="#383838" />
+      {/* Three objective tubes hanging down */}
+      <rect x="296" y="378" width="10" height="34" rx="3" fill="#303030" />
+      <rect x="313" y="378" width="10" height="42" rx="3" fill="#303030" />
+      <rect x="330" y="378" width="10" height="28" rx="3" fill="#303030" />
+      {/* Objective tips */}
+      <ellipse cx="301" cy="413" rx="5" ry="4" fill="#252525" />
+      <ellipse cx="318" cy="421" rx="6" ry="4.5" fill="#252525" />
+      <ellipse cx="335" cy="407" rx="5" ry="4" fill="#252525" />
+      {/* Eyepiece tube */}
+      <rect x="322" y="310" width="18" height="22" rx="4" fill="#404040" />
+      <rect x="317" y="303" width="28" height="11" rx="4" fill="#383838" />
+      {/* Ocular lens at top */}
+      <ellipse cx="331" cy="302" rx="15" ry="6" fill="#222222" />
+      <ellipse cx="331" cy="302" rx="9" ry="3.5" fill="#1A3A50" opacity="0.8" />
+
+      {/* ══ MEDIUM MICROSCOPE — mid-ground right ══ */}
+      {/* Base */}
+      <ellipse cx="960" cy="395" rx="50" ry="9" fill="url(#cMicroBase)" />
+      <rect
+        x="930"
+        y="372"
+        width="54"
+        height="23"
+        rx="3"
+        fill="url(#cMicroBase)"
+      />
+      <ellipse cx="957" cy="372" rx="13" ry="5" fill="#2A2A2A" />
+      <ellipse cx="957" cy="370" rx="9" ry="3.5" fill="#C8C0A8" opacity="0.5" />
+      {/* Arm pillar */}
+      <rect
+        x="944"
+        y="205"
+        width="20"
+        height="168"
+        rx="4"
+        fill="url(#cMicroBase)"
+      />
+      {/* C-arm top */}
+      <rect
+        x="944"
+        y="205"
+        width="68"
+        height="17"
+        rx="4"
+        fill="url(#cMicroBase)"
+      />
+      {/* Focus knobs */}
+      <ellipse
+        cx="941"
+        cy="290"
+        rx="12"
+        ry="12"
+        fill="#303030"
+        stroke="#555555"
+        strokeWidth="1.5"
+      />
+      <ellipse cx="941" cy="290" rx="7.5" ry="7.5" fill="#404040" />
+      <ellipse
+        cx="941"
+        cy="310"
+        rx="10"
+        ry="10"
+        fill="#383838"
+        stroke="#555555"
+        strokeWidth="1.5"
+      />
+      {/* Stage */}
+      <rect x="957" y="302" width="60" height="8" rx="2" fill="#505050" />
+      <rect x="961" y="295" width="52" height="7" rx="2" fill="#606060" />
+      <rect x="963" y="291" width="6" height="11" rx="1.5" fill="#404040" />
+      <rect x="1003" y="291" width="6" height="11" rx="1.5" fill="#404040" />
+      {/* Condenser */}
+      <rect x="977" y="310" width="22" height="16" rx="2" fill="#444444" />
+      {/* Nosepiece */}
+      <ellipse cx="995" cy="248" rx="16" ry="6" fill="#383838" />
+      {/* Objectives */}
+      <rect x="979" y="248" width="8" height="26" rx="2" fill="#303030" />
+      <rect x="991" y="248" width="8" height="32" rx="2" fill="#303030" />
+      <rect x="1003" y="248" width="8" height="21" rx="2" fill="#303030" />
+      <ellipse cx="983" cy="275" rx="4" ry="3" fill="#252525" />
+      <ellipse cx="995" cy="281" rx="4.5" ry="3.5" fill="#252525" />
+      <ellipse cx="1007" cy="270" rx="4" ry="3" fill="#252525" />
+      {/* Eyepiece */}
+      <rect x="999" y="214" width="14" height="17" rx="3" fill="#404040" />
+      <rect x="995" y="208" width="22" height="9" rx="3" fill="#383838" />
+      <ellipse cx="1006" cy="207" rx="11" ry="4.5" fill="#222222" />
+      <ellipse
+        cx="1006"
+        cy="207"
+        rx="6.5"
+        ry="2.8"
+        fill="#1A3A50"
+        opacity="0.8"
+      />
+
+      {/* ══ TEST TUBE RACK — mid bench ══ */}
+      {/* Rack frame */}
+      <rect x="440" y="354" width="100" height="36" rx="3" fill="#888888" />
+      <rect x="443" y="356" width="94" height="32" rx="2" fill="#AAAAAA" />
+      {/* Tube holes */}
+      {[452, 465, 478, 491, 504, 517, 530].map((tx) => (
+        <ellipse
+          key={`cth${tx}`}
+          cx={tx}
+          cy="372"
+          rx="5"
+          ry="5"
+          fill="#888888"
+        />
+      ))}
+      {/* Tubes */}
+      <rect
+        x="449"
+        y="296"
+        width="10"
+        height="62"
+        rx="5"
+        fill="url(#tubeClear)"
+        stroke="rgba(180,200,220,0.6)"
+        strokeWidth="1"
+      />
+      <rect
+        x="462"
+        y="310"
+        width="10"
+        height="48"
+        rx="5"
+        fill="url(#tubeBlue)"
+        stroke="rgba(100,160,240,0.6)"
+        strokeWidth="1"
+      />
+      <rect
+        x="475"
+        y="302"
+        width="10"
+        height="56"
+        rx="5"
+        fill="url(#tubeOrange)"
+        stroke="rgba(220,130,0,0.6)"
+        strokeWidth="1"
+      />
+      <rect
+        x="488"
+        y="294"
+        width="10"
+        height="64"
+        rx="5"
+        fill="url(#tubeRed)"
+        stroke="rgba(200,40,40,0.6)"
+        strokeWidth="1"
+      />
+      <rect
+        x="501"
+        y="308"
+        width="10"
+        height="50"
+        rx="5"
+        fill="url(#tubeBlue)"
+        stroke="rgba(100,160,240,0.6)"
+        strokeWidth="1"
+      />
+      <rect
+        x="514"
+        y="300"
+        width="10"
+        height="58"
+        rx="5"
+        fill="url(#tubeOrange)"
+        stroke="rgba(220,130,0,0.6)"
+        strokeWidth="1"
+      />
+      <rect
+        x="527"
+        y="316"
+        width="10"
+        height="42"
+        rx="5"
+        fill="url(#tubeClear)"
+        stroke="rgba(180,200,220,0.6)"
+        strokeWidth="1"
+      />
+      {/* Tube caps */}
+      <rect x="449" y="294" width="10" height="6" rx="3" fill="#C8C8C8" />
+      <rect x="462" y="294" width="10" height="6" rx="3" fill="#5090C8" />
+      <rect x="475" y="294" width="10" height="6" rx="3" fill="#CC7800" />
+      <rect x="488" y="294" width="10" height="6" rx="3" fill="#C03030" />
+      <rect x="501" y="294" width="10" height="6" rx="3" fill="#5090C8" />
+      <rect x="514" y="294" width="10" height="6" rx="3" fill="#CC7800" />
+      <rect x="527" y="294" width="10" height="6" rx="3" fill="#C8C8C8" />
+
+      {/* ══ PETRI DISHES — foreground bench ══ */}
+      {/* Petri dish 1 - red bacteria */}
+      <ellipse
+        cx="110"
+        cy="574"
+        rx="36"
+        ry="12"
+        fill="rgba(240,240,240,0.6)"
+        stroke="#AAAAAA"
+        strokeWidth="1.5"
+      />
+      <ellipse cx="110" cy="572" rx="32" ry="10" fill="url(#cPetriRed)" />
+      <path
+        d="M 92,570 Q 100,562 115,568 Q 122,572 118,578"
+        fill="rgba(200,70,40,0.4)"
+        stroke="none"
+      />
+      <path
+        d="M 100,576 Q 110,566 120,572"
+        fill="none"
+        stroke="rgba(180,50,20,0.35)"
+        strokeWidth="1.5"
+      />
+
+      {/* Petri dish 2 - green bacteria */}
+      <ellipse
+        cx="184"
+        cy="574"
+        rx="34"
+        ry="11"
+        fill="rgba(240,240,240,0.6)"
+        stroke="#AAAAAA"
+        strokeWidth="1.5"
+      />
+      <ellipse cx="184" cy="572" rx="30" ry="9" fill="url(#cPetriGreen)" />
+      <path
+        d="M 170,570 Q 178,562 190,567 Q 198,572 193,578"
+        fill="rgba(60,140,60,0.4)"
+        stroke="none"
+      />
+
+      {/* Petri dish 3 (mid bench) */}
+      <ellipse
+        cx="655"
+        cy="388"
+        rx="30"
+        ry="10"
+        fill="rgba(240,240,240,0.6)"
+        stroke="#AAAAAA"
+        strokeWidth="1.5"
+      />
+      <ellipse cx="655" cy="386" rx="26" ry="8" fill="url(#cPetriRed)" />
+      <path
+        d="M 638,384 Q 648,376 660,382 Q 668,387 663,393"
+        fill="rgba(200,70,40,0.38)"
+        stroke="none"
+      />
+
+      {/* Petri dish 4 (mid bench) */}
+      <ellipse
+        cx="720"
+        cy="388"
+        rx="28"
+        ry="9"
+        fill="rgba(240,240,240,0.6)"
+        stroke="#AAAAAA"
+        strokeWidth="1.5"
+      />
+      <ellipse cx="720" cy="386" rx="24" ry="7.5" fill="url(#cPetriGreen)" />
+
+      {/* ══ SAFETY GOGGLES — foreground bench ══ */}
+      <rect
+        x="370"
+        y="566"
+        width="68"
+        height="22"
+        rx="8"
+        fill="rgba(200,230,255,0.7)"
+        stroke="#888888"
+        strokeWidth="2"
+      />
+      <ellipse
+        cx="391"
+        cy="576"
+        rx="14"
+        ry="9"
+        fill="rgba(170,210,255,0.65)"
+        stroke="#777777"
+        strokeWidth="1.5"
+      />
+      <ellipse
+        cx="417"
+        cy="576"
+        rx="14"
+        ry="9"
+        fill="rgba(170,210,255,0.65)"
+        stroke="#777777"
+        strokeWidth="1.5"
+      />
+      <rect x="404" y="573" width="8" height="6" rx="2" fill="#999999" />
+      <path
+        d="M 370,576 Q 360,573 355,578"
+        fill="none"
+        stroke="#888888"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M 438,576 Q 448,573 453,578"
+        fill="none"
+        stroke="#888888"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+
+      {/* ══ SPECIMEN VIALS — foreground bench ══ */}
+      <rect
+        x="508"
+        y="545"
+        width="16"
+        height="28"
+        rx="3"
+        fill="rgba(220,240,255,0.8)"
+        stroke="#AAAAAA"
+        strokeWidth="1"
+      />
+      <rect x="508" y="545" width="16" height="6" rx="2" fill="#4488CC" />
+      <rect
+        x="530"
+        y="540"
+        width="16"
+        height="33"
+        rx="3"
+        fill="rgba(255,235,200,0.8)"
+        stroke="#AAAAAA"
+        strokeWidth="1"
+      />
+      <rect x="530" y="540" width="16" height="6" rx="2" fill="#DD8800" />
+      <rect
+        x="552"
+        y="548"
+        width="16"
+        height="25"
+        rx="3"
+        fill="rgba(240,220,240,0.8)"
+        stroke="#AAAAAA"
+        strokeWidth="1"
+      />
+      <rect x="552" y="548" width="16" height="6" rx="2" fill="#8855AA" />
+      {/* Labels */}
+      <rect
+        x="510"
+        y="554"
+        width="12"
+        height="10"
+        fill="rgba(255,255,255,0.9)"
+      />
+      <rect
+        x="532"
+        y="549"
+        width="12"
+        height="10"
+        fill="rgba(255,255,255,0.9)"
+      />
+      <rect
+        x="554"
+        y="557"
+        width="12"
+        height="10"
+        fill="rgba(255,255,255,0.9)"
+      />
+
+      {/* ══ CLIPBOARD — wall right ══ */}
+      <rect
+        x="1090"
+        y="108"
+        width="60"
+        height="80"
+        rx="3"
+        fill="#ECECEC"
+        stroke="#BBBBBB"
+        strokeWidth="1.5"
+      />
+      <rect x="1108" y="103" width="24" height="14" rx="4" fill="#888888" />
+      <rect x="1112" y="100" width="16" height="8" rx="2" fill="#555555" />
+      <rect x="1096" y="125" width="48" height="2" rx="1" fill="#C0C0C0" />
+      <rect x="1096" y="131" width="48" height="2" rx="1" fill="#C0C0C0" />
+      <rect x="1096" y="137" width="48" height="2" rx="1" fill="#C0C0C0" />
+      <rect x="1096" y="143" width="38" height="2" rx="1" fill="#C0C0C0" />
+      <rect x="1096" y="149" width="48" height="2" rx="1" fill="#C0C0C0" />
+      <rect x="1096" y="155" width="32" height="2" rx="1" fill="#C0C0C0" />
+      <rect x="1096" y="161" width="48" height="2" rx="1" fill="#C0C0C0" />
+      <rect x="1096" y="167" width="42" height="2" rx="1" fill="#C0C0C0" />
+      <rect x="1096" y="173" width="48" height="2" rx="1" fill="#C0C0C0" />
+
+      {/* ══ Ambient overlay — sterile cool light ══ */}
+      <rect
+        x="0"
+        y="0"
+        width="1200"
+        height="800"
+        fill="rgba(240,248,255,0.06)"
+      />
+    </svg>
+  );
 
   const renderWorld = () => {
     switch (world) {
@@ -16732,6 +17848,8 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ world }) => {
         return renderMinecraftWorld();
       case "pumpfun":
         return renderPumpFunWorld();
+      case "corona":
+        return renderCoronaWorld();
       default:
         return renderOriginalWorld();
     }

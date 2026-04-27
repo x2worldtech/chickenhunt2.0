@@ -646,6 +646,24 @@ body {
   border: 2px solid #55aa75 !important;
 }
 
+.start-game-button-corona {
+  background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 50%, #fff8f0 100%);
+  color: #ff6b00 !important;
+  text-shadow: 0 1px 3px rgba(255, 107, 0, 0.25);
+  box-shadow: 0 4px 16px rgba(255, 107, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15),
+    0 0 0 2px rgba(255, 107, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border: 2px solid #ff6b00 !important;
+}
+
+.start-game-button-corona:hover {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffffff 50%, #fff3e0 100%);
+  color: #e05500 !important;
+  text-shadow: 0 1px 4px rgba(224, 85, 0, 0.3);
+  box-shadow: 0 6px 22px rgba(255, 107, 0, 0.45), 0 3px 8px rgba(0, 0, 0, 0.18),
+    0 0 0 2px rgba(255, 107, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  border: 2px solid #e05500 !important;
+}
+
 /* Tips container styling - Default for all worlds except snowy */
 .tips-container-default {
   border: 1px solid rgba(255, 255, 255, 0.2);

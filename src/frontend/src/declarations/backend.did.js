@@ -37,6 +37,11 @@ export const ApprovalStatus = IDL.Variant({
   'approved' : IDL.Null,
   'rejected' : IDL.Null,
 });
+export const PumpPriceData = IDL.Record({
+  'change24h' : IDL.Float64,
+  'lastUpdated' : IDL.Int,
+  'price' : IDL.Float64,
+});
 export const PrincipalInfo = IDL.Record({
   'principal' : IDL.Principal,
   'name' : IDL.Text,
@@ -144,6 +149,12 @@ export const UserInfo = IDL.Record({
   'role' : UserRole,
   'approval' : ApprovalStatus,
 });
+export const HttpHeader = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+export const HttpResponseRaw = IDL.Record({
+  'status' : IDL.Nat,
+  'body' : IDL.Vec(IDL.Nat8),
+  'headers' : IDL.Vec(HttpHeader),
+});
 
 export const idlService = IDL.Service({
   'addFriend' : IDL.Func(
@@ -181,6 +192,7 @@ export const idlService = IDL.Service({
     ),
   'getAllClans' : IDL.Func([], [IDL.Vec(ClanSummary)], ['query']),
   'getApprovalStatus' : IDL.Func([IDL.Principal], [ApprovalStatus], ['query']),
+  'getCachedPumpFunPrice' : IDL.Func([], [PumpPriceData], ['query']),
   'getClan' : IDL.Func(
       [IDL.Nat],
       [IDL.Variant({ 'ok' : ClanDetails, 'err' : IDL.Text })],
@@ -215,6 +227,7 @@ export const idlService = IDL.Service({
       [IDL.Variant({ 'ok' : IDL.Vec(PrincipalInfo), 'err' : IDL.Text })],
       [],
     ),
+  'getPumpFunPrice' : IDL.Func([], [PumpPriceData], []),
   'getUserGameStats' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(GameStatistics)],
@@ -274,6 +287,11 @@ export const idlService = IDL.Service({
       [],
     ),
   'setApproval' : IDL.Func([IDL.Principal, ApprovalStatus], [], []),
+  'transformPumpResponse' : IDL.Func(
+      [HttpResponseRaw],
+      [HttpResponseRaw],
+      ['query'],
+    ),
   'updateClan' : IDL.Func(
       [IDL.Nat, IDL.Text, JoinMode, IDL.Nat],
       [IDL.Variant({ 'ok' : ClanDetails, 'err' : IDL.Text })],
@@ -312,6 +330,11 @@ export const idlFactory = ({ IDL }) => {
     'pending' : IDL.Null,
     'approved' : IDL.Null,
     'rejected' : IDL.Null,
+  });
+  const PumpPriceData = IDL.Record({
+    'change24h' : IDL.Float64,
+    'lastUpdated' : IDL.Int,
+    'price' : IDL.Float64,
   });
   const PrincipalInfo = IDL.Record({
     'principal' : IDL.Principal,
@@ -420,6 +443,12 @@ export const idlFactory = ({ IDL }) => {
     'role' : UserRole,
     'approval' : ApprovalStatus,
   });
+  const HttpHeader = IDL.Record({ 'value' : IDL.Text, 'name' : IDL.Text });
+  const HttpResponseRaw = IDL.Record({
+    'status' : IDL.Nat,
+    'body' : IDL.Vec(IDL.Nat8),
+    'headers' : IDL.Vec(HttpHeader),
+  });
   
   return IDL.Service({
     'addFriend' : IDL.Func(
@@ -461,6 +490,7 @@ export const idlFactory = ({ IDL }) => {
         [ApprovalStatus],
         ['query'],
       ),
+    'getCachedPumpFunPrice' : IDL.Func([], [PumpPriceData], ['query']),
     'getClan' : IDL.Func(
         [IDL.Nat],
         [IDL.Variant({ 'ok' : ClanDetails, 'err' : IDL.Text })],
@@ -495,6 +525,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Variant({ 'ok' : IDL.Vec(PrincipalInfo), 'err' : IDL.Text })],
         [],
       ),
+    'getPumpFunPrice' : IDL.Func([], [PumpPriceData], []),
     'getUserGameStats' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(GameStatistics)],
@@ -554,6 +585,11 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'setApproval' : IDL.Func([IDL.Principal, ApprovalStatus], [], []),
+    'transformPumpResponse' : IDL.Func(
+        [HttpResponseRaw],
+        [HttpResponseRaw],
+        ['query'],
+      ),
     'updateClan' : IDL.Func(
         [IDL.Nat, IDL.Text, JoinMode, IDL.Nat],
         [IDL.Variant({ 'ok' : ClanDetails, 'err' : IDL.Text })],

@@ -87,4 +87,7 @@ export const mockBackend: backendInterface = {
   getDirectMessages: async (): Promise<{ __kind__: "ok"; ok: DirectMessage[] } | { __kind__: "err"; err: string }> => ({ __kind__: "ok", ok: [] }),
   setApproval: async () => undefined,
   updateClan: async () => err("not implemented"),
+  getCachedPumpFunPrice: async () => ({ price: 0, change24h: 0, lastUpdated: BigInt(0) }),
+  getPumpFunPrice: async () => ({ price: 0, change24h: 0, lastUpdated: BigInt(0) }),
+  transformPumpResponse: async () => ({ status: BigInt(200), body: new Uint8Array(), headers: [] }),
 };

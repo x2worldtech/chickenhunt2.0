@@ -2,6 +2,7 @@ import { useInternetIdentity } from "@caffeineai/core-infrastructure";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BackgroundWorld, GameStatisticsLocal, PlayerData } from "../App";
+import { useBitcoinPrice, usePumpFunPrice } from "../hooks/useQueries";
 import AchievementsView from "./AchievementsView";
 import BackgroundRenderer from "./BackgroundRenderer";
 import BottomMenu from "./BottomMenu";
@@ -77,6 +78,7 @@ const WORLDS: { id: BackgroundWorld; name: string }[] = [
   { id: "ocean", name: "Ocean" },
   { id: "minecraft", name: "Minecraft" },
   { id: "pumpfun", name: "pump.fun" },
+  { id: "corona", name: "Corona" },
 ];
 
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
@@ -100,6 +102,7 @@ const START_BUTTON_CLASSES: Record<BackgroundWorld, string> = {
   ocean: "start-game-button-ocean",
   minecraft: "start-game-button-minecraft",
   pumpfun: "start-game-button-pumpfun",
+  corona: "start-game-button-corona",
 };
 
 const StartScreen: React.FC<StartScreenProps> = ({
@@ -112,6 +115,10 @@ const StartScreen: React.FC<StartScreenProps> = ({
 }) => {
   const { isAuthenticated } = useInternetIdentity();
   const [overlayView, setOverlayView] = useState<OverlayView | null>(null);
+  const isPumpFunSelected = selectedWorld === "pumpfun";
+  const isBitcoinSelected = selectedWorld === "bitcoin";
+  const { data: pumpPriceData } = usePumpFunPrice();
+  const { data: btcPriceData } = useBitcoinPrice();
   const [worldIndex, setWorldIndex] = useState(() => {
     const idx = WORLDS.findIndex((w) => w.id === selectedWorld);
     return idx >= 0 ? idx : 0;
@@ -125,10 +132,46 @@ const StartScreen: React.FC<StartScreenProps> = ({
   const touchStartXRef = useRef(0);
   const touchCurXRef = useRef(0);
 
+  // Transition state for smooth chicken ↔ pill/coin/fish/virus swap
+  // entityAlpha: current draw alpha (0..1)
+  // transitionPhase: 'idle' | 'fade-out' | 'fade-in'
+  // pendingEntityType: the entity type we're transitioning TO
+  // "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus"
+  const entityAlphaRef = useRef<number>(1);
+  const transitionPhaseRef = useRef<"idle" | "fade-out" | "fade-in">("idle");
+  const pendingEntityTypeRef = useRef<
+    "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus"
+  >("chicken");
+  const activeEntityTypeRef = useRef<
+    "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus"
+  >("chicken");
+
+  // Keep backward-compat booleans used by pill drawing (entityAlphaRef is shared)
+  const pendingIsPumpFunRef = useRef<boolean>(false);
+  const activeIsPumpFunRef = useRef<boolean>(false);
+
   // Sync worldIndex when selectedWorld prop changes
   useEffect(() => {
     const idx = WORLDS.findIndex((w) => w.id === selectedWorld);
     if (idx >= 0) setWorldIndex(idx);
+  }, [selectedWorld]);
+
+  // Trigger smooth transition when selectedWorld crosses entity-type boundaries
+  useEffect(() => {
+    const nextType: "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" =
+      selectedWorld === "pumpfun"
+        ? "pumpfun"
+        : selectedWorld === "bitcoin"
+          ? "bitcoin"
+          : selectedWorld === "ocean"
+            ? "fish"
+            : selectedWorld === "corona"
+              ? "virus"
+              : "chicken";
+    if (nextType === activeEntityTypeRef.current) return; // no change
+    pendingEntityTypeRef.current = nextType;
+    pendingIsPumpFunRef.current = nextType === "pumpfun";
+    transitionPhaseRef.current = "fade-out";
   }, [selectedWorld]);
 
   // Auto-rotate tips
@@ -445,11 +488,734 @@ const StartScreen: React.FC<StartScreenProps> = ({
     [],
   );
 
+  // Draw pump.fun pill (angel-wing capsule) — mirrors GameScreen.drawPumpFunPill
+  const drawPumpFunPill = useCallback(
+    (ctx: CanvasRenderingContext2D, c: StartChicken) => {
+      const { x, y, size, wingPhase, direction } = c;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Map size bucket → pill dimensions (ph = capsule height as size reference)
+      let pw: number;
+      let ph: number;
+      if (size <= 25) {
+        pw = 50;
+        ph = 22;
+      } else if (size <= 40) {
+        pw = 80;
+        ph = 34;
+      } else {
+        pw = 110;
+        ph = 48;
+      }
+      const pr = ph / 2;
+      const ws = pw / 130; // wing scale
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      ctx.rotate((Math.PI * 40) / 180); // 40° tilt
+
+      const flapAngle = Math.sin(wingPhase) * 0.35;
+      const wingFill = "rgba(255,255,255,0.95)";
+      const wingFillInner = "rgba(230,240,255,0.75)";
+      const wingStroke = "#D4AF37";
+
+      const drawWingUp = () => {
+        ctx.fillStyle = wingFill;
+        ctx.strokeStyle = wingStroke;
+        ctx.lineWidth = 1.0 * ws;
+        ctx.globalAlpha = 0.97 * entityAlphaRef.current;
+
+        // Feather 1
+        ctx.beginPath();
+        ctx.moveTo(-3 * ws, 0);
+        ctx.bezierCurveTo(
+          -8 * ws,
+          -10 * ws,
+          -4 * ws,
+          -20 * ws,
+          6 * ws,
+          -22 * ws,
+        );
+        ctx.bezierCurveTo(4 * ws, -14 * ws, 2 * ws, -6 * ws, 3 * ws, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Feather 2
+        ctx.beginPath();
+        ctx.moveTo(-2 * ws, -2 * ws);
+        ctx.bezierCurveTo(
+          -14 * ws,
+          -14 * ws,
+          -20 * ws,
+          -28 * ws,
+          -10 * ws,
+          -36 * ws,
+        );
+        ctx.bezierCurveTo(-6 * ws, -28 * ws, 0, -16 * ws, 2 * ws, -4 * ws);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Feather 3 (primary)
+        ctx.fillStyle = wingFillInner;
+        ctx.beginPath();
+        ctx.moveTo(4 * ws, -1 * ws);
+        ctx.bezierCurveTo(0, -18 * ws, -8 * ws, -34 * ws, -20 * ws, -44 * ws);
+        ctx.bezierCurveTo(-24 * ws, -36 * ws, -18 * ws, -22 * ws, 0, -6 * ws);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Feather 4 (outermost tip)
+        ctx.fillStyle = wingFill;
+        ctx.beginPath();
+        ctx.moveTo(2 * ws, -4 * ws);
+        ctx.bezierCurveTo(
+          -6 * ws,
+          -22 * ws,
+          -18 * ws,
+          -38 * ws,
+          -30 * ws,
+          -46 * ws,
+        );
+        ctx.bezierCurveTo(
+          -30 * ws,
+          -38 * ws,
+          -22 * ws,
+          -26 * ws,
+          -4 * ws,
+          -10 * ws,
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      };
+
+      // Top wing (sweeps upward from top of seam)
+      ctx.save();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.translate(0, -ph / 2);
+      ctx.rotate(-flapAngle);
+      drawWingUp();
+      ctx.restore();
+
+      // Bottom wing (mirror, sweeps downward)
+      ctx.save();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.translate(0, ph / 2);
+      ctx.scale(1, -1);
+      ctx.rotate(flapAngle);
+      drawWingUp();
+      ctx.restore();
+
+      ctx.globalAlpha = entityAlphaRef.current;
+
+      // Pill body — green (left) half
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-pw / 2, -ph / 2, pw / 2, ph);
+      ctx.clip();
+      const lgLeft = ctx.createLinearGradient(
+        -pw / 2,
+        -ph / 2,
+        -pw / 2,
+        ph / 2,
+      );
+      lgLeft.addColorStop(0, "#4ADE80");
+      lgLeft.addColorStop(1, "#22C55E");
+      ctx.fillStyle = lgLeft;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -ph / 2, pw, ph, pr);
+      ctx.fill();
+      ctx.restore();
+
+      // Pill body — white (right) half
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, -ph / 2, pw / 2, ph);
+      ctx.clip();
+      const lgRight = ctx.createLinearGradient(0, -ph / 2, 0, ph / 2);
+      lgRight.addColorStop(0, "#FFFFFF");
+      lgRight.addColorStop(1, "#F0F0F0");
+      ctx.fillStyle = lgRight;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -ph / 2, pw, ph, pr);
+      ctx.fill();
+      ctx.restore();
+
+      // Dark border
+      ctx.strokeStyle = "#1a1a1a";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -ph / 2, pw, ph, pr);
+      ctx.stroke();
+
+      // Gray seam line
+      ctx.strokeStyle = "#888888";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, -ph / 2);
+      ctx.lineTo(0, ph / 2);
+      ctx.stroke();
+
+      // Gloss highlight
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-pw / 2, -ph / 2, pw / 2, ph);
+      ctx.clip();
+      const glossGrad = ctx.createRadialGradient(
+        -pw * 0.25,
+        -ph * 0.25,
+        1,
+        -pw * 0.25,
+        -ph * 0.25,
+        ph * 0.55,
+      );
+      glossGrad.addColorStop(0, "rgba(255,255,255,0.55)");
+      glossGrad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = glossGrad;
+      ctx.beginPath();
+      ctx.ellipse(
+        -pw * 0.2,
+        -ph * 0.2,
+        pw * 0.18,
+        ph * 0.22,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+      ctx.restore();
+
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    [],
+  );
+
+  // Draw Bitcoin coin — golden circle with official white ₿ symbol
+  const drawBitcoinCoin = useCallback(
+    (ctx: CanvasRenderingContext2D, c: StartChicken) => {
+      const { x, y, size, wingPhase, direction } = c;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Map size bucket → coin radius
+      let r: number;
+      if (size <= 25) {
+        r = 14;
+      } else if (size <= 40) {
+        r = 22;
+      } else {
+        r = 32;
+      }
+
+      const bob = Math.sin(wingPhase) * 2.5;
+      const alpha = entityAlphaRef.current;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy + bob);
+      // No horizontal flip needed for coins (symmetric)
+      void direction;
+
+      // Edge ring
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.strokeStyle = "#B8860B";
+      ctx.lineWidth = r * 0.12;
+      ctx.stroke();
+
+      // Body gradient
+      const grad = ctx.createRadialGradient(
+        -r * 0.3,
+        -r * 0.3,
+        r * 0.05,
+        0,
+        0,
+        r,
+      );
+      grad.addColorStop(0, "#FFE066");
+      grad.addColorStop(0.45, "#F7931A");
+      grad.addColorStop(1, "#8B5E00");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Gloss
+      const gloss = ctx.createRadialGradient(
+        -r * 0.32,
+        -r * 0.32,
+        0,
+        -r * 0.32,
+        -r * 0.32,
+        r * 0.55,
+      );
+      gloss.addColorStop(0, "rgba(255,255,255,0.55)");
+      gloss.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ₿ symbol
+      const btcScale = (r * 1.15) / 100;
+      ctx.save();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.scale(btcScale, btcScale);
+      ctx.translate(-40, -60);
+      ctx.rotate((14 * Math.PI) / 180);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.globalAlpha = 0.95 * alpha;
+      const p = new Path2D(
+        "M78.3 36.6c1.8-12.2-7.5-18.8-20.2-23.2l4.1-16.6-10.1-2.5-4 16.1c-2.7-.7-5.4-1.3-8.1-1.9l4.1-16.3-10.1-2.5-4.1 16.6c-2.2-.5-4.4-1-6.5-1.5l0 0-13.9-3.5-2.7 10.8s7.5 1.7 7.4 1.8c4.1 1 4.8 3.7 4.7 5.9l-4.7 18.8c.3.1.7.2 1.1.3-.4-.1-.7-.2-1.1-.3l-6.6 26.4c-.5 1.2-1.8 3-4.6 2.3.1.1-7.4-1.9-7.4-1.9l-5.1 11.5 13.2 3.3c2.4.6 4.8 1.2 7.2 1.9l-4.2 16.7 10.1 2.5 4.1-16.6c2.8.7 5.5 1.4 8.2 2.1l-4.1 16.5 10.1 2.5 4.2-16.8c17.3 3.3 30.3 1.9 35.8-13.6 4.4-12.6.2-19.9-9.3-24.6 6.6-1.5 11.6-5.9 12.9-14.7zm-23.1 32.4c-3.1 12.6-24.3 5.8-31.2 4.1l5.6-22.3c6.9 1.7 28.9 5.1 25.6 18.2zm3.1-32.7c-2.9 11.5-20.5 5.7-26.2 4.2l5-20.1c5.7 1.4 24.1 4.1 21.2 15.9z",
+      );
+      ctx.fill(p);
+      ctx.restore();
+
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    [],
+  );
+
+  // Draw ocean fish — colorful deep-sea / tropical fish, mirrors GameScreen.drawOceanFish
+  const drawOceanFish = useCallback(
+    (ctx: CanvasRenderingContext2D, c: StartChicken) => {
+      const { x, y, size, wingPhase, direction } = c;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Fish dimensions based on size bucket
+      let fw: number;
+      let fh: number;
+      if (size <= 25) {
+        fw = 48;
+        fh = 20;
+      } else if (size <= 40) {
+        fw = 76;
+        fh = 32;
+      } else {
+        fw = 108;
+        fh = 46;
+      }
+
+      const tailWag = Math.sin(wingPhase) * 0.28;
+      const finFlutter = Math.sin(wingPhase * 1.3) * 0.18;
+      const alpha = entityAlphaRef.current;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+
+      ctx.shadowColor = "#00BFFF";
+      ctx.shadowBlur = 10;
+
+      // Tail fin
+      ctx.save();
+      ctx.translate(fw * 0.38, 0);
+      ctx.rotate(tailWag);
+      const tailGrad = ctx.createLinearGradient(0, -fh * 0.6, 0, fh * 0.6);
+      tailGrad.addColorStop(0, "#CE93D8");
+      tailGrad.addColorStop(1, "#7B1FA2");
+      ctx.fillStyle = tailGrad;
+      ctx.strokeStyle = "#4A148C";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(
+        fw * 0.18,
+        -fh * 0.55,
+        fw * 0.32,
+        -fh * 0.65,
+        fw * 0.42,
+        -fh * 0.55,
+      );
+      ctx.bezierCurveTo(fw * 0.34, -fh * 0.18, fw * 0.2, -fh * 0.06, 0, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(
+        fw * 0.18,
+        fh * 0.55,
+        fw * 0.32,
+        fh * 0.65,
+        fw * 0.42,
+        fh * 0.55,
+      );
+      ctx.bezierCurveTo(fw * 0.34, fh * 0.18, fw * 0.2, fh * 0.06, 0, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Body
+      const bodyGrad = ctx.createRadialGradient(
+        -fw * 0.15,
+        -fh * 0.1,
+        fh * 0.05,
+        0,
+        0,
+        fh * 0.72,
+      );
+      bodyGrad.addColorStop(0, "#80DEEA");
+      bodyGrad.addColorStop(0.3, "#26C6DA");
+      bodyGrad.addColorStop(0.65, "#F48FB1");
+      bodyGrad.addColorStop(1, "#7B1FA2");
+      ctx.fillStyle = bodyGrad;
+      ctx.strokeStyle = "#1565C0";
+      ctx.lineWidth = Math.max(1, fh * 0.04);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, fw * 0.42, fh * 0.42, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Scales
+      ctx.strokeStyle = "rgba(255,255,255,0.2)";
+      ctx.lineWidth = Math.max(0.5, fh * 0.025);
+      const scaleRows = size <= 25 ? 2 : 3;
+      const scaleCols = size <= 25 ? 3 : 4;
+      for (let row = 0; row < scaleRows; row++) {
+        for (let col = 0; col < scaleCols; col++) {
+          const sx = -fw * 0.2 + col * fw * 0.14;
+          const sy = -fh * 0.15 + row * fh * 0.18;
+          ctx.beginPath();
+          ctx.arc(sx, sy, fh * 0.1, Math.PI * 0.2, Math.PI * 0.8);
+          ctx.stroke();
+        }
+      }
+
+      // Dorsal fin
+      ctx.save();
+      ctx.rotate(finFlutter * 0.5);
+      const dorsalGrad = ctx.createLinearGradient(0, -fh * 0.42, 0, -fh * 0.85);
+      dorsalGrad.addColorStop(0, "#80DEEA");
+      dorsalGrad.addColorStop(1, "rgba(100,200,220,0)");
+      ctx.fillStyle = dorsalGrad;
+      ctx.strokeStyle = "#0097A7";
+      ctx.lineWidth = Math.max(0.8, fh * 0.03);
+      ctx.beginPath();
+      ctx.moveTo(-fw * 0.15, -fh * 0.38);
+      ctx.bezierCurveTo(
+        -fw * 0.05,
+        -fh * 0.85,
+        fw * 0.12,
+        -fh * 0.8,
+        fw * 0.22,
+        -fh * 0.38,
+      );
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Pectoral fin
+      ctx.save();
+      ctx.translate(-fw * 0.05, fh * 0.1);
+      ctx.rotate(finFlutter);
+      ctx.fillStyle = "rgba(180,240,255,0.7)";
+      ctx.strokeStyle = "#0097A7";
+      ctx.lineWidth = Math.max(0.6, fh * 0.025);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(
+        -fw * 0.08,
+        fh * 0.28,
+        fw * 0.08,
+        fh * 0.35,
+        fw * 0.18,
+        fh * 0.18,
+      );
+      ctx.bezierCurveTo(fw * 0.08, fh * 0.08, -fw * 0.02, fh * 0.04, 0, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Gloss
+      const gloss = ctx.createRadialGradient(
+        -fw * 0.18,
+        -fh * 0.18,
+        0,
+        -fw * 0.08,
+        -fh * 0.08,
+        fh * 0.38,
+      );
+      gloss.addColorStop(0, "rgba(255,255,255,0.5)");
+      gloss.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.ellipse(
+        -fw * 0.1,
+        -fh * 0.1,
+        fw * 0.22,
+        fh * 0.2,
+        -0.3,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+
+      // White stripe
+      ctx.strokeStyle = "rgba(255,255,255,0.35)";
+      ctx.lineWidth = Math.max(1, fh * 0.07);
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-fw * 0.02, -fh * 0.36);
+      ctx.bezierCurveTo(
+        -fw * 0.02,
+        -fh * 0.1,
+        fw * 0.04,
+        fh * 0.1,
+        fw * 0.0,
+        fh * 0.36,
+      );
+      ctx.stroke();
+
+      // Eye
+      const eyeX = -fw * 0.28;
+      const eyeY = -fh * 0.06;
+      const eyeR = Math.max(2, fh * 0.1);
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.arc(eyeX, eyeY, eyeR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#00BCD4";
+      ctx.beginPath();
+      ctx.arc(eyeX - eyeR * 0.1, eyeY, eyeR * 0.72, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#000000";
+      ctx.beginPath();
+      ctx.arc(eyeX - eyeR * 0.15, eyeY, eyeR * 0.36, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,0.9)";
+      ctx.beginPath();
+      ctx.arc(
+        eyeX - eyeR * 0.2,
+        eyeY - eyeR * 0.28,
+        eyeR * 0.18,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+
+      // Mouth
+      ctx.strokeStyle = "#1565C0";
+      ctx.lineWidth = Math.max(0.8, fh * 0.04);
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-fw * 0.41, -fh * 0.04);
+      ctx.quadraticCurveTo(-fw * 0.44, fh * 0.04, -fw * 0.41, fh * 0.1);
+      ctx.stroke();
+
+      // Bioluminescent spots
+      const spotPositions = [
+        { sx: fw * 0.05, sy: -fh * 0.12, sr: fh * 0.05 },
+        { sx: fw * 0.15, sy: fh * 0.08, sr: fh * 0.04 },
+        { sx: -fw * 0.08, sy: fh * 0.14, sr: fh * 0.035 },
+      ];
+      for (const sp of spotPositions) {
+        const spotGlow = ctx.createRadialGradient(
+          sp.sx,
+          sp.sy,
+          0,
+          sp.sx,
+          sp.sy,
+          sp.sr,
+        );
+        spotGlow.addColorStop(0, "rgba(150,255,255,0.75)");
+        spotGlow.addColorStop(1, "rgba(0,200,200,0)");
+        ctx.fillStyle = spotGlow;
+        ctx.beginPath();
+        ctx.arc(sp.sx, sp.sy, sp.sr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    [],
+  );
+
+  // ─── Coronavirus particle drawing ────────────────────────────────────────────
+  const drawCoronaVirus = useCallback(
+    (ctx: CanvasRenderingContext2D, c: StartChicken) => {
+      const { x, y, size, wingPhase, direction } = c;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Size tiers by size bucket (matches distance: far/medium/close)
+      let r: number; // body radius
+      let spikeLen: number; // spike length
+      if (size <= 25) {
+        r = 16;
+        spikeLen = 10;
+      } else if (size <= 40) {
+        r = 28;
+        spikeLen = 16;
+      } else {
+        r = 42;
+        spikeLen = 24;
+      }
+
+      const alpha = entityAlphaRef.current;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy);
+      // Mirror based on direction of travel
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+
+      // Glow
+      ctx.shadowColor = "#CC0000";
+      ctx.shadowBlur = 8;
+
+      // ── Spikes first (behind body) ──
+      const NUM_SPIKES = 14;
+      for (let i = 0; i < NUM_SPIKES; i++) {
+        const angle = (i / NUM_SPIKES) * Math.PI * 2;
+        // Subtle oscillation via wingPhase
+        const tipR = r + spikeLen + Math.sin(wingPhase + i) * 0.5;
+        const stemX1 = Math.cos(angle) * r * 0.85;
+        const stemY1 = Math.sin(angle) * r * 0.85;
+        const tipX = Math.cos(angle) * (r + spikeLen);
+        const tipY = Math.sin(angle) * (r + spikeLen);
+        const bulbR = spikeLen * 0.28 + Math.sin(wingPhase + i) * 0.5;
+
+        // Spike stem
+        ctx.strokeStyle = "#8B0000";
+        ctx.lineWidth = Math.max(1, r * 0.09);
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(stemX1, stemY1);
+        ctx.lineTo(tipX, tipY);
+        ctx.stroke();
+
+        // Bulbous tip
+        const tipGrad = ctx.createRadialGradient(
+          tipX - bulbR * 0.3,
+          tipY - bulbR * 0.3,
+          bulbR * 0.1,
+          tipX,
+          tipY,
+          tipR * 0.12 + bulbR,
+        );
+        tipGrad.addColorStop(0, "#FF4444");
+        tipGrad.addColorStop(0.5, "#CC0000");
+        tipGrad.addColorStop(1, "#8B0000");
+        ctx.fillStyle = tipGrad;
+        ctx.beginPath();
+        ctx.arc(tipX, tipY, bulbR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // ── Main body sphere ──
+      const bodyGrad = ctx.createRadialGradient(
+        -r * 0.3,
+        -r * 0.3,
+        r * 0.05,
+        0,
+        0,
+        r,
+      );
+      bodyGrad.addColorStop(0, "#E8E8E8");
+      bodyGrad.addColorStop(0.35, "#C0C0C0");
+      bodyGrad.addColorStop(0.7, "#A8A8A8");
+      bodyGrad.addColorStop(1, "#6A6A6A");
+      ctx.fillStyle = bodyGrad;
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+      // Subtle dark outline
+      ctx.strokeStyle = "rgba(80,80,80,0.5)";
+      ctx.lineWidth = Math.max(0.5, r * 0.04);
+      ctx.stroke();
+
+      // ── Surface M-protein dots ──
+      const NUM_DOTS = 10;
+      for (let i = 0; i < NUM_DOTS; i++) {
+        const angle = (i / NUM_DOTS) * Math.PI * 2 + Math.PI * 0.15;
+        const dotDist = r * 0.62;
+        const dx = Math.cos(angle) * dotDist;
+        const dy = Math.sin(angle) * dotDist;
+        const dotR = Math.max(1.5, r * 0.1);
+        ctx.fillStyle = "#FFA500";
+        ctx.beginPath();
+        ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // ── Top-left highlight ──
+      const gloss = ctx.createRadialGradient(
+        -r * 0.32,
+        -r * 0.32,
+        r * 0.02,
+        -r * 0.2,
+        -r * 0.2,
+        r * 0.55,
+      );
+      gloss.addColorStop(0, "rgba(255,255,255,0.55)");
+      gloss.addColorStop(0.5, "rgba(255,255,255,0.12)");
+      gloss.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    [],
+  );
+
   const animateChickens = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
+
+    // ── Transition tick (fade-out → swap → fade-in) ──
+    const FADE_STEP = 0.04; // ~0.5 s at 60 fps (1/0.04 = 25 frames)
+    const phase = transitionPhaseRef.current;
+    if (phase === "fade-out") {
+      entityAlphaRef.current = Math.max(0, entityAlphaRef.current - FADE_STEP);
+      if (entityAlphaRef.current === 0) {
+        // Swap the active entity type and reset chickens
+        activeEntityTypeRef.current = pendingEntityTypeRef.current;
+        activeIsPumpFunRef.current = pendingIsPumpFunRef.current;
+        chickensRef.current = [];
+        transitionPhaseRef.current = "fade-in";
+      }
+    } else if (phase === "fade-in") {
+      entityAlphaRef.current = Math.min(1, entityAlphaRef.current + FADE_STEP);
+      if (entityAlphaRef.current === 1) {
+        transitionPhaseRef.current = "idle";
+      }
+    }
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const activeType = activeEntityTypeRef.current;
+    const drawFn =
+      activeType === "pumpfun"
+        ? drawPumpFunPill
+        : activeType === "bitcoin"
+          ? drawBitcoinCoin
+          : activeType === "fish"
+            ? drawOceanFish
+            : activeType === "virus"
+              ? drawCoronaVirus
+              : drawChicken;
 
     for (let i = chickensRef.current.length - 1; i >= 0; i--) {
       const ch = chickensRef.current[i];
@@ -464,16 +1230,50 @@ const StartScreen: React.FC<StartScreenProps> = ({
         chickensRef.current.push(makeChicken(canvas));
         continue;
       }
-      drawChicken(ctx, ch);
+      // Apply globalAlpha for transition fade — pill/coin/fish drawing manages their own alpha
+      if (activeType === "chicken") {
+        ctx.save();
+        ctx.globalAlpha = entityAlphaRef.current;
+        drawFn(ctx, ch);
+        ctx.globalAlpha = 1;
+        ctx.restore();
+      } else {
+        drawFn(ctx, ch);
+      }
     }
     while (chickensRef.current.length < 4)
       chickensRef.current.push(makeChicken(canvas));
     animIdRef.current = requestAnimationFrame(animateChickens);
-  }, [makeChicken, drawChicken]);
+  }, [
+    makeChicken,
+    drawChicken,
+    drawPumpFunPill,
+    drawBitcoinCoin,
+    drawOceanFish,
+    drawCoronaVirus,
+  ]);
+
+  // Capture initial world for mount-time entity setup (no dependency on selectedWorld changes)
+  const initialWorldRef = useRef(selectedWorld);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    // Set initial entity type based on starting world (no transition needed on mount)
+    const initType: "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" =
+      initialWorldRef.current === "pumpfun"
+        ? "pumpfun"
+        : initialWorldRef.current === "bitcoin"
+          ? "bitcoin"
+          : initialWorldRef.current === "ocean"
+            ? "fish"
+            : initialWorldRef.current === "corona"
+              ? "virus"
+              : "chicken";
+    activeEntityTypeRef.current = initType;
+    activeIsPumpFunRef.current = initType === "pumpfun";
+    entityAlphaRef.current = 1;
+    transitionPhaseRef.current = "idle";
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -519,6 +1319,76 @@ const StartScreen: React.FC<StartScreenProps> = ({
       {/* World name at top */}
       <div className="fixed top-4 left-0 right-0 z-20 text-center pointer-events-none">
         <h1 className="world-name-title">{WORLDS[worldIndex].name}</h1>
+        {/* pump.fun live price — only shown when pump.fun world is selected */}
+        {isPumpFunSelected && (
+          <div className="mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/60 backdrop-blur-sm border border-green-900/50">
+            {/* Label — small & muted on top */}
+            <span
+              style={{
+                fontFamily: "'Courier New', Courier, monospace",
+                color: "#4B7A5E",
+                opacity: 0.85,
+              }}
+              className="text-xs tracking-widest leading-none"
+            >
+              PUMP / USD
+            </span>
+            {/* Price row — large & bright */}
+            <div className="flex items-center gap-2">
+              <span
+                style={{ fontFamily: "'Courier New', Courier, monospace" }}
+                className="text-white font-bold text-base tracking-wide leading-none"
+              >
+                {pumpPriceData
+                  ? `$${pumpPriceData.price < 0.01 ? pumpPriceData.price.toFixed(6) : pumpPriceData.price.toFixed(4)}`
+                  : "--"}
+              </span>
+              {pumpPriceData && (
+                <span
+                  style={{ fontFamily: "'Courier New', Courier, monospace" }}
+                  className={`text-xs font-semibold tracking-wide leading-none ${pumpPriceData.change24h >= 0 ? "text-green-400" : "text-red-400"}`}
+                >
+                  {pumpPriceData.change24h >= 0 ? "+" : ""}
+                  {pumpPriceData.change24h.toFixed(2)}%
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+        {/* BTC/USD live price — only shown when bitcoin world is selected */}
+        {isBitcoinSelected && (
+          <div className="mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/60 backdrop-blur-sm border border-orange-900/50">
+            <span
+              style={{
+                fontFamily: "'Courier New', Courier, monospace",
+                color: "#b06010",
+                opacity: 0.85,
+              }}
+              className="text-xs tracking-widest leading-none"
+            >
+              BTC / USD
+            </span>
+            <div className="flex items-center gap-2">
+              <span
+                style={{ fontFamily: "'Courier New', Courier, monospace" }}
+                className="text-white font-bold text-base tracking-wide leading-none"
+              >
+                {btcPriceData
+                  ? `$${btcPriceData.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : "--"}
+              </span>
+              {btcPriceData && (
+                <span
+                  style={{ fontFamily: "'Courier New', Courier, monospace" }}
+                  className={`text-xs font-semibold tracking-wide leading-none ${btcPriceData.change24h >= 0 ? "text-green-400" : "text-red-400"}`}
+                >
+                  {btcPriceData.change24h >= 0 ? "+" : ""}
+                  {btcPriceData.change24h.toFixed(2)}%
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Left world nav */}

@@ -2,7 +2,11 @@ import { useInternetIdentity } from "@caffeineai/core-infrastructure";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BackgroundWorld, GameStatisticsLocal } from "../App";
-import { useSaveGameStatistics } from "../hooks/useQueries";
+import {
+  useBitcoinPrice,
+  usePumpFunPrice,
+  useSaveGameStatistics,
+} from "../hooks/useQueries";
 import AchievementsView from "./AchievementsView";
 import BackgroundRenderer from "./BackgroundRenderer";
 import BottomMenu from "./BottomMenu";
@@ -178,6 +182,26 @@ const GameScreen: React.FC<GameScreenProps> = ({
   initialView = "game",
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Live pump.fun price — only fetches when world is pumpfun
+  const { data: pumpFunPriceData } = usePumpFunPrice();
+  const pumpFunPrice =
+    selectedWorld === "pumpfun" && pumpFunPriceData
+      ? {
+          price: Number(pumpFunPriceData.price),
+          change24h: Number(pumpFunPriceData.change24h),
+        }
+      : null;
+
+  // Live BTC/USD price — only fetches when world is bitcoin
+  const { data: btcPriceData } = useBitcoinPrice();
+  const btcPrice =
+    selectedWorld === "bitcoin" && btcPriceData
+      ? {
+          price: Number(btcPriceData.price),
+          change24h: Number(btcPriceData.change24h),
+        }
+      : null;
   const audioContextRef = useRef<AudioContext | null>(null);
   const backgroundMusicGainRef = useRef<GainNode | null>(null);
   const rainSoundGainRef = useRef<GainNode | null>(null);
@@ -1293,6 +1317,879 @@ const GameScreen: React.FC<GameScreenProps> = ({
     [drawExplosion],
   );
 
+  // ─── Pump.fun pill drawing ───────────────────────────────────────────────────
+
+  const drawPumpFunPill = useCallback(
+    (ctx: CanvasRenderingContext2D, chicken: Chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x, y, size, type, direction, isGolden } = chicken;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Determine pill dimensions based on distance
+      let pw: number;
+      let ph: number;
+      if (chicken.distance === "far") {
+        pw = 50;
+        ph = 22;
+      } else if (chicken.distance === "medium") {
+        pw = 80;
+        ph = 34;
+      } else {
+        pw = 110;
+        ph = 48;
+      }
+      const pr = ph / 2; // corner radius = half height (full rounded caps)
+      const wingScale = pw / 130; // scale wings relative to medium size (smaller wings)
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      // Flip horizontally like chicken does
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      // Tilt mirrored per direction: left-to-right tilts +40°, right-to-left tilts +40°
+      const tiltRad =
+        direction === "left-to-right"
+          ? (Math.PI * 40) / 180
+          : (Math.PI * 40) / 180;
+      ctx.rotate(tiltRad);
+
+      // Fast chicken: orange glow shadow around pill
+      if (type === "fast" && !isGolden) {
+        ctx.shadowColor = "#FF6600";
+        ctx.shadowBlur = 12;
+      }
+      // Golden chicken: golden glow
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 16;
+      }
+
+      // ── Angel wings — attach at TOP and BOTTOM of capsule seam ──
+      // In the pill's local frame: pill is horizontal, seam is a vertical line at x=0.
+      // Top of seam = (0, -ph/2), Bottom of seam = (0, +ph/2).
+      // The TOP wing sweeps UPWARD (negative Y) — visible on one long side of the pill.
+      // The BOTTOM wing sweeps DOWNWARD (positive Y) — visible on the other long side.
+      const ws = wingScale;
+      const wingFill = isGolden ? "#FFE066" : "rgba(255,255,255,0.95)";
+      const wingFillInner = isGolden
+        ? "rgba(255,220,80,0.7)"
+        : "rgba(230,240,255,0.75)";
+      const wingStroke = isGolden ? "#FFD700" : "#D4AF37";
+      // Flap angle driven by wingPhase (±~20°)
+      const flapAngle = Math.sin(chicken.wingPhase) * 0.35;
+
+      // Helper: draw a multi-feather wing spreading outward from (0,0) along negative Y
+      const drawWingUp = () => {
+        ctx.fillStyle = wingFill;
+        ctx.strokeStyle = wingStroke;
+        ctx.lineWidth = 1.0 * ws;
+        ctx.globalAlpha = 0.97;
+
+        // Feather 1 (innermost) — short, close to body
+        ctx.beginPath();
+        ctx.moveTo(-3 * ws, 0);
+        ctx.bezierCurveTo(
+          -8 * ws,
+          -10 * ws,
+          -4 * ws,
+          -20 * ws,
+          6 * ws,
+          -22 * ws,
+        );
+        ctx.bezierCurveTo(4 * ws, -14 * ws, 2 * ws, -6 * ws, 3 * ws, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Feather 2 — mid layer, sweeps left-upward
+        ctx.beginPath();
+        ctx.moveTo(-2 * ws, -2 * ws);
+        ctx.bezierCurveTo(
+          -14 * ws,
+          -14 * ws,
+          -20 * ws,
+          -28 * ws,
+          -10 * ws,
+          -36 * ws,
+        );
+        ctx.bezierCurveTo(-6 * ws, -28 * ws, 0 * ws, -16 * ws, 2 * ws, -4 * ws);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Feather 3 — wide primary, sweeps left and up with fanned tip
+        ctx.fillStyle = wingFillInner;
+        ctx.beginPath();
+        ctx.moveTo(4 * ws, -1 * ws);
+        ctx.bezierCurveTo(
+          0 * ws,
+          -18 * ws,
+          -8 * ws,
+          -34 * ws,
+          -20 * ws,
+          -44 * ws,
+        );
+        ctx.bezierCurveTo(
+          -24 * ws,
+          -36 * ws,
+          -18 * ws,
+          -22 * ws,
+          0 * ws,
+          -6 * ws,
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Feather 4 (outermost tip) — far left, thin curved tip
+        ctx.fillStyle = wingFill;
+        ctx.beginPath();
+        ctx.moveTo(2 * ws, -4 * ws);
+        ctx.bezierCurveTo(
+          -6 * ws,
+          -22 * ws,
+          -18 * ws,
+          -38 * ws,
+          -30 * ws,
+          -46 * ws,
+        );
+        ctx.bezierCurveTo(
+          -30 * ws,
+          -38 * ws,
+          -22 * ws,
+          -26 * ws,
+          -4 * ws,
+          -10 * ws,
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      };
+
+      // ── Top wing (sweeps upward from top of seam) ──
+      ctx.save();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.translate(0, -ph / 2); // attach at top of seam
+      ctx.rotate(-flapAngle); // flap: negative = wing rises
+      drawWingUp();
+      ctx.restore();
+
+      // ── Bottom wing (mirror of top wing, sweeps downward) ──
+      ctx.save();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.translate(0, ph / 2); // attach at bottom of seam
+      ctx.scale(1, -1); // flip vertically so it sweeps downward
+      ctx.rotate(flapAngle); // flap in opposite phase (symmetric)
+      drawWingUp();
+      ctx.restore();
+
+      ctx.globalAlpha = 1.0;
+
+      // ── Pill body ──
+      // Left (green/golden) half — clipped to left half
+      ctx.save();
+      ctx.beginPath();
+      // Full capsule path (for clipping left half)
+      ctx.rect(-pw / 2, -ph / 2, pw / 2, ph);
+      ctx.clip();
+      const leftColor = isGolden ? "#FFD700" : "#4ADE80";
+      const leftColorEnd = isGolden ? "#F59E0B" : "#22C55E";
+      const lgLeft = ctx.createLinearGradient(
+        -pw / 2,
+        -ph / 2,
+        -pw / 2,
+        ph / 2,
+      );
+      lgLeft.addColorStop(0, leftColor);
+      lgLeft.addColorStop(1, leftColorEnd);
+      ctx.fillStyle = lgLeft;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -ph / 2, pw, ph, pr);
+      ctx.fill();
+      ctx.restore();
+
+      // Right (white) half — clipped to right half
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, -ph / 2, pw / 2, ph);
+      ctx.clip();
+      const lgRight = ctx.createLinearGradient(0, -ph / 2, 0, ph / 2);
+      lgRight.addColorStop(0, "#FFFFFF");
+      lgRight.addColorStop(1, "#F0F0F0");
+      ctx.fillStyle = lgRight;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -ph / 2, pw, ph, pr);
+      ctx.fill();
+      ctx.restore();
+
+      // Dark border around full pill
+      ctx.strokeStyle = "#1a1a1a";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(-pw / 2, -ph / 2, pw, ph, pr);
+      ctx.stroke();
+
+      // Gray seam line at center (capsule separation)
+      ctx.strokeStyle = "#888888";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, -ph / 2);
+      ctx.lineTo(0, ph / 2);
+      ctx.stroke();
+
+      // Gloss highlight on top-left of green half
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-pw / 2, -ph / 2, pw / 2, ph);
+      ctx.clip();
+      const glossGrad = ctx.createRadialGradient(
+        -pw * 0.25,
+        -ph * 0.25,
+        1,
+        -pw * 0.25,
+        -ph * 0.25,
+        ph * 0.55,
+      );
+      glossGrad.addColorStop(0, "rgba(255,255,255,0.55)");
+      glossGrad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = glossGrad;
+      ctx.beginPath();
+      ctx.ellipse(
+        -pw * 0.2,
+        -ph * 0.2,
+        pw * 0.18,
+        ph * 0.22,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+      ctx.restore();
+
+      ctx.restore();
+    },
+    [drawExplosion],
+  );
+
+  // ─── Bitcoin coin drawing ────────────────────────────────────────────────────
+
+  const drawBitcoinCoin = useCallback(
+    (ctx: CanvasRenderingContext2D, chicken: Chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x, y, size, type, isGolden, wingPhase } = chicken;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Coin radius based on distance
+      let r: number;
+      if (chicken.distance === "far") {
+        r = 14;
+      } else if (chicken.distance === "medium") {
+        r = 22;
+      } else {
+        r = 32;
+      }
+
+      // Subtle bob using wingPhase (same field reused for animation timing)
+      const bob = Math.sin(wingPhase) * 2.5;
+
+      ctx.save();
+      ctx.translate(cx, cy + bob);
+
+      // Glow for fast / golden variants
+      if (type === "fast" && !isGolden) {
+        ctx.shadowColor = "#FF6600";
+        ctx.shadowBlur = 12;
+      }
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      }
+
+      // Coin edge (slightly darker ring)
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.strokeStyle = isGolden ? "#B8860B" : "#B8860B";
+      ctx.lineWidth = r * 0.12;
+      ctx.stroke();
+
+      // Coin body — metallic radial gradient
+      const grad = ctx.createRadialGradient(
+        -r * 0.3,
+        -r * 0.3,
+        r * 0.05,
+        0,
+        0,
+        r,
+      );
+      if (isGolden) {
+        grad.addColorStop(0, "#FFF176");
+        grad.addColorStop(0.45, "#FFD700");
+        grad.addColorStop(1, "#B8860B");
+      } else {
+        grad.addColorStop(0, "#FFE066");
+        grad.addColorStop(0.45, "#F7931A");
+        grad.addColorStop(1, "#8B5E00");
+      }
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // White gloss highlight (top-left arc)
+      const gloss = ctx.createRadialGradient(
+        -r * 0.32,
+        -r * 0.32,
+        0,
+        -r * 0.32,
+        -r * 0.32,
+        r * 0.55,
+      );
+      gloss.addColorStop(0, "rgba(255,255,255,0.55)");
+      gloss.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ₿ symbol — drawn as scaled SVG path in canvas
+      // The official Bitcoin ₿ path natural bbox: ~80x120 units
+      // We scale it to fit r*1.1 height → scale = (r*1.1)/120 * 2
+      const btcScale = (r * 1.15) / 100;
+      ctx.save();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.translate(0, 0);
+      ctx.scale(btcScale, btcScale);
+      // Center the path: natural center is ~(40, 60), so translate(-40,-60)
+      ctx.translate(-40, -60);
+      ctx.rotate((14 * Math.PI) / 180);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.globalAlpha = 0.95;
+      const p = new Path2D(
+        "M78.3 36.6c1.8-12.2-7.5-18.8-20.2-23.2l4.1-16.6-10.1-2.5-4 16.1c-2.7-.7-5.4-1.3-8.1-1.9l4.1-16.3-10.1-2.5-4.1 16.6c-2.2-.5-4.4-1-6.5-1.5l0 0-13.9-3.5-2.7 10.8s7.5 1.7 7.4 1.8c4.1 1 4.8 3.7 4.7 5.9l-4.7 18.8c.3.1.7.2 1.1.3-.4-.1-.7-.2-1.1-.3l-6.6 26.4c-.5 1.2-1.8 3-4.6 2.3.1.1-7.4-1.9-7.4-1.9l-5.1 11.5 13.2 3.3c2.4.6 4.8 1.2 7.2 1.9l-4.2 16.7 10.1 2.5 4.1-16.6c2.8.7 5.5 1.4 8.2 2.1l-4.1 16.5 10.1 2.5 4.2-16.8c17.3 3.3 30.3 1.9 35.8-13.6 4.4-12.6.2-19.9-9.3-24.6 6.6-1.5 11.6-5.9 12.9-14.7zm-23.1 32.4c-3.1 12.6-24.3 5.8-31.2 4.1l5.6-22.3c6.9 1.7 28.9 5.1 25.6 18.2zm3.1-32.7c-2.9 11.5-20.5 5.7-26.2 4.2l5-20.1c5.7 1.4 24.1 4.1 21.2 15.9z",
+      );
+      ctx.fill(p);
+      ctx.globalAlpha = 1;
+      ctx.restore();
+
+      ctx.restore();
+    },
+    [drawExplosion],
+  );
+
+  // ─── Ocean fish drawing ──────────────────────────────────────────────────────
+
+  const drawOceanFish = useCallback(
+    (ctx: CanvasRenderingContext2D, chicken: Chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x, y, size, wingPhase, direction, type, isGolden } = chicken;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Fish dimensions based on distance tier
+      let fw: number; // fish width (body length)
+      let fh: number; // fish height (body height)
+      if (chicken.distance === "far") {
+        fw = 48;
+        fh = 20;
+      } else if (chicken.distance === "medium") {
+        fw = 76;
+        fh = 32;
+      } else {
+        fw = 108;
+        fh = 46;
+      }
+
+      // Animated tail wag and fin flutter via wingPhase
+      const tailWag = Math.sin(wingPhase) * 0.28;
+      const finFlutter = Math.sin(wingPhase * 1.3) * 0.18;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      // Flip so fish faces direction of travel
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+
+      // Bioluminescent glow
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      } else if (type === "fast") {
+        ctx.shadowColor = "#00FFFF";
+        ctx.shadowBlur = 14;
+      } else {
+        ctx.shadowColor = "#00BFFF";
+        ctx.shadowBlur = 10;
+      }
+
+      // ── Tail fin (behind body, animated) ──
+      ctx.save();
+      ctx.translate(fw * 0.38, 0);
+      ctx.rotate(tailWag);
+      const tailGrad = ctx.createLinearGradient(0, -fh * 0.6, 0, fh * 0.6);
+      tailGrad.addColorStop(
+        0,
+        isGolden ? "#FFE066" : type === "fast" ? "#FF8C00" : "#CE93D8",
+      );
+      tailGrad.addColorStop(
+        1,
+        isGolden ? "#F59E0B" : type === "fast" ? "#FF3D00" : "#7B1FA2",
+      );
+      ctx.fillStyle = tailGrad;
+      ctx.strokeStyle = isGolden
+        ? "#B8860B"
+        : type === "fast"
+          ? "#CC2200"
+          : "#4A148C";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(
+        fw * 0.18,
+        -fh * 0.55,
+        fw * 0.32,
+        -fh * 0.65,
+        fw * 0.42,
+        -fh * 0.55,
+      );
+      ctx.bezierCurveTo(fw * 0.34, -fh * 0.18, fw * 0.2, -fh * 0.06, 0, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(
+        fw * 0.18,
+        fh * 0.55,
+        fw * 0.32,
+        fh * 0.65,
+        fw * 0.42,
+        fh * 0.55,
+      );
+      ctx.bezierCurveTo(fw * 0.34, fh * 0.18, fw * 0.2, fh * 0.06, 0, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // ── Main body ──
+      const bodyGrad = ctx.createRadialGradient(
+        -fw * 0.15,
+        -fh * 0.1,
+        fh * 0.05,
+        0,
+        0,
+        fh * 0.72,
+      );
+      if (isGolden) {
+        bodyGrad.addColorStop(0, "#FFF176");
+        bodyGrad.addColorStop(0.4, "#FFD700");
+        bodyGrad.addColorStop(1, "#B8860B");
+      } else if (type === "fast") {
+        bodyGrad.addColorStop(0, "#FFAB40");
+        bodyGrad.addColorStop(0.35, "#FF6B35");
+        bodyGrad.addColorStop(0.7, "#E53935");
+        bodyGrad.addColorStop(1, "#7B1FA2");
+      } else {
+        bodyGrad.addColorStop(0, "#80DEEA");
+        bodyGrad.addColorStop(0.3, "#26C6DA");
+        bodyGrad.addColorStop(0.65, "#F48FB1");
+        bodyGrad.addColorStop(1, "#7B1FA2");
+      }
+      ctx.fillStyle = bodyGrad;
+      ctx.strokeStyle = isGolden
+        ? "#B8860B"
+        : type === "fast"
+          ? "#CC2200"
+          : "#1565C0";
+      ctx.lineWidth = Math.max(1, fh * 0.04);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, fw * 0.42, fh * 0.42, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // ── Scale pattern (decorative arcs) ──
+      const scaleColor = isGolden
+        ? "rgba(255,255,255,0.3)"
+        : "rgba(255,255,255,0.2)";
+      ctx.strokeStyle = scaleColor;
+      ctx.lineWidth = Math.max(0.5, fh * 0.025);
+      const scaleRows = chicken.distance === "far" ? 2 : 3;
+      const scaleCols = chicken.distance === "far" ? 3 : 4;
+      for (let row = 0; row < scaleRows; row++) {
+        for (let col = 0; col < scaleCols; col++) {
+          const sx = -fw * 0.2 + col * fw * 0.14;
+          const sy = -fh * 0.15 + row * fh * 0.18;
+          const sr = fh * 0.1;
+          ctx.beginPath();
+          ctx.arc(sx, sy, sr, Math.PI * 0.2, Math.PI * 0.8);
+          ctx.stroke();
+        }
+      }
+
+      // ── Dorsal fin (top, animated) ──
+      ctx.save();
+      ctx.rotate(finFlutter * 0.5);
+      const dorsalGrad = ctx.createLinearGradient(0, -fh * 0.42, 0, -fh * 0.85);
+      if (isGolden) {
+        dorsalGrad.addColorStop(0, "#FFE066");
+        dorsalGrad.addColorStop(1, "rgba(255,200,50,0)");
+      } else if (type === "fast") {
+        dorsalGrad.addColorStop(0, "#FF8C00");
+        dorsalGrad.addColorStop(1, "rgba(255,80,0,0)");
+      } else {
+        dorsalGrad.addColorStop(0, "#80DEEA");
+        dorsalGrad.addColorStop(1, "rgba(100,200,220,0)");
+      }
+      ctx.fillStyle = dorsalGrad;
+      ctx.strokeStyle = isGolden
+        ? "#DAA520"
+        : type === "fast"
+          ? "#CC2200"
+          : "#0097A7";
+      ctx.lineWidth = Math.max(0.8, fh * 0.03);
+      ctx.beginPath();
+      ctx.moveTo(-fw * 0.15, -fh * 0.38);
+      ctx.bezierCurveTo(
+        -fw * 0.05,
+        -fh * 0.85,
+        fw * 0.12,
+        -fh * 0.8,
+        fw * 0.22,
+        -fh * 0.38,
+      );
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // ── Pectoral fin (side, animated) ──
+      ctx.save();
+      ctx.translate(-fw * 0.05, fh * 0.1);
+      ctx.rotate(finFlutter);
+      const pectColor = isGolden
+        ? "rgba(255,220,50,0.7)"
+        : type === "fast"
+          ? "rgba(255,120,0,0.7)"
+          : "rgba(180,240,255,0.7)";
+      ctx.fillStyle = pectColor;
+      ctx.strokeStyle = isGolden
+        ? "#DAA520"
+        : type === "fast"
+          ? "#BB3300"
+          : "#0097A7";
+      ctx.lineWidth = Math.max(0.6, fh * 0.025);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(
+        -fw * 0.08,
+        fh * 0.28,
+        fw * 0.08,
+        fh * 0.35,
+        fw * 0.18,
+        fh * 0.18,
+      );
+      ctx.bezierCurveTo(fw * 0.08, fh * 0.08, -fw * 0.02, fh * 0.04, 0, 0);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // ── Gloss highlight ──
+      const gloss = ctx.createRadialGradient(
+        -fw * 0.18,
+        -fh * 0.18,
+        0,
+        -fw * 0.08,
+        -fh * 0.08,
+        fh * 0.38,
+      );
+      gloss.addColorStop(0, "rgba(255,255,255,0.5)");
+      gloss.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.ellipse(
+        -fw * 0.1,
+        -fh * 0.1,
+        fw * 0.22,
+        fh * 0.2,
+        -0.3,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+
+      // ── Stripe (tropical pattern) ──
+      if (!isGolden) {
+        ctx.strokeStyle =
+          type === "fast" ? "rgba(255,255,150,0.45)" : "rgba(255,255,255,0.35)";
+        ctx.lineWidth = Math.max(1, fh * 0.07);
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(-fw * 0.02, -fh * 0.36);
+        ctx.bezierCurveTo(
+          -fw * 0.02,
+          -fh * 0.1,
+          fw * 0.04,
+          fh * 0.1,
+          fw * 0.0,
+          fh * 0.36,
+        );
+        ctx.stroke();
+      }
+
+      // ── Eye ──
+      const eyeX = -fw * 0.28;
+      const eyeY = -fh * 0.06;
+      const eyeR = Math.max(2, fh * 0.1);
+      // Eye white
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.arc(eyeX, eyeY, eyeR, 0, Math.PI * 2);
+      ctx.fill();
+      // Iris
+      const irisColor = isGolden
+        ? "#FFB300"
+        : type === "fast"
+          ? "#FF5722"
+          : "#00BCD4";
+      ctx.fillStyle = irisColor;
+      ctx.beginPath();
+      ctx.arc(eyeX - eyeR * 0.1, eyeY, eyeR * 0.72, 0, Math.PI * 2);
+      ctx.fill();
+      // Pupil
+      ctx.fillStyle = "#000000";
+      ctx.beginPath();
+      ctx.arc(eyeX - eyeR * 0.15, eyeY, eyeR * 0.36, 0, Math.PI * 2);
+      ctx.fill();
+      // Catchlight
+      ctx.fillStyle = "rgba(255,255,255,0.9)";
+      ctx.beginPath();
+      ctx.arc(
+        eyeX - eyeR * 0.2,
+        eyeY - eyeR * 0.28,
+        eyeR * 0.18,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+
+      // ── Mouth ──
+      ctx.strokeStyle = isGolden ? "#B8860B" : "#1565C0";
+      ctx.lineWidth = Math.max(0.8, fh * 0.04);
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-fw * 0.41, -fh * 0.04);
+      ctx.quadraticCurveTo(-fw * 0.44, fh * 0.04, -fw * 0.41, fh * 0.1);
+      ctx.stroke();
+
+      // ── Bioluminescent spots (deep-sea touch) ──
+      const spotPositions = [
+        { sx: fw * 0.05, sy: -fh * 0.12, sr: fh * 0.05 },
+        { sx: fw * 0.15, sy: fh * 0.08, sr: fh * 0.04 },
+        { sx: -fw * 0.08, sy: fh * 0.14, sr: fh * 0.035 },
+      ];
+      for (const sp of spotPositions) {
+        const spotGlow = ctx.createRadialGradient(
+          sp.sx,
+          sp.sy,
+          0,
+          sp.sx,
+          sp.sy,
+          sp.sr,
+        );
+        const spotColor = isGolden
+          ? "rgba(255,240,100,0.85)"
+          : type === "fast"
+            ? "rgba(255,200,50,0.8)"
+            : "rgba(150,255,255,0.75)";
+        const spotEdge = isGolden
+          ? "rgba(255,180,0,0)"
+          : type === "fast"
+            ? "rgba(255,100,0,0)"
+            : "rgba(0,200,200,0)";
+        spotGlow.addColorStop(0, spotColor);
+        spotGlow.addColorStop(1, spotEdge);
+        ctx.fillStyle = spotGlow;
+        ctx.beginPath();
+        ctx.arc(sp.sx, sp.sy, sp.sr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    },
+    [drawExplosion],
+  );
+
+  // ─── Coronavirus particle drawing ────────────────────────────────────────────
+
+  const drawCoronaVirus = useCallback(
+    (ctx: CanvasRenderingContext2D, chicken: Chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x, y, size, wingPhase, direction, type, isGolden } = chicken;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Size tiers by distance
+      let r: number; // body radius
+      let spikeLen: number;
+      if (chicken.distance === "far") {
+        r = 16;
+        spikeLen = 10;
+      } else if (chicken.distance === "medium") {
+        r = 28;
+        spikeLen = 16;
+      } else {
+        r = 42;
+        spikeLen = 24;
+      }
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      // Mirror based on direction of travel
+      if (direction === "right-to-left") ctx.scale(-1, 1);
+
+      // Glow
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      } else if (type === "fast") {
+        ctx.shadowColor = "#FF4500";
+        ctx.shadowBlur = 14;
+      } else {
+        ctx.shadowColor = "#CC0000";
+        ctx.shadowBlur = 8;
+      }
+
+      // ── Spikes first (behind body) ──
+      const NUM_SPIKES = 14;
+      for (let i = 0; i < NUM_SPIKES; i++) {
+        const angle = (i / NUM_SPIKES) * Math.PI * 2;
+        const tipR = r + spikeLen + Math.sin(wingPhase + i) * 0.5;
+        const stemX1 = Math.cos(angle) * r * 0.85;
+        const stemY1 = Math.sin(angle) * r * 0.85;
+        const tipX = Math.cos(angle) * (r + spikeLen);
+        const tipY = Math.sin(angle) * (r + spikeLen);
+        const bulbR = spikeLen * 0.28 + Math.sin(wingPhase + i) * 0.5;
+
+        // Spike stem
+        ctx.strokeStyle = isGolden ? "#8B6914" : "#8B0000";
+        ctx.lineWidth = Math.max(1, r * 0.09);
+        ctx.lineCap = "round";
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.moveTo(stemX1, stemY1);
+        ctx.lineTo(tipX, tipY);
+        ctx.stroke();
+
+        // Bulbous tip
+        const tipGrad = ctx.createRadialGradient(
+          tipX - bulbR * 0.3,
+          tipY - bulbR * 0.3,
+          bulbR * 0.1,
+          tipX,
+          tipY,
+          tipR * 0.12 + bulbR,
+        );
+        if (isGolden) {
+          tipGrad.addColorStop(0, "#FFE066");
+          tipGrad.addColorStop(0.5, "#DAA520");
+          tipGrad.addColorStop(1, "#8B6914");
+        } else {
+          tipGrad.addColorStop(0, "#FF4444");
+          tipGrad.addColorStop(0.5, "#CC0000");
+          tipGrad.addColorStop(1, "#8B0000");
+        }
+        ctx.fillStyle = tipGrad;
+        ctx.beginPath();
+        ctx.arc(tipX, tipY, bulbR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // ── Main body sphere ──
+      const bodyGrad = ctx.createRadialGradient(
+        -r * 0.3,
+        -r * 0.3,
+        r * 0.05,
+        0,
+        0,
+        r,
+      );
+      if (isGolden) {
+        bodyGrad.addColorStop(0, "#FFF8D6");
+        bodyGrad.addColorStop(0.35, "#FFD700");
+        bodyGrad.addColorStop(0.7, "#B8860B");
+        bodyGrad.addColorStop(1, "#8B6914");
+      } else {
+        bodyGrad.addColorStop(0, "#E8E8E8");
+        bodyGrad.addColorStop(0.35, "#C0C0C0");
+        bodyGrad.addColorStop(0.7, "#A8A8A8");
+        bodyGrad.addColorStop(1, "#6A6A6A");
+      }
+      ctx.fillStyle = bodyGrad;
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = isGolden ? "rgba(120,90,0,0.5)" : "rgba(80,80,80,0.5)";
+      ctx.lineWidth = Math.max(0.5, r * 0.04);
+      ctx.stroke();
+
+      // ── Surface M-protein dots ──
+      const NUM_DOTS = 10;
+      for (let i = 0; i < NUM_DOTS; i++) {
+        const angle = (i / NUM_DOTS) * Math.PI * 2 + Math.PI * 0.15;
+        const dotDist = r * 0.62;
+        const dx = Math.cos(angle) * dotDist;
+        const dy = Math.sin(angle) * dotDist;
+        const dotR = Math.max(1.5, r * 0.1);
+        ctx.fillStyle = isGolden ? "#FFB300" : "#FFA500";
+        ctx.beginPath();
+        ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // ── Top-left highlight ──
+      const gloss = ctx.createRadialGradient(
+        -r * 0.32,
+        -r * 0.32,
+        r * 0.02,
+        -r * 0.2,
+        -r * 0.2,
+        r * 0.55,
+      );
+      gloss.addColorStop(0, "rgba(255,255,255,0.55)");
+      gloss.addColorStop(0.5, "rgba(255,255,255,0.12)");
+      gloss.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gloss;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    },
+    [drawExplosion],
+  );
+
   const drawStopwatch = useCallback(
     (ctx: CanvasRenderingContext2D, sw: Stopwatch) => {
       if (sw.isExploding) {
@@ -1884,7 +2781,17 @@ const GameScreen: React.FC<GameScreenProps> = ({
             continue;
           }
         }
-        drawChicken(ctx, ch);
+        if (selectedWorld === "pumpfun") {
+          drawPumpFunPill(ctx, ch);
+        } else if (selectedWorld === "bitcoin") {
+          drawBitcoinCoin(ctx, ch);
+        } else if (selectedWorld === "ocean") {
+          drawOceanFish(ctx, ch);
+        } else if (selectedWorld === "corona") {
+          drawCoronaVirus(ctx, ch);
+        } else {
+          drawChicken(ctx, ch);
+        }
       }
       while (gs.chickens.length < 10) gs.chickens.push(createChicken());
 
@@ -1894,7 +2801,12 @@ const GameScreen: React.FC<GameScreenProps> = ({
       createChicken,
       createStopwatch,
       drawChicken,
+      drawPumpFunPill,
+      drawBitcoinCoin,
+      drawOceanFish,
+      drawCoronaVirus,
       drawStopwatch,
+      selectedWorld,
       shouldSpawnStopwatch,
     ],
   );
@@ -2118,8 +3030,12 @@ const GameScreen: React.FC<GameScreenProps> = ({
   // ─── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
-      <BackgroundRenderer world={selectedWorld} />
+    <div className="fixed inset-0 overflow-hidden">
+      <BackgroundRenderer
+        world={selectedWorld}
+        pumpFunPrice={pumpFunPrice}
+        btcPrice={btcPrice}
+      />
 
       {/* HUD */}
       {currentView === "game" && !gameEnded && (

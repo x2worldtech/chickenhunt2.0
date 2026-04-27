@@ -49,6 +49,12 @@ type StreamingCallbackHttpResponse =
  };
 type StreamingCallback = func (StreamingToken) ->
                           (StreamingCallbackHttpResponse) query;
+type PumpPriceData = 
+ record {
+   change24h: float64;
+   lastUpdated: int;
+   price: float64;
+ };
 type PrincipalInfo = 
  record {
    avatarUrl: opt text;
@@ -60,6 +66,12 @@ type JoinMode =
  variant {
    open;
    requestRequired;
+ };
+type HttpResponseRaw = 
+ record {
+   body: blob;
+   headers: vec HttpHeader;
+   status: nat;
  };
 type HttpResponse = 
  record {
@@ -74,6 +86,11 @@ type HttpRequest =
    headers: vec HeaderField;
    method: text;
    url: text;
+ };
+type HttpHeader = 
+ record {
+   name: text;
+   value: text;
  };
 type HeaderField = 
  record {
@@ -182,6 +199,7 @@ service : {
   fileUpload: (path: text, mimeType: text, chunk: blob, complete: bool) -> ();
   getAllClans: () -> (vec ClanSummary) query;
   getApprovalStatus: (user: principal) -> (ApprovalStatus) query;
+  getCachedPumpFunPrice: () -> (PumpPriceData) query;
   getClan: (clanId: nat) -> (variant {
                                err: text;
                                ok: ClanDetails;
@@ -212,6 +230,7 @@ service : {
       err: text;
       ok: vec PrincipalInfo;
     });
+  getPumpFunPrice: () -> (PumpPriceData);
   getUserGameStats: (userId: principal) -> (opt GameStatistics) query;
   getUserProfile: (user: principal) -> (opt UserProfile) query;
   getUserProfileWithChangeStatus: (user: principal) ->
@@ -251,6 +270,7 @@ service : {
       ok: DirectMessage;
     });
   setApproval: (user: principal, approval: ApprovalStatus) -> ();
+  transformPumpResponse: (raw: HttpResponseRaw) -> (HttpResponseRaw) query;
   updateClan: (clanId: nat, description: text, joinMode: JoinMode, emblemId:
    nat) -> (variant {
               err: text;

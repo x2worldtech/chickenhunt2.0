@@ -89,11 +89,23 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface HttpRequest {
-    url: string;
-    method: string;
-    body: Uint8Array;
-    headers: Array<HeaderField>;
+export interface GameStatistics {
+    totalShotsFired: bigint;
+    totalChickensShot: bigint;
+    bestSessionChickens: bigint;
+    bestConsecutiveHits: bigint;
+    highestScore: bigint;
+    perfectAccuracySessions: bigint;
+    smallChickensShot: bigint;
+    totalPlayTimeMinutes: bigint;
+    level: bigint;
+    totalScore: bigint;
+    fastChickensShot: bigint;
+    largeChickensShot: bigint;
+    totalMissedShots: bigint;
+    mediumChickensShot: bigint;
+    currentAccuracy: number;
+    goldenChickensShot: bigint;
 }
 export interface DirectMessage {
     id: bigint;
@@ -138,6 +150,10 @@ export interface UserInfo {
     role: UserRole;
     approval: ApprovalStatus;
 }
+export interface HttpHeader {
+    value: string;
+    name: string;
+}
 export interface ClanDetails {
     id: bigint;
     pendingCount: bigint;
@@ -179,24 +195,21 @@ export interface PrincipalInfo {
     level: bigint;
     avatarUrl?: string;
 }
-export type HeaderField = [string, string];
-export interface GameStatistics {
-    totalShotsFired: bigint;
-    totalChickensShot: bigint;
-    bestSessionChickens: bigint;
-    bestConsecutiveHits: bigint;
-    highestScore: bigint;
-    perfectAccuracySessions: bigint;
-    smallChickensShot: bigint;
-    totalPlayTimeMinutes: bigint;
-    level: bigint;
-    totalScore: bigint;
-    fastChickensShot: bigint;
-    largeChickensShot: bigint;
-    totalMissedShots: bigint;
-    mediumChickensShot: bigint;
-    currentAccuracy: number;
-    goldenChickensShot: bigint;
+export interface PumpPriceData {
+    change24h: number;
+    lastUpdated: bigint;
+    price: number;
+}
+export interface HttpResponseRaw {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<HttpHeader>;
+}
+export interface HttpRequest {
+    url: string;
+    method: string;
+    body: Uint8Array;
+    headers: Array<HeaderField>;
 }
 export interface UserProfile {
     bio: string;
@@ -208,6 +221,7 @@ export interface UserProfile {
     bannerImageUrl?: string;
     youtubeUrl?: string;
 }
+export type HeaderField = [string, string];
 export enum ApprovalStatus {
     pending = "pending",
     approved = "approved",
@@ -264,6 +278,7 @@ export interface backendInterface {
     fileUpload(path: string, mimeType: string, chunk: Uint8Array, complete: boolean): Promise<void>;
     getAllClans(): Promise<Array<ClanSummary>>;
     getApprovalStatus(user: Principal): Promise<ApprovalStatus>;
+    getCachedPumpFunPrice(): Promise<PumpPriceData>;
     getClan(clanId: bigint): Promise<{
         __kind__: "ok";
         ok: ClanDetails;
@@ -298,6 +313,7 @@ export interface backendInterface {
         __kind__: "err";
         err: string;
     }>;
+    getPumpFunPrice(): Promise<PumpPriceData>;
     getUserGameStats(userId: Principal): Promise<GameStatistics | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     getUserProfileWithChangeStatus(user: Principal): Promise<UserProfileWithChangeStatus | null>;
@@ -347,6 +363,7 @@ export interface backendInterface {
         err: string;
     }>;
     setApproval(user: Principal, approval: ApprovalStatus): Promise<void>;
+    transformPumpResponse(raw: HttpResponseRaw): Promise<HttpResponseRaw>;
     updateClan(clanId: bigint, description: string, joinMode: JoinMode, emblemId: bigint): Promise<{
         __kind__: "ok";
         ok: ClanDetails;
@@ -542,6 +559,20 @@ export class Backend implements backendInterface {
             return from_candid_ApprovalStatus_n12(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getCachedPumpFunPrice(): Promise<PumpPriceData> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCachedPumpFunPrice();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCachedPumpFunPrice();
+            return result;
+        }
+    }
     async getClan(arg0: bigint): Promise<{
         __kind__: "ok";
         ok: ClanDetails;
@@ -704,6 +735,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getPendingJoinRequests(arg0);
             return from_candid_variant_n32(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getPumpFunPrice(): Promise<PumpPriceData> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getPumpFunPrice();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getPumpFunPrice();
+            return result;
         }
     }
     async getUserGameStats(arg0: Principal): Promise<GameStatistics | null> {
@@ -999,6 +1044,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n51(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async transformPumpResponse(arg0: HttpResponseRaw): Promise<HttpResponseRaw> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.transformPumpResponse(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.transformPumpResponse(arg0);
             return result;
         }
     }

@@ -6,6 +6,7 @@ import FileStorage "file-storage/file-storage";
 import Http "file-storage/http";
 import SocialsLib "lib/socials";
 import SocialsApi "mixins/socials-api";
+import PumpPriceApi "mixins/pump-price-api";
 
 
 
@@ -230,4 +231,8 @@ persistent actor {
     };
 
     include SocialsApi(socialsState, _getName, _getAvatarUrl, _getLevel);
+
+    // ── Pump.fun price mixin ──────────────────────────────────────────────────
+    let pumpPriceState = { var price : Float = 0.0; var change24h : Float = 0.0; var lastUpdated : Int = 0 };
+    include PumpPriceApi(pumpPriceState);
 };

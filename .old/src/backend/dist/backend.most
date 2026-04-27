@@ -51,6 +51,9 @@ type GameStatistics__205091857 =
     totalScore : Nat;
     totalShotsFired : Nat
   };
+type HttpHeader__668898820 = {name : Text; value : Text};
+type HttpResponseRaw__965605918 =
+  {body : Blob; headers : [HttpHeader__668898820]; status : Nat};
 type Internal__667636161<T> =
   {children : [var ?Node__92254746<T>]; data : Data__159895909<T>};
 type Internal__8484328<K, V> =
@@ -101,6 +104,25 @@ type UserProfile__491224006 =
   };
 type UserRole__465239019 = {#admin; #guest; #user};
 actor {
+  stable IC :
+    actor {
+      http_request :
+        shared {
+                 body : ?Blob;
+                 headers : [HttpHeader__668898820];
+                 max_response_bytes : ?Nat64;
+                 method : {#get; #head; #post};
+                 transform :
+                   ?{
+                      context : Blob;
+                      function :
+                        shared query HttpResponseRaw__965605918 ->
+                          async HttpResponseRaw__965605918
+                    };
+                 url : Text
+               } ->
+          async HttpResponseRaw__965605918
+    };
   stable gameStatistics :
     {
       var root : Node__46230540<Principal, GameStatistics__205091857>;
@@ -113,6 +135,8 @@ actor {
         Map__605269027<Principal, ApprovalStatus__1030066916>;
       var userRoles : Map__605269027<Principal, UserRole__465239019>
     };
+  stable pumpPriceState :
+    {var change24h : Float; var lastUpdated : Int; var price : Float};
   stable socialsState :
     {
       clanMessages :
