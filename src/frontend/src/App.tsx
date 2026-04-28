@@ -33,7 +33,8 @@ export type BackgroundWorld =
   | "ocean"
   | "minecraft"
   | "pumpfun"
-  | "corona";
+  | "corona"
+  | "hormuz";
 
 export interface PlayerData {
   level: number;
@@ -99,6 +100,7 @@ const VALID_WORLDS: BackgroundWorld[] = [
   "minecraft",
   "pumpfun",
   "corona",
+  "hormuz",
 ];
 
 const DEFAULT_PLAYER_DATA: PlayerData = {

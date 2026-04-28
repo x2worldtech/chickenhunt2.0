@@ -29473,6 +29473,56 @@ function useBitcoinPrice() {
     placeholderData: (prev) => prev ?? null
   });
 }
+async function fetchBrentFromBinanceFutures() {
+  const res = await fetch(
+    "https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BZUSDT",
+    { signal: AbortSignal.timeout(8e3) }
+  );
+  if (!res.ok) throw new Error(`Binance Futures ${res.status}`);
+  const data = await res.json();
+  const price = Number.parseFloat(data.lastPrice);
+  const change24h = Number.parseFloat(data.priceChangePercent);
+  if (!Number.isFinite(price) || price <= 0)
+    throw new Error("Binance Futures: invalid price");
+  return { price, change24h };
+}
+async function fetchBrentFromYahoo(server) {
+  var _a3, _b3, _c2;
+  const url = `https://${server}.finance.yahoo.com/v8/finance/chart/BZ%3DF?interval=1d&range=2d`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(1e4) });
+  if (!res.ok) throw new Error(`Yahoo Finance ${res.status}`);
+  const json = await res.json();
+  const meta = (_c2 = (_b3 = (_a3 = json == null ? void 0 : json.chart) == null ? void 0 : _a3.result) == null ? void 0 : _b3[0]) == null ? void 0 : _c2.meta;
+  if (!meta) throw new Error("Yahoo Finance: no meta data");
+  const price = meta.regularMarketPrice ?? null;
+  const prevClose = meta.chartPreviousClose ?? null;
+  const change24h = price !== null && prevClose !== null && prevClose !== 0 ? (price - prevClose) / prevClose * 100 : null;
+  if (price === null) throw new Error("Yahoo Finance: no price");
+  return { price, change24h };
+}
+function useBrentOilPrice() {
+  return useQuery({
+    queryKey: ["brentOilPrice"],
+    queryFn: async () => {
+      try {
+        return await fetchBrentFromBinanceFutures();
+      } catch {
+        try {
+          return await fetchBrentFromYahoo("query1");
+        } catch {
+          try {
+            return await fetchBrentFromYahoo("query2");
+          } catch {
+            return { price: null, change24h: null };
+          }
+        }
+      }
+    },
+    staleTime: 5e3,
+    refetchInterval: 1e4,
+    placeholderData: (prev) => prev ?? { price: null, change24h: null }
+  });
+}
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -30720,7 +30770,8 @@ const AchievementsView = ({
 const BackgroundRenderer = ({
   world,
   pumpFunPrice,
-  btcPrice
+  btcPrice,
+  brentOilPrice
 }) => {
   const renderOriginalWorld = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "svg",
@@ -49189,6 +49240,763 @@ const BackgroundRenderer = ({
       ]
     }
   );
+  const renderHormuzWorld = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      role: "img",
+      "aria-label": "Hormuz war world background",
+      className: "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+      viewBox: "0 0 1200 800",
+      preserveAspectRatio: "xMidYMid slice",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("defs", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "hormuzSky", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#1a1a2e" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "25%", stopColor: "#2d1f0a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "55%", stopColor: "#4a2800" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "80%", stopColor: "#7a3800" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#5c2000" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "hormuzSea", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#1c3a3a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "40%", stopColor: "#0d2828" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#081818" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "hormuzDesert", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#6b4c1e" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "#4a3212" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#2a1c08" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "hormuzExplosion1", cx: "50%", cy: "50%", r: "50%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#fff176", stopOpacity: "1" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "25%", stopColor: "#ffa000", stopOpacity: "0.9" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "55%", stopColor: "#e53935", stopOpacity: "0.7" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "85%", stopColor: "#4a2000", stopOpacity: "0.4" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#1a0800", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "hormuzExplosion2", cx: "50%", cy: "50%", r: "50%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#ffe082", stopOpacity: "1" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "30%", stopColor: "#ff6f00", stopOpacity: "0.85" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "65%", stopColor: "#b71c1c", stopOpacity: "0.6" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#1a0800", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "hormuzExplosion3", cx: "50%", cy: "50%", r: "50%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#ffcc02", stopOpacity: "0.95" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "35%", stopColor: "#ff5722", stopOpacity: "0.8" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "70%", stopColor: "#7b1fa2", stopOpacity: "0.35" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#000", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "fireReflect", cx: "50%", cy: "0%", r: "80%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#ff8f00", stopOpacity: "0.45" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "#bf360c", stopOpacity: "0.2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#000", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "stormBlur", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "4", result: "blur" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "glowOrange", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "6", result: "coloredBlur" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "coloredBlur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "softGlow", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "3", result: "coloredBlur" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "coloredBlur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#hormuzSky)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.75", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "80", cy: "120", rx: "140", ry: "65", fill: "#2a2410" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "160", cy: "90", rx: "110", ry: "55", fill: "#332d12" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "300", cy: "135", rx: "160", ry: "70", fill: "#251f0e" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "200", cy: "155", rx: "120", ry: "50", fill: "#1e190a" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "480", cy: "100", rx: "180", ry: "75", fill: "#2c2510" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "380", cy: "80", rx: "130", ry: "58", fill: "#35290f" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "650", cy: "115", rx: "155", ry: "68", fill: "#261f0b" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "750", cy: "85", rx: "140", ry: "60", fill: "#2e2610" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "900", cy: "130", rx: "170", ry: "72", fill: "#271f0c" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1050", cy: "95", rx: "150", ry: "65", fill: "#302810" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1150", cy: "125", rx: "130", ry: "60", fill: "#251e0b" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { opacity: "0.65", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "150", cy: "290", rx: "100", ry: "40", fill: "#4a2c08" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "280", cy: "270", rx: "130", ry: "48", fill: "#5a3510" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "450", cy: "285", rx: "110", ry: "42", fill: "#4e2c0a" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "620", cy: "275", rx: "125", ry: "44", fill: "#5c340e" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "800", cy: "290", rx: "115", ry: "40", fill: "#502e0c" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "950", cy: "278", rx: "120", ry: "43", fill: "#573210" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1100", cy: "288", rx: "100", ry: "38", fill: "#4a2b08" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M220,400 Q215,350 225,310 Q232,270 218,230 Q210,195 220,160",
+            stroke: "#2a2010",
+            strokeWidth: "28",
+            fill: "none",
+            strokeLinecap: "round",
+            opacity: "0.55"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M220,400 Q218,352 228,314 Q236,272 222,232 Q213,197 224,162",
+            stroke: "#3a2d15",
+            strokeWidth: "18",
+            fill: "none",
+            strokeLinecap: "round",
+            opacity: "0.4"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M580,380 Q575,330 588,285 Q598,245 580,205 Q568,170 578,130",
+            stroke: "#1e1a0c",
+            strokeWidth: "32",
+            fill: "none",
+            strokeLinecap: "round",
+            opacity: "0.6"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M580,380 Q578,332 590,288 Q600,248 582,208 Q570,172 580,132",
+            stroke: "#2e2410",
+            strokeWidth: "20",
+            fill: "none",
+            strokeLinecap: "round",
+            opacity: "0.4"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M920,390 Q918,340 928,300 Q938,260 922,218 Q912,182 924,145",
+            stroke: "#24200e",
+            strokeWidth: "26",
+            fill: "none",
+            strokeLinecap: "round",
+            opacity: "0.58"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M920,390 Q920,342 930,302 Q940,262 924,220 Q914,184 925,147",
+            stroke: "#342c12",
+            strokeWidth: "16",
+            fill: "none",
+            strokeLinecap: "round",
+            opacity: "0.38"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M0,400 Q100,390 200,395 Q350,388 500,393 Q700,386 900,391 Q1050,387 1200,392 L1200,430 L0,430 Z",
+            fill: "#1a1208"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#12100a", stroke: "#1e1a10", strokeWidth: "1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "100", y: "340", width: "14", height: "60" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "100,340 107,320 114,340" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "103", y: "316", width: "4", height: "8", fill: "#0a0a06" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "105",
+            cy: "312",
+            rx: "8",
+            ry: "14",
+            fill: "#ff6f00",
+            opacity: "0.85",
+            filter: "url(#glowOrange)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "105", cy: "308", rx: "5", ry: "9", fill: "#ffcc02", opacity: "0.7" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#12100a", stroke: "#1e1a10", strokeWidth: "1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "130", y: "355", width: "10", height: "45" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "130,355 135,338 140,355" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "132", y: "334", width: "3", height: "6", fill: "#0a0a06" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "134",
+            cy: "330",
+            rx: "6",
+            ry: "10",
+            fill: "#ff8f00",
+            opacity: "0.8",
+            filter: "url(#glowOrange)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#12100a", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "155", y: "362", width: "8", height: "38" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "170", y: "348", width: "12", height: "52" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "170,348 176,330 182,348" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "210", cy: "388", rx: "28", ry: "16" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "182", y: "372", width: "56", height: "28" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "130", y: "370", width: "30", height: "3" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "176",
+            cy: "326",
+            rx: "7",
+            ry: "11",
+            fill: "#ff6f00",
+            opacity: "0.75",
+            filter: "url(#glowOrange)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#0e0c08", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "880", y: "345", width: "16", height: "55" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "880,345 888,322 896,345" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "905", y: "358", width: "11", height: "42" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "905,358 910,340 916,358" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "930", y: "350", width: "9", height: "50" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "960", cy: "388", rx: "24", ry: "14" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "936", y: "374", width: "48", height: "26" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "905", y: "372", width: "28", height: "3" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "888",
+            cy: "318",
+            rx: "9",
+            ry: "14",
+            fill: "#ff6f00",
+            opacity: "0.85",
+            filter: "url(#glowOrange)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "888", cy: "314", rx: "5", ry: "8", fill: "#ffcc02", opacity: "0.65" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "910",
+            cy: "336",
+            rx: "6",
+            ry: "10",
+            fill: "#ff8f00",
+            opacity: "0.75",
+            filter: "url(#glowOrange)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "430", width: "1200", height: "130", fill: "url(#hormuzSea)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "600",
+            cy: "440",
+            rx: "500",
+            ry: "40",
+            fill: "url(#fireReflect)",
+            opacity: "0.6"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "200",
+            cy: "445",
+            rx: "120",
+            ry: "18",
+            fill: "#ff6f00",
+            opacity: "0.12"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "950",
+            cy: "442",
+            rx: "100",
+            ry: "16",
+            fill: "#ff6f00",
+            opacity: "0.10"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { stroke: "#1e3838", strokeWidth: "1", fill: "none", opacity: "0.4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,455 Q150,450 300,456 Q450,462 600,455 Q750,448 900,454 Q1050,460 1200,454" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,472 Q120,468 240,474 Q360,480 480,473 Q600,466 720,472 Q840,478 960,472 Q1080,466 1200,471" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,490 Q200,486 400,492 Q600,498 800,491 Q1000,484 1200,489" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,508 Q160,504 320,510 Q480,516 640,509 Q800,502 960,508 Q1080,513 1200,508" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { stroke: "#ff8f00", strokeWidth: "0.8", fill: "none", opacity: "0.18", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M80,460 Q200,455 320,461" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M500,468 Q600,462 700,468" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M850,455 Q970,450 1090,456" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#0a0e0e", opacity: "0.9", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "50", y: "448", width: "240", height: "22", rx: "3" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "110", y: "436", width: "120", height: "16", rx: "2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "240", y: "428", width: "38", height: "24", rx: "1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "246", y: "422", width: "26", height: "10", rx: "1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "262", y: "416", width: "6", height: "10" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "130",
+              y1: "436",
+              x2: "130",
+              y2: "418",
+              stroke: "#0a0e0e",
+              strokeWidth: "3"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "130",
+              y1: "418",
+              x2: "155",
+              y2: "420",
+              stroke: "#0a0e0e",
+              strokeWidth: "2"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "170",
+              y1: "436",
+              x2: "170",
+              y2: "422",
+              stroke: "#0a0e0e",
+              strokeWidth: "3"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "170",
+              y1: "422",
+              x2: "195",
+              y2: "424",
+              stroke: "#0a0e0e",
+              strokeWidth: "2"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#080c0c", opacity: "0.92", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M780,470 L760,458 L980,458 L1000,470 Z" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "840", y: "442", width: "80", height: "18", rx: "1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "875", y: "428", width: "4", height: "18" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "877",
+              y1: "428",
+              x2: "862",
+              y2: "432",
+              stroke: "#080c0c",
+              strokeWidth: "2"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "877",
+              y1: "428",
+              x2: "892",
+              y2: "432",
+              stroke: "#080c0c",
+              strokeWidth: "2"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "830", cy: "456", rx: "14", ry: "7" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "828", y: "450", width: "18", height: "4" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "826", y: "448", width: "5", height: "4", rx: "1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "900", y: "436", width: "48", height: "24", rx: "1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "908", y: "428", width: "32", height: "12", rx: "1" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(220, 395)", filter: "url(#glowOrange)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "circle",
+            {
+              cx: "0",
+              cy: "0",
+              r: "48",
+              fill: "url(#hormuzExplosion1)",
+              opacity: "0.9"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "-22", cy: "-18", r: "30", fill: "#ff6f00", opacity: "0.55" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "20", cy: "-22", r: "25", fill: "#ffa000", opacity: "0.45" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "-5", cy: "-45", r: "22", fill: "#2a2010", opacity: "0.7" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "12", cy: "-60", r: "16", fill: "#1e1a0e", opacity: "0.6" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "-15", cy: "-70", r: "13", fill: "#14120a", opacity: "0.5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "-30",
+              y1: "-20",
+              x2: "-48",
+              y2: "-38",
+              stroke: "#ff8f00",
+              strokeWidth: "2",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "25",
+              y1: "-15",
+              x2: "42",
+              y2: "-30",
+              stroke: "#ffcc02",
+              strokeWidth: "1.5",
+              opacity: "0.6"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "10",
+              y1: "-50",
+              x2: "22",
+              y2: "-68",
+              stroke: "#ffa000",
+              strokeWidth: "1.5",
+              opacity: "0.55"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(600, 398)", filter: "url(#glowOrange)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "circle",
+            {
+              cx: "0",
+              cy: "0",
+              r: "38",
+              fill: "url(#hormuzExplosion2)",
+              opacity: "0.85"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "-15", cy: "-12", r: "22", fill: "#ff8f00", opacity: "0.5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "16", cy: "-16", r: "18", fill: "#ffa000", opacity: "0.4" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "0", cy: "-35", r: "18", fill: "#2a2210", opacity: "0.65" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "8", cy: "-48", r: "13", fill: "#1e1a0e", opacity: "0.55" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "-25",
+              y1: "-8",
+              x2: "-40",
+              y2: "-22",
+              stroke: "#ff8f00",
+              strokeWidth: "2",
+              opacity: "0.6"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "20",
+              y1: "-10",
+              x2: "34",
+              y2: "-26",
+              stroke: "#ffcc02",
+              strokeWidth: "1.5",
+              opacity: "0.5"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(960, 402)", filter: "url(#softGlow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "circle",
+            {
+              cx: "0",
+              cy: "0",
+              r: "30",
+              fill: "url(#hormuzExplosion3)",
+              opacity: "0.8"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "-12", cy: "-10", r: "18", fill: "#ff6f00", opacity: "0.45" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "0", cy: "-28", r: "14", fill: "#2a2010", opacity: "0.6" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "5", cy: "-38", r: "10", fill: "#1a1610", opacity: "0.5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "-18",
+              y1: "-6",
+              x2: "-30",
+              y2: "-18",
+              stroke: "#ff8f00",
+              strokeWidth: "1.5",
+              opacity: "0.55"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#0c0a06", opacity: "0.88", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "30", y: "412", width: "55", height: "18", rx: "2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "28", y: "428", width: "60", height: "6", rx: "2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "58", y: "400", width: "5", height: "14" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "38",
+              y: "397",
+              width: "28",
+              height: "4",
+              rx: "1",
+              transform: "rotate(-15 52 399)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "36",
+              y: "393",
+              width: "10",
+              height: "3",
+              rx: "1",
+              transform: "rotate(-15 41 394)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "47",
+              y: "390",
+              width: "10",
+              height: "3",
+              rx: "1",
+              transform: "rotate(-15 52 391)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "57",
+              y: "387",
+              width: "10",
+              height: "3",
+              rx: "1",
+              transform: "rotate(-15 62 388)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "60",
+              cy: "408",
+              rx: "10",
+              ry: "6",
+              transform: "rotate(-20 60 408)"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "560", width: "1200", height: "240", fill: "url(#hormuzDesert)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M0,560 Q80,540 160,558 Q240,575 320,550 Q400,530 480,558 Q560,580 640,552 Q720,528 800,555 Q880,578 960,548 Q1040,522 1120,550 Q1160,564 1200,555 L1200,560 L0,560 Z",
+            fill: "#5a4018"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "path",
+          {
+            d: "M0,575 Q60,562 130,578 Q200,592 280,572 Q360,552 440,575 Q520,598 600,570 Q680,546 760,572 Q840,596 920,564 Q1000,538 1080,565 Q1140,582 1200,568 L1200,580 L0,580 Z",
+            fill: "#4a3412"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#3a2a0c", stroke: "#261c08", strokeWidth: "1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "60", cy: "600", rx: "35", ry: "22" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "40", cy: "588", rx: "22", ry: "15" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "80", cy: "592", rx: "28", ry: "18" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#3a2a0c", stroke: "#261c08", strokeWidth: "1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "340", cy: "610", rx: "42", ry: "26" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "318", cy: "596", rx: "26", ry: "17" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "365", cy: "600", rx: "30", ry: "19" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "390", cy: "608", rx: "20", ry: "13" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#302208", stroke: "#201808", strokeWidth: "1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "680", cy: "596", rx: "38", ry: "24" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "658", cy: "584", rx: "24", ry: "16" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "705", cy: "588", rx: "28", ry: "18" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#3a2a0c", stroke: "#261c08", strokeWidth: "1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1020", cy: "604", rx: "40", ry: "25" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "995", cy: "590", rx: "25", ry: "16" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1048", cy: "596", rx: "32", ry: "20" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#281e08", stroke: "#1a1406", strokeWidth: "1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1150", cy: "598", rx: "35", ry: "22" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1130", cy: "585", rx: "22", ry: "14" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "1170", cy: "590", rx: "26", ry: "17" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { stroke: "#5a4018", strokeWidth: "1.5", fill: "none", opacity: "0.45", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,640 Q200,634 400,641 Q600,648 800,641 Q1000,634 1200,640" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,665 Q180,660 360,667 Q540,674 720,666 Q900,658 1080,665 Q1140,668 1200,665" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,690 Q250,684 500,691 Q750,698 1000,690 Q1100,686 1200,689" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,720 Q160,715 320,722 Q480,729 640,721 Q800,713 960,720 Q1080,726 1200,720" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "600",
+            cy: "415",
+            rx: "480",
+            ry: "55",
+            fill: "#ff6f00",
+            opacity: "0.1",
+            filter: "url(#glowOrange)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "220",
+            cy: "408",
+            rx: "160",
+            ry: "30",
+            fill: "#ff8f00",
+            opacity: "0.18",
+            filter: "url(#softGlow)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "600",
+            cy: "405",
+            rx: "120",
+            ry: "22",
+            fill: "#ffa000",
+            opacity: "0.14",
+            filter: "url(#softGlow)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "960",
+            cy: "410",
+            rx: "130",
+            ry: "25",
+            fill: "#ff6f00",
+            opacity: "0.16",
+            filter: "url(#softGlow)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { fill: "#ffffff", opacity: "0.25", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "50", cy: "45", r: "0.8" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "140", cy: "32", r: "0.6" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "320", cy: "55", r: "0.7" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "500", cy: "38", r: "0.9" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "650", cy: "28", r: "0.7" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "820", cy: "50", r: "0.8" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "1000", cy: "35", r: "0.6" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "1120", cy: "46", r: "0.7" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "750", cy: "22", r: "0.5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "440", cy: "18", r: "0.6" })
+        ] }),
+        (() => {
+          const priceStr = (brentOilPrice == null ? void 0 : brentOilPrice.price) != null ? `$${brentOilPrice.price.toFixed(2)}` : "--";
+          const changeVal = brentOilPrice ? brentOilPrice.change24h : null;
+          const changeStr = changeVal !== null ? `${changeVal >= 0 ? "+" : ""}${changeVal.toFixed(2)}%` : null;
+          const changeColor = changeVal === null ? "#9CA3AF" : changeVal >= 0 ? "#22C55E" : "#EF4444";
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(600, 590)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-110",
+                y: "-46",
+                width: "220",
+                height: changeStr !== null ? 88 : 68,
+                rx: "8",
+                ry: "8",
+                fill: "#050505",
+                fillOpacity: "0.82",
+                stroke: "#3a0800",
+                strokeWidth: "1"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "text",
+              {
+                x: "0",
+                y: "-28",
+                textAnchor: "middle",
+                fontFamily: "'Courier New', Courier, monospace",
+                fontWeight: "400",
+                fontSize: "11",
+                fill: "#b03010",
+                opacity: "0.85",
+                letterSpacing: "2",
+                children: "BRENT / USD"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "text",
+              {
+                x: "0",
+                y: "2",
+                textAnchor: "middle",
+                fontFamily: "'Courier New', Courier, monospace",
+                fontWeight: "700",
+                fontSize: "22",
+                fill: "#FFFFFF",
+                letterSpacing: "0.5",
+                children: priceStr
+              }
+            ),
+            changeStr !== null && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "rect",
+                {
+                  x: "-38",
+                  y: "12",
+                  width: "76",
+                  height: "22",
+                  rx: "4",
+                  ry: "4",
+                  fill: changeColor,
+                  fillOpacity: "0.15"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "text",
+                {
+                  x: "0",
+                  y: "28",
+                  textAnchor: "middle",
+                  fontFamily: "'Courier New', Courier, monospace",
+                  fontWeight: "600",
+                  fontSize: "13",
+                  fill: changeColor,
+                  letterSpacing: "0.3",
+                  children: changeStr
+                }
+              )
+            ] })
+          ] });
+        })()
+      ]
+    }
+  );
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -49227,6 +50035,8 @@ const BackgroundRenderer = ({
         return renderPumpFunWorld();
       case "corona":
         return renderCoronaWorld();
+      case "hormuz":
+        return renderHormuzWorld();
       default:
         return renderOriginalWorld();
     }
@@ -53270,33 +54080,56 @@ const SocialsView = ({ isAuthenticated }) => {
   const isLoggingIn = loginStatus === "logging-in";
   const myPrincipal = (identity == null ? void 0 : identity.getPrincipal()) ?? null;
   if (!isAuthenticated) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
-      {
-        className: "fixed inset-0 flex flex-col overflow-hidden bg-black",
-        style: { paddingBottom: "60px" },
-        "data-ocid": "socials.page",
-        children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col items-center justify-center px-6 text-center", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-20 h-20 rounded-xl bg-orange-100 border border-orange-200 mb-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 36, className: "text-orange-500" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-3xl font-black text-white mb-3 tracking-tight", children: "SOCIALS" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-400 text-base mb-8 max-w-xs", children: "Sign in to join clans, add friends and chat in clan chat." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              "data-ocid": "socials.login_button",
-              onClick: () => login(),
-              disabled: isLoggingIn,
-              className: "flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-base transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(LogIn, { size: 18 }),
-                isLoggingIn ? "Signing in…" : "Sign In"
-              ]
-            }
-          )
-        ] })
-      }
-    );
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-black overflow-y-auto pb-32", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "container mx-auto px-4 py-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: "bg-white rounded-xl p-4 shadow-xl border border-gray-200 opacity-60",
+          style: { filter: "blur(2px)" },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 mr-4 shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "w-6 h-6 text-white" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl md:text-4xl font-black text-black tracking-tight", children: "SOCIALS" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center text-gray-600 font-medium", children: "Join clans, add friends, and chat with the community" })
+          ]
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "fixed inset-0 flex items-center justify-center z-50 px-4",
+          style: { background: "rgba(0,0,0,0.55)" },
+          "data-ocid": "socials.login_prompt",
+          children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl shadow-2xl border border-gray-200 w-full max-w-md mx-auto", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center p-6 border-b border-gray-200", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 mr-4 shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { className: "w-6 h-6 text-white" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-black text-black", children: "SOCIALS" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 text-lg leading-relaxed text-center mb-6", children: "Sign in to join clans, add friends, and chat with other players." }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => login(),
+                  disabled: isLoggingIn,
+                  className: "w-full flex items-center justify-center font-bold py-3 px-4 rounded-lg transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700",
+                  "data-ocid": "socials.login_button",
+                  children: isLoggingIn ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Connecting..." })
+                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(LogIn, { className: "w-5 h-5 mr-3" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Login with Internet Identity" })
+                  ] })
+                }
+              )
+            ] })
+          ] })
+        }
+      )
+    ] }) });
   }
   if (view.kind === "clanDetails") {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -55066,6 +55899,8 @@ const GameScreen = ({
     price: Number(btcPriceData.price),
     change24h: Number(btcPriceData.change24h)
   } : null;
+  const { data: brentOilData } = useBrentOilPrice();
+  const brentOilPrice = selectedWorld === "hormuz" && brentOilData ? { price: brentOilData.price, change24h: brentOilData.change24h } : null;
   const audioContextRef = reactExports.useRef(null);
   const backgroundMusicGainRef = reactExports.useRef(null);
   const rainSoundGainRef = reactExports.useRef(null);
@@ -56757,6 +57592,515 @@ const GameScreen = ({
     },
     [drawExplosion]
   );
+  const drawHormuzWarcraft = reactExports.useCallback(
+    (ctx, chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x: x2, y: y2, size, wingPhase, direction, type, isGolden, id } = chicken;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let w2;
+      let h2;
+      if (chicken.distance === "far") {
+        w2 = 42;
+        h2 = 13;
+      } else if (chicken.distance === "medium") {
+        w2 = 70;
+        h2 = 22;
+      } else {
+        w2 = 102;
+        h2 = 32;
+      }
+      const isRocket = id % 2 === 0;
+      ctx.save();
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      } else if (type === "fast") {
+        ctx.shadowColor = "#FF4500";
+        ctx.shadowBlur = 12;
+      } else {
+        ctx.shadowColor = "rgba(255,100,0,0.4)";
+        ctx.shadowBlur = 6;
+      }
+      if (isRocket) {
+        const gc = isGolden;
+        const flameLen = w2 * 0.45;
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        const flameCoreGrad = ctx.createLinearGradient(
+          w2 * 0.36,
+          0,
+          w2 * 0.36 + flameLen,
+          0
+        );
+        flameCoreGrad.addColorStop(
+          0,
+          gc ? "rgba(255,255,200,0.95)" : "rgba(255,255,255,0.95)"
+        );
+        flameCoreGrad.addColorStop(
+          0.15,
+          gc ? "rgba(255,200,50,0.9)" : "rgba(255,220,80,0.9)"
+        );
+        flameCoreGrad.addColorStop(0.45, "rgba(255,100,0,0.65)");
+        flameCoreGrad.addColorStop(1, "rgba(255,60,0,0)");
+        const flameHaloGrad = ctx.createLinearGradient(
+          w2 * 0.36,
+          0,
+          w2 * 0.36 + flameLen * 1.1,
+          0
+        );
+        flameHaloGrad.addColorStop(0, "rgba(255,160,40,0.5)");
+        flameHaloGrad.addColorStop(0.5, "rgba(255,80,0,0.25)");
+        flameHaloGrad.addColorStop(1, "rgba(255,40,0,0)");
+        ctx.fillStyle = flameHaloGrad;
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.36, -h2 * 0.32);
+        ctx.lineTo(w2 * 0.36 + flameLen * 1.1, -h2 * 0.08);
+        ctx.lineTo(w2 * 0.36 + flameLen * 1.1, h2 * 0.08);
+        ctx.lineTo(w2 * 0.36, h2 * 0.32);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = flameCoreGrad;
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.36, -h2 * 0.2);
+        ctx.lineTo(w2 * 0.36 + flameLen, -h2 * 0.05);
+        ctx.lineTo(w2 * 0.36 + flameLen, h2 * 0.05);
+        ctx.lineTo(w2 * 0.36, h2 * 0.2);
+        ctx.closePath();
+        ctx.fill();
+        if (isGolden) ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+        const bodyMetalGrad = ctx.createLinearGradient(0, -h2 * 0.5, 0, h2 * 0.5);
+        if (gc) {
+          bodyMetalGrad.addColorStop(0, "#FFF5CC");
+          bodyMetalGrad.addColorStop(0.18, "#FFE57F");
+          bodyMetalGrad.addColorStop(0.5, "#DAA520");
+          bodyMetalGrad.addColorStop(0.82, "#FFE082");
+          bodyMetalGrad.addColorStop(1, "#FFF0B0");
+        } else {
+          bodyMetalGrad.addColorStop(0, "#F0F0F8");
+          bodyMetalGrad.addColorStop(0.18, "#D8D8E8");
+          bodyMetalGrad.addColorStop(0.5, "#B0B0C8");
+          bodyMetalGrad.addColorStop(0.82, "#D0D0E0");
+          bodyMetalGrad.addColorStop(1, "#E8E8F0");
+        }
+        ctx.fillStyle = bodyMetalGrad;
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.38, -h2 * 0.22, w2 * 0.74, h2 * 0.44, h2 * 0.08);
+        ctx.fill();
+        ctx.strokeStyle = gc ? "#8B6914" : "#50506A";
+        ctx.lineWidth = Math.max(0.8, h2 * 0.05);
+        ctx.stroke();
+        const noseGrad = ctx.createLinearGradient(
+          -w2 * 0.52,
+          -h2 * 0.22,
+          -w2 * 0.52,
+          h2 * 0.22
+        );
+        if (gc) {
+          noseGrad.addColorStop(0, "#FFE082");
+          noseGrad.addColorStop(0.5, "#B8860B");
+          noseGrad.addColorStop(1, "#FFE082");
+        } else {
+          noseGrad.addColorStop(0, "#E8E8F0");
+          noseGrad.addColorStop(0.5, "#C0C0D0");
+          noseGrad.addColorStop(1, "#E8E8F0");
+        }
+        ctx.fillStyle = noseGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.38, -h2 * 0.22);
+        ctx.bezierCurveTo(
+          -w2 * 0.44,
+          -h2 * 0.1,
+          -w2 * 0.53,
+          -h2 * 0.04,
+          -w2 * 0.54,
+          0
+        );
+        ctx.bezierCurveTo(
+          -w2 * 0.53,
+          h2 * 0.04,
+          -w2 * 0.44,
+          h2 * 0.1,
+          -w2 * 0.38,
+          h2 * 0.22
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = gc ? "#8B6914" : "#50506A";
+        ctx.lineWidth = Math.max(0.8, h2 * 0.05);
+        ctx.stroke();
+        ctx.fillStyle = gc ? "#FFD700" : "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.26, -h2 * 0.22, w2 * 0.09, h2 * 0.44, h2 * 0.04);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.roundRect(w2 * 0.08, -h2 * 0.22, w2 * 0.09, h2 * 0.44, h2 * 0.04);
+        ctx.fill();
+        ctx.strokeStyle = gc ? "rgba(150,120,0,0.4)" : "rgba(80,80,100,0.4)";
+        ctx.lineWidth = Math.max(0.5, h2 * 0.03);
+        ctx.setLineDash([h2 * 0.12, h2 * 0.08]);
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.3, 0);
+        ctx.lineTo(w2 * 0.35, 0);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = gc ? "#B8860B" : "#404050";
+        ctx.strokeStyle = gc ? "#8B6914" : "#28282E";
+        ctx.lineWidth = Math.max(0.5, h2 * 0.04);
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.22, -h2 * 0.22);
+        ctx.lineTo(w2 * 0.18, -h2 * 0.55);
+        ctx.lineTo(w2 * 0.36, -h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.22, h2 * 0.22);
+        ctx.lineTo(w2 * 0.18, h2 * 0.55);
+        ctx.lineTo(w2 * 0.36, h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.14, -h2 * 0.22);
+        ctx.lineTo(w2 * 0.12, -h2 * 0.38);
+        ctx.lineTo(w2 * 0.24, -h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.14, h2 * 0.22);
+        ctx.lineTo(w2 * 0.12, h2 * 0.38);
+        ctx.lineTo(w2 * 0.24, h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        const glossGrad = ctx.createLinearGradient(
+          -w2 * 0.36,
+          -h2 * 0.22,
+          w2 * 0.34,
+          -h2 * 0.22
+        );
+        glossGrad.addColorStop(0, "rgba(255,255,255,0)");
+        glossGrad.addColorStop(0.2, "rgba(255,255,255,0.45)");
+        glossGrad.addColorStop(0.8, "rgba(255,255,255,0.35)");
+        glossGrad.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = glossGrad;
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.36, -h2 * 0.22, w2 * 0.7, h2 * 0.1, h2 * 0.04);
+        ctx.fill();
+      } else {
+        const bob = Math.sin(wingPhase) * 1.5;
+        ctx.translate(0, bob);
+        const gc = isGolden;
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        const afterOuterGrad = ctx.createLinearGradient(
+          w2 * 0.34,
+          0,
+          w2 * 0.68,
+          0
+        );
+        afterOuterGrad.addColorStop(
+          0,
+          gc ? "rgba(255,220,60,0.4)" : "rgba(255,140,30,0.4)"
+        );
+        afterOuterGrad.addColorStop(1, "rgba(255,60,0,0)");
+        ctx.fillStyle = afterOuterGrad;
+        ctx.beginPath();
+        ctx.ellipse(w2 * 0.5, 0, w2 * 0.22, h2 * 0.3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        const afterW = w2 * 0.22;
+        const makeABGrad = (yOff) => {
+          const g2 = ctx.createRadialGradient(
+            w2 * 0.4,
+            yOff,
+            0,
+            w2 * 0.4,
+            yOff,
+            afterW * 0.7
+          );
+          g2.addColorStop(
+            0,
+            gc ? "rgba(255,255,180,0.98)" : "rgba(255,255,220,0.98)"
+          );
+          g2.addColorStop(
+            0.25,
+            gc ? "rgba(255,210,60,0.85)" : "rgba(255,200,50,0.85)"
+          );
+          g2.addColorStop(0.6, "rgba(255,90,0,0.5)");
+          g2.addColorStop(1, "rgba(255,40,0,0)");
+          return g2;
+        };
+        ctx.fillStyle = makeABGrad(-h2 * 0.1);
+        ctx.beginPath();
+        ctx.ellipse(
+          w2 * 0.4,
+          -h2 * 0.1,
+          afterW * 0.6,
+          h2 * 0.16,
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+        ctx.fillStyle = makeABGrad(h2 * 0.1);
+        ctx.beginPath();
+        ctx.ellipse(
+          w2 * 0.4,
+          h2 * 0.1,
+          afterW * 0.6,
+          h2 * 0.16,
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+        if (isGolden) {
+          ctx.shadowColor = "#FFD700";
+          ctx.shadowBlur = 18;
+        } else if (type === "fast") {
+          ctx.shadowColor = "#FF4500";
+          ctx.shadowBlur = 12;
+        } else {
+          ctx.shadowColor = "rgba(255,100,0,0.4)";
+          ctx.shadowBlur = 6;
+        }
+        const wingTopGrad = ctx.createLinearGradient(0, -h2 * 0.7, 0, 0);
+        wingTopGrad.addColorStop(0, gc ? "#FFF0A0" : "#C8C8D0");
+        wingTopGrad.addColorStop(0.5, gc ? "#DAA520" : "#909098");
+        wingTopGrad.addColorStop(1, gc ? "#A07810" : "#606070");
+        const wingBotGrad = ctx.createLinearGradient(0, 0, 0, h2 * 0.7);
+        wingBotGrad.addColorStop(0, gc ? "#A07810" : "#606070");
+        wingBotGrad.addColorStop(0.5, gc ? "#DAA520" : "#909098");
+        wingBotGrad.addColorStop(1, gc ? "#FFF0A0" : "#C8C8D0");
+        ctx.fillStyle = wingTopGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.42, 0);
+        ctx.lineTo(-w2 * 0.05, -h2 * 0.66);
+        ctx.lineTo(w2 * 0.28, -h2 * 0.36);
+        ctx.lineTo(w2 * 0.4, -h2 * 0.22);
+        ctx.lineTo(w2 * 0.4, -h2 * 0.04);
+        ctx.lineTo(-w2 * 0.38, -h2 * 0.06);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = wingBotGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.42, 0);
+        ctx.lineTo(-w2 * 0.05, h2 * 0.66);
+        ctx.lineTo(w2 * 0.28, h2 * 0.36);
+        ctx.lineTo(w2 * 0.4, h2 * 0.22);
+        ctx.lineTo(w2 * 0.4, h2 * 0.04);
+        ctx.lineTo(-w2 * 0.38, h2 * 0.06);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = gc ? "#8B6914" : "#3A3A48";
+        ctx.lineWidth = Math.max(0.6, h2 * 0.04);
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.42, 0);
+        ctx.lineTo(-w2 * 0.05, -h2 * 0.66);
+        ctx.lineTo(w2 * 0.28, -h2 * 0.36);
+        ctx.lineTo(w2 * 0.4, -h2 * 0.22);
+        ctx.moveTo(-w2 * 0.42, 0);
+        ctx.lineTo(-w2 * 0.05, h2 * 0.66);
+        ctx.lineTo(w2 * 0.28, h2 * 0.36);
+        ctx.lineTo(w2 * 0.4, h2 * 0.22);
+        ctx.stroke();
+        ctx.fillStyle = gc ? "#D4A020" : "#8090A0";
+        ctx.strokeStyle = gc ? "#8B6914" : "#303038";
+        ctx.lineWidth = Math.max(0.4, h2 * 0.03);
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.3, -h2 * 0.08);
+        ctx.lineTo(-w2 * 0.12, -h2 * 0.38);
+        ctx.lineTo(-w2 * 0.06, -h2 * 0.08);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.3, h2 * 0.08);
+        ctx.lineTo(-w2 * 0.12, h2 * 0.38);
+        ctx.lineTo(-w2 * 0.06, h2 * 0.08);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        const fuseTopGrad = ctx.createLinearGradient(0, -h2 * 0.22, 0, h2 * 0.22);
+        if (gc) {
+          fuseTopGrad.addColorStop(0, "#FFF5CC");
+          fuseTopGrad.addColorStop(0.3, "#FFE082");
+          fuseTopGrad.addColorStop(0.7, "#B8860B");
+          fuseTopGrad.addColorStop(1, "#FFE082");
+        } else {
+          fuseTopGrad.addColorStop(0, "#D0D0D8");
+          fuseTopGrad.addColorStop(0.3, "#A0A0B0");
+          fuseTopGrad.addColorStop(0.7, "#707080");
+          fuseTopGrad.addColorStop(1, "#A8A8B8");
+        }
+        ctx.fillStyle = fuseTopGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.42, 0);
+        ctx.bezierCurveTo(
+          -w2 * 0.3,
+          -h2 * 0.04,
+          -w2 * 0.15,
+          -h2 * 0.2,
+          w2 * 0.05,
+          -h2 * 0.2
+        );
+        ctx.lineTo(w2 * 0.38, -h2 * 0.16);
+        ctx.lineTo(w2 * 0.42, -h2 * 0.08);
+        ctx.lineTo(w2 * 0.42, h2 * 0.08);
+        ctx.lineTo(w2 * 0.38, h2 * 0.16);
+        ctx.lineTo(w2 * 0.05, h2 * 0.2);
+        ctx.bezierCurveTo(-w2 * 0.15, h2 * 0.2, -w2 * 0.3, h2 * 0.04, -w2 * 0.42, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = gc ? "#8B6914" : "#2A2A38";
+        ctx.lineWidth = Math.max(0.6, h2 * 0.04);
+        ctx.stroke();
+        ctx.fillStyle = "#1A1A28";
+        ctx.strokeStyle = gc ? "#806010" : "#404050";
+        ctx.lineWidth = Math.max(0.4, h2 * 0.03);
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.05, -h2 * 0.19, w2 * 0.22, h2 * 0.06, h2 * 0.02);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.05, h2 * 0.13, w2 * 0.22, h2 * 0.06, h2 * 0.02);
+        ctx.fill();
+        ctx.stroke();
+        const nacGrad = ctx.createLinearGradient(0, -h2 * 0.15, 0, h2 * 0.15);
+        nacGrad.addColorStop(0, gc ? "#FFE082" : "#B0B0C0");
+        nacGrad.addColorStop(0.5, gc ? "#DAA520" : "#707080");
+        nacGrad.addColorStop(1, gc ? "#FFE082" : "#B0B0C0");
+        ctx.fillStyle = nacGrad;
+        ctx.strokeStyle = gc ? "#8B6914" : "#303040";
+        ctx.lineWidth = Math.max(0.4, h2 * 0.03);
+        ctx.beginPath();
+        ctx.roundRect(w2 * 0.18, -h2 * 0.22, w2 * 0.22, h2 * 0.1, h2 * 0.04);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(w2 * 0.18, h2 * 0.12, w2 * 0.22, h2 * 0.1, h2 * 0.04);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = gc ? "#C8A020" : "#808090";
+        ctx.strokeStyle = gc ? "#8B6914" : "#303038";
+        ctx.lineWidth = Math.max(0.5, h2 * 0.04);
+        ctx.save();
+        ctx.translate(w2 * 0.3, -h2 * 0.16);
+        ctx.rotate(-0.22);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-w2 * 0.08, -h2 * 0.46);
+        ctx.lineTo(w2 * 0.14, -h2 * 0.02);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+        ctx.save();
+        ctx.translate(w2 * 0.3, h2 * 0.16);
+        ctx.rotate(0.22);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-w2 * 0.08, h2 * 0.46);
+        ctx.lineTo(w2 * 0.14, h2 * 0.02);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+        const canopyGrad = ctx.createRadialGradient(
+          -w2 * 0.2,
+          -h2 * 0.1,
+          0,
+          -w2 * 0.18,
+          0,
+          h2 * 0.14
+        );
+        if (gc) {
+          canopyGrad.addColorStop(0, "rgba(255,240,160,0.75)");
+          canopyGrad.addColorStop(0.4, "rgba(180,120,0,0.7)");
+          canopyGrad.addColorStop(1, "rgba(80,50,0,0.85)");
+        } else {
+          canopyGrad.addColorStop(0, "rgba(160,220,255,0.75)");
+          canopyGrad.addColorStop(0.4, "rgba(30,80,140,0.7)");
+          canopyGrad.addColorStop(1, "rgba(10,30,80,0.85)");
+        }
+        ctx.fillStyle = canopyGrad;
+        ctx.strokeStyle = gc ? "#8B6914" : "#1A2A3A";
+        ctx.lineWidth = Math.max(0.5, h2 * 0.04);
+        ctx.beginPath();
+        ctx.ellipse(-w2 * 0.18, 0, w2 * 0.1, h2 * 0.13, -0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = gc ? "rgba(255,250,200,0.55)" : "rgba(220,240,255,0.55)";
+        ctx.beginPath();
+        ctx.ellipse(
+          -w2 * 0.2,
+          -h2 * 0.05,
+          w2 * 0.045,
+          h2 * 0.045,
+          -0.4,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+        ctx.fillStyle = gc ? "#FFE082" : "#D0D0D8";
+        ctx.strokeStyle = gc ? "#8B6914" : "#606068";
+        ctx.lineWidth = Math.max(0.4, h2 * 0.03);
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.08, -h2 * 0.62, w2 * 0.18, h2 * 0.07, h2 * 0.025);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = gc ? "#FFD700" : "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.08, -h2 * 0.62, w2 * 0.04, h2 * 0.07, h2 * 0.025);
+        ctx.fill();
+        ctx.fillStyle = gc ? "#FFE082" : "#D0D0D8";
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.08, h2 * 0.55, w2 * 0.18, h2 * 0.07, h2 * 0.025);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = gc ? "#FFD700" : "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.08, h2 * 0.55, w2 * 0.04, h2 * 0.07, h2 * 0.025);
+        ctx.fill();
+        ctx.strokeStyle = gc ? "rgba(120,90,0,0.35)" : "rgba(60,60,80,0.35)";
+        ctx.lineWidth = Math.max(0.4, h2 * 0.025);
+        ctx.setLineDash([w2 * 0.04, w2 * 0.03]);
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.35, -h2 * 0.04);
+        ctx.lineTo(w2 * 0.35, -h2 * 0.04);
+        ctx.moveTo(-w2 * 0.35, h2 * 0.04);
+        ctx.lineTo(w2 * 0.35, h2 * 0.04);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        const fuseGloss = ctx.createLinearGradient(
+          -w2 * 0.38,
+          -h2 * 0.2,
+          w2 * 0.38,
+          -h2 * 0.2
+        );
+        fuseGloss.addColorStop(0, "rgba(255,255,255,0)");
+        fuseGloss.addColorStop(0.3, "rgba(255,255,255,0.35)");
+        fuseGloss.addColorStop(0.7, "rgba(255,255,255,0.25)");
+        fuseGloss.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = fuseGloss;
+        ctx.beginPath();
+        ctx.ellipse(0, -h2 * 0.12, w2 * 0.38, h2 * 0.05, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    },
+    [drawExplosion]
+  );
   const drawStopwatch = reactExports.useCallback(
     (ctx, sw) => {
       if (sw.isExploding) {
@@ -57288,6 +58632,8 @@ const GameScreen = ({
           drawOceanFish(ctx, ch);
         } else if (selectedWorld === "corona") {
           drawCoronaVirus(ctx, ch);
+        } else if (selectedWorld === "hormuz") {
+          drawHormuzWarcraft(ctx, ch);
         } else {
           drawChicken(ctx, ch);
         }
@@ -57303,6 +58649,7 @@ const GameScreen = ({
       drawBitcoinCoin,
       drawOceanFish,
       drawCoronaVirus,
+      drawHormuzWarcraft,
       drawStopwatch,
       selectedWorld,
       shouldSpawnStopwatch
@@ -57487,7 +58834,8 @@ const GameScreen = ({
       {
         world: selectedWorld,
         pumpFunPrice,
-        btcPrice
+        btcPrice,
+        brentOilPrice
       }
     ),
     currentView === "game" && !gameEnded && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -58079,7 +59427,8 @@ const WORLDS = [
   { id: "ocean", name: "Ocean" },
   { id: "minecraft", name: "Minecraft" },
   { id: "pumpfun", name: "pump.fun" },
-  { id: "corona", name: "Corona" }
+  { id: "corona", name: "Corona" },
+  { id: "hormuz", name: "Hormuz" }
 ];
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
 const START_BUTTON_CLASSES = {
@@ -58101,7 +59450,8 @@ const START_BUTTON_CLASSES = {
   ocean: "start-game-button-ocean",
   minecraft: "start-game-button-minecraft",
   pumpfun: "start-game-button-pumpfun",
-  corona: "start-game-button-corona"
+  corona: "start-game-button-corona",
+  hormuz: "start-game-button-hormuz"
 };
 const StartScreen = ({
   onStartGame,
@@ -58115,8 +59465,10 @@ const StartScreen = ({
   const [overlayView, setOverlayView] = reactExports.useState(null);
   const isPumpFunSelected = selectedWorld === "pumpfun";
   const isBitcoinSelected = selectedWorld === "bitcoin";
+  const isHormuzSelected = selectedWorld === "hormuz";
   const { data: pumpPriceData } = usePumpFunPrice();
   const { data: btcPriceData } = useBitcoinPrice();
+  const { data: brentPriceData } = useBrentOilPrice();
   const [worldIndex, setWorldIndex] = reactExports.useState(() => {
     const idx = WORLDS.findIndex((w2) => w2.id === selectedWorld);
     return idx >= 0 ? idx : 0;
@@ -58139,7 +59491,7 @@ const StartScreen = ({
     if (idx >= 0) setWorldIndex(idx);
   }, [selectedWorld]);
   reactExports.useEffect(() => {
-    const nextType = selectedWorld === "pumpfun" ? "pumpfun" : selectedWorld === "bitcoin" ? "bitcoin" : selectedWorld === "ocean" ? "fish" : selectedWorld === "corona" ? "virus" : "chicken";
+    const nextType = selectedWorld === "pumpfun" ? "pumpfun" : selectedWorld === "bitcoin" ? "bitcoin" : selectedWorld === "ocean" ? "fish" : selectedWorld === "corona" ? "virus" : selectedWorld === "hormuz" ? "warcraft" : "chicken";
     if (nextType === activeEntityTypeRef.current) return;
     pendingEntityTypeRef.current = nextType;
     pendingIsPumpFunRef.current = nextType === "pumpfun";
@@ -59015,6 +60367,452 @@ const StartScreen = ({
     },
     []
   );
+  const drawHormuzWarcraft = reactExports.useCallback(
+    (ctx, c2) => {
+      const { x: x2, y: y2, size, wingPhase, direction, id } = c2;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let w2;
+      let h2;
+      if (size <= 25) {
+        w2 = 42;
+        h2 = 13;
+      } else if (size <= 40) {
+        w2 = 70;
+        h2 = 22;
+      } else {
+        w2 = 102;
+        h2 = 32;
+      }
+      const alpha = entityAlphaRef.current;
+      const isRocket = Math.floor(id) % 2 === 0;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      if (isRocket) {
+        const flameLen = w2 * 0.45;
+        const flameCoreGrad = ctx.createLinearGradient(
+          w2 * 0.36,
+          0,
+          w2 * 0.36 + flameLen,
+          0
+        );
+        flameCoreGrad.addColorStop(0, "rgba(255,255,255,0.95)");
+        flameCoreGrad.addColorStop(0.15, "rgba(255,220,80,0.9)");
+        flameCoreGrad.addColorStop(0.45, "rgba(255,100,0,0.65)");
+        flameCoreGrad.addColorStop(1, "rgba(255,60,0,0)");
+        const flameHaloGrad = ctx.createLinearGradient(
+          w2 * 0.36,
+          0,
+          w2 * 0.36 + flameLen * 1.1,
+          0
+        );
+        flameHaloGrad.addColorStop(0, "rgba(255,160,40,0.5)");
+        flameHaloGrad.addColorStop(0.5, "rgba(255,80,0,0.25)");
+        flameHaloGrad.addColorStop(1, "rgba(255,40,0,0)");
+        ctx.fillStyle = flameHaloGrad;
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.36, -h2 * 0.32);
+        ctx.lineTo(w2 * 0.36 + flameLen * 1.1, -h2 * 0.08);
+        ctx.lineTo(w2 * 0.36 + flameLen * 1.1, h2 * 0.08);
+        ctx.lineTo(w2 * 0.36, h2 * 0.32);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = flameCoreGrad;
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.36, -h2 * 0.2);
+        ctx.lineTo(w2 * 0.36 + flameLen, -h2 * 0.05);
+        ctx.lineTo(w2 * 0.36 + flameLen, h2 * 0.05);
+        ctx.lineTo(w2 * 0.36, h2 * 0.2);
+        ctx.closePath();
+        ctx.fill();
+        const bodyMetalGrad = ctx.createLinearGradient(0, -h2 * 0.5, 0, h2 * 0.5);
+        bodyMetalGrad.addColorStop(0, "#F0F0F8");
+        bodyMetalGrad.addColorStop(0.18, "#D8D8E8");
+        bodyMetalGrad.addColorStop(0.5, "#B0B0C8");
+        bodyMetalGrad.addColorStop(0.82, "#D0D0E0");
+        bodyMetalGrad.addColorStop(1, "#E8E8F0");
+        ctx.fillStyle = bodyMetalGrad;
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.38, -h2 * 0.22, w2 * 0.74, h2 * 0.44, h2 * 0.08);
+        ctx.fill();
+        ctx.strokeStyle = "#50506A";
+        ctx.lineWidth = Math.max(0.8, h2 * 0.05);
+        ctx.stroke();
+        const noseGrad = ctx.createLinearGradient(
+          -w2 * 0.52,
+          -h2 * 0.22,
+          -w2 * 0.52,
+          h2 * 0.22
+        );
+        noseGrad.addColorStop(0, "#E8E8F0");
+        noseGrad.addColorStop(0.5, "#C0C0D0");
+        noseGrad.addColorStop(1, "#E8E8F0");
+        ctx.fillStyle = noseGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.38, -h2 * 0.22);
+        ctx.bezierCurveTo(
+          -w2 * 0.44,
+          -h2 * 0.1,
+          -w2 * 0.53,
+          -h2 * 0.04,
+          -w2 * 0.54,
+          0
+        );
+        ctx.bezierCurveTo(
+          -w2 * 0.53,
+          h2 * 0.04,
+          -w2 * 0.44,
+          h2 * 0.1,
+          -w2 * 0.38,
+          h2 * 0.22
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#50506A";
+        ctx.lineWidth = Math.max(0.8, h2 * 0.05);
+        ctx.stroke();
+        ctx.fillStyle = "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.26, -h2 * 0.22, w2 * 0.09, h2 * 0.44, h2 * 0.04);
+        ctx.fill();
+        ctx.fillStyle = "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(w2 * 0.08, -h2 * 0.22, w2 * 0.09, h2 * 0.44, h2 * 0.04);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(80,80,100,0.4)";
+        ctx.lineWidth = Math.max(0.5, h2 * 0.03);
+        ctx.setLineDash([h2 * 0.12, h2 * 0.08]);
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.3, 0);
+        ctx.lineTo(w2 * 0.35, 0);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#404050";
+        ctx.strokeStyle = "#28282E";
+        ctx.lineWidth = Math.max(0.5, h2 * 0.04);
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.22, -h2 * 0.22);
+        ctx.lineTo(w2 * 0.18, -h2 * 0.55);
+        ctx.lineTo(w2 * 0.36, -h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.22, h2 * 0.22);
+        ctx.lineTo(w2 * 0.18, h2 * 0.55);
+        ctx.lineTo(w2 * 0.36, h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.14, -h2 * 0.22);
+        ctx.lineTo(w2 * 0.12, -h2 * 0.38);
+        ctx.lineTo(w2 * 0.24, -h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.14, h2 * 0.22);
+        ctx.lineTo(w2 * 0.12, h2 * 0.38);
+        ctx.lineTo(w2 * 0.24, h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        const glossGrad = ctx.createLinearGradient(
+          -w2 * 0.36,
+          -h2 * 0.22,
+          w2 * 0.34,
+          -h2 * 0.22
+        );
+        glossGrad.addColorStop(0, "rgba(255,255,255,0)");
+        glossGrad.addColorStop(0.2, "rgba(255,255,255,0.45)");
+        glossGrad.addColorStop(0.8, "rgba(255,255,255,0.35)");
+        glossGrad.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = glossGrad;
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.36, -h2 * 0.22, w2 * 0.7, h2 * 0.1, h2 * 0.04);
+        ctx.fill();
+      } else {
+        const bob = Math.sin(wingPhase) * 1.5;
+        ctx.translate(0, bob);
+        const afterW = w2 * 0.22;
+        const afterGrad1 = ctx.createRadialGradient(
+          w2 * 0.4,
+          -h2 * 0.1,
+          0,
+          w2 * 0.4,
+          -h2 * 0.1,
+          afterW * 0.7
+        );
+        afterGrad1.addColorStop(0, "rgba(255,255,220,0.98)");
+        afterGrad1.addColorStop(0.25, "rgba(255,200,50,0.85)");
+        afterGrad1.addColorStop(0.6, "rgba(255,90,0,0.5)");
+        afterGrad1.addColorStop(1, "rgba(255,40,0,0)");
+        const afterGrad2 = ctx.createRadialGradient(
+          w2 * 0.4,
+          h2 * 0.1,
+          0,
+          w2 * 0.4,
+          h2 * 0.1,
+          afterW * 0.7
+        );
+        afterGrad2.addColorStop(0, "rgba(255,255,220,0.98)");
+        afterGrad2.addColorStop(0.25, "rgba(255,200,50,0.85)");
+        afterGrad2.addColorStop(0.6, "rgba(255,90,0,0.5)");
+        afterGrad2.addColorStop(1, "rgba(255,40,0,0)");
+        const afterOuterGrad = ctx.createLinearGradient(
+          w2 * 0.34,
+          0,
+          w2 * 0.68,
+          0
+        );
+        afterOuterGrad.addColorStop(0, "rgba(255,140,30,0.4)");
+        afterOuterGrad.addColorStop(1, "rgba(255,60,0,0)");
+        ctx.fillStyle = afterOuterGrad;
+        ctx.beginPath();
+        ctx.ellipse(w2 * 0.5, 0, w2 * 0.22, h2 * 0.3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = afterGrad1;
+        ctx.beginPath();
+        ctx.ellipse(
+          w2 * 0.4,
+          -h2 * 0.1,
+          afterW * 0.6,
+          h2 * 0.16,
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+        ctx.fillStyle = afterGrad2;
+        ctx.beginPath();
+        ctx.ellipse(
+          w2 * 0.4,
+          h2 * 0.1,
+          afterW * 0.6,
+          h2 * 0.16,
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+        const wingTopGrad = ctx.createLinearGradient(0, -h2 * 0.7, 0, 0);
+        wingTopGrad.addColorStop(0, "#C8C8D0");
+        wingTopGrad.addColorStop(0.5, "#909098");
+        wingTopGrad.addColorStop(1, "#606070");
+        const wingBotGrad = ctx.createLinearGradient(0, 0, 0, h2 * 0.7);
+        wingBotGrad.addColorStop(0, "#606070");
+        wingBotGrad.addColorStop(0.5, "#909098");
+        wingBotGrad.addColorStop(1, "#C8C8D0");
+        ctx.fillStyle = wingTopGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.42, 0);
+        ctx.lineTo(-w2 * 0.05, -h2 * 0.66);
+        ctx.lineTo(w2 * 0.28, -h2 * 0.36);
+        ctx.lineTo(w2 * 0.4, -h2 * 0.22);
+        ctx.lineTo(w2 * 0.4, -h2 * 0.04);
+        ctx.lineTo(-w2 * 0.38, -h2 * 0.06);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = wingBotGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.42, 0);
+        ctx.lineTo(-w2 * 0.05, h2 * 0.66);
+        ctx.lineTo(w2 * 0.28, h2 * 0.36);
+        ctx.lineTo(w2 * 0.4, h2 * 0.22);
+        ctx.lineTo(w2 * 0.4, h2 * 0.04);
+        ctx.lineTo(-w2 * 0.38, h2 * 0.06);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#3A3A48";
+        ctx.lineWidth = Math.max(0.6, h2 * 0.04);
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.42, 0);
+        ctx.lineTo(-w2 * 0.05, -h2 * 0.66);
+        ctx.lineTo(w2 * 0.28, -h2 * 0.36);
+        ctx.lineTo(w2 * 0.4, -h2 * 0.22);
+        ctx.moveTo(-w2 * 0.42, 0);
+        ctx.lineTo(-w2 * 0.05, h2 * 0.66);
+        ctx.lineTo(w2 * 0.28, h2 * 0.36);
+        ctx.lineTo(w2 * 0.4, h2 * 0.22);
+        ctx.stroke();
+        ctx.fillStyle = "#8090A0";
+        ctx.strokeStyle = "#303038";
+        ctx.lineWidth = Math.max(0.4, h2 * 0.03);
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.3, -h2 * 0.08);
+        ctx.lineTo(-w2 * 0.12, -h2 * 0.38);
+        ctx.lineTo(-w2 * 0.06, -h2 * 0.08);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.3, h2 * 0.08);
+        ctx.lineTo(-w2 * 0.12, h2 * 0.38);
+        ctx.lineTo(-w2 * 0.06, h2 * 0.08);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        const fuseTopGrad = ctx.createLinearGradient(0, -h2 * 0.22, 0, h2 * 0.22);
+        fuseTopGrad.addColorStop(0, "#D0D0D8");
+        fuseTopGrad.addColorStop(0.3, "#A0A0B0");
+        fuseTopGrad.addColorStop(0.7, "#707080");
+        fuseTopGrad.addColorStop(1, "#A8A8B8");
+        ctx.fillStyle = fuseTopGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.42, 0);
+        ctx.bezierCurveTo(
+          -w2 * 0.3,
+          -h2 * 0.04,
+          -w2 * 0.15,
+          -h2 * 0.2,
+          w2 * 0.05,
+          -h2 * 0.2
+        );
+        ctx.lineTo(w2 * 0.38, -h2 * 0.16);
+        ctx.lineTo(w2 * 0.42, -h2 * 0.08);
+        ctx.lineTo(w2 * 0.42, h2 * 0.08);
+        ctx.lineTo(w2 * 0.38, h2 * 0.16);
+        ctx.lineTo(w2 * 0.05, h2 * 0.2);
+        ctx.bezierCurveTo(-w2 * 0.15, h2 * 0.2, -w2 * 0.3, h2 * 0.04, -w2 * 0.42, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#2A2A38";
+        ctx.lineWidth = Math.max(0.6, h2 * 0.04);
+        ctx.stroke();
+        ctx.fillStyle = "#1A1A28";
+        ctx.strokeStyle = "#404050";
+        ctx.lineWidth = Math.max(0.4, h2 * 0.03);
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.05, -h2 * 0.19, w2 * 0.22, h2 * 0.06, h2 * 0.02);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.05, h2 * 0.13, w2 * 0.22, h2 * 0.06, h2 * 0.02);
+        ctx.fill();
+        ctx.stroke();
+        const nacGrad = ctx.createLinearGradient(0, -h2 * 0.15, 0, h2 * 0.15);
+        nacGrad.addColorStop(0, "#B0B0C0");
+        nacGrad.addColorStop(0.5, "#707080");
+        nacGrad.addColorStop(1, "#B0B0C0");
+        ctx.fillStyle = nacGrad;
+        ctx.strokeStyle = "#303040";
+        ctx.lineWidth = Math.max(0.4, h2 * 0.03);
+        ctx.beginPath();
+        ctx.roundRect(w2 * 0.18, -h2 * 0.22, w2 * 0.22, h2 * 0.1, h2 * 0.04);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(w2 * 0.18, h2 * 0.12, w2 * 0.22, h2 * 0.1, h2 * 0.04);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#808090";
+        ctx.strokeStyle = "#303038";
+        ctx.lineWidth = Math.max(0.5, h2 * 0.04);
+        ctx.save();
+        ctx.translate(w2 * 0.3, -h2 * 0.16);
+        ctx.rotate(-0.22);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-w2 * 0.08, -h2 * 0.46);
+        ctx.lineTo(w2 * 0.14, -h2 * 0.02);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+        ctx.save();
+        ctx.translate(w2 * 0.3, h2 * 0.16);
+        ctx.rotate(0.22);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-w2 * 0.08, h2 * 0.46);
+        ctx.lineTo(w2 * 0.14, h2 * 0.02);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+        const canopyGrad = ctx.createRadialGradient(
+          -w2 * 0.2,
+          -h2 * 0.1,
+          0,
+          -w2 * 0.18,
+          0,
+          h2 * 0.14
+        );
+        canopyGrad.addColorStop(0, "rgba(160,220,255,0.75)");
+        canopyGrad.addColorStop(0.4, "rgba(30,80,140,0.7)");
+        canopyGrad.addColorStop(1, "rgba(10,30,80,0.85)");
+        ctx.fillStyle = canopyGrad;
+        ctx.strokeStyle = "#1A2A3A";
+        ctx.lineWidth = Math.max(0.5, h2 * 0.04);
+        ctx.beginPath();
+        ctx.ellipse(-w2 * 0.18, 0, w2 * 0.1, h2 * 0.13, -0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "rgba(220,240,255,0.55)";
+        ctx.beginPath();
+        ctx.ellipse(
+          -w2 * 0.2,
+          -h2 * 0.05,
+          w2 * 0.045,
+          h2 * 0.045,
+          -0.4,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+        ctx.fillStyle = "#D0D0D8";
+        ctx.strokeStyle = "#606068";
+        ctx.lineWidth = Math.max(0.4, h2 * 0.03);
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.08, -h2 * 0.62, w2 * 0.18, h2 * 0.07, h2 * 0.025);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.08, -h2 * 0.62, w2 * 0.04, h2 * 0.07, h2 * 0.025);
+        ctx.fill();
+        ctx.fillStyle = "#D0D0D8";
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.08, h2 * 0.55, w2 * 0.18, h2 * 0.07, h2 * 0.025);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.08, h2 * 0.55, w2 * 0.04, h2 * 0.07, h2 * 0.025);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(60,60,80,0.35)";
+        ctx.lineWidth = Math.max(0.4, h2 * 0.025);
+        ctx.setLineDash([w2 * 0.04, w2 * 0.03]);
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.35, -h2 * 0.04);
+        ctx.lineTo(w2 * 0.35, -h2 * 0.04);
+        ctx.moveTo(-w2 * 0.35, h2 * 0.04);
+        ctx.lineTo(w2 * 0.35, h2 * 0.04);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        const fuseGloss = ctx.createLinearGradient(
+          -w2 * 0.38,
+          -h2 * 0.2,
+          w2 * 0.38,
+          -h2 * 0.2
+        );
+        fuseGloss.addColorStop(0, "rgba(255,255,255,0)");
+        fuseGloss.addColorStop(0.3, "rgba(255,255,255,0.35)");
+        fuseGloss.addColorStop(0.7, "rgba(255,255,255,0.25)");
+        fuseGloss.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = fuseGloss;
+        ctx.beginPath();
+        ctx.ellipse(0, -h2 * 0.12, w2 * 0.38, h2 * 0.05, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    []
+  );
   const animateChickens = reactExports.useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas == null ? void 0 : canvas.getContext("2d");
@@ -59037,7 +60835,7 @@ const StartScreen = ({
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const activeType = activeEntityTypeRef.current;
-    const drawFn = activeType === "pumpfun" ? drawPumpFunPill : activeType === "bitcoin" ? drawBitcoinCoin : activeType === "fish" ? drawOceanFish : activeType === "virus" ? drawCoronaVirus : drawChicken;
+    const drawFn = activeType === "pumpfun" ? drawPumpFunPill : activeType === "bitcoin" ? drawBitcoinCoin : activeType === "fish" ? drawOceanFish : activeType === "virus" ? drawCoronaVirus : activeType === "warcraft" ? drawHormuzWarcraft : drawChicken;
     for (let i = chickensRef.current.length - 1; i >= 0; i--) {
       const ch = chickensRef.current[i];
       ch.x += ch.speed;
@@ -59067,13 +60865,14 @@ const StartScreen = ({
     drawPumpFunPill,
     drawBitcoinCoin,
     drawOceanFish,
-    drawCoronaVirus
+    drawCoronaVirus,
+    drawHormuzWarcraft
   ]);
   const initialWorldRef = reactExports.useRef(selectedWorld);
   reactExports.useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const initType = initialWorldRef.current === "pumpfun" ? "pumpfun" : initialWorldRef.current === "bitcoin" ? "bitcoin" : initialWorldRef.current === "ocean" ? "fish" : initialWorldRef.current === "corona" ? "virus" : "chicken";
+    const initType = initialWorldRef.current === "pumpfun" ? "pumpfun" : initialWorldRef.current === "bitcoin" ? "bitcoin" : initialWorldRef.current === "ocean" ? "fish" : initialWorldRef.current === "corona" ? "virus" : initialWorldRef.current === "hormuz" ? "warcraft" : "chicken";
     activeEntityTypeRef.current = initType;
     activeIsPumpFunRef.current = initType === "pumpfun";
     entityAlphaRef.current = 1;
@@ -59181,6 +60980,42 @@ const StartScreen = ({
                   children: [
                     btcPriceData.change24h >= 0 ? "+" : "",
                     btcPriceData.change24h.toFixed(2),
+                    "%"
+                  ]
+                }
+              )
+            ] })
+          ] }),
+          isHormuzSelected && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/60 backdrop-blur-sm border border-red-900/50", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                style: {
+                  fontFamily: "'Courier New', Courier, monospace",
+                  color: "#b03010",
+                  opacity: 0.85
+                },
+                className: "text-xs tracking-widest leading-none",
+                children: "BRENT / USD"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  style: { fontFamily: "'Courier New', Courier, monospace" },
+                  className: "text-white font-bold text-base tracking-wide leading-none",
+                  children: (brentPriceData == null ? void 0 : brentPriceData.price) != null ? `$${brentPriceData.price.toFixed(2)}` : "--"
+                }
+              ),
+              (brentPriceData == null ? void 0 : brentPriceData.change24h) != null && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "span",
+                {
+                  style: { fontFamily: "'Courier New', Courier, monospace" },
+                  className: `text-xs font-semibold tracking-wide leading-none ${brentPriceData.change24h >= 0 ? "text-green-400" : "text-red-400"}`,
+                  children: [
+                    brentPriceData.change24h >= 0 ? "+" : "",
+                    brentPriceData.change24h.toFixed(2),
                     "%"
                   ]
                 }
@@ -59427,7 +61262,8 @@ const VALID_WORLDS = [
   "ocean",
   "minecraft",
   "pumpfun",
-  "corona"
+  "corona",
+  "hormuz"
 ];
 const DEFAULT_PLAYER_DATA = {
   level: 1,

@@ -767,3 +767,87 @@ export function useBitcoinPrice() {
     placeholderData: (prev) => prev ?? null,
   });
 }
+
+// ─── BRENT crude oil live price (Binance Futures BZUSDT, Yahoo Finance fallback) ─
+
+/** Oil price data — includes 24h change. */
+export interface BrentOilPriceData {
+  price: number | null;
+  change24h: number | null;
+}
+
+async function fetchBrentFromBinanceFutures(): Promise<BrentOilPriceData> {
+  const res = await fetch(
+    "https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BZUSDT",
+    { signal: AbortSignal.timeout(8_000) },
+  );
+  if (!res.ok) throw new Error(`Binance Futures ${res.status}`);
+  const data = (await res.json()) as {
+    lastPrice: string;
+    priceChangePercent: string;
+  };
+  const price = Number.parseFloat(data.lastPrice);
+  const change24h = Number.parseFloat(data.priceChangePercent);
+  if (!Number.isFinite(price) || price <= 0)
+    throw new Error("Binance Futures: invalid price");
+  return { price, change24h };
+}
+
+interface YahooFinanceChartMeta {
+  regularMarketPrice?: number;
+  chartPreviousClose?: number;
+}
+
+interface YahooFinanceChartResult {
+  meta?: YahooFinanceChartMeta;
+}
+
+interface YahooFinanceChartResponse {
+  chart?: {
+    result?: YahooFinanceChartResult[] | null;
+    error?: unknown;
+  };
+}
+
+async function fetchBrentFromYahoo(
+  server: "query1" | "query2",
+): Promise<BrentOilPriceData> {
+  const url = `https://${server}.finance.yahoo.com/v8/finance/chart/BZ%3DF?interval=1d&range=2d`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
+  if (!res.ok) throw new Error(`Yahoo Finance ${res.status}`);
+  const json = (await res.json()) as YahooFinanceChartResponse;
+  const meta = json?.chart?.result?.[0]?.meta;
+  if (!meta) throw new Error("Yahoo Finance: no meta data");
+  const price = meta.regularMarketPrice ?? null;
+  const prevClose = meta.chartPreviousClose ?? null;
+  const change24h =
+    price !== null && prevClose !== null && prevClose !== 0
+      ? ((price - prevClose) / prevClose) * 100
+      : null;
+  if (price === null) throw new Error("Yahoo Finance: no price");
+  return { price, change24h };
+}
+
+export function useBrentOilPrice() {
+  return useQuery<BrentOilPriceData>({
+    queryKey: ["brentOilPrice"],
+    queryFn: async () => {
+      try {
+        return await fetchBrentFromBinanceFutures();
+      } catch {
+        try {
+          return await fetchBrentFromYahoo("query1");
+        } catch {
+          try {
+            return await fetchBrentFromYahoo("query2");
+          } catch {
+            return { price: null, change24h: null };
+          }
+        }
+      }
+    },
+    staleTime: 5_000,
+    refetchInterval: 10_000,
+    placeholderData: (prev) => prev ?? { price: null, change24h: null },
+  });
+}

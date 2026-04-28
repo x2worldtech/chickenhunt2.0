@@ -2,7 +2,11 @@ import { useInternetIdentity } from "@caffeineai/core-infrastructure";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BackgroundWorld, GameStatisticsLocal, PlayerData } from "../App";
-import { useBitcoinPrice, usePumpFunPrice } from "../hooks/useQueries";
+import {
+  useBitcoinPrice,
+  useBrentOilPrice,
+  usePumpFunPrice,
+} from "../hooks/useQueries";
 import AchievementsView from "./AchievementsView";
 import BackgroundRenderer from "./BackgroundRenderer";
 import BottomMenu from "./BottomMenu";
@@ -79,6 +83,7 @@ const WORLDS: { id: BackgroundWorld; name: string }[] = [
   { id: "minecraft", name: "Minecraft" },
   { id: "pumpfun", name: "pump.fun" },
   { id: "corona", name: "Corona" },
+  { id: "hormuz", name: "Hormuz" },
 ];
 
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
@@ -103,6 +108,7 @@ const START_BUTTON_CLASSES: Record<BackgroundWorld, string> = {
   minecraft: "start-game-button-minecraft",
   pumpfun: "start-game-button-pumpfun",
   corona: "start-game-button-corona",
+  hormuz: "start-game-button-hormuz",
 };
 
 const StartScreen: React.FC<StartScreenProps> = ({
@@ -117,8 +123,10 @@ const StartScreen: React.FC<StartScreenProps> = ({
   const [overlayView, setOverlayView] = useState<OverlayView | null>(null);
   const isPumpFunSelected = selectedWorld === "pumpfun";
   const isBitcoinSelected = selectedWorld === "bitcoin";
+  const isHormuzSelected = selectedWorld === "hormuz";
   const { data: pumpPriceData } = usePumpFunPrice();
   const { data: btcPriceData } = useBitcoinPrice();
+  const { data: brentPriceData } = useBrentOilPrice();
   const [worldIndex, setWorldIndex] = useState(() => {
     const idx = WORLDS.findIndex((w) => w.id === selectedWorld);
     return idx >= 0 ? idx : 0;
@@ -132,18 +140,18 @@ const StartScreen: React.FC<StartScreenProps> = ({
   const touchStartXRef = useRef(0);
   const touchCurXRef = useRef(0);
 
-  // Transition state for smooth chicken ↔ pill/coin/fish/virus swap
+  // Transition state for smooth chicken ↔ pill/coin/fish/virus/warcraft swap
   // entityAlpha: current draw alpha (0..1)
   // transitionPhase: 'idle' | 'fade-out' | 'fade-in'
   // pendingEntityType: the entity type we're transitioning TO
-  // "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus"
+  // "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft"
   const entityAlphaRef = useRef<number>(1);
   const transitionPhaseRef = useRef<"idle" | "fade-out" | "fade-in">("idle");
   const pendingEntityTypeRef = useRef<
-    "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus"
+    "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft"
   >("chicken");
   const activeEntityTypeRef = useRef<
-    "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus"
+    "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft"
   >("chicken");
 
   // Keep backward-compat booleans used by pill drawing (entityAlphaRef is shared)
@@ -158,7 +166,13 @@ const StartScreen: React.FC<StartScreenProps> = ({
 
   // Trigger smooth transition when selectedWorld crosses entity-type boundaries
   useEffect(() => {
-    const nextType: "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" =
+    const nextType:
+      | "chicken"
+      | "pumpfun"
+      | "bitcoin"
+      | "fish"
+      | "virus"
+      | "warcraft" =
       selectedWorld === "pumpfun"
         ? "pumpfun"
         : selectedWorld === "bitcoin"
@@ -167,7 +181,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
             ? "fish"
             : selectedWorld === "corona"
               ? "virus"
-              : "chicken";
+              : selectedWorld === "hormuz"
+                ? "warcraft"
+                : "chicken";
     if (nextType === activeEntityTypeRef.current) return; // no change
     pendingEntityTypeRef.current = nextType;
     pendingIsPumpFunRef.current = nextType === "pumpfun";
@@ -1179,6 +1195,520 @@ const StartScreen: React.FC<StartScreenProps> = ({
     [],
   );
 
+  // Draw Hormuz warcraft — premium rockets and fighter jets, alternating by entity id
+  const drawHormuzWarcraft = useCallback(
+    (ctx: CanvasRenderingContext2D, c: StartChicken) => {
+      const { x, y, size, wingPhase, direction, id } = c;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Dimensions by size bucket: small/medium/large
+      let w: number;
+      let h: number;
+      if (size <= 25) {
+        w = 42;
+        h = 13;
+      } else if (size <= 40) {
+        w = 70;
+        h = 22;
+      } else {
+        w = 102;
+        h = 32;
+      }
+
+      const alpha = entityAlphaRef.current;
+      const isRocket = Math.floor(id) % 2 === 0;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy);
+      // Mirror so craft faces its direction of travel
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+
+      if (isRocket) {
+        // ── Premium Military Rocket / Missile ──
+        // Bright exhaust flame behind tail: white core → orange → fade
+        const flameLen = w * 0.45;
+        const flameCoreGrad = ctx.createLinearGradient(
+          w * 0.36,
+          0,
+          w * 0.36 + flameLen,
+          0,
+        );
+        flameCoreGrad.addColorStop(0, "rgba(255,255,255,0.95)");
+        flameCoreGrad.addColorStop(0.15, "rgba(255,220,80,0.9)");
+        flameCoreGrad.addColorStop(0.45, "rgba(255,100,0,0.65)");
+        flameCoreGrad.addColorStop(1, "rgba(255,60,0,0)");
+        // Outer flame halo
+        const flameHaloGrad = ctx.createLinearGradient(
+          w * 0.36,
+          0,
+          w * 0.36 + flameLen * 1.1,
+          0,
+        );
+        flameHaloGrad.addColorStop(0, "rgba(255,160,40,0.5)");
+        flameHaloGrad.addColorStop(0.5, "rgba(255,80,0,0.25)");
+        flameHaloGrad.addColorStop(1, "rgba(255,40,0,0)");
+        // Draw halo first
+        ctx.fillStyle = flameHaloGrad;
+        ctx.beginPath();
+        ctx.moveTo(w * 0.36, -h * 0.32);
+        ctx.lineTo(w * 0.36 + flameLen * 1.1, -h * 0.08);
+        ctx.lineTo(w * 0.36 + flameLen * 1.1, h * 0.08);
+        ctx.lineTo(w * 0.36, h * 0.32);
+        ctx.closePath();
+        ctx.fill();
+        // Core flame
+        ctx.fillStyle = flameCoreGrad;
+        ctx.beginPath();
+        ctx.moveTo(w * 0.36, -h * 0.2);
+        ctx.lineTo(w * 0.36 + flameLen, -h * 0.05);
+        ctx.lineTo(w * 0.36 + flameLen, h * 0.05);
+        ctx.lineTo(w * 0.36, h * 0.2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Rocket cylindrical body — silver-white metallic gradient
+        const bodyMetalGrad = ctx.createLinearGradient(0, -h * 0.5, 0, h * 0.5);
+        bodyMetalGrad.addColorStop(0, "#F0F0F8");
+        bodyMetalGrad.addColorStop(0.18, "#D8D8E8");
+        bodyMetalGrad.addColorStop(0.5, "#B0B0C8");
+        bodyMetalGrad.addColorStop(0.82, "#D0D0E0");
+        bodyMetalGrad.addColorStop(1, "#E8E8F0");
+        ctx.fillStyle = bodyMetalGrad;
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.38, -h * 0.22, w * 0.74, h * 0.44, h * 0.08);
+        ctx.fill();
+        ctx.strokeStyle = "#50506A";
+        ctx.lineWidth = Math.max(0.8, h * 0.05);
+        ctx.stroke();
+
+        // Pointed ogive nose cone — silver-white to slightly darker tip
+        const noseGrad = ctx.createLinearGradient(
+          -w * 0.52,
+          -h * 0.22,
+          -w * 0.52,
+          h * 0.22,
+        );
+        noseGrad.addColorStop(0, "#E8E8F0");
+        noseGrad.addColorStop(0.5, "#C0C0D0");
+        noseGrad.addColorStop(1, "#E8E8F0");
+        ctx.fillStyle = noseGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.38, -h * 0.22);
+        ctx.bezierCurveTo(
+          -w * 0.44,
+          -h * 0.1,
+          -w * 0.53,
+          -h * 0.04,
+          -w * 0.54,
+          0,
+        );
+        ctx.bezierCurveTo(
+          -w * 0.53,
+          h * 0.04,
+          -w * 0.44,
+          h * 0.1,
+          -w * 0.38,
+          h * 0.22,
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#50506A";
+        ctx.lineWidth = Math.max(0.8, h * 0.05);
+        ctx.stroke();
+
+        // Red warning band #1 — near nose
+        ctx.fillStyle = "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.26, -h * 0.22, w * 0.09, h * 0.44, h * 0.04);
+        ctx.fill();
+
+        // Red warning band #2 — near tail
+        ctx.fillStyle = "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(w * 0.08, -h * 0.22, w * 0.09, h * 0.44, h * 0.04);
+        ctx.fill();
+
+        // Subtle center seam line
+        ctx.strokeStyle = "rgba(80,80,100,0.4)";
+        ctx.lineWidth = Math.max(0.5, h * 0.03);
+        ctx.setLineDash([h * 0.12, h * 0.08]);
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.3, 0);
+        ctx.lineTo(w * 0.35, 0);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 4 cruciform stabilizer fins at tail — top/bottom/front/back
+        ctx.fillStyle = "#404050";
+        ctx.strokeStyle = "#28282E";
+        ctx.lineWidth = Math.max(0.5, h * 0.04);
+        // Top fin
+        ctx.beginPath();
+        ctx.moveTo(w * 0.22, -h * 0.22);
+        ctx.lineTo(w * 0.18, -h * 0.55);
+        ctx.lineTo(w * 0.36, -h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        // Bottom fin
+        ctx.beginPath();
+        ctx.moveTo(w * 0.22, h * 0.22);
+        ctx.lineTo(w * 0.18, h * 0.55);
+        ctx.lineTo(w * 0.36, h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        // Small forward upper fin
+        ctx.beginPath();
+        ctx.moveTo(w * 0.14, -h * 0.22);
+        ctx.lineTo(w * 0.12, -h * 0.38);
+        ctx.lineTo(w * 0.24, -h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        // Small forward lower fin
+        ctx.beginPath();
+        ctx.moveTo(w * 0.14, h * 0.22);
+        ctx.lineTo(w * 0.12, h * 0.38);
+        ctx.lineTo(w * 0.24, h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Gloss highlight along top of body
+        const glossGrad = ctx.createLinearGradient(
+          -w * 0.36,
+          -h * 0.22,
+          w * 0.34,
+          -h * 0.22,
+        );
+        glossGrad.addColorStop(0, "rgba(255,255,255,0)");
+        glossGrad.addColorStop(0.2, "rgba(255,255,255,0.45)");
+        glossGrad.addColorStop(0.8, "rgba(255,255,255,0.35)");
+        glossGrad.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = glossGrad;
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.36, -h * 0.22, w * 0.7, h * 0.1, h * 0.04);
+        ctx.fill();
+      } else {
+        // ── Premium Fighter Jet (F-22 Raptor silhouette) ──
+        const bob = Math.sin(wingPhase) * 1.5;
+        ctx.translate(0, bob);
+
+        // Twin engine afterburner cone: white → yellow → orange → transparent
+        const afterW = w * 0.22;
+        const afterGrad1 = ctx.createRadialGradient(
+          w * 0.4,
+          -h * 0.1,
+          0,
+          w * 0.4,
+          -h * 0.1,
+          afterW * 0.7,
+        );
+        afterGrad1.addColorStop(0, "rgba(255,255,220,0.98)");
+        afterGrad1.addColorStop(0.25, "rgba(255,200,50,0.85)");
+        afterGrad1.addColorStop(0.6, "rgba(255,90,0,0.5)");
+        afterGrad1.addColorStop(1, "rgba(255,40,0,0)");
+        const afterGrad2 = ctx.createRadialGradient(
+          w * 0.4,
+          h * 0.1,
+          0,
+          w * 0.4,
+          h * 0.1,
+          afterW * 0.7,
+        );
+        afterGrad2.addColorStop(0, "rgba(255,255,220,0.98)");
+        afterGrad2.addColorStop(0.25, "rgba(255,200,50,0.85)");
+        afterGrad2.addColorStop(0.6, "rgba(255,90,0,0.5)");
+        afterGrad2.addColorStop(1, "rgba(255,40,0,0)");
+        // Outer afterburner glow
+        const afterOuterGrad = ctx.createLinearGradient(
+          w * 0.34,
+          0,
+          w * 0.68,
+          0,
+        );
+        afterOuterGrad.addColorStop(0, "rgba(255,140,30,0.4)");
+        afterOuterGrad.addColorStop(1, "rgba(255,60,0,0)");
+        ctx.fillStyle = afterOuterGrad;
+        ctx.beginPath();
+        ctx.ellipse(w * 0.5, 0, w * 0.22, h * 0.3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = afterGrad1;
+        ctx.beginPath();
+        ctx.ellipse(
+          w * 0.4,
+          -h * 0.1,
+          afterW * 0.6,
+          h * 0.16,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+        ctx.fillStyle = afterGrad2;
+        ctx.beginPath();
+        ctx.ellipse(
+          w * 0.4,
+          h * 0.1,
+          afterW * 0.6,
+          h * 0.16,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+
+        // Swept delta wing (F-22 planform) — main lifting surface
+        const wingTopGrad = ctx.createLinearGradient(0, -h * 0.7, 0, 0);
+        wingTopGrad.addColorStop(0, "#C8C8D0"); // bright highlight at tip
+        wingTopGrad.addColorStop(0.5, "#909098");
+        wingTopGrad.addColorStop(1, "#606070");
+        const wingBotGrad = ctx.createLinearGradient(0, 0, 0, h * 0.7);
+        wingBotGrad.addColorStop(0, "#606070");
+        wingBotGrad.addColorStop(0.5, "#909098");
+        wingBotGrad.addColorStop(1, "#C8C8D0");
+
+        // Upper delta wing
+        ctx.fillStyle = wingTopGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.42, 0); // nose tip
+        ctx.lineTo(-w * 0.05, -h * 0.66); // wing leading edge tip
+        ctx.lineTo(w * 0.28, -h * 0.36); // mid trailing
+        ctx.lineTo(w * 0.4, -h * 0.22); // engine nacelle root top
+        ctx.lineTo(w * 0.4, -h * 0.04); // engine nacelle inner top
+        ctx.lineTo(-w * 0.38, -h * 0.06); // fuselage underside
+        ctx.closePath();
+        ctx.fill();
+
+        // Lower delta wing (mirror)
+        ctx.fillStyle = wingBotGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.42, 0);
+        ctx.lineTo(-w * 0.05, h * 0.66);
+        ctx.lineTo(w * 0.28, h * 0.36);
+        ctx.lineTo(w * 0.4, h * 0.22);
+        ctx.lineTo(w * 0.4, h * 0.04);
+        ctx.lineTo(-w * 0.38, h * 0.06);
+        ctx.closePath();
+        ctx.fill();
+
+        // Wing outlines
+        ctx.strokeStyle = "#3A3A48";
+        ctx.lineWidth = Math.max(0.6, h * 0.04);
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.42, 0);
+        ctx.lineTo(-w * 0.05, -h * 0.66);
+        ctx.lineTo(w * 0.28, -h * 0.36);
+        ctx.lineTo(w * 0.4, -h * 0.22);
+        ctx.moveTo(-w * 0.42, 0);
+        ctx.lineTo(-w * 0.05, h * 0.66);
+        ctx.lineTo(w * 0.28, h * 0.36);
+        ctx.lineTo(w * 0.4, h * 0.22);
+        ctx.stroke();
+
+        // Small canards (forward strakes near nose)
+        ctx.fillStyle = "#8090A0";
+        ctx.strokeStyle = "#303038";
+        ctx.lineWidth = Math.max(0.4, h * 0.03);
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.3, -h * 0.08);
+        ctx.lineTo(-w * 0.12, -h * 0.38);
+        ctx.lineTo(-w * 0.06, -h * 0.08);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.3, h * 0.08);
+        ctx.lineTo(-w * 0.12, h * 0.38);
+        ctx.lineTo(-w * 0.06, h * 0.08);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Main fuselage — sleek elongated body
+        const fuseTopGrad = ctx.createLinearGradient(0, -h * 0.22, 0, h * 0.22);
+        fuseTopGrad.addColorStop(0, "#D0D0D8");
+        fuseTopGrad.addColorStop(0.3, "#A0A0B0");
+        fuseTopGrad.addColorStop(0.7, "#707080");
+        fuseTopGrad.addColorStop(1, "#A8A8B8");
+        ctx.fillStyle = fuseTopGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.42, 0);
+        ctx.bezierCurveTo(
+          -w * 0.3,
+          -h * 0.04,
+          -w * 0.15,
+          -h * 0.2,
+          w * 0.05,
+          -h * 0.2,
+        );
+        ctx.lineTo(w * 0.38, -h * 0.16);
+        ctx.lineTo(w * 0.42, -h * 0.08);
+        ctx.lineTo(w * 0.42, h * 0.08);
+        ctx.lineTo(w * 0.38, h * 0.16);
+        ctx.lineTo(w * 0.05, h * 0.2);
+        ctx.bezierCurveTo(-w * 0.15, h * 0.2, -w * 0.3, h * 0.04, -w * 0.42, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#2A2A38";
+        ctx.lineWidth = Math.max(0.6, h * 0.04);
+        ctx.stroke();
+
+        // Engine intakes — rectangular scoops on underside
+        ctx.fillStyle = "#1A1A28";
+        ctx.strokeStyle = "#404050";
+        ctx.lineWidth = Math.max(0.4, h * 0.03);
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.05, -h * 0.19, w * 0.22, h * 0.06, h * 0.02);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.05, h * 0.13, w * 0.22, h * 0.06, h * 0.02);
+        ctx.fill();
+        ctx.stroke();
+
+        // Twin engine nacelles (pods behind fuselage)
+        const nacGrad = ctx.createLinearGradient(0, -h * 0.15, 0, h * 0.15);
+        nacGrad.addColorStop(0, "#B0B0C0");
+        nacGrad.addColorStop(0.5, "#707080");
+        nacGrad.addColorStop(1, "#B0B0C0");
+        ctx.fillStyle = nacGrad;
+        ctx.strokeStyle = "#303040";
+        ctx.lineWidth = Math.max(0.4, h * 0.03);
+        ctx.beginPath();
+        ctx.roundRect(w * 0.18, -h * 0.22, w * 0.22, h * 0.1, h * 0.04);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(w * 0.18, h * 0.12, w * 0.22, h * 0.1, h * 0.04);
+        ctx.fill();
+        ctx.stroke();
+
+        // Twin canted vertical tail fins (F-22 style angled outward)
+        ctx.fillStyle = "#808090";
+        ctx.strokeStyle = "#303038";
+        ctx.lineWidth = Math.max(0.5, h * 0.04);
+        // Top-left tail fin (canted ~15° outward)
+        ctx.save();
+        ctx.translate(w * 0.3, -h * 0.16);
+        ctx.rotate(-0.22);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-w * 0.08, -h * 0.46);
+        ctx.lineTo(w * 0.14, -h * 0.02);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+        // Bottom-right tail fin (mirrored)
+        ctx.save();
+        ctx.translate(w * 0.3, h * 0.16);
+        ctx.rotate(0.22);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-w * 0.08, h * 0.46);
+        ctx.lineTo(w * 0.14, h * 0.02);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Cockpit canopy — dark tinted bubble
+        const canopyGrad = ctx.createRadialGradient(
+          -w * 0.2,
+          -h * 0.1,
+          0,
+          -w * 0.18,
+          0,
+          h * 0.14,
+        );
+        canopyGrad.addColorStop(0, "rgba(160,220,255,0.75)");
+        canopyGrad.addColorStop(0.4, "rgba(30,80,140,0.7)");
+        canopyGrad.addColorStop(1, "rgba(10,30,80,0.85)");
+        ctx.fillStyle = canopyGrad;
+        ctx.strokeStyle = "#1A2A3A";
+        ctx.lineWidth = Math.max(0.5, h * 0.04);
+        ctx.beginPath();
+        ctx.ellipse(-w * 0.18, 0, w * 0.1, h * 0.13, -0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        // Canopy glint
+        ctx.fillStyle = "rgba(220,240,255,0.55)";
+        ctx.beginPath();
+        ctx.ellipse(
+          -w * 0.2,
+          -h * 0.05,
+          w * 0.045,
+          h * 0.045,
+          -0.4,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+
+        // Missiles under wings (small cylindrical AIM-120s)
+        ctx.fillStyle = "#D0D0D8";
+        ctx.strokeStyle = "#606068";
+        ctx.lineWidth = Math.max(0.4, h * 0.03);
+        // Left missile
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.08, -h * 0.62, w * 0.18, h * 0.07, h * 0.025);
+        ctx.fill();
+        ctx.stroke();
+        // Red warhead band
+        ctx.fillStyle = "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.08, -h * 0.62, w * 0.04, h * 0.07, h * 0.025);
+        ctx.fill();
+        // Right missile
+        ctx.fillStyle = "#D0D0D8";
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.08, h * 0.55, w * 0.18, h * 0.07, h * 0.025);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.08, h * 0.55, w * 0.04, h * 0.07, h * 0.025);
+        ctx.fill();
+
+        // Fuselage surface detail lines (panel lines)
+        ctx.strokeStyle = "rgba(60,60,80,0.35)";
+        ctx.lineWidth = Math.max(0.4, h * 0.025);
+        ctx.setLineDash([w * 0.04, w * 0.03]);
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.35, -h * 0.04);
+        ctx.lineTo(w * 0.35, -h * 0.04);
+        ctx.moveTo(-w * 0.35, h * 0.04);
+        ctx.lineTo(w * 0.35, h * 0.04);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Fuselage top highlight
+        const fuseGloss = ctx.createLinearGradient(
+          -w * 0.38,
+          -h * 0.2,
+          w * 0.38,
+          -h * 0.2,
+        );
+        fuseGloss.addColorStop(0, "rgba(255,255,255,0)");
+        fuseGloss.addColorStop(0.3, "rgba(255,255,255,0.35)");
+        fuseGloss.addColorStop(0.7, "rgba(255,255,255,0.25)");
+        fuseGloss.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = fuseGloss;
+        ctx.beginPath();
+        ctx.ellipse(0, -h * 0.12, w * 0.38, h * 0.05, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    [],
+  );
+
   const animateChickens = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -1215,7 +1745,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
             ? drawOceanFish
             : activeType === "virus"
               ? drawCoronaVirus
-              : drawChicken;
+              : activeType === "warcraft"
+                ? drawHormuzWarcraft
+                : drawChicken;
 
     for (let i = chickensRef.current.length - 1; i >= 0; i--) {
       const ch = chickensRef.current[i];
@@ -1251,6 +1783,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
     drawBitcoinCoin,
     drawOceanFish,
     drawCoronaVirus,
+    drawHormuzWarcraft,
   ]);
 
   // Capture initial world for mount-time entity setup (no dependency on selectedWorld changes)
@@ -1260,7 +1793,13 @@ const StartScreen: React.FC<StartScreenProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
     // Set initial entity type based on starting world (no transition needed on mount)
-    const initType: "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" =
+    const initType:
+      | "chicken"
+      | "pumpfun"
+      | "bitcoin"
+      | "fish"
+      | "virus"
+      | "warcraft" =
       initialWorldRef.current === "pumpfun"
         ? "pumpfun"
         : initialWorldRef.current === "bitcoin"
@@ -1269,7 +1808,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
             ? "fish"
             : initialWorldRef.current === "corona"
               ? "virus"
-              : "chicken";
+              : initialWorldRef.current === "hormuz"
+                ? "warcraft"
+                : "chicken";
     activeEntityTypeRef.current = initType;
     activeIsPumpFunRef.current = initType === "pumpfun";
     entityAlphaRef.current = 1;
@@ -1384,6 +1925,40 @@ const StartScreen: React.FC<StartScreenProps> = ({
                 >
                   {btcPriceData.change24h >= 0 ? "+" : ""}
                   {btcPriceData.change24h.toFixed(2)}%
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+        {/* BRENT/USD live oil price — only shown when Hormuz world is selected */}
+        {isHormuzSelected && (
+          <div className="mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/60 backdrop-blur-sm border border-red-900/50">
+            <span
+              style={{
+                fontFamily: "'Courier New', Courier, monospace",
+                color: "#b03010",
+                opacity: 0.85,
+              }}
+              className="text-xs tracking-widest leading-none"
+            >
+              BRENT / USD
+            </span>
+            <div className="flex items-center gap-2">
+              <span
+                style={{ fontFamily: "'Courier New', Courier, monospace" }}
+                className="text-white font-bold text-base tracking-wide leading-none"
+              >
+                {brentPriceData?.price != null
+                  ? `$${brentPriceData.price.toFixed(2)}`
+                  : "--"}
+              </span>
+              {brentPriceData?.change24h != null && (
+                <span
+                  style={{ fontFamily: "'Courier New', Courier, monospace" }}
+                  className={`text-xs font-semibold tracking-wide leading-none ${brentPriceData.change24h >= 0 ? "text-green-400" : "text-red-400"}`}
+                >
+                  {brentPriceData.change24h >= 0 ? "+" : ""}
+                  {brentPriceData.change24h.toFixed(2)}%
                 </span>
               )}
             </div>

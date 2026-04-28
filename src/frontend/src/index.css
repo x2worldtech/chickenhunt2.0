@@ -664,6 +664,25 @@ body {
   border: 2px solid #e05500 !important;
 }
 
+/* Hormuz world — dark military red/gray style */
+.start-game-button-hormuz {
+  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #7f1d1d 100%);
+  color: #fca5a5 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 16px rgba(180, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.4), 0
+    0 0 1px rgba(180, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1.5px solid #b91c1c !important;
+}
+
+.start-game-button-hormuz:hover {
+  background: linear-gradient(135deg, #991b1b 0%, #b91c1c 50%, #991b1b 100%);
+  color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 6px 22px rgba(220, 0, 0, 0.55), 0 3px 8px rgba(0, 0, 0, 0.5), 0
+    0 0 1px rgba(200, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border: 1.5px solid #dc2626 !important;
+}
+
 /* Tips container styling - Default for all worlds except snowy */
 .tips-container-default {
   border: 1px solid rgba(255, 255, 255, 0.2);

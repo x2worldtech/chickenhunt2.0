@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { BackgroundWorld, GameStatisticsLocal } from "../App";
 import {
   useBitcoinPrice,
+  useBrentOilPrice,
   usePumpFunPrice,
   useSaveGameStatistics,
 } from "../hooks/useQueries";
@@ -201,6 +202,13 @@ const GameScreen: React.FC<GameScreenProps> = ({
           price: Number(btcPriceData.price),
           change24h: Number(btcPriceData.change24h),
         }
+      : null;
+
+  // Live BRENT/USD price — only fetches when world is hormuz
+  const { data: brentOilData } = useBrentOilPrice();
+  const brentOilPrice =
+    selectedWorld === "hormuz" && brentOilData
+      ? { price: brentOilData.price, change24h: brentOilData.change24h }
       : null;
   const audioContextRef = useRef<AudioContext | null>(null);
   const backgroundMusicGainRef = useRef<GainNode | null>(null);
@@ -2190,6 +2198,573 @@ const GameScreen: React.FC<GameScreenProps> = ({
     [drawExplosion],
   );
 
+  // ─── Hormuz warcraft drawing (rockets and fighter jets) ──────────────────────
+
+  const drawHormuzWarcraft = useCallback(
+    (ctx: CanvasRenderingContext2D, chicken: Chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x, y, size, wingPhase, direction, type, isGolden, id } = chicken;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Dimensions by distance tier
+      let w: number;
+      let h: number;
+      if (chicken.distance === "far") {
+        w = 42;
+        h = 13;
+      } else if (chicken.distance === "medium") {
+        w = 70;
+        h = 22;
+      } else {
+        w = 102;
+        h = 32;
+      }
+
+      const isRocket = id % 2 === 0;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      // Mirror so craft faces direction of travel
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+
+      // Golden / fast glow
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      } else if (type === "fast") {
+        ctx.shadowColor = "#FF4500";
+        ctx.shadowBlur = 12;
+      } else {
+        ctx.shadowColor = "rgba(255,100,0,0.4)";
+        ctx.shadowBlur = 6;
+      }
+
+      if (isRocket) {
+        // ── Premium Military Rocket / Missile ──
+        const gc = isGolden; // golden color mode
+
+        // Exhaust flame: white core → orange → transparent
+        const flameLen = w * 0.45;
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        const flameCoreGrad = ctx.createLinearGradient(
+          w * 0.36,
+          0,
+          w * 0.36 + flameLen,
+          0,
+        );
+        flameCoreGrad.addColorStop(
+          0,
+          gc ? "rgba(255,255,200,0.95)" : "rgba(255,255,255,0.95)",
+        );
+        flameCoreGrad.addColorStop(
+          0.15,
+          gc ? "rgba(255,200,50,0.9)" : "rgba(255,220,80,0.9)",
+        );
+        flameCoreGrad.addColorStop(0.45, "rgba(255,100,0,0.65)");
+        flameCoreGrad.addColorStop(1, "rgba(255,60,0,0)");
+        const flameHaloGrad = ctx.createLinearGradient(
+          w * 0.36,
+          0,
+          w * 0.36 + flameLen * 1.1,
+          0,
+        );
+        flameHaloGrad.addColorStop(0, "rgba(255,160,40,0.5)");
+        flameHaloGrad.addColorStop(0.5, "rgba(255,80,0,0.25)");
+        flameHaloGrad.addColorStop(1, "rgba(255,40,0,0)");
+        ctx.fillStyle = flameHaloGrad;
+        ctx.beginPath();
+        ctx.moveTo(w * 0.36, -h * 0.32);
+        ctx.lineTo(w * 0.36 + flameLen * 1.1, -h * 0.08);
+        ctx.lineTo(w * 0.36 + flameLen * 1.1, h * 0.08);
+        ctx.lineTo(w * 0.36, h * 0.32);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = flameCoreGrad;
+        ctx.beginPath();
+        ctx.moveTo(w * 0.36, -h * 0.2);
+        ctx.lineTo(w * 0.36 + flameLen, -h * 0.05);
+        ctx.lineTo(w * 0.36 + flameLen, h * 0.05);
+        ctx.lineTo(w * 0.36, h * 0.2);
+        ctx.closePath();
+        ctx.fill();
+
+        if (isGolden) ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+
+        // Cylindrical body — metallic gradient
+        const bodyMetalGrad = ctx.createLinearGradient(0, -h * 0.5, 0, h * 0.5);
+        if (gc) {
+          bodyMetalGrad.addColorStop(0, "#FFF5CC");
+          bodyMetalGrad.addColorStop(0.18, "#FFE57F");
+          bodyMetalGrad.addColorStop(0.5, "#DAA520");
+          bodyMetalGrad.addColorStop(0.82, "#FFE082");
+          bodyMetalGrad.addColorStop(1, "#FFF0B0");
+        } else {
+          bodyMetalGrad.addColorStop(0, "#F0F0F8");
+          bodyMetalGrad.addColorStop(0.18, "#D8D8E8");
+          bodyMetalGrad.addColorStop(0.5, "#B0B0C8");
+          bodyMetalGrad.addColorStop(0.82, "#D0D0E0");
+          bodyMetalGrad.addColorStop(1, "#E8E8F0");
+        }
+        ctx.fillStyle = bodyMetalGrad;
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.38, -h * 0.22, w * 0.74, h * 0.44, h * 0.08);
+        ctx.fill();
+        ctx.strokeStyle = gc ? "#8B6914" : "#50506A";
+        ctx.lineWidth = Math.max(0.8, h * 0.05);
+        ctx.stroke();
+
+        // Ogive nose cone
+        const noseGrad = ctx.createLinearGradient(
+          -w * 0.52,
+          -h * 0.22,
+          -w * 0.52,
+          h * 0.22,
+        );
+        if (gc) {
+          noseGrad.addColorStop(0, "#FFE082");
+          noseGrad.addColorStop(0.5, "#B8860B");
+          noseGrad.addColorStop(1, "#FFE082");
+        } else {
+          noseGrad.addColorStop(0, "#E8E8F0");
+          noseGrad.addColorStop(0.5, "#C0C0D0");
+          noseGrad.addColorStop(1, "#E8E8F0");
+        }
+        ctx.fillStyle = noseGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.38, -h * 0.22);
+        ctx.bezierCurveTo(
+          -w * 0.44,
+          -h * 0.1,
+          -w * 0.53,
+          -h * 0.04,
+          -w * 0.54,
+          0,
+        );
+        ctx.bezierCurveTo(
+          -w * 0.53,
+          h * 0.04,
+          -w * 0.44,
+          h * 0.1,
+          -w * 0.38,
+          h * 0.22,
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = gc ? "#8B6914" : "#50506A";
+        ctx.lineWidth = Math.max(0.8, h * 0.05);
+        ctx.stroke();
+
+        // Warning band #1
+        ctx.fillStyle = gc ? "#FFD700" : "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.26, -h * 0.22, w * 0.09, h * 0.44, h * 0.04);
+        ctx.fill();
+        // Warning band #2
+        ctx.beginPath();
+        ctx.roundRect(w * 0.08, -h * 0.22, w * 0.09, h * 0.44, h * 0.04);
+        ctx.fill();
+
+        // Dashed center seam
+        ctx.strokeStyle = gc ? "rgba(150,120,0,0.4)" : "rgba(80,80,100,0.4)";
+        ctx.lineWidth = Math.max(0.5, h * 0.03);
+        ctx.setLineDash([h * 0.12, h * 0.08]);
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.3, 0);
+        ctx.lineTo(w * 0.35, 0);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 4 cruciform stabilizer fins
+        ctx.fillStyle = gc ? "#B8860B" : "#404050";
+        ctx.strokeStyle = gc ? "#8B6914" : "#28282E";
+        ctx.lineWidth = Math.max(0.5, h * 0.04);
+        ctx.beginPath();
+        ctx.moveTo(w * 0.22, -h * 0.22);
+        ctx.lineTo(w * 0.18, -h * 0.55);
+        ctx.lineTo(w * 0.36, -h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w * 0.22, h * 0.22);
+        ctx.lineTo(w * 0.18, h * 0.55);
+        ctx.lineTo(w * 0.36, h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w * 0.14, -h * 0.22);
+        ctx.lineTo(w * 0.12, -h * 0.38);
+        ctx.lineTo(w * 0.24, -h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w * 0.14, h * 0.22);
+        ctx.lineTo(w * 0.12, h * 0.38);
+        ctx.lineTo(w * 0.24, h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Body gloss
+        const glossGrad = ctx.createLinearGradient(
+          -w * 0.36,
+          -h * 0.22,
+          w * 0.34,
+          -h * 0.22,
+        );
+        glossGrad.addColorStop(0, "rgba(255,255,255,0)");
+        glossGrad.addColorStop(0.2, "rgba(255,255,255,0.45)");
+        glossGrad.addColorStop(0.8, "rgba(255,255,255,0.35)");
+        glossGrad.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = glossGrad;
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.36, -h * 0.22, w * 0.7, h * 0.1, h * 0.04);
+        ctx.fill();
+      } else {
+        // ── Premium Fighter Jet (F-22 Raptor silhouette) ──
+        const bob = Math.sin(wingPhase) * 1.5;
+        ctx.translate(0, bob);
+        const gc = isGolden;
+
+        // Twin engine afterburner cones
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        const afterOuterGrad = ctx.createLinearGradient(
+          w * 0.34,
+          0,
+          w * 0.68,
+          0,
+        );
+        afterOuterGrad.addColorStop(
+          0,
+          gc ? "rgba(255,220,60,0.4)" : "rgba(255,140,30,0.4)",
+        );
+        afterOuterGrad.addColorStop(1, "rgba(255,60,0,0)");
+        ctx.fillStyle = afterOuterGrad;
+        ctx.beginPath();
+        ctx.ellipse(w * 0.5, 0, w * 0.22, h * 0.3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        const afterW = w * 0.22;
+        const makeABGrad = (yOff: number) => {
+          const g = ctx.createRadialGradient(
+            w * 0.4,
+            yOff,
+            0,
+            w * 0.4,
+            yOff,
+            afterW * 0.7,
+          );
+          g.addColorStop(
+            0,
+            gc ? "rgba(255,255,180,0.98)" : "rgba(255,255,220,0.98)",
+          );
+          g.addColorStop(
+            0.25,
+            gc ? "rgba(255,210,60,0.85)" : "rgba(255,200,50,0.85)",
+          );
+          g.addColorStop(0.6, "rgba(255,90,0,0.5)");
+          g.addColorStop(1, "rgba(255,40,0,0)");
+          return g;
+        };
+        ctx.fillStyle = makeABGrad(-h * 0.1);
+        ctx.beginPath();
+        ctx.ellipse(
+          w * 0.4,
+          -h * 0.1,
+          afterW * 0.6,
+          h * 0.16,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+        ctx.fillStyle = makeABGrad(h * 0.1);
+        ctx.beginPath();
+        ctx.ellipse(
+          w * 0.4,
+          h * 0.1,
+          afterW * 0.6,
+          h * 0.16,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+
+        if (isGolden) {
+          ctx.shadowColor = "#FFD700";
+          ctx.shadowBlur = 18;
+        } else if (type === "fast") {
+          ctx.shadowColor = "#FF4500";
+          ctx.shadowBlur = 12;
+        } else {
+          ctx.shadowColor = "rgba(255,100,0,0.4)";
+          ctx.shadowBlur = 6;
+        }
+
+        // Swept delta wings
+        const wingTopGrad = ctx.createLinearGradient(0, -h * 0.7, 0, 0);
+        wingTopGrad.addColorStop(0, gc ? "#FFF0A0" : "#C8C8D0");
+        wingTopGrad.addColorStop(0.5, gc ? "#DAA520" : "#909098");
+        wingTopGrad.addColorStop(1, gc ? "#A07810" : "#606070");
+        const wingBotGrad = ctx.createLinearGradient(0, 0, 0, h * 0.7);
+        wingBotGrad.addColorStop(0, gc ? "#A07810" : "#606070");
+        wingBotGrad.addColorStop(0.5, gc ? "#DAA520" : "#909098");
+        wingBotGrad.addColorStop(1, gc ? "#FFF0A0" : "#C8C8D0");
+
+        ctx.fillStyle = wingTopGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.42, 0);
+        ctx.lineTo(-w * 0.05, -h * 0.66);
+        ctx.lineTo(w * 0.28, -h * 0.36);
+        ctx.lineTo(w * 0.4, -h * 0.22);
+        ctx.lineTo(w * 0.4, -h * 0.04);
+        ctx.lineTo(-w * 0.38, -h * 0.06);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = wingBotGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.42, 0);
+        ctx.lineTo(-w * 0.05, h * 0.66);
+        ctx.lineTo(w * 0.28, h * 0.36);
+        ctx.lineTo(w * 0.4, h * 0.22);
+        ctx.lineTo(w * 0.4, h * 0.04);
+        ctx.lineTo(-w * 0.38, h * 0.06);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = gc ? "#8B6914" : "#3A3A48";
+        ctx.lineWidth = Math.max(0.6, h * 0.04);
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.42, 0);
+        ctx.lineTo(-w * 0.05, -h * 0.66);
+        ctx.lineTo(w * 0.28, -h * 0.36);
+        ctx.lineTo(w * 0.4, -h * 0.22);
+        ctx.moveTo(-w * 0.42, 0);
+        ctx.lineTo(-w * 0.05, h * 0.66);
+        ctx.lineTo(w * 0.28, h * 0.36);
+        ctx.lineTo(w * 0.4, h * 0.22);
+        ctx.stroke();
+
+        // Canards
+        ctx.fillStyle = gc ? "#D4A020" : "#8090A0";
+        ctx.strokeStyle = gc ? "#8B6914" : "#303038";
+        ctx.lineWidth = Math.max(0.4, h * 0.03);
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.3, -h * 0.08);
+        ctx.lineTo(-w * 0.12, -h * 0.38);
+        ctx.lineTo(-w * 0.06, -h * 0.08);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.3, h * 0.08);
+        ctx.lineTo(-w * 0.12, h * 0.38);
+        ctx.lineTo(-w * 0.06, h * 0.08);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Fuselage
+        const fuseTopGrad = ctx.createLinearGradient(0, -h * 0.22, 0, h * 0.22);
+        if (gc) {
+          fuseTopGrad.addColorStop(0, "#FFF5CC");
+          fuseTopGrad.addColorStop(0.3, "#FFE082");
+          fuseTopGrad.addColorStop(0.7, "#B8860B");
+          fuseTopGrad.addColorStop(1, "#FFE082");
+        } else {
+          fuseTopGrad.addColorStop(0, "#D0D0D8");
+          fuseTopGrad.addColorStop(0.3, "#A0A0B0");
+          fuseTopGrad.addColorStop(0.7, "#707080");
+          fuseTopGrad.addColorStop(1, "#A8A8B8");
+        }
+        ctx.fillStyle = fuseTopGrad;
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.42, 0);
+        ctx.bezierCurveTo(
+          -w * 0.3,
+          -h * 0.04,
+          -w * 0.15,
+          -h * 0.2,
+          w * 0.05,
+          -h * 0.2,
+        );
+        ctx.lineTo(w * 0.38, -h * 0.16);
+        ctx.lineTo(w * 0.42, -h * 0.08);
+        ctx.lineTo(w * 0.42, h * 0.08);
+        ctx.lineTo(w * 0.38, h * 0.16);
+        ctx.lineTo(w * 0.05, h * 0.2);
+        ctx.bezierCurveTo(-w * 0.15, h * 0.2, -w * 0.3, h * 0.04, -w * 0.42, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = gc ? "#8B6914" : "#2A2A38";
+        ctx.lineWidth = Math.max(0.6, h * 0.04);
+        ctx.stroke();
+
+        // Engine intakes
+        ctx.fillStyle = "#1A1A28";
+        ctx.strokeStyle = gc ? "#806010" : "#404050";
+        ctx.lineWidth = Math.max(0.4, h * 0.03);
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.05, -h * 0.19, w * 0.22, h * 0.06, h * 0.02);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.05, h * 0.13, w * 0.22, h * 0.06, h * 0.02);
+        ctx.fill();
+        ctx.stroke();
+
+        // Engine nacelles
+        const nacGrad = ctx.createLinearGradient(0, -h * 0.15, 0, h * 0.15);
+        nacGrad.addColorStop(0, gc ? "#FFE082" : "#B0B0C0");
+        nacGrad.addColorStop(0.5, gc ? "#DAA520" : "#707080");
+        nacGrad.addColorStop(1, gc ? "#FFE082" : "#B0B0C0");
+        ctx.fillStyle = nacGrad;
+        ctx.strokeStyle = gc ? "#8B6914" : "#303040";
+        ctx.lineWidth = Math.max(0.4, h * 0.03);
+        ctx.beginPath();
+        ctx.roundRect(w * 0.18, -h * 0.22, w * 0.22, h * 0.1, h * 0.04);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(w * 0.18, h * 0.12, w * 0.22, h * 0.1, h * 0.04);
+        ctx.fill();
+        ctx.stroke();
+
+        // Canted twin vertical tail fins
+        ctx.fillStyle = gc ? "#C8A020" : "#808090";
+        ctx.strokeStyle = gc ? "#8B6914" : "#303038";
+        ctx.lineWidth = Math.max(0.5, h * 0.04);
+        ctx.save();
+        ctx.translate(w * 0.3, -h * 0.16);
+        ctx.rotate(-0.22);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-w * 0.08, -h * 0.46);
+        ctx.lineTo(w * 0.14, -h * 0.02);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+        ctx.save();
+        ctx.translate(w * 0.3, h * 0.16);
+        ctx.rotate(0.22);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-w * 0.08, h * 0.46);
+        ctx.lineTo(w * 0.14, h * 0.02);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Cockpit canopy
+        const canopyGrad = ctx.createRadialGradient(
+          -w * 0.2,
+          -h * 0.1,
+          0,
+          -w * 0.18,
+          0,
+          h * 0.14,
+        );
+        if (gc) {
+          canopyGrad.addColorStop(0, "rgba(255,240,160,0.75)");
+          canopyGrad.addColorStop(0.4, "rgba(180,120,0,0.7)");
+          canopyGrad.addColorStop(1, "rgba(80,50,0,0.85)");
+        } else {
+          canopyGrad.addColorStop(0, "rgba(160,220,255,0.75)");
+          canopyGrad.addColorStop(0.4, "rgba(30,80,140,0.7)");
+          canopyGrad.addColorStop(1, "rgba(10,30,80,0.85)");
+        }
+        ctx.fillStyle = canopyGrad;
+        ctx.strokeStyle = gc ? "#8B6914" : "#1A2A3A";
+        ctx.lineWidth = Math.max(0.5, h * 0.04);
+        ctx.beginPath();
+        ctx.ellipse(-w * 0.18, 0, w * 0.1, h * 0.13, -0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = gc
+          ? "rgba(255,250,200,0.55)"
+          : "rgba(220,240,255,0.55)";
+        ctx.beginPath();
+        ctx.ellipse(
+          -w * 0.2,
+          -h * 0.05,
+          w * 0.045,
+          h * 0.045,
+          -0.4,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+
+        // Wingtip missiles
+        ctx.fillStyle = gc ? "#FFE082" : "#D0D0D8";
+        ctx.strokeStyle = gc ? "#8B6914" : "#606068";
+        ctx.lineWidth = Math.max(0.4, h * 0.03);
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.08, -h * 0.62, w * 0.18, h * 0.07, h * 0.025);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = gc ? "#FFD700" : "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.08, -h * 0.62, w * 0.04, h * 0.07, h * 0.025);
+        ctx.fill();
+        ctx.fillStyle = gc ? "#FFE082" : "#D0D0D8";
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.08, h * 0.55, w * 0.18, h * 0.07, h * 0.025);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = gc ? "#FFD700" : "#CC1111";
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.08, h * 0.55, w * 0.04, h * 0.07, h * 0.025);
+        ctx.fill();
+
+        // Panel lines
+        ctx.strokeStyle = gc ? "rgba(120,90,0,0.35)" : "rgba(60,60,80,0.35)";
+        ctx.lineWidth = Math.max(0.4, h * 0.025);
+        ctx.setLineDash([w * 0.04, w * 0.03]);
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.35, -h * 0.04);
+        ctx.lineTo(w * 0.35, -h * 0.04);
+        ctx.moveTo(-w * 0.35, h * 0.04);
+        ctx.lineTo(w * 0.35, h * 0.04);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Fuselage top gloss
+        const fuseGloss = ctx.createLinearGradient(
+          -w * 0.38,
+          -h * 0.2,
+          w * 0.38,
+          -h * 0.2,
+        );
+        fuseGloss.addColorStop(0, "rgba(255,255,255,0)");
+        fuseGloss.addColorStop(0.3, "rgba(255,255,255,0.35)");
+        fuseGloss.addColorStop(0.7, "rgba(255,255,255,0.25)");
+        fuseGloss.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = fuseGloss;
+        ctx.beginPath();
+        ctx.ellipse(0, -h * 0.12, w * 0.38, h * 0.05, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    },
+    [drawExplosion],
+  );
+
   const drawStopwatch = useCallback(
     (ctx: CanvasRenderingContext2D, sw: Stopwatch) => {
       if (sw.isExploding) {
@@ -2789,6 +3364,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
           drawOceanFish(ctx, ch);
         } else if (selectedWorld === "corona") {
           drawCoronaVirus(ctx, ch);
+        } else if (selectedWorld === "hormuz") {
+          drawHormuzWarcraft(ctx, ch);
         } else {
           drawChicken(ctx, ch);
         }
@@ -2805,6 +3382,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
       drawBitcoinCoin,
       drawOceanFish,
       drawCoronaVirus,
+      drawHormuzWarcraft,
       drawStopwatch,
       selectedWorld,
       shouldSpawnStopwatch,
@@ -3035,6 +3613,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
         world={selectedWorld}
         pumpFunPrice={pumpFunPrice}
         btcPrice={btcPrice}
+        brentOilPrice={brentOilPrice}
       />
 
       {/* HUD */}

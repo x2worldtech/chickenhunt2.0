@@ -6,16 +6,23 @@ interface PriceDisplay {
   change24h: number;
 }
 
+interface BrentOilPriceDisplay {
+  price: number | null;
+  change24h: number | null;
+}
+
 interface BackgroundRendererProps {
   world: BackgroundWorld;
   pumpFunPrice?: PriceDisplay | null;
   btcPrice?: PriceDisplay | null;
+  brentOilPrice?: BrentOilPriceDisplay | null;
 }
 
 const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
   world,
   pumpFunPrice,
   btcPrice,
+  brentOilPrice,
 }) => {
   const renderOriginalWorld = () => (
     <svg
@@ -17812,6 +17819,729 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
     </svg>
   );
 
+  const renderHormuzWorld = () => (
+    <svg
+      role="img"
+      aria-label="Hormuz war world background"
+      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <defs>
+        {/* Stormy war sky */}
+        <linearGradient id="hormuzSky" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#1a1a2e" />
+          <stop offset="25%" stopColor="#2d1f0a" />
+          <stop offset="55%" stopColor="#4a2800" />
+          <stop offset="80%" stopColor="#7a3800" />
+          <stop offset="100%" stopColor="#5c2000" />
+        </linearGradient>
+        {/* Dark sea with oil slick */}
+        <linearGradient id="hormuzSea" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#1c3a3a" />
+          <stop offset="40%" stopColor="#0d2828" />
+          <stop offset="100%" stopColor="#081818" />
+        </linearGradient>
+        {/* Rocky desert foreground */}
+        <linearGradient id="hormuzDesert" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#6b4c1e" />
+          <stop offset="50%" stopColor="#4a3212" />
+          <stop offset="100%" stopColor="#2a1c08" />
+        </linearGradient>
+        {/* Explosion orange */}
+        <radialGradient id="hormuzExplosion1" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#fff176" stopOpacity="1" />
+          <stop offset="25%" stopColor="#ffa000" stopOpacity="0.9" />
+          <stop offset="55%" stopColor="#e53935" stopOpacity="0.7" />
+          <stop offset="85%" stopColor="#4a2000" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="#1a0800" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="hormuzExplosion2" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ffe082" stopOpacity="1" />
+          <stop offset="30%" stopColor="#ff6f00" stopOpacity="0.85" />
+          <stop offset="65%" stopColor="#b71c1c" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#1a0800" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="hormuzExplosion3" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ffcc02" stopOpacity="0.95" />
+          <stop offset="35%" stopColor="#ff5722" stopOpacity="0.8" />
+          <stop offset="70%" stopColor="#7b1fa2" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0" />
+        </radialGradient>
+        {/* Fire glow on water */}
+        <radialGradient id="fireReflect" cx="50%" cy="0%" r="80%">
+          <stop offset="0%" stopColor="#ff8f00" stopOpacity="0.45" />
+          <stop offset="50%" stopColor="#bf360c" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0" />
+        </radialGradient>
+        {/* Storm cloud filter */}
+        <filter id="stormBlur">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="glowOrange">
+          <feGaussianBlur stdDeviation="6" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="softGlow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      {/* ── Sky layer ── */}
+      <rect width="1200" height="800" fill="url(#hormuzSky)" />
+
+      {/* ── Heavy storm clouds ── */}
+      {/* Cloud bank far background */}
+      <g opacity="0.75">
+        <ellipse cx="80" cy="120" rx="140" ry="65" fill="#2a2410" />
+        <ellipse cx="160" cy="90" rx="110" ry="55" fill="#332d12" />
+        <ellipse cx="300" cy="135" rx="160" ry="70" fill="#251f0e" />
+        <ellipse cx="200" cy="155" rx="120" ry="50" fill="#1e190a" />
+        <ellipse cx="480" cy="100" rx="180" ry="75" fill="#2c2510" />
+        <ellipse cx="380" cy="80" rx="130" ry="58" fill="#35290f" />
+        <ellipse cx="650" cy="115" rx="155" ry="68" fill="#261f0b" />
+        <ellipse cx="750" cy="85" rx="140" ry="60" fill="#2e2610" />
+        <ellipse cx="900" cy="130" rx="170" ry="72" fill="#271f0c" />
+        <ellipse cx="1050" cy="95" rx="150" ry="65" fill="#302810" />
+        <ellipse cx="1150" cy="125" rx="130" ry="60" fill="#251e0b" />
+      </g>
+
+      {/* Orange-tinted clouds near horizon (lit by fires) */}
+      <g opacity="0.65">
+        <ellipse cx="150" cy="290" rx="100" ry="40" fill="#4a2c08" />
+        <ellipse cx="280" cy="270" rx="130" ry="48" fill="#5a3510" />
+        <ellipse cx="450" cy="285" rx="110" ry="42" fill="#4e2c0a" />
+        <ellipse cx="620" cy="275" rx="125" ry="44" fill="#5c340e" />
+        <ellipse cx="800" cy="290" rx="115" ry="40" fill="#502e0c" />
+        <ellipse cx="950" cy="278" rx="120" ry="43" fill="#573210" />
+        <ellipse cx="1100" cy="288" rx="100" ry="38" fill="#4a2b08" />
+      </g>
+
+      {/* ── Smoke columns rising from fires ── */}
+      {/* Smoke 1 — left area */}
+      <path
+        d="M220,400 Q215,350 225,310 Q232,270 218,230 Q210,195 220,160"
+        stroke="#2a2010"
+        strokeWidth="28"
+        fill="none"
+        strokeLinecap="round"
+        opacity="0.55"
+      />
+      <path
+        d="M220,400 Q218,352 228,314 Q236,272 222,232 Q213,197 224,162"
+        stroke="#3a2d15"
+        strokeWidth="18"
+        fill="none"
+        strokeLinecap="round"
+        opacity="0.4"
+      />
+
+      {/* Smoke 2 — middle */}
+      <path
+        d="M580,380 Q575,330 588,285 Q598,245 580,205 Q568,170 578,130"
+        stroke="#1e1a0c"
+        strokeWidth="32"
+        fill="none"
+        strokeLinecap="round"
+        opacity="0.6"
+      />
+      <path
+        d="M580,380 Q578,332 590,288 Q600,248 582,208 Q570,172 580,132"
+        stroke="#2e2410"
+        strokeWidth="20"
+        fill="none"
+        strokeLinecap="round"
+        opacity="0.4"
+      />
+
+      {/* Smoke 3 — right area */}
+      <path
+        d="M920,390 Q918,340 928,300 Q938,260 922,218 Q912,182 924,145"
+        stroke="#24200e"
+        strokeWidth="26"
+        fill="none"
+        strokeLinecap="round"
+        opacity="0.58"
+      />
+      <path
+        d="M920,390 Q920,342 930,302 Q940,262 924,220 Q914,184 925,147"
+        stroke="#342c12"
+        strokeWidth="16"
+        fill="none"
+        strokeLinecap="round"
+        opacity="0.38"
+      />
+
+      {/* ── Horizon coastline silhouette with industrial refinery ── */}
+      {/* Distant coastline base */}
+      <path
+        d="M0,400 Q100,390 200,395 Q350,388 500,393 Q700,386 900,391 Q1050,387 1200,392 L1200,430 L0,430 Z"
+        fill="#1a1208"
+      />
+
+      {/* Oil refinery towers — left cluster */}
+      <g fill="#12100a" stroke="#1e1a10" strokeWidth="1">
+        {/* Tower 1 */}
+        <rect x="100" y="340" width="14" height="60" />
+        <polygon points="100,340 107,320 114,340" />
+        {/* Flare stack on tower 1 */}
+        <rect x="103" y="316" width="4" height="8" fill="#0a0a06" />
+      </g>
+      {/* Flare flames tower 1 */}
+      <ellipse
+        cx="105"
+        cy="312"
+        rx="8"
+        ry="14"
+        fill="#ff6f00"
+        opacity="0.85"
+        filter="url(#glowOrange)"
+      />
+      <ellipse cx="105" cy="308" rx="5" ry="9" fill="#ffcc02" opacity="0.7" />
+
+      <g fill="#12100a" stroke="#1e1a10" strokeWidth="1">
+        {/* Tower 2 */}
+        <rect x="130" y="355" width="10" height="45" />
+        <polygon points="130,355 135,338 140,355" />
+        <rect x="132" y="334" width="3" height="6" fill="#0a0a06" />
+      </g>
+      <ellipse
+        cx="134"
+        cy="330"
+        rx="6"
+        ry="10"
+        fill="#ff8f00"
+        opacity="0.8"
+        filter="url(#glowOrange)"
+      />
+
+      <g fill="#12100a">
+        <rect x="155" y="362" width="8" height="38" />
+        <rect x="170" y="348" width="12" height="52" />
+        <polygon points="170,348 176,330 182,348" />
+        {/* Large cylindrical tank */}
+        <ellipse cx="210" cy="388" rx="28" ry="16" />
+        <rect x="182" y="372" width="56" height="28" />
+        {/* Pipe connecting towers */}
+        <rect x="130" y="370" width="30" height="3" />
+      </g>
+      <ellipse
+        cx="176"
+        cy="326"
+        rx="7"
+        ry="11"
+        fill="#ff6f00"
+        opacity="0.75"
+        filter="url(#glowOrange)"
+      />
+
+      {/* Oil refinery towers — right cluster */}
+      <g fill="#0e0c08">
+        <rect x="880" y="345" width="16" height="55" />
+        <polygon points="880,345 888,322 896,345" />
+        <rect x="905" y="358" width="11" height="42" />
+        <polygon points="905,358 910,340 916,358" />
+        <rect x="930" y="350" width="9" height="50" />
+        <ellipse cx="960" cy="388" rx="24" ry="14" />
+        <rect x="936" y="374" width="48" height="26" />
+        <rect x="905" y="372" width="28" height="3" />
+      </g>
+      <ellipse
+        cx="888"
+        cy="318"
+        rx="9"
+        ry="14"
+        fill="#ff6f00"
+        opacity="0.85"
+        filter="url(#glowOrange)"
+      />
+      <ellipse cx="888" cy="314" rx="5" ry="8" fill="#ffcc02" opacity="0.65" />
+      <ellipse
+        cx="910"
+        cy="336"
+        rx="6"
+        ry="10"
+        fill="#ff8f00"
+        opacity="0.75"
+        filter="url(#glowOrange)"
+      />
+
+      {/* ── Sea layer ── */}
+      <rect x="0" y="430" width="1200" height="130" fill="url(#hormuzSea)" />
+
+      {/* Fire reflection on sea */}
+      <ellipse
+        cx="600"
+        cy="440"
+        rx="500"
+        ry="40"
+        fill="url(#fireReflect)"
+        opacity="0.6"
+      />
+      <ellipse
+        cx="200"
+        cy="445"
+        rx="120"
+        ry="18"
+        fill="#ff6f00"
+        opacity="0.12"
+      />
+      <ellipse
+        cx="950"
+        cy="442"
+        rx="100"
+        ry="16"
+        fill="#ff6f00"
+        opacity="0.10"
+      />
+
+      {/* Wave highlights */}
+      <g stroke="#1e3838" strokeWidth="1" fill="none" opacity="0.4">
+        <path d="M0,455 Q150,450 300,456 Q450,462 600,455 Q750,448 900,454 Q1050,460 1200,454" />
+        <path d="M0,472 Q120,468 240,474 Q360,480 480,473 Q600,466 720,472 Q840,478 960,472 Q1080,466 1200,471" />
+        <path d="M0,490 Q200,486 400,492 Q600,498 800,491 Q1000,484 1200,489" />
+        <path d="M0,508 Q160,504 320,510 Q480,516 640,509 Q800,502 960,508 Q1080,513 1200,508" />
+      </g>
+      {/* Orange fire ripples on water */}
+      <g stroke="#ff8f00" strokeWidth="0.8" fill="none" opacity="0.18">
+        <path d="M80,460 Q200,455 320,461" />
+        <path d="M500,468 Q600,462 700,468" />
+        <path d="M850,455 Q970,450 1090,456" />
+      </g>
+
+      {/* ── Oil tanker silhouettes on the water ── */}
+      {/* Large tanker left */}
+      <g fill="#0a0e0e" opacity="0.9">
+        <rect x="50" y="448" width="240" height="22" rx="3" />
+        <rect x="110" y="436" width="120" height="16" rx="2" />
+        {/* Bridge superstructure */}
+        <rect x="240" y="428" width="38" height="24" rx="1" />
+        <rect x="246" y="422" width="26" height="10" rx="1" />
+        {/* Funnel */}
+        <rect x="262" y="416" width="6" height="10" />
+        {/* Cranes */}
+        <line
+          x1="130"
+          y1="436"
+          x2="130"
+          y2="418"
+          stroke="#0a0e0e"
+          strokeWidth="3"
+        />
+        <line
+          x1="130"
+          y1="418"
+          x2="155"
+          y2="420"
+          stroke="#0a0e0e"
+          strokeWidth="2"
+        />
+        <line
+          x1="170"
+          y1="436"
+          x2="170"
+          y2="422"
+          stroke="#0a0e0e"
+          strokeWidth="3"
+        />
+        <line
+          x1="170"
+          y1="422"
+          x2="195"
+          y2="424"
+          stroke="#0a0e0e"
+          strokeWidth="2"
+        />
+      </g>
+
+      {/* Military warship right */}
+      <g fill="#080c0c" opacity="0.92">
+        <path d="M780,470 L760,458 L980,458 L1000,470 Z" />
+        <rect x="840" y="442" width="80" height="18" rx="1" />
+        {/* Radar mast */}
+        <rect x="875" y="428" width="4" height="18" />
+        <line
+          x1="877"
+          y1="428"
+          x2="862"
+          y2="432"
+          stroke="#080c0c"
+          strokeWidth="2"
+        />
+        <line
+          x1="877"
+          y1="428"
+          x2="892"
+          y2="432"
+          stroke="#080c0c"
+          strokeWidth="2"
+        />
+        {/* Gun turret */}
+        <ellipse cx="830" cy="456" rx="14" ry="7" />
+        <rect x="828" y="450" width="18" height="4" />
+        <rect x="826" y="448" width="5" height="4" rx="1" />
+        {/* Superstructure */}
+        <rect x="900" y="436" width="48" height="24" rx="1" />
+        <rect x="908" y="428" width="32" height="12" rx="1" />
+      </g>
+
+      {/* ── Explosion clouds on horizon ── */}
+      {/* Big explosion 1 — left of center */}
+      <g transform="translate(220, 395)" filter="url(#glowOrange)">
+        <circle
+          cx="0"
+          cy="0"
+          r="48"
+          fill="url(#hormuzExplosion1)"
+          opacity="0.9"
+        />
+        <circle cx="-22" cy="-18" r="30" fill="#ff6f00" opacity="0.55" />
+        <circle cx="20" cy="-22" r="25" fill="#ffa000" opacity="0.45" />
+        {/* Smoke puff top */}
+        <circle cx="-5" cy="-45" r="22" fill="#2a2010" opacity="0.7" />
+        <circle cx="12" cy="-60" r="16" fill="#1e1a0e" opacity="0.6" />
+        <circle cx="-15" cy="-70" r="13" fill="#14120a" opacity="0.5" />
+        {/* Flying debris */}
+        <line
+          x1="-30"
+          y1="-20"
+          x2="-48"
+          y2="-38"
+          stroke="#ff8f00"
+          strokeWidth="2"
+          opacity="0.7"
+        />
+        <line
+          x1="25"
+          y1="-15"
+          x2="42"
+          y2="-30"
+          stroke="#ffcc02"
+          strokeWidth="1.5"
+          opacity="0.6"
+        />
+        <line
+          x1="10"
+          y1="-50"
+          x2="22"
+          y2="-68"
+          stroke="#ffa000"
+          strokeWidth="1.5"
+          opacity="0.55"
+        />
+      </g>
+
+      {/* Explosion 2 — right of center */}
+      <g transform="translate(600, 398)" filter="url(#glowOrange)">
+        <circle
+          cx="0"
+          cy="0"
+          r="38"
+          fill="url(#hormuzExplosion2)"
+          opacity="0.85"
+        />
+        <circle cx="-15" cy="-12" r="22" fill="#ff8f00" opacity="0.5" />
+        <circle cx="16" cy="-16" r="18" fill="#ffa000" opacity="0.4" />
+        <circle cx="0" cy="-35" r="18" fill="#2a2210" opacity="0.65" />
+        <circle cx="8" cy="-48" r="13" fill="#1e1a0e" opacity="0.55" />
+        <line
+          x1="-25"
+          y1="-8"
+          x2="-40"
+          y2="-22"
+          stroke="#ff8f00"
+          strokeWidth="2"
+          opacity="0.6"
+        />
+        <line
+          x1="20"
+          y1="-10"
+          x2="34"
+          y2="-26"
+          stroke="#ffcc02"
+          strokeWidth="1.5"
+          opacity="0.5"
+        />
+      </g>
+
+      {/* Explosion 3 — far right horizon */}
+      <g transform="translate(960, 402)" filter="url(#softGlow)">
+        <circle
+          cx="0"
+          cy="0"
+          r="30"
+          fill="url(#hormuzExplosion3)"
+          opacity="0.8"
+        />
+        <circle cx="-12" cy="-10" r="18" fill="#ff6f00" opacity="0.45" />
+        <circle cx="0" cy="-28" r="14" fill="#2a2010" opacity="0.6" />
+        <circle cx="5" cy="-38" r="10" fill="#1a1610" opacity="0.5" />
+        <line
+          x1="-18"
+          y1="-6"
+          x2="-30"
+          y2="-18"
+          stroke="#ff8f00"
+          strokeWidth="1.5"
+          opacity="0.55"
+        />
+      </g>
+
+      {/* ── SAM / Radar launcher silhouette on left shore ── */}
+      <g fill="#0c0a06" opacity="0.88">
+        {/* Vehicle body */}
+        <rect x="30" y="412" width="55" height="18" rx="2" />
+        {/* Tracks */}
+        <rect x="28" y="428" width="60" height="6" rx="2" />
+        {/* Launcher arm */}
+        <rect x="58" y="400" width="5" height="14" />
+        <rect
+          x="38"
+          y="397"
+          width="28"
+          height="4"
+          rx="1"
+          transform="rotate(-15 52 399)"
+        />
+        {/* Missiles on arm */}
+        <rect
+          x="36"
+          y="393"
+          width="10"
+          height="3"
+          rx="1"
+          transform="rotate(-15 41 394)"
+        />
+        <rect
+          x="47"
+          y="390"
+          width="10"
+          height="3"
+          rx="1"
+          transform="rotate(-15 52 391)"
+        />
+        <rect
+          x="57"
+          y="387"
+          width="10"
+          height="3"
+          rx="1"
+          transform="rotate(-15 62 388)"
+        />
+        {/* Radar dish */}
+        <ellipse
+          cx="60"
+          cy="408"
+          rx="10"
+          ry="6"
+          transform="rotate(-20 60 408)"
+        />
+      </g>
+
+      {/* ── Rocky desert foreground ── */}
+      <rect x="0" y="560" width="1200" height="240" fill="url(#hormuzDesert)" />
+
+      {/* Foreground rocky terrain contour */}
+      <path
+        d="M0,560 Q80,540 160,558 Q240,575 320,550 Q400,530 480,558 Q560,580 640,552 Q720,528 800,555 Q880,578 960,548 Q1040,522 1120,550 Q1160,564 1200,555 L1200,560 L0,560 Z"
+        fill="#5a4018"
+      />
+      <path
+        d="M0,575 Q60,562 130,578 Q200,592 280,572 Q360,552 440,575 Q520,598 600,570 Q680,546 760,572 Q840,596 920,564 Q1000,538 1080,565 Q1140,582 1200,568 L1200,580 L0,580 Z"
+        fill="#4a3412"
+      />
+
+      {/* Desert rocks */}
+      <g fill="#3a2a0c" stroke="#261c08" strokeWidth="1">
+        <ellipse cx="60" cy="600" rx="35" ry="22" />
+        <ellipse cx="40" cy="588" rx="22" ry="15" />
+        <ellipse cx="80" cy="592" rx="28" ry="18" />
+      </g>
+      <g fill="#3a2a0c" stroke="#261c08" strokeWidth="1">
+        <ellipse cx="340" cy="610" rx="42" ry="26" />
+        <ellipse cx="318" cy="596" rx="26" ry="17" />
+        <ellipse cx="365" cy="600" rx="30" ry="19" />
+        <ellipse cx="390" cy="608" rx="20" ry="13" />
+      </g>
+      <g fill="#302208" stroke="#201808" strokeWidth="1">
+        <ellipse cx="680" cy="596" rx="38" ry="24" />
+        <ellipse cx="658" cy="584" rx="24" ry="16" />
+        <ellipse cx="705" cy="588" rx="28" ry="18" />
+      </g>
+      <g fill="#3a2a0c" stroke="#261c08" strokeWidth="1">
+        <ellipse cx="1020" cy="604" rx="40" ry="25" />
+        <ellipse cx="995" cy="590" rx="25" ry="16" />
+        <ellipse cx="1048" cy="596" rx="32" ry="20" />
+      </g>
+      <g fill="#281e08" stroke="#1a1406" strokeWidth="1">
+        <ellipse cx="1150" cy="598" rx="35" ry="22" />
+        <ellipse cx="1130" cy="585" rx="22" ry="14" />
+        <ellipse cx="1170" cy="590" rx="26" ry="17" />
+      </g>
+
+      {/* Sand ripples in foreground */}
+      <g stroke="#5a4018" strokeWidth="1.5" fill="none" opacity="0.45">
+        <path d="M0,640 Q200,634 400,641 Q600,648 800,641 Q1000,634 1200,640" />
+        <path d="M0,665 Q180,660 360,667 Q540,674 720,666 Q900,658 1080,665 Q1140,668 1200,665" />
+        <path d="M0,690 Q250,684 500,691 Q750,698 1000,690 Q1100,686 1200,689" />
+        <path d="M0,720 Q160,715 320,722 Q480,729 640,721 Q800,713 960,720 Q1080,726 1200,720" />
+      </g>
+
+      {/* ── Atmospheric orange glow on horizon ── */}
+      <ellipse
+        cx="600"
+        cy="415"
+        rx="480"
+        ry="55"
+        fill="#ff6f00"
+        opacity="0.1"
+        filter="url(#glowOrange)"
+      />
+      <ellipse
+        cx="220"
+        cy="408"
+        rx="160"
+        ry="30"
+        fill="#ff8f00"
+        opacity="0.18"
+        filter="url(#softGlow)"
+      />
+      <ellipse
+        cx="600"
+        cy="405"
+        rx="120"
+        ry="22"
+        fill="#ffa000"
+        opacity="0.14"
+        filter="url(#softGlow)"
+      />
+      <ellipse
+        cx="960"
+        cy="410"
+        rx="130"
+        ry="25"
+        fill="#ff6f00"
+        opacity="0.16"
+        filter="url(#softGlow)"
+      />
+
+      {/* ── Stars barely visible through the thick smoke ── */}
+      <g fill="#ffffff" opacity="0.25">
+        <circle cx="50" cy="45" r="0.8" />
+        <circle cx="140" cy="32" r="0.6" />
+        <circle cx="320" cy="55" r="0.7" />
+        <circle cx="500" cy="38" r="0.9" />
+        <circle cx="650" cy="28" r="0.7" />
+        <circle cx="820" cy="50" r="0.8" />
+        <circle cx="1000" cy="35" r="0.6" />
+        <circle cx="1120" cy="46" r="0.7" />
+        <circle cx="750" cy="22" r="0.5" />
+        <circle cx="440" cy="18" r="0.6" />
+      </g>
+
+      {/* === LIVE BRENT / USD OIL PRICE OVERLAY === */}
+      {(() => {
+        const priceStr =
+          brentOilPrice?.price != null
+            ? `$${brentOilPrice.price.toFixed(2)}`
+            : "--";
+        const changeVal = brentOilPrice ? brentOilPrice.change24h : null;
+        const changeStr =
+          changeVal !== null
+            ? `${changeVal >= 0 ? "+" : ""}${changeVal.toFixed(2)}%`
+            : null;
+        const changeColor =
+          changeVal === null
+            ? "#9CA3AF"
+            : changeVal >= 0
+              ? "#22C55E"
+              : "#EF4444";
+        return (
+          <g transform="translate(600, 590)">
+            {/* Backdrop panel — taller when change badge is shown */}
+            <rect
+              x="-110"
+              y="-46"
+              width="220"
+              height={changeStr !== null ? 88 : 68}
+              rx="8"
+              ry="8"
+              fill="#050505"
+              fillOpacity="0.82"
+              stroke="#3a0800"
+              strokeWidth="1"
+            />
+            {/* BRENT / USD label */}
+            <text
+              x="0"
+              y="-28"
+              textAnchor="middle"
+              fontFamily="'Courier New', Courier, monospace"
+              fontWeight="400"
+              fontSize="11"
+              fill="#b03010"
+              opacity="0.85"
+              letterSpacing="2"
+            >
+              BRENT / USD
+            </text>
+            {/* Price */}
+            <text
+              x="0"
+              y="2"
+              textAnchor="middle"
+              fontFamily="'Courier New', Courier, monospace"
+              fontWeight="700"
+              fontSize="22"
+              fill="#FFFFFF"
+              letterSpacing="0.5"
+            >
+              {priceStr}
+            </text>
+            {/* Change badge — only when data is available */}
+            {changeStr !== null && (
+              <>
+                <rect
+                  x="-38"
+                  y="12"
+                  width="76"
+                  height="22"
+                  rx="4"
+                  ry="4"
+                  fill={changeColor}
+                  fillOpacity="0.15"
+                />
+                <text
+                  x="0"
+                  y="28"
+                  textAnchor="middle"
+                  fontFamily="'Courier New', Courier, monospace"
+                  fontWeight="600"
+                  fontSize="13"
+                  fill={changeColor}
+                  letterSpacing="0.3"
+                >
+                  {changeStr}
+                </text>
+              </>
+            )}
+          </g>
+        );
+      })()}
+    </svg>
+  );
+
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -17850,6 +18580,8 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
         return renderPumpFunWorld();
       case "corona":
         return renderCoronaWorld();
+      case "hormuz":
+        return renderHormuzWorld();
       default:
         return renderOriginalWorld();
     }

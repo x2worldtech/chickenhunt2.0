@@ -134,31 +134,68 @@ const SocialsView: React.FC<SocialsViewProps> = ({ isAuthenticated }) => {
 
   if (!isAuthenticated) {
     return (
-      <div
-        className="fixed inset-0 flex flex-col overflow-hidden bg-black"
-        style={{ paddingBottom: "60px" }}
-        data-ocid="socials.page"
-      >
-        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-          <div className="flex items-center justify-center w-20 h-20 rounded-xl bg-orange-100 border border-orange-200 mb-6">
-            <Users size={36} className="text-orange-500" />
+      <div className="absolute inset-0 bg-black overflow-y-auto pb-32">
+        <div className="container mx-auto px-4 py-6">
+          {/* Blurred header preview */}
+          <div className="mb-6">
+            <div
+              className="bg-white rounded-xl p-4 shadow-xl border border-gray-200 opacity-60"
+              style={{ filter: "blur(2px)" }}
+            >
+              <div className="flex items-center justify-center mb-3">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 mr-4 shadow-lg">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <h1 className="text-3xl md:text-4xl font-black text-black tracking-tight">
+                  SOCIALS
+                </h1>
+              </div>
+              <p className="text-center text-gray-600 font-medium">
+                Join clans, add friends, and chat with the community
+              </p>
+            </div>
           </div>
-          <h2 className="text-3xl font-black text-white mb-3 tracking-tight">
-            SOCIALS
-          </h2>
-          <p className="text-gray-400 text-base mb-8 max-w-xs">
-            Sign in to join clans, add friends and chat in clan chat.
-          </p>
-          <button
-            type="button"
-            data-ocid="socials.login_button"
-            onClick={() => login()}
-            disabled={isLoggingIn}
-            className="flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-base transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+
+          {/* Login overlay */}
+          <div
+            className="fixed inset-0 flex items-center justify-center z-50 px-4"
+            style={{ background: "rgba(0,0,0,0.55)" }}
+            data-ocid="socials.login_prompt"
           >
-            <LogIn size={18} />
-            {isLoggingIn ? "Signing in…" : "Sign In"}
-          </button>
+            <div className="bg-white rounded-xl shadow-2xl border border-gray-200 w-full max-w-md mx-auto">
+              <div className="flex items-center justify-center p-6 border-b border-gray-200">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 mr-4 shadow-lg">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-2xl font-black text-black">SOCIALS</h2>
+              </div>
+              <div className="p-6">
+                <p className="text-gray-600 text-lg leading-relaxed text-center mb-6">
+                  Sign in to join clans, add friends, and chat with other
+                  players.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => login()}
+                  disabled={isLoggingIn}
+                  className="w-full flex items-center justify-center font-bold py-3 px-4 rounded-lg transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+                  data-ocid="socials.login_button"
+                >
+                  {isLoggingIn ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3" />
+                      <span>Connecting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="w-5 h-5 mr-3" />
+                      <span>Login with Internet Identity</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

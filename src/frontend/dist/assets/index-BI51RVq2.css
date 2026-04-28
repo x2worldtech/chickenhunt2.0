@@ -768,9 +768,6 @@ video {
 .mb-6 {
   margin-bottom: 1.5rem;
 }
-.mb-8 {
-  margin-bottom: 2rem;
-}
 .ml-1 {
   margin-left: 0.25rem;
 }
@@ -1659,6 +1656,9 @@ video {
   --tw-border-opacity: 1;
   border-color: rgb(239 68 68 / var(--tw-border-opacity, 1));
 }
+.border-red-900\/50 {
+  border-color: rgb(127 29 29 / 0.5);
+}
 .border-transparent {
   border-color: transparent;
 }
@@ -1989,10 +1989,6 @@ video {
 .px-6 {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
-}
-.px-8 {
-  padding-left: 2rem;
-  padding-right: 2rem;
 }
 .py-0\.5 {
   padding-top: 0.125rem;
@@ -3205,6 +3201,25 @@ body {
   box-shadow: 0 6px 22px rgba(255, 107, 0, 0.45), 0 3px 8px rgba(0, 0, 0, 0.18),
     0 0 0 2px rgba(255, 107, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.95);
   border: 2px solid #e05500 !important;
+}
+
+/* Hormuz world — dark military red/gray style */
+.start-game-button-hormuz {
+  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #7f1d1d 100%);
+  color: #fca5a5 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 16px rgba(180, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.4), 0
+    0 0 1px rgba(180, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1.5px solid #b91c1c !important;
+}
+
+.start-game-button-hormuz:hover {
+  background: linear-gradient(135deg, #991b1b 0%, #b91c1c 50%, #991b1b 100%);
+  color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 6px 22px rgba(220, 0, 0, 0.55), 0 3px 8px rgba(0, 0, 0, 0.5), 0
+    0 0 1px rgba(200, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border: 1.5px solid #dc2626 !important;
 }
 
 /* Tips container styling - Default for all worlds except snowy */
@@ -4429,10 +4444,6 @@ body {
 
 .disabled\:opacity-50:disabled {
   opacity: 0.5;
-}
-
-.disabled\:opacity-60:disabled {
-  opacity: 0.6;
 }
 
 .disabled\:hover\:scale-100:hover:disabled {
