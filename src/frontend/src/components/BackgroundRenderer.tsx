@@ -18542,6 +18542,810 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
     </svg>
   );
 
+  const renderAlienWorld = () => (
+    <svg
+      role="img"
+      aria-label="Alien world background"
+      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <defs>
+        {/* Deep space sky */}
+        <radialGradient id="alienSky" cx="50%" cy="30%" r="80%">
+          <stop offset="0%" stopColor="#0d0828" />
+          <stop offset="45%" stopColor="#07051a" />
+          <stop offset="100%" stopColor="#020112" />
+        </radialGradient>
+        {/* Nebula purple-teal blend */}
+        <radialGradient id="nebulaA" cx="25%" cy="20%" r="55%">
+          <stop offset="0%" stopColor="#4a1060" stopOpacity="0.55" />
+          <stop offset="60%" stopColor="#1a0840" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#0a0420" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="nebulaB" cx="75%" cy="35%" r="50%">
+          <stop offset="0%" stopColor="#0a4060" stopOpacity="0.5" />
+          <stop offset="55%" stopColor="#061828" stopOpacity="0.28" />
+          <stop offset="100%" stopColor="#020810" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="nebulaC" cx="55%" cy="10%" r="40%">
+          <stop offset="0%" stopColor="#202080" stopOpacity="0.4" />
+          <stop offset="70%" stopColor="#100840" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#050218" stopOpacity="0" />
+        </radialGradient>
+        {/* Horizon atmospheric glow */}
+        <linearGradient id="horizonGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#200840" stopOpacity="0" />
+          <stop offset="60%" stopColor="#2a1060" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="#0a3050" stopOpacity="0.7" />
+        </linearGradient>
+        {/* Saturn planet body */}
+        <radialGradient id="saturnBody" cx="42%" cy="35%" r="60%">
+          <stop offset="0%" stopColor="#f5e8c0" />
+          <stop offset="18%" stopColor="#e8d498" />
+          <stop offset="40%" stopColor="#c8a85a" />
+          <stop offset="65%" stopColor="#b08840" />
+          <stop offset="85%" stopColor="#987030" />
+          <stop offset="100%" stopColor="#7a5820" />
+        </radialGradient>
+        {/* Saturn atmosphere overlay */}
+        <radialGradient id="saturnAtmo" cx="50%" cy="50%" r="50%">
+          <stop offset="70%" stopColor="transparent" />
+          <stop offset="90%" stopColor="#c8a850" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="#e8c870" stopOpacity="0.5" />
+        </radialGradient>
+        {/* Saturn ring gradient */}
+        <linearGradient id="saturnRingOuter" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="rgba(180,148,80,0)" />
+          <stop offset="8%" stopColor="rgba(200,168,100,0.55)" />
+          <stop offset="22%" stopColor="rgba(220,188,120,0.7)" />
+          <stop offset="35%" stopColor="rgba(180,148,80,0.45)" />
+          <stop offset="50%" stopColor="rgba(140,110,55,0.2)" />
+          <stop offset="65%" stopColor="rgba(180,148,80,0.45)" />
+          <stop offset="78%" stopColor="rgba(220,188,120,0.7)" />
+          <stop offset="92%" stopColor="rgba(200,168,100,0.55)" />
+          <stop offset="100%" stopColor="rgba(180,148,80,0)" />
+        </linearGradient>
+        <linearGradient id="saturnRingInner" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="rgba(240,210,140,0)" />
+          <stop offset="10%" stopColor="rgba(240,220,160,0.6)" />
+          <stop offset="30%" stopColor="rgba(255,235,175,0.8)" />
+          <stop offset="50%" stopColor="rgba(200,170,100,0.35)" />
+          <stop offset="70%" stopColor="rgba(255,235,175,0.8)" />
+          <stop offset="90%" stopColor="rgba(240,220,160,0.6)" />
+          <stop offset="100%" stopColor="rgba(240,210,140,0)" />
+        </linearGradient>
+        {/* Alien terrain */}
+        <linearGradient id="terrainGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#1a0845" />
+          <stop offset="40%" stopColor="#0e0530" />
+          <stop offset="100%" stopColor="#06021a" />
+        </linearGradient>
+        <linearGradient id="terrainMid" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#200d50" />
+          <stop offset="100%" stopColor="#0a0428" />
+        </linearGradient>
+        <linearGradient id="terrainFore" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#2a1060" />
+          <stop offset="100%" stopColor="#10062a" />
+        </linearGradient>
+        {/* Crater glow */}
+        <radialGradient id="craterGlow1" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#40ffcc" stopOpacity="0.55" />
+          <stop offset="60%" stopColor="#20d4a0" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#10a880" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="craterGlow2" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#c040ff" stopOpacity="0.55" />
+          <stop offset="60%" stopColor="#8020c0" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#400880" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="craterGlow3" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#40ccff" stopOpacity="0.5" />
+          <stop offset="70%" stopColor="#0880b0" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#024060" stopOpacity="0" />
+        </radialGradient>
+        {/* Moon gradient */}
+        <radialGradient id="moonA" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stopColor="#d8cce8" />
+          <stop offset="50%" stopColor="#a090c0" />
+          <stop offset="100%" stopColor="#604878" />
+        </radialGradient>
+        <radialGradient id="moonB" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stopColor="#c8e8d8" />
+          <stop offset="55%" stopColor="#7ab8a0" />
+          <stop offset="100%" stopColor="#305840" />
+        </radialGradient>
+        <radialGradient id="moonC" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stopColor="#e8d8f0" />
+          <stop offset="55%" stopColor="#b890d8" />
+          <stop offset="100%" stopColor="#604898" />
+        </radialGradient>
+        {/* Plant glow */}
+        <radialGradient id="plantGlow1" cx="50%" cy="100%" r="80%">
+          <stop offset="0%" stopColor="#20ff88" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#20ff88" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="plantGlow2" cx="50%" cy="100%" r="80%">
+          <stop offset="0%" stopColor="#cc40ff" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#cc40ff" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="plantGlow3" cx="50%" cy="100%" r="80%">
+          <stop offset="0%" stopColor="#40c8ff" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#40c8ff" stopOpacity="0" />
+        </radialGradient>
+        {/* Saturn ring shadow on planet */}
+        <linearGradient id="ringShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="rgba(20,10,5,0)" />
+          <stop offset="40%" stopColor="rgba(20,10,5,0.35)" />
+          <stop offset="60%" stopColor="rgba(20,10,5,0.35)" />
+          <stop offset="100%" stopColor="rgba(20,10,5,0)" />
+        </linearGradient>
+        {/* Glow filters */}
+        <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="glowStrong" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      {/* ── Deep space sky ── */}
+      <rect width="1200" height="800" fill="url(#alienSky)" />
+
+      {/* ── Nebula layers ── */}
+      <rect width="1200" height="800" fill="url(#nebulaA)" />
+      <rect width="1200" height="800" fill="url(#nebulaB)" />
+      <rect width="1200" height="800" fill="url(#nebulaC)" />
+
+      {/* ── Milky Way band ── */}
+      <ellipse
+        cx="600"
+        cy="260"
+        rx="680"
+        ry="130"
+        fill="rgba(80,60,120,0.18)"
+      />
+      <ellipse
+        cx="600"
+        cy="260"
+        rx="500"
+        ry="70"
+        fill="rgba(100,80,160,0.12)"
+      />
+
+      {/* ── Dense starfield ── */}
+      <g filter="url(#softGlow)">
+        {/* Bright stars */}
+        {(
+          [
+            [42, 28],
+            [118, 62],
+            [205, 15],
+            [310, 44],
+            [428, 22],
+            [535, 55],
+            [641, 18],
+            [750, 38],
+            [862, 25],
+            [975, 50],
+            [1088, 32],
+            [1165, 68],
+            [75, 100],
+            [190, 88],
+            [290, 118],
+            [400, 78],
+            [510, 105],
+            [625, 92],
+            [740, 115],
+            [855, 82],
+            [968, 98],
+            [1072, 112],
+            [1148, 88],
+            [30, 148],
+            [144, 165],
+            [265, 138],
+            [375, 158],
+            [490, 142],
+            [600, 172],
+            [720, 145],
+            [835, 160],
+            [950, 135],
+            [1060, 165],
+            [1180, 148],
+            [55, 198],
+            [168, 215],
+            [285, 188],
+            [395, 208],
+            [508, 192],
+            [618, 218],
+            [738, 195],
+            [852, 210],
+            [965, 185],
+            [1078, 215],
+            [1192, 198],
+            [18, 255],
+            [132, 242],
+            [248, 268],
+            [362, 248],
+            [478, 272],
+            [592, 245],
+            [708, 265],
+            [825, 252],
+            [940, 275],
+            [1055, 248],
+            [1170, 265],
+          ] as [number, number][]
+        ).map(([sx, sy], i) => (
+          <circle
+            key={`bs-${sx}-${sy}`}
+            cx={sx}
+            cy={sy}
+            r={i % 5 === 0 ? 2.2 : i % 3 === 0 ? 1.6 : 1.2}
+            fill={
+              i % 7 === 0
+                ? "#ffffff"
+                : i % 4 === 0
+                  ? "#e8e0ff"
+                  : i % 3 === 0
+                    ? "#c8e0ff"
+                    : "#f0f0f0"
+            }
+            opacity={0.7 + (i % 4) * 0.08}
+          />
+        ))}
+        {/* Faint background stars */}
+        {Array.from({ length: 120 }, (_, i) => {
+          const bx = Math.round((i * 137.5) % 1200);
+          const by = Math.round((i * 89.3) % 520);
+          return (
+            <circle
+              key={`fs-${bx}-${by}`}
+              cx={bx}
+              cy={by}
+              r={0.5 + (i % 3) * 0.4}
+              fill="rgba(200,200,255,0.45)"
+            />
+          );
+        })}
+      </g>
+
+      {/* ── Saturn — prominent in upper-right ── */}
+      <g transform="translate(880, 148)">
+        {/* Ring back half (behind planet) */}
+        <ellipse
+          cx="0"
+          cy="18"
+          rx="195"
+          ry="28"
+          fill="url(#saturnRingOuter)"
+          opacity="0.72"
+        />
+        <ellipse
+          cx="0"
+          cy="18"
+          rx="148"
+          ry="20"
+          fill="url(#saturnRingInner)"
+          opacity="0.65"
+        />
+        {/* Gap between rings — dark stripe */}
+        <ellipse cx="0" cy="18" rx="125" ry="16" fill="rgba(4,2,12,0.55)" />
+
+        {/* Planet body */}
+        <circle cx="0" cy="0" r="92" fill="url(#saturnBody)" />
+
+        {/* Atmospheric bands */}
+        <ellipse
+          cx="0"
+          cy="-28"
+          rx="90"
+          ry="12"
+          fill="rgba(200,170,100,0.22)"
+        />
+        <ellipse cx="0" cy="-14" rx="91" ry="8" fill="rgba(160,130,70,0.18)" />
+        <ellipse cx="0" cy="0" rx="92" ry="9" fill="rgba(140,110,55,0.15)" />
+        <ellipse cx="0" cy="14" rx="91" ry="7" fill="rgba(170,140,80,0.2)" />
+        <ellipse cx="0" cy="26" rx="89" ry="7" fill="rgba(130,100,48,0.18)" />
+        <ellipse cx="0" cy="40" rx="86" ry="6" fill="rgba(155,125,65,0.16)" />
+
+        {/* Planet limb glow / atmosphere haze */}
+        <circle cx="0" cy="0" r="92" fill="url(#saturnAtmo)" />
+        <circle
+          cx="0"
+          cy="0"
+          r="98"
+          fill="none"
+          stroke="rgba(220,190,120,0.2)"
+          strokeWidth="8"
+        />
+
+        {/* Ring shadow band on planet body */}
+        <ellipse
+          cx="0"
+          cy="18"
+          rx="92"
+          ry="14"
+          fill="url(#ringShadow)"
+          opacity="0.6"
+        />
+
+        {/* Ring front half (in front of planet) — clipped to lower half of planet */}
+        <clipPath id="saturnFrontClip">
+          <ellipse cx="0" cy="18" rx="200" ry="34" />
+        </clipPath>
+        <g clipPath="url(#saturnFrontClip)">
+          <rect x="-200" y="0" width="400" height="60" fill="transparent" />
+          <ellipse
+            cx="0"
+            cy="18"
+            rx="195"
+            ry="28"
+            fill="url(#saturnRingOuter)"
+            opacity="0.9"
+          />
+          <ellipse
+            cx="0"
+            cy="18"
+            rx="148"
+            ry="20"
+            fill="url(#saturnRingInner)"
+            opacity="0.85"
+          />
+          <ellipse cx="0" cy="18" rx="125" ry="16" fill="rgba(4,2,12,0.4)" />
+        </g>
+
+        {/* Polar highlight on Saturn */}
+        <ellipse
+          cx="-20"
+          cy="-48"
+          rx="35"
+          ry="20"
+          fill="rgba(255,248,220,0.22)"
+        />
+      </g>
+
+      {/* ── Alien moons ── */}
+      {/* Moon 1 — large, upper left */}
+      <g transform="translate(148, 118)">
+        <circle cx="0" cy="0" r="38" fill="url(#moonA)" />
+        <circle
+          cx="0"
+          cy="0"
+          r="38"
+          fill="none"
+          stroke="rgba(180,160,220,0.25)"
+          strokeWidth="3"
+        />
+        <ellipse cx="-10" cy="-14" rx="14" ry="8" fill="rgba(80,60,110,0.3)" />
+        <ellipse cx="10" cy="12" rx="10" ry="6" fill="rgba(80,60,110,0.25)" />
+        <ellipse
+          cx="-8"
+          cy="-15"
+          rx="12"
+          ry="7"
+          fill="rgba(255,255,255,0.15)"
+        />
+      </g>
+      {/* Moon 2 — medium, upper center */}
+      <g transform="translate(520, 78)">
+        <circle cx="0" cy="0" r="24" fill="url(#moonB)" />
+        <circle
+          cx="0"
+          cy="0"
+          r="24"
+          fill="none"
+          stroke="rgba(140,200,170,0.2)"
+          strokeWidth="2"
+        />
+        <ellipse cx="-6" cy="-8" rx="8" ry="5" fill="rgba(40,80,55,0.3)" />
+        <ellipse cx="-6" cy="-9" rx="7" ry="4" fill="rgba(200,240,220,0.15)" />
+      </g>
+      {/* Moon 3 — small, right side */}
+      <g transform="translate(1080, 228)">
+        <circle cx="0" cy="0" r="16" fill="url(#moonC)" />
+        <ellipse cx="-4" cy="-5" rx="5" ry="3" fill="rgba(100,60,140,0.3)" />
+        <ellipse
+          cx="-4"
+          cy="-5"
+          rx="4"
+          ry="2.5"
+          fill="rgba(255,245,255,0.15)"
+        />
+      </g>
+
+      {/* ── Horizon atmospheric glow ── */}
+      <rect x="0" y="430" width="1200" height="370" fill="url(#horizonGlow)" />
+
+      {/* ── Far terrain layer (distant mountains) ── */}
+      <g fill="url(#terrainGrad)" opacity="0.9">
+        <path d="M0,560 L60,490 L130,530 L200,470 L290,510 L370,455 L450,500 L530,445 L610,490 L700,450 L780,495 L860,440 L940,488 L1020,445 L1100,490 L1165,460 L1200,478 L1200,800 L0,800 Z" />
+      </g>
+
+      {/* ── Mid terrain layer — rocky alien surface ── */}
+      <g fill="url(#terrainMid)">
+        <path d="M0,590 L80,545 L155,570 L230,530 L320,560 L400,520 L490,555 L575,510 L650,548 L740,508 L820,548 L910,515 L990,548 L1075,518 L1150,548 L1200,530 L1200,800 L0,800 Z" />
+      </g>
+
+      {/* ── Purple/teal alien rocks (mid layer) ── */}
+      {/* Large rocks */}
+      <g filter="url(#softGlow)">
+        <ellipse
+          cx="110"
+          cy="605"
+          rx="55"
+          ry="32"
+          fill="#2a0d55"
+          stroke="#5a20a0"
+          strokeWidth="1.5"
+          opacity="0.9"
+        />
+        <ellipse
+          cx="108"
+          cy="595"
+          rx="40"
+          ry="20"
+          fill="#3a1870"
+          opacity="0.7"
+        />
+        <ellipse
+          cx="320"
+          cy="595"
+          rx="42"
+          ry="25"
+          fill="#0d3540"
+          stroke="#1a7080"
+          strokeWidth="1.5"
+          opacity="0.9"
+        />
+        <ellipse
+          cx="318"
+          cy="585"
+          rx="30"
+          ry="15"
+          fill="#145568"
+          opacity="0.6"
+        />
+        <ellipse
+          cx="600"
+          cy="580"
+          rx="60"
+          ry="34"
+          fill="#1e0845"
+          stroke="#4010a0"
+          strokeWidth="1.5"
+          opacity="0.9"
+        />
+        <ellipse
+          cx="598"
+          cy="568"
+          rx="44"
+          ry="20"
+          fill="#2c1060"
+          opacity="0.7"
+        />
+        <ellipse
+          cx="850"
+          cy="590"
+          rx="48"
+          ry="28"
+          fill="#082838"
+          stroke="#1060a0"
+          strokeWidth="1.5"
+          opacity="0.9"
+        />
+        <ellipse
+          cx="848"
+          cy="578"
+          rx="34"
+          ry="17"
+          fill="#0a4060"
+          opacity="0.65"
+        />
+        <ellipse
+          cx="1080"
+          cy="600"
+          rx="50"
+          ry="30"
+          fill="#240b50"
+          stroke="#5018a8"
+          strokeWidth="1.5"
+          opacity="0.9"
+        />
+      </g>
+
+      {/* ── Glowing craters ── */}
+      <g filter="url(#glowStrong)">
+        {/* Crater 1 — teal glow */}
+        <ellipse
+          cx="220"
+          cy="625"
+          rx="28"
+          ry="12"
+          fill="rgba(10,40,35,0.9)"
+          stroke="#20d4a0"
+          strokeWidth="2"
+        />
+        <ellipse
+          cx="220"
+          cy="625"
+          rx="22"
+          ry="8"
+          fill="url(#craterGlow1)"
+          opacity="0.8"
+        />
+        {/* Crater 2 — purple glow */}
+        <ellipse
+          cx="520"
+          cy="618"
+          rx="22"
+          ry="9"
+          fill="rgba(20,5,30,0.9)"
+          stroke="#8030d0"
+          strokeWidth="2"
+        />
+        <ellipse
+          cx="520"
+          cy="618"
+          rx="16"
+          ry="6"
+          fill="url(#craterGlow2)"
+          opacity="0.75"
+        />
+        {/* Crater 3 — blue glow */}
+        <ellipse
+          cx="780"
+          cy="622"
+          rx="25"
+          ry="10"
+          fill="rgba(5,15,30,0.9)"
+          stroke="#1880c0"
+          strokeWidth="2"
+        />
+        <ellipse
+          cx="780"
+          cy="622"
+          rx="18"
+          ry="7"
+          fill="url(#craterGlow3)"
+          opacity="0.7"
+        />
+        {/* Crater 4 — teal glow */}
+        <ellipse
+          cx="1000"
+          cy="616"
+          rx="20"
+          ry="8"
+          fill="rgba(5,30,25,0.9)"
+          stroke="#20c090"
+          strokeWidth="2"
+        />
+        <ellipse
+          cx="1000"
+          cy="616"
+          rx="14"
+          ry="5"
+          fill="url(#craterGlow1)"
+          opacity="0.7"
+        />
+        {/* Crater 5 — small, purple */}
+        <ellipse
+          cx="68"
+          cy="635"
+          rx="14"
+          ry="6"
+          fill="rgba(15,5,25,0.9)"
+          stroke="#6020a8"
+          strokeWidth="1.5"
+        />
+        <ellipse
+          cx="68"
+          cy="635"
+          rx="10"
+          ry="4"
+          fill="url(#craterGlow2)"
+          opacity="0.6"
+        />
+      </g>
+
+      {/* ── Foreground terrain layer ── */}
+      <g fill="url(#terrainFore)">
+        <path d="M0,660 L70,625 L145,648 L220,612 L310,645 L395,608 L480,640 L560,605 L645,638 L730,605 L815,640 L900,610 L980,642 L1058,612 L1135,645 L1200,625 L1200,800 L0,800 Z" />
+      </g>
+
+      {/* ── Alien plants / mushrooms (foreground) ── */}
+      {/* Plant group 1 — left, teal glowing mushrooms */}
+      <g filter="url(#glowStrong)" transform="translate(60, 640)">
+        <rect x="-3" y="0" width="6" height="40" fill="#1a0840" rx="2" />
+        <ellipse cx="0" cy="0" rx="28" ry="14" fill="#0a4028" />
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="28"
+          ry="14"
+          fill="url(#plantGlow1)"
+          opacity="0.8"
+        />
+        <ellipse cx="0" cy="0" rx="22" ry="10" fill="#10602a" />
+        <ellipse cx="-5" cy="-3" rx="12" ry="5" fill="rgba(80,255,160,0.3)" />
+      </g>
+      <g transform="translate(95, 655)">
+        <rect x="-2" y="0" width="4" height="28" fill="#160632" rx="1.5" />
+        <ellipse cx="0" cy="0" rx="20" ry="10" fill="#0a3820" />
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="20"
+          ry="10"
+          fill="url(#plantGlow1)"
+          opacity="0.7"
+        />
+        <ellipse cx="-4" cy="-2" rx="9" ry="4" fill="rgba(60,220,130,0.3)" />
+      </g>
+
+      {/* Plant group 2 — purple glowing mushrooms, center-left */}
+      <g filter="url(#glowStrong)" transform="translate(390, 630)">
+        <rect x="-4" y="0" width="7" height="50" fill="#180635" rx="2.5" />
+        <ellipse cx="0" cy="0" rx="35" ry="16" fill="#320858" />
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="35"
+          ry="16"
+          fill="url(#plantGlow2)"
+          opacity="0.75"
+        />
+        <ellipse cx="0" cy="0" rx="28" ry="12" fill="#480c80" />
+        <ellipse cx="-6" cy="-4" rx="14" ry="6" fill="rgba(200,80,255,0.3)" />
+      </g>
+      <g transform="translate(428, 650)">
+        <rect x="-2.5" y="0" width="5" height="32" fill="#140528" rx="2" />
+        <ellipse cx="0" cy="0" rx="22" ry="10" fill="#280648" />
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="22"
+          ry="10"
+          fill="url(#plantGlow2)"
+          opacity="0.65"
+        />
+        <ellipse cx="-4" cy="-3" rx="10" ry="4.5" fill="rgba(180,50,240,0.3)" />
+      </g>
+
+      {/* Plant group 3 — tall alien stalks with bulbous tops, center */}
+      <g filter="url(#softGlow)" transform="translate(648, 620)">
+        <path d="M0,55 Q-10,30 -4,10 Q0,-2 4,10 Q10,30 0,55 Z" fill="#0c0835" />
+        <ellipse cx="0" cy="5" rx="18" ry="22" fill="#1a0848" />
+        <ellipse
+          cx="0"
+          cy="5"
+          rx="18"
+          ry="22"
+          fill="url(#plantGlow3)"
+          opacity="0.6"
+        />
+        <ellipse cx="0" cy="2" rx="14" ry="17" fill="#280c60" />
+        <ellipse cx="-3" cy="-2" rx="7" ry="8" fill="rgba(80,180,255,0.35)" />
+      </g>
+      <g transform="translate(685, 638)">
+        <path d="M0,42 Q-7,22 -3,7 Q0,0 3,7 Q7,22 0,42 Z" fill="#0a0628" />
+        <ellipse cx="0" cy="4" rx="13" ry="16" fill="#141038" />
+        <ellipse
+          cx="0"
+          cy="4"
+          rx="13"
+          ry="16"
+          fill="url(#plantGlow3)"
+          opacity="0.55"
+        />
+        <ellipse cx="-2" cy="0" rx="6" ry="7" fill="rgba(60,150,220,0.3)" />
+      </g>
+
+      {/* Plant group 4 — right side, teal + purple mix */}
+      <g filter="url(#glowStrong)" transform="translate(1050, 635)">
+        <rect x="-3.5" y="0" width="7" height="45" fill="#160435" rx="2" />
+        <ellipse cx="0" cy="0" rx="32" ry="15" fill="#0c3820" />
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="32"
+          ry="15"
+          fill="url(#plantGlow1)"
+          opacity="0.7"
+        />
+        <ellipse cx="0" cy="0" rx="25" ry="11" fill="#125030" />
+        <ellipse cx="-5" cy="-4" rx="12" ry="5" fill="rgba(60,240,140,0.3)" />
+      </g>
+      <g transform="translate(1088, 650)">
+        <rect x="-2.5" y="0" width="5" height="30" fill="#140430" rx="2" />
+        <ellipse cx="0" cy="0" rx="20" ry="9" fill="#2a0850" />
+        <ellipse
+          cx="0"
+          cy="0"
+          rx="20"
+          ry="9"
+          fill="url(#plantGlow2)"
+          opacity="0.6"
+        />
+      </g>
+
+      {/* Plant group 5 — scattered smaller plants */}
+      <g filter="url(#softGlow)">
+        {/* Small teal puff */}
+        <g transform="translate(185, 660)">
+          <rect x="-2" y="0" width="4" height="22" fill="#0c0428" rx="1.5" />
+          <ellipse cx="0" cy="0" rx="15" ry="7" fill="#083018" />
+          <ellipse
+            cx="0"
+            cy="0"
+            rx="15"
+            ry="7"
+            fill="url(#plantGlow1)"
+            opacity="0.6"
+          />
+        </g>
+        {/* Small purple puff */}
+        <g transform="translate(745, 648)">
+          <rect x="-2" y="0" width="4" height="24" fill="#100528" rx="1.5" />
+          <ellipse cx="0" cy="0" rx="17" ry="8" fill="#200540" />
+          <ellipse
+            cx="0"
+            cy="0"
+            rx="17"
+            ry="8"
+            fill="url(#plantGlow2)"
+            opacity="0.58"
+          />
+        </g>
+        {/* Small blue stalk */}
+        <g transform="translate(928, 645)">
+          <path d="M0,35 Q-6,20 -2,6 Q0,0 2,6 Q6,20 0,35 Z" fill="#08062a" />
+          <ellipse cx="0" cy="3" rx="12" ry="14" fill="#101035" />
+          <ellipse
+            cx="0"
+            cy="3"
+            rx="12"
+            ry="14"
+            fill="url(#plantGlow3)"
+            opacity="0.5"
+          />
+        </g>
+        {/* Tiny teal */}
+        <g transform="translate(1155, 658)">
+          <rect x="-1.5" y="0" width="3" height="18" fill="#0a0320" rx="1" />
+          <ellipse cx="0" cy="0" rx="12" ry="6" fill="#062215" />
+          <ellipse
+            cx="0"
+            cy="0"
+            rx="12"
+            ry="6"
+            fill="url(#plantGlow1)"
+            opacity="0.55"
+          />
+        </g>
+      </g>
+
+      {/* ── Ground floor — very dark with subtle teal/purple tint ── */}
+      <rect x="0" y="750" width="1200" height="50" fill="#040215" />
+      <rect
+        x="0"
+        y="750"
+        width="1200"
+        height="4"
+        fill="rgba(40,200,120,0.15)"
+      />
+    </svg>
+  );
+
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -18582,6 +19386,8 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
         return renderCoronaWorld();
       case "hormuz":
         return renderHormuzWorld();
+      case "alien":
+        return renderAlienWorld();
       default:
         return renderOriginalWorld();
     }

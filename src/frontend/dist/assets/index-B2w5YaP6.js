@@ -49997,6 +49997,855 @@ const BackgroundRenderer = ({
       ]
     }
   );
+  const renderAlienWorld = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      role: "img",
+      "aria-label": "Alien world background",
+      className: "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+      viewBox: "0 0 1200 800",
+      preserveAspectRatio: "xMidYMid slice",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("defs", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "alienSky", cx: "50%", cy: "30%", r: "80%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0d0828" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "45%", stopColor: "#07051a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#020112" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "nebulaA", cx: "25%", cy: "20%", r: "55%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#4a1060", stopOpacity: "0.55" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "60%", stopColor: "#1a0840", stopOpacity: "0.3" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#0a0420", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "nebulaB", cx: "75%", cy: "35%", r: "50%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0a4060", stopOpacity: "0.5" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "55%", stopColor: "#061828", stopOpacity: "0.28" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#020810", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "nebulaC", cx: "55%", cy: "10%", r: "40%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#202080", stopOpacity: "0.4" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "70%", stopColor: "#100840", stopOpacity: "0.15" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#050218", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "horizonGlow", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#200840", stopOpacity: "0" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "60%", stopColor: "#2a1060", stopOpacity: "0.45" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#0a3050", stopOpacity: "0.7" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "saturnBody", cx: "42%", cy: "35%", r: "60%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#f5e8c0" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "18%", stopColor: "#e8d498" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "40%", stopColor: "#c8a85a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "65%", stopColor: "#b08840" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "85%", stopColor: "#987030" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#7a5820" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "saturnAtmo", cx: "50%", cy: "50%", r: "50%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "70%", stopColor: "transparent" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "90%", stopColor: "#c8a850", stopOpacity: "0.25" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#e8c870", stopOpacity: "0.5" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "saturnRingOuter", x1: "0%", y1: "0%", x2: "100%", y2: "0%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "rgba(180,148,80,0)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "8%", stopColor: "rgba(200,168,100,0.55)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "22%", stopColor: "rgba(220,188,120,0.7)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "35%", stopColor: "rgba(180,148,80,0.45)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "rgba(140,110,55,0.2)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "65%", stopColor: "rgba(180,148,80,0.45)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "78%", stopColor: "rgba(220,188,120,0.7)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "92%", stopColor: "rgba(200,168,100,0.55)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "rgba(180,148,80,0)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "saturnRingInner", x1: "0%", y1: "0%", x2: "100%", y2: "0%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "rgba(240,210,140,0)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "10%", stopColor: "rgba(240,220,160,0.6)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "30%", stopColor: "rgba(255,235,175,0.8)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "rgba(200,170,100,0.35)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "70%", stopColor: "rgba(255,235,175,0.8)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "90%", stopColor: "rgba(240,220,160,0.6)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "rgba(240,210,140,0)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "terrainGrad", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#1a0845" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "40%", stopColor: "#0e0530" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#06021a" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "terrainMid", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#200d50" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#0a0428" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "terrainFore", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#2a1060" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#10062a" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "craterGlow1", cx: "50%", cy: "50%", r: "50%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#40ffcc", stopOpacity: "0.55" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "60%", stopColor: "#20d4a0", stopOpacity: "0.2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#10a880", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "craterGlow2", cx: "50%", cy: "50%", r: "50%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#c040ff", stopOpacity: "0.55" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "60%", stopColor: "#8020c0", stopOpacity: "0.2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#400880", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "craterGlow3", cx: "50%", cy: "50%", r: "50%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#40ccff", stopOpacity: "0.5" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "70%", stopColor: "#0880b0", stopOpacity: "0.15" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#024060", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "moonA", cx: "40%", cy: "35%", r: "60%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#d8cce8" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "#a090c0" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#604878" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "moonB", cx: "40%", cy: "35%", r: "60%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#c8e8d8" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "55%", stopColor: "#7ab8a0" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#305840" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "moonC", cx: "40%", cy: "35%", r: "60%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#e8d8f0" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "55%", stopColor: "#b890d8" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#604898" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "plantGlow1", cx: "50%", cy: "100%", r: "80%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#20ff88", stopOpacity: "0.6" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#20ff88", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "plantGlow2", cx: "50%", cy: "100%", r: "80%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#cc40ff", stopOpacity: "0.5" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#cc40ff", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "plantGlow3", cx: "50%", cy: "100%", r: "80%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#40c8ff", stopOpacity: "0.5" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#40c8ff", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "ringShadow", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "rgba(20,10,5,0)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "40%", stopColor: "rgba(20,10,5,0.35)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "60%", stopColor: "rgba(20,10,5,0.35)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "rgba(20,10,5,0)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "softGlow", x: "-20%", y: "-20%", width: "140%", height: "140%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "3", result: "blur" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "glowStrong", x: "-30%", y: "-30%", width: "160%", height: "160%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "5", result: "blur" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#alienSky)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#nebulaA)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#nebulaB)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#nebulaC)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "600",
+            cy: "260",
+            rx: "680",
+            ry: "130",
+            fill: "rgba(80,60,120,0.18)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "600",
+            cy: "260",
+            rx: "500",
+            ry: "70",
+            fill: "rgba(100,80,160,0.12)"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#softGlow)", children: [
+          [
+            [42, 28],
+            [118, 62],
+            [205, 15],
+            [310, 44],
+            [428, 22],
+            [535, 55],
+            [641, 18],
+            [750, 38],
+            [862, 25],
+            [975, 50],
+            [1088, 32],
+            [1165, 68],
+            [75, 100],
+            [190, 88],
+            [290, 118],
+            [400, 78],
+            [510, 105],
+            [625, 92],
+            [740, 115],
+            [855, 82],
+            [968, 98],
+            [1072, 112],
+            [1148, 88],
+            [30, 148],
+            [144, 165],
+            [265, 138],
+            [375, 158],
+            [490, 142],
+            [600, 172],
+            [720, 145],
+            [835, 160],
+            [950, 135],
+            [1060, 165],
+            [1180, 148],
+            [55, 198],
+            [168, 215],
+            [285, 188],
+            [395, 208],
+            [508, 192],
+            [618, 218],
+            [738, 195],
+            [852, 210],
+            [965, 185],
+            [1078, 215],
+            [1192, 198],
+            [18, 255],
+            [132, 242],
+            [248, 268],
+            [362, 248],
+            [478, 272],
+            [592, 245],
+            [708, 265],
+            [825, 252],
+            [940, 275],
+            [1055, 248],
+            [1170, 265]
+          ].map(([sx, sy], i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "circle",
+            {
+              cx: sx,
+              cy: sy,
+              r: i % 5 === 0 ? 2.2 : i % 3 === 0 ? 1.6 : 1.2,
+              fill: i % 7 === 0 ? "#ffffff" : i % 4 === 0 ? "#e8e0ff" : i % 3 === 0 ? "#c8e0ff" : "#f0f0f0",
+              opacity: 0.7 + i % 4 * 0.08
+            },
+            `bs-${sx}-${sy}`
+          )),
+          Array.from({ length: 120 }, (_2, i) => {
+            const bx = Math.round(i * 137.5 % 1200);
+            const by = Math.round(i * 89.3 % 520);
+            return /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "circle",
+              {
+                cx: bx,
+                cy: by,
+                r: 0.5 + i % 3 * 0.4,
+                fill: "rgba(200,200,255,0.45)"
+              },
+              `fs-${bx}-${by}`
+            );
+          })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(880, 148)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "18",
+              rx: "195",
+              ry: "28",
+              fill: "url(#saturnRingOuter)",
+              opacity: "0.72"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "18",
+              rx: "148",
+              ry: "20",
+              fill: "url(#saturnRingInner)",
+              opacity: "0.65"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "18", rx: "125", ry: "16", fill: "rgba(4,2,12,0.55)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "0", cy: "0", r: "92", fill: "url(#saturnBody)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "-28",
+              rx: "90",
+              ry: "12",
+              fill: "rgba(200,170,100,0.22)"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "-14", rx: "91", ry: "8", fill: "rgba(160,130,70,0.18)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "92", ry: "9", fill: "rgba(140,110,55,0.15)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "14", rx: "91", ry: "7", fill: "rgba(170,140,80,0.2)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "26", rx: "89", ry: "7", fill: "rgba(130,100,48,0.18)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "40", rx: "86", ry: "6", fill: "rgba(155,125,65,0.16)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "0", cy: "0", r: "92", fill: "url(#saturnAtmo)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "circle",
+            {
+              cx: "0",
+              cy: "0",
+              r: "98",
+              fill: "none",
+              stroke: "rgba(220,190,120,0.2)",
+              strokeWidth: "8"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "18",
+              rx: "92",
+              ry: "14",
+              fill: "url(#ringShadow)",
+              opacity: "0.6"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("clipPath", { id: "saturnFrontClip", children: /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "18", rx: "200", ry: "34" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { clipPath: "url(#saturnFrontClip)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-200", y: "0", width: "400", height: "60", fill: "transparent" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "ellipse",
+              {
+                cx: "0",
+                cy: "18",
+                rx: "195",
+                ry: "28",
+                fill: "url(#saturnRingOuter)",
+                opacity: "0.9"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "ellipse",
+              {
+                cx: "0",
+                cy: "18",
+                rx: "148",
+                ry: "20",
+                fill: "url(#saturnRingInner)",
+                opacity: "0.85"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "18", rx: "125", ry: "16", fill: "rgba(4,2,12,0.4)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "-20",
+              cy: "-48",
+              rx: "35",
+              ry: "20",
+              fill: "rgba(255,248,220,0.22)"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(148, 118)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "0", cy: "0", r: "38", fill: "url(#moonA)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "circle",
+            {
+              cx: "0",
+              cy: "0",
+              r: "38",
+              fill: "none",
+              stroke: "rgba(180,160,220,0.25)",
+              strokeWidth: "3"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "-10", cy: "-14", rx: "14", ry: "8", fill: "rgba(80,60,110,0.3)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "10", cy: "12", rx: "10", ry: "6", fill: "rgba(80,60,110,0.25)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "-8",
+              cy: "-15",
+              rx: "12",
+              ry: "7",
+              fill: "rgba(255,255,255,0.15)"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(520, 78)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "0", cy: "0", r: "24", fill: "url(#moonB)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "circle",
+            {
+              cx: "0",
+              cy: "0",
+              r: "24",
+              fill: "none",
+              stroke: "rgba(140,200,170,0.2)",
+              strokeWidth: "2"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "-6", cy: "-8", rx: "8", ry: "5", fill: "rgba(40,80,55,0.3)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "-6", cy: "-9", rx: "7", ry: "4", fill: "rgba(200,240,220,0.15)" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(1080, 228)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "0", cy: "0", r: "16", fill: "url(#moonC)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "-4", cy: "-5", rx: "5", ry: "3", fill: "rgba(100,60,140,0.3)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "-4",
+              cy: "-5",
+              rx: "4",
+              ry: "2.5",
+              fill: "rgba(255,245,255,0.15)"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "430", width: "1200", height: "370", fill: "url(#horizonGlow)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("g", { fill: "url(#terrainGrad)", opacity: "0.9", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,560 L60,490 L130,530 L200,470 L290,510 L370,455 L450,500 L530,445 L610,490 L700,450 L780,495 L860,440 L940,488 L1020,445 L1100,490 L1165,460 L1200,478 L1200,800 L0,800 Z" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("g", { fill: "url(#terrainMid)", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,590 L80,545 L155,570 L230,530 L320,560 L400,520 L490,555 L575,510 L650,548 L740,508 L820,548 L910,515 L990,548 L1075,518 L1150,548 L1200,530 L1200,800 L0,800 Z" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#softGlow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "110",
+              cy: "605",
+              rx: "55",
+              ry: "32",
+              fill: "#2a0d55",
+              stroke: "#5a20a0",
+              strokeWidth: "1.5",
+              opacity: "0.9"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "108",
+              cy: "595",
+              rx: "40",
+              ry: "20",
+              fill: "#3a1870",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "320",
+              cy: "595",
+              rx: "42",
+              ry: "25",
+              fill: "#0d3540",
+              stroke: "#1a7080",
+              strokeWidth: "1.5",
+              opacity: "0.9"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "318",
+              cy: "585",
+              rx: "30",
+              ry: "15",
+              fill: "#145568",
+              opacity: "0.6"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "600",
+              cy: "580",
+              rx: "60",
+              ry: "34",
+              fill: "#1e0845",
+              stroke: "#4010a0",
+              strokeWidth: "1.5",
+              opacity: "0.9"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "598",
+              cy: "568",
+              rx: "44",
+              ry: "20",
+              fill: "#2c1060",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "850",
+              cy: "590",
+              rx: "48",
+              ry: "28",
+              fill: "#082838",
+              stroke: "#1060a0",
+              strokeWidth: "1.5",
+              opacity: "0.9"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "848",
+              cy: "578",
+              rx: "34",
+              ry: "17",
+              fill: "#0a4060",
+              opacity: "0.65"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "1080",
+              cy: "600",
+              rx: "50",
+              ry: "30",
+              fill: "#240b50",
+              stroke: "#5018a8",
+              strokeWidth: "1.5",
+              opacity: "0.9"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glowStrong)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "220",
+              cy: "625",
+              rx: "28",
+              ry: "12",
+              fill: "rgba(10,40,35,0.9)",
+              stroke: "#20d4a0",
+              strokeWidth: "2"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "220",
+              cy: "625",
+              rx: "22",
+              ry: "8",
+              fill: "url(#craterGlow1)",
+              opacity: "0.8"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "520",
+              cy: "618",
+              rx: "22",
+              ry: "9",
+              fill: "rgba(20,5,30,0.9)",
+              stroke: "#8030d0",
+              strokeWidth: "2"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "520",
+              cy: "618",
+              rx: "16",
+              ry: "6",
+              fill: "url(#craterGlow2)",
+              opacity: "0.75"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "780",
+              cy: "622",
+              rx: "25",
+              ry: "10",
+              fill: "rgba(5,15,30,0.9)",
+              stroke: "#1880c0",
+              strokeWidth: "2"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "780",
+              cy: "622",
+              rx: "18",
+              ry: "7",
+              fill: "url(#craterGlow3)",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "1000",
+              cy: "616",
+              rx: "20",
+              ry: "8",
+              fill: "rgba(5,30,25,0.9)",
+              stroke: "#20c090",
+              strokeWidth: "2"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "1000",
+              cy: "616",
+              rx: "14",
+              ry: "5",
+              fill: "url(#craterGlow1)",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "68",
+              cy: "635",
+              rx: "14",
+              ry: "6",
+              fill: "rgba(15,5,25,0.9)",
+              stroke: "#6020a8",
+              strokeWidth: "1.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "68",
+              cy: "635",
+              rx: "10",
+              ry: "4",
+              fill: "url(#craterGlow2)",
+              opacity: "0.6"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("g", { fill: "url(#terrainFore)", children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,660 L70,625 L145,648 L220,612 L310,645 L395,608 L480,640 L560,605 L645,638 L730,605 L815,640 L900,610 L980,642 L1058,612 L1135,645 L1200,625 L1200,800 L0,800 Z" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glowStrong)", transform: "translate(60, 640)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-3", y: "0", width: "6", height: "40", fill: "#1a0840", rx: "2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "28", ry: "14", fill: "#0a4028" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "0",
+              rx: "28",
+              ry: "14",
+              fill: "url(#plantGlow1)",
+              opacity: "0.8"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "22", ry: "10", fill: "#10602a" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "-5", cy: "-3", rx: "12", ry: "5", fill: "rgba(80,255,160,0.3)" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(95, 655)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-2", y: "0", width: "4", height: "28", fill: "#160632", rx: "1.5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "20", ry: "10", fill: "#0a3820" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "0",
+              rx: "20",
+              ry: "10",
+              fill: "url(#plantGlow1)",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "-4", cy: "-2", rx: "9", ry: "4", fill: "rgba(60,220,130,0.3)" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glowStrong)", transform: "translate(390, 630)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-4", y: "0", width: "7", height: "50", fill: "#180635", rx: "2.5" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "35", ry: "16", fill: "#320858" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "0",
+              rx: "35",
+              ry: "16",
+              fill: "url(#plantGlow2)",
+              opacity: "0.75"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "28", ry: "12", fill: "#480c80" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "-6", cy: "-4", rx: "14", ry: "6", fill: "rgba(200,80,255,0.3)" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(428, 650)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-2.5", y: "0", width: "5", height: "32", fill: "#140528", rx: "2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "22", ry: "10", fill: "#280648" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "0",
+              rx: "22",
+              ry: "10",
+              fill: "url(#plantGlow2)",
+              opacity: "0.65"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "-4", cy: "-3", rx: "10", ry: "4.5", fill: "rgba(180,50,240,0.3)" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#softGlow)", transform: "translate(648, 620)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,55 Q-10,30 -4,10 Q0,-2 4,10 Q10,30 0,55 Z", fill: "#0c0835" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "5", rx: "18", ry: "22", fill: "#1a0848" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "5",
+              rx: "18",
+              ry: "22",
+              fill: "url(#plantGlow3)",
+              opacity: "0.6"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "2", rx: "14", ry: "17", fill: "#280c60" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "-3", cy: "-2", rx: "7", ry: "8", fill: "rgba(80,180,255,0.35)" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(685, 638)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,42 Q-7,22 -3,7 Q0,0 3,7 Q7,22 0,42 Z", fill: "#0a0628" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "4", rx: "13", ry: "16", fill: "#141038" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "4",
+              rx: "13",
+              ry: "16",
+              fill: "url(#plantGlow3)",
+              opacity: "0.55"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "-2", cy: "0", rx: "6", ry: "7", fill: "rgba(60,150,220,0.3)" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#glowStrong)", transform: "translate(1050, 635)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-3.5", y: "0", width: "7", height: "45", fill: "#160435", rx: "2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "32", ry: "15", fill: "#0c3820" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "0",
+              rx: "32",
+              ry: "15",
+              fill: "url(#plantGlow1)",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "25", ry: "11", fill: "#125030" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "-5", cy: "-4", rx: "12", ry: "5", fill: "rgba(60,240,140,0.3)" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(1088, 650)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-2.5", y: "0", width: "5", height: "30", fill: "#140430", rx: "2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "20", ry: "9", fill: "#2a0850" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "0",
+              rx: "20",
+              ry: "9",
+              fill: "url(#plantGlow2)",
+              opacity: "0.6"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { filter: "url(#softGlow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(185, 660)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-2", y: "0", width: "4", height: "22", fill: "#0c0428", rx: "1.5" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "15", ry: "7", fill: "#083018" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "ellipse",
+              {
+                cx: "0",
+                cy: "0",
+                rx: "15",
+                ry: "7",
+                fill: "url(#plantGlow1)",
+                opacity: "0.6"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(745, 648)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-2", y: "0", width: "4", height: "24", fill: "#100528", rx: "1.5" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "17", ry: "8", fill: "#200540" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "ellipse",
+              {
+                cx: "0",
+                cy: "0",
+                rx: "17",
+                ry: "8",
+                fill: "url(#plantGlow2)",
+                opacity: "0.58"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(928, 645)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,35 Q-6,20 -2,6 Q0,0 2,6 Q6,20 0,35 Z", fill: "#08062a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "3", rx: "12", ry: "14", fill: "#101035" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "ellipse",
+              {
+                cx: "0",
+                cy: "3",
+                rx: "12",
+                ry: "14",
+                fill: "url(#plantGlow3)",
+                opacity: "0.5"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(1155, 658)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-1.5", y: "0", width: "3", height: "18", fill: "#0a0320", rx: "1" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "12", ry: "6", fill: "#062215" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "ellipse",
+              {
+                cx: "0",
+                cy: "0",
+                rx: "12",
+                ry: "6",
+                fill: "url(#plantGlow1)",
+                opacity: "0.55"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "750", width: "1200", height: "50", fill: "#040215" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "750",
+            width: "1200",
+            height: "4",
+            fill: "rgba(40,200,120,0.15)"
+          }
+        )
+      ]
+    }
+  );
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -50037,6 +50886,8 @@ const BackgroundRenderer = ({
         return renderCoronaWorld();
       case "hormuz":
         return renderHormuzWorld();
+      case "alien":
+        return renderAlienWorld();
       default:
         return renderOriginalWorld();
     }
@@ -58339,6 +59190,200 @@ const GameScreen = ({
     },
     [drawExplosion]
   );
+  const drawAlienUFO = reactExports.useCallback(
+    (ctx, chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x: x2, y: y2, size, wingPhase, direction, type, isGolden } = chicken;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let dw;
+      let dh;
+      let domH;
+      let domW;
+      if (chicken.distance === "far") {
+        dw = 28;
+        dh = 6;
+        domH = 10;
+        domW = 14;
+      } else if (chicken.distance === "medium") {
+        dw = 46;
+        dh = 10;
+        domH = 16;
+        domW = 22;
+      } else {
+        dw = 66;
+        dh = 14;
+        domH = 24;
+        domW = 32;
+      }
+      const t = Date.now();
+      const pulse = 0.7 + 0.3 * Math.sin(wingPhase * 2);
+      ctx.save();
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      } else if (type === "fast") {
+        ctx.shadowColor = "#00ffcc";
+        ctx.shadowBlur = 14;
+      } else {
+        ctx.shadowColor = "rgba(100,220,255,0.6)";
+        ctx.shadowBlur = dw * 0.3;
+      }
+      const beamAlpha = isGolden ? 0.22 + 0.1 * Math.sin(wingPhase) : 0.12 + 0.08 * Math.sin(wingPhase);
+      const beamColor = isGolden ? "rgba(255,220,60," : "rgba(120,255,180,";
+      const beamGrad = ctx.createLinearGradient(0, dh, 0, dh + dw * 1.4);
+      beamGrad.addColorStop(0, `${beamColor}${beamAlpha})`);
+      beamGrad.addColorStop(1, `${beamColor}0)`);
+      ctx.fillStyle = beamGrad;
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.moveTo(-dw * 0.45, dh);
+      ctx.lineTo(-dw * 0.75, dh + dw * 1.4);
+      ctx.lineTo(dw * 0.75, dh + dw * 1.4);
+      ctx.lineTo(dw * 0.45, dh);
+      ctx.closePath();
+      ctx.fill();
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      } else {
+        ctx.shadowColor = "rgba(100,220,255,0.6)";
+        ctx.shadowBlur = dw * 0.3;
+      }
+      const discTop = isGolden ? "#d4a820" : "#8ab0c8";
+      const discMid = isGolden ? "#8b6914" : "#4a6a80";
+      const discBot = isGolden ? "#5a4000" : "#1e3040";
+      const discGrad = ctx.createLinearGradient(0, -dh, 0, dh);
+      discGrad.addColorStop(0, discTop);
+      discGrad.addColorStop(0.4, discMid);
+      discGrad.addColorStop(1, discBot);
+      ctx.fillStyle = discGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, dw, dh, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = isGolden ? "rgba(255,200,80,0.6)" : "rgba(160,220,255,0.5)";
+      ctx.lineWidth = Math.max(0.8, dh * 0.14);
+      ctx.stroke();
+      const rimColors = isGolden ? ["#FFD700", "#FFA500", "#FFE066", "#FF8C00", "#FFFF00"] : ["#00ff88", "#0088ff", "#ff4444", "#ffdd00", "#cc44ff"];
+      const numLights = chicken.distance === "far" ? 6 : chicken.distance === "medium" ? 9 : 12;
+      ctx.shadowBlur = 0;
+      for (let i = 0; i < numLights; i++) {
+        const angle = i / numLights * Math.PI * 2;
+        const lx = Math.cos(angle) * dw * 0.82;
+        const ly = Math.sin(angle) * dh * 0.82;
+        const lightPhase = (t * 4e-3 + i * 0.7) % (Math.PI * 2);
+        const brightness = 0.5 + 0.5 * Math.sin(lightPhase);
+        const col = rimColors[i % rimColors.length];
+        ctx.globalAlpha = 0.6 + 0.4 * brightness;
+        ctx.shadowColor = col;
+        ctx.shadowBlur = dh * 1.2 * brightness;
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.arc(lx, ly, Math.max(1.5, dh * 0.28), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+      const glossGrad = ctx.createRadialGradient(
+        -dw * 0.25,
+        -dh * 0.4,
+        0,
+        0,
+        -dh * 0.2,
+        dw * 0.55
+      );
+      glossGrad.addColorStop(0, "rgba(255,255,255,0.38)");
+      glossGrad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = glossGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, -dh * 0.1, dw * 0.85, dh * 0.7, 0, Math.PI, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowColor = isGolden ? "rgba(255,220,80,0.7)" : "rgba(180,240,255,0.7)";
+      ctx.shadowBlur = domH * 0.8;
+      const d0 = isGolden ? "rgba(255,240,180,0.85)" : "rgba(200,240,255,0.85)";
+      const d1 = isGolden ? "rgba(180,120,0,0.65)" : "rgba(80,160,220,0.65)";
+      const d2 = isGolden ? "rgba(60,40,0,0.7)" : "rgba(20,60,100,0.7)";
+      const domeGrad = ctx.createRadialGradient(
+        -domW * 0.3,
+        -domH * 0.5,
+        0,
+        0,
+        0,
+        domW
+      );
+      domeGrad.addColorStop(0, d0);
+      domeGrad.addColorStop(0.45, d1);
+      domeGrad.addColorStop(1, d2);
+      ctx.fillStyle = domeGrad;
+      ctx.strokeStyle = isGolden ? "rgba(255,210,80,0.5)" : "rgba(180,240,255,0.5)";
+      ctx.lineWidth = Math.max(0.6, domW * 0.05);
+      ctx.beginPath();
+      ctx.ellipse(0, -dh * 0.3, domW, domH, 0, Math.PI, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      const headR = domW * 0.3;
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = isGolden ? "rgba(80,60,0,0.75)" : "rgba(30,80,40,0.75)";
+      ctx.beginPath();
+      ctx.ellipse(
+        0,
+        -dh * 0.3 - domH * 0.42,
+        headR,
+        headR * 1.2,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.fillStyle = isGolden ? "rgba(255,200,0,0.9)" : "rgba(80,255,120,0.9)";
+      const eyeR = headR * 0.28;
+      ctx.globalAlpha = pulse;
+      ctx.beginPath();
+      ctx.ellipse(
+        -headR * 0.35,
+        -dh * 0.3 - domH * 0.5,
+        eyeR,
+        eyeR * 0.7,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(
+        headR * 0.35,
+        -dh * 0.3 - domH * 0.5,
+        eyeR,
+        eyeR * 0.7,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "rgba(255,255,255,0.45)";
+      ctx.beginPath();
+      ctx.ellipse(
+        -domW * 0.28,
+        -dh * 0.3 - domH * 0.72,
+        domW * 0.18,
+        domH * 0.16,
+        -0.4,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    },
+    [drawExplosion]
+  );
   const drawStopwatch = reactExports.useCallback(
     (ctx, sw) => {
       if (sw.isExploding) {
@@ -58878,6 +59923,8 @@ const GameScreen = ({
           drawCoronaVirus(ctx, ch);
         } else if (selectedWorld === "hormuz") {
           drawHormuzWarcraft(ctx, ch);
+        } else if (selectedWorld === "alien") {
+          drawAlienUFO(ctx, ch);
         } else {
           drawChicken(ctx, ch);
         }
@@ -58894,6 +59941,7 @@ const GameScreen = ({
       drawOceanFish,
       drawCoronaVirus,
       drawHormuzWarcraft,
+      drawAlienUFO,
       drawStopwatch,
       selectedWorld,
       shouldSpawnStopwatch
@@ -59672,7 +60720,8 @@ const WORLDS = [
   { id: "minecraft", name: "Minecraft" },
   { id: "pumpfun", name: "pump.fun" },
   { id: "corona", name: "Corona" },
-  { id: "hormuz", name: "Hormuz" }
+  { id: "hormuz", name: "Hormuz" },
+  { id: "alien", name: "Alien" }
 ];
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
 const START_BUTTON_CLASSES = {
@@ -59695,7 +60744,8 @@ const START_BUTTON_CLASSES = {
   minecraft: "start-game-button-minecraft",
   pumpfun: "start-game-button-pumpfun",
   corona: "start-game-button-corona",
-  hormuz: "start-game-button-hormuz"
+  hormuz: "start-game-button-hormuz",
+  alien: "start-game-button-alien"
 };
 const StartScreen = ({
   onStartGame,
@@ -59735,7 +60785,7 @@ const StartScreen = ({
     if (idx >= 0) setWorldIndex(idx);
   }, [selectedWorld]);
   reactExports.useEffect(() => {
-    const nextType = selectedWorld === "pumpfun" ? "pumpfun" : selectedWorld === "bitcoin" ? "bitcoin" : selectedWorld === "ocean" ? "fish" : selectedWorld === "corona" ? "virus" : selectedWorld === "hormuz" ? "warcraft" : "chicken";
+    const nextType = selectedWorld === "pumpfun" ? "pumpfun" : selectedWorld === "bitcoin" ? "bitcoin" : selectedWorld === "ocean" ? "fish" : selectedWorld === "corona" ? "virus" : selectedWorld === "hormuz" ? "warcraft" : selectedWorld === "alien" ? "ufo" : "chicken";
     if (nextType === activeEntityTypeRef.current) return;
     pendingEntityTypeRef.current = nextType;
     pendingIsPumpFunRef.current = nextType === "pumpfun";
@@ -61174,6 +62224,175 @@ const StartScreen = ({
     },
     []
   );
+  const drawAlienUFO = reactExports.useCallback(
+    (ctx, c2) => {
+      const { x: x2, y: y2, size, wingPhase, direction } = c2;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let dw;
+      let dh;
+      let domH;
+      let domW;
+      if (size <= 25) {
+        dw = 28;
+        dh = 6;
+        domH = 10;
+        domW = 14;
+      } else if (size <= 40) {
+        dw = 46;
+        dh = 10;
+        domH = 16;
+        domW = 22;
+      } else {
+        dw = 66;
+        dh = 14;
+        domH = 24;
+        domW = 32;
+      }
+      const alpha = entityAlphaRef.current;
+      const t = Date.now();
+      const pulse = 0.7 + 0.3 * Math.sin(wingPhase * 2);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      const beamAlpha = (0.12 + 0.08 * Math.sin(wingPhase)) * alpha;
+      const beamGrad = ctx.createLinearGradient(0, dh, 0, dh + dw * 1.4);
+      beamGrad.addColorStop(0, `rgba(120,255,180,${beamAlpha})`);
+      beamGrad.addColorStop(1, "rgba(60,255,120,0)");
+      ctx.fillStyle = beamGrad;
+      ctx.beginPath();
+      ctx.moveTo(-dw * 0.45, dh);
+      ctx.lineTo(-dw * 0.75, dh + dw * 1.4);
+      ctx.lineTo(dw * 0.75, dh + dw * 1.4);
+      ctx.lineTo(dw * 0.45, dh);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowColor = "rgba(100,220,255,0.6)";
+      ctx.shadowBlur = dw * 0.3;
+      const discGrad = ctx.createLinearGradient(0, -dh, 0, dh);
+      discGrad.addColorStop(0, "#8ab0c8");
+      discGrad.addColorStop(0.4, "#4a6a80");
+      discGrad.addColorStop(1, "#1e3040");
+      ctx.fillStyle = discGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, dw, dh, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(160,220,255,0.5)";
+      ctx.lineWidth = Math.max(0.8, dh * 0.14);
+      ctx.stroke();
+      const rimColors = ["#00ff88", "#0088ff", "#ff4444", "#ffdd00", "#cc44ff"];
+      const numLights = size <= 25 ? 6 : size <= 40 ? 9 : 12;
+      ctx.shadowBlur = 0;
+      for (let i = 0; i < numLights; i++) {
+        const angle = i / numLights * Math.PI * 2;
+        const lx = Math.cos(angle) * dw * 0.82;
+        const ly = Math.sin(angle) * dh * 0.82;
+        const lightPhase = (t * 4e-3 + i * 0.7) % (Math.PI * 2);
+        const brightness = 0.5 + 0.5 * Math.sin(lightPhase);
+        const col = rimColors[i % rimColors.length];
+        ctx.globalAlpha = (0.6 + 0.4 * brightness) * alpha;
+        ctx.shadowColor = col;
+        ctx.shadowBlur = dh * 1.2 * brightness;
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.arc(lx, ly, Math.max(1.5, dh * 0.28), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = alpha;
+      const glossGrad = ctx.createRadialGradient(
+        -dw * 0.25,
+        -dh * 0.4,
+        0,
+        0,
+        -dh * 0.2,
+        dw * 0.55
+      );
+      glossGrad.addColorStop(0, "rgba(255,255,255,0.38)");
+      glossGrad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = glossGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, -dh * 0.1, dw * 0.85, dh * 0.7, 0, Math.PI, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowColor = "rgba(180,240,255,0.7)";
+      ctx.shadowBlur = domH * 0.8;
+      const domeGrad = ctx.createRadialGradient(
+        -domW * 0.3,
+        -domH * 0.5,
+        0,
+        0,
+        0,
+        domW
+      );
+      domeGrad.addColorStop(0, "rgba(200,240,255,0.85)");
+      domeGrad.addColorStop(0.45, "rgba(80,160,220,0.65)");
+      domeGrad.addColorStop(1, "rgba(20,60,100,0.7)");
+      ctx.fillStyle = domeGrad;
+      ctx.strokeStyle = "rgba(180,240,255,0.5)";
+      ctx.lineWidth = Math.max(0.6, domW * 0.05);
+      ctx.beginPath();
+      ctx.ellipse(0, -dh * 0.3, domW, domH, 0, Math.PI, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      const headR = domW * 0.3;
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(30,80,40,0.75)";
+      ctx.beginPath();
+      ctx.ellipse(
+        0,
+        -dh * 0.3 - domH * 0.42,
+        headR,
+        headR * 1.2,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.fillStyle = "rgba(80,255,120,0.9)";
+      const eyeR = headR * 0.28;
+      const pulseEye = pulse;
+      ctx.globalAlpha = pulseEye * alpha;
+      ctx.beginPath();
+      ctx.ellipse(
+        -headR * 0.35,
+        -dh * 0.3 - domH * 0.5,
+        eyeR,
+        eyeR * 0.7,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(
+        headR * 0.35,
+        -dh * 0.3 - domH * 0.5,
+        eyeR,
+        eyeR * 0.7,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = "rgba(255,255,255,0.45)";
+      ctx.beginPath();
+      ctx.ellipse(
+        -domW * 0.28,
+        -dh * 0.3 - domH * 0.72,
+        domW * 0.18,
+        domH * 0.16,
+        -0.4,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    []
+  );
   const animateChickens = reactExports.useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas == null ? void 0 : canvas.getContext("2d");
@@ -61196,7 +62415,7 @@ const StartScreen = ({
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const activeType = activeEntityTypeRef.current;
-    const drawFn = activeType === "pumpfun" ? drawPumpFunPill : activeType === "bitcoin" ? drawBitcoinCoin : activeType === "fish" ? drawOceanFish : activeType === "virus" ? drawCoronaVirus : activeType === "warcraft" ? drawHormuzWarcraft : drawChicken;
+    const drawFn = activeType === "pumpfun" ? drawPumpFunPill : activeType === "bitcoin" ? drawBitcoinCoin : activeType === "fish" ? drawOceanFish : activeType === "virus" ? drawCoronaVirus : activeType === "warcraft" ? drawHormuzWarcraft : activeType === "ufo" ? drawAlienUFO : drawChicken;
     for (let i = chickensRef.current.length - 1; i >= 0; i--) {
       const ch = chickensRef.current[i];
       ch.x += ch.speed;
@@ -61227,13 +62446,14 @@ const StartScreen = ({
     drawBitcoinCoin,
     drawOceanFish,
     drawCoronaVirus,
-    drawHormuzWarcraft
+    drawHormuzWarcraft,
+    drawAlienUFO
   ]);
   const initialWorldRef = reactExports.useRef(selectedWorld);
   reactExports.useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const initType = initialWorldRef.current === "pumpfun" ? "pumpfun" : initialWorldRef.current === "bitcoin" ? "bitcoin" : initialWorldRef.current === "ocean" ? "fish" : initialWorldRef.current === "corona" ? "virus" : initialWorldRef.current === "hormuz" ? "warcraft" : "chicken";
+    const initType = initialWorldRef.current === "pumpfun" ? "pumpfun" : initialWorldRef.current === "bitcoin" ? "bitcoin" : initialWorldRef.current === "ocean" ? "fish" : initialWorldRef.current === "corona" ? "virus" : initialWorldRef.current === "hormuz" ? "warcraft" : initialWorldRef.current === "alien" ? "ufo" : "chicken";
     activeEntityTypeRef.current = initType;
     activeIsPumpFunRef.current = initType === "pumpfun";
     entityAlphaRef.current = 1;
@@ -61624,7 +62844,8 @@ const VALID_WORLDS = [
   "minecraft",
   "pumpfun",
   "corona",
-  "hormuz"
+  "hormuz",
+  "alien"
 ];
 const DEFAULT_PLAYER_DATA = {
   level: 1,

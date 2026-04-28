@@ -85,6 +85,7 @@ const WORLDS: { id: BackgroundWorld; name: string }[] = [
   { id: "pumpfun", name: "pump.fun" },
   { id: "corona", name: "Corona" },
   { id: "hormuz", name: "Hormuz" },
+  { id: "alien", name: "Alien" },
 ];
 
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
@@ -110,6 +111,7 @@ const START_BUTTON_CLASSES: Record<BackgroundWorld, string> = {
   pumpfun: "start-game-button-pumpfun",
   corona: "start-game-button-corona",
   hormuz: "start-game-button-hormuz",
+  alien: "start-game-button-alien",
 };
 
 const StartScreen: React.FC<StartScreenProps> = ({
@@ -141,18 +143,18 @@ const StartScreen: React.FC<StartScreenProps> = ({
   const touchStartXRef = useRef(0);
   const touchCurXRef = useRef(0);
 
-  // Transition state for smooth chicken ↔ pill/coin/fish/virus/warcraft swap
+  // Transition state for smooth chicken ↔ pill/coin/fish/virus/warcraft/ufo swap
   // entityAlpha: current draw alpha (0..1)
   // transitionPhase: 'idle' | 'fade-out' | 'fade-in'
   // pendingEntityType: the entity type we're transitioning TO
-  // "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft"
+  // "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft" | "ufo"
   const entityAlphaRef = useRef<number>(1);
   const transitionPhaseRef = useRef<"idle" | "fade-out" | "fade-in">("idle");
   const pendingEntityTypeRef = useRef<
-    "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft"
+    "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft" | "ufo"
   >("chicken");
   const activeEntityTypeRef = useRef<
-    "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft"
+    "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft" | "ufo"
   >("chicken");
 
   // Keep backward-compat booleans used by pill drawing (entityAlphaRef is shared)
@@ -173,7 +175,8 @@ const StartScreen: React.FC<StartScreenProps> = ({
       | "bitcoin"
       | "fish"
       | "virus"
-      | "warcraft" =
+      | "warcraft"
+      | "ufo" =
       selectedWorld === "pumpfun"
         ? "pumpfun"
         : selectedWorld === "bitcoin"
@@ -184,7 +187,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
               ? "virus"
               : selectedWorld === "hormuz"
                 ? "warcraft"
-                : "chicken";
+                : selectedWorld === "alien"
+                  ? "ufo"
+                  : "chicken";
     if (nextType === activeEntityTypeRef.current) return; // no change
     pendingEntityTypeRef.current = nextType;
     pendingIsPumpFunRef.current = nextType === "pumpfun";
@@ -1831,6 +1836,201 @@ const StartScreen: React.FC<StartScreenProps> = ({
     [],
   );
 
+  // Draw Alien UFO — classic flying saucer with animated rim lights and tractor beam
+  const drawAlienUFO = useCallback(
+    (ctx: CanvasRenderingContext2D, c: StartChicken) => {
+      const { x, y, size, wingPhase, direction } = c;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Size tiers
+      let dw: number; // disc half-width
+      let dh: number; // disc half-height
+      let domH: number; // dome height
+      let domW: number; // dome half-width
+      if (size <= 25) {
+        dw = 28;
+        dh = 6;
+        domH = 10;
+        domW = 14;
+      } else if (size <= 40) {
+        dw = 46;
+        dh = 10;
+        domH = 16;
+        domW = 22;
+      } else {
+        dw = 66;
+        dh = 14;
+        domH = 24;
+        domW = 32;
+      }
+
+      const alpha = entityAlphaRef.current;
+      const t = Date.now();
+      const pulse = 0.7 + 0.3 * Math.sin(wingPhase * 2);
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+
+      // Tractor beam — faint green cone downward
+      const beamAlpha = (0.12 + 0.08 * Math.sin(wingPhase)) * alpha;
+      const beamGrad = ctx.createLinearGradient(0, dh, 0, dh + dw * 1.4);
+      beamGrad.addColorStop(0, `rgba(120,255,180,${beamAlpha})`);
+      beamGrad.addColorStop(1, "rgba(60,255,120,0)");
+      ctx.fillStyle = beamGrad;
+      ctx.beginPath();
+      ctx.moveTo(-dw * 0.45, dh);
+      ctx.lineTo(-dw * 0.75, dh + dw * 1.4);
+      ctx.lineTo(dw * 0.75, dh + dw * 1.4);
+      ctx.lineTo(dw * 0.45, dh);
+      ctx.closePath();
+      ctx.fill();
+
+      // Disc body shadow/glow
+      ctx.shadowColor = "rgba(100,220,255,0.6)";
+      ctx.shadowBlur = dw * 0.3;
+
+      // Disc body — flat ellipse, metallic dark
+      const discGrad = ctx.createLinearGradient(0, -dh, 0, dh);
+      discGrad.addColorStop(0, "#8ab0c8");
+      discGrad.addColorStop(0.4, "#4a6a80");
+      discGrad.addColorStop(1, "#1e3040");
+      ctx.fillStyle = discGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, dw, dh, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(160,220,255,0.5)";
+      ctx.lineWidth = Math.max(0.8, dh * 0.14);
+      ctx.stroke();
+
+      // Rim lights — pulsing colored LEDs around the disc edge
+      const rimColors = ["#00ff88", "#0088ff", "#ff4444", "#ffdd00", "#cc44ff"];
+      const numLights = size <= 25 ? 6 : size <= 40 ? 9 : 12;
+      ctx.shadowBlur = 0;
+      for (let i = 0; i < numLights; i++) {
+        const angle = (i / numLights) * Math.PI * 2;
+        const lx = Math.cos(angle) * dw * 0.82;
+        const ly = Math.sin(angle) * dh * 0.82;
+        const lightPhase = (t * 0.004 + i * 0.7) % (Math.PI * 2);
+        const brightness = 0.5 + 0.5 * Math.sin(lightPhase);
+        const col = rimColors[i % rimColors.length];
+        ctx.globalAlpha = (0.6 + 0.4 * brightness) * alpha;
+        ctx.shadowColor = col;
+        ctx.shadowBlur = dh * 1.2 * brightness;
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.arc(lx, ly, Math.max(1.5, dh * 0.28), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = alpha;
+
+      // Disc top highlight gloss
+      const glossGrad = ctx.createRadialGradient(
+        -dw * 0.25,
+        -dh * 0.4,
+        0,
+        0,
+        -dh * 0.2,
+        dw * 0.55,
+      );
+      glossGrad.addColorStop(0, "rgba(255,255,255,0.38)");
+      glossGrad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = glossGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, -dh * 0.1, dw * 0.85, dh * 0.7, 0, Math.PI, Math.PI * 2);
+      ctx.fill();
+
+      // Dome — translucent glass bubble on top
+      ctx.shadowColor = "rgba(180,240,255,0.7)";
+      ctx.shadowBlur = domH * 0.8;
+      const domeGrad = ctx.createRadialGradient(
+        -domW * 0.3,
+        -domH * 0.5,
+        0,
+        0,
+        0,
+        domW,
+      );
+      domeGrad.addColorStop(0, "rgba(200,240,255,0.85)");
+      domeGrad.addColorStop(0.45, "rgba(80,160,220,0.65)");
+      domeGrad.addColorStop(1, "rgba(20,60,100,0.7)");
+      ctx.fillStyle = domeGrad;
+      ctx.strokeStyle = "rgba(180,240,255,0.5)";
+      ctx.lineWidth = Math.max(0.6, domW * 0.05);
+      ctx.beginPath();
+      ctx.ellipse(0, -dh * 0.3, domW, domH, 0, Math.PI, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Alien silhouette inside dome
+      const headR = domW * 0.3;
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(30,80,40,0.75)";
+      // Head
+      ctx.beginPath();
+      ctx.ellipse(
+        0,
+        -dh * 0.3 - domH * 0.42,
+        headR,
+        headR * 1.2,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+      // Eyes
+      ctx.fillStyle = "rgba(80,255,120,0.9)";
+      const eyeR = headR * 0.28;
+      const pulseEye = pulse;
+      ctx.globalAlpha = pulseEye * alpha;
+      ctx.beginPath();
+      ctx.ellipse(
+        -headR * 0.35,
+        -dh * 0.3 - domH * 0.5,
+        eyeR,
+        eyeR * 0.7,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(
+        headR * 0.35,
+        -dh * 0.3 - domH * 0.5,
+        eyeR,
+        eyeR * 0.7,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+
+      ctx.globalAlpha = alpha;
+
+      // Dome glass glint
+      ctx.fillStyle = "rgba(255,255,255,0.45)";
+      ctx.beginPath();
+      ctx.ellipse(
+        -domW * 0.28,
+        -dh * 0.3 - domH * 0.72,
+        domW * 0.18,
+        domH * 0.16,
+        -0.4,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    [],
+  );
+
   const animateChickens = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -1869,7 +2069,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
               ? drawCoronaVirus
               : activeType === "warcraft"
                 ? drawHormuzWarcraft
-                : drawChicken;
+                : activeType === "ufo"
+                  ? drawAlienUFO
+                  : drawChicken;
 
     for (let i = chickensRef.current.length - 1; i >= 0; i--) {
       const ch = chickensRef.current[i];
@@ -1906,6 +2108,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
     drawOceanFish,
     drawCoronaVirus,
     drawHormuzWarcraft,
+    drawAlienUFO,
   ]);
 
   // Capture initial world for mount-time entity setup (no dependency on selectedWorld changes)
@@ -1921,7 +2124,8 @@ const StartScreen: React.FC<StartScreenProps> = ({
       | "bitcoin"
       | "fish"
       | "virus"
-      | "warcraft" =
+      | "warcraft"
+      | "ufo" =
       initialWorldRef.current === "pumpfun"
         ? "pumpfun"
         : initialWorldRef.current === "bitcoin"
@@ -1932,7 +2136,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
               ? "virus"
               : initialWorldRef.current === "hormuz"
                 ? "warcraft"
-                : "chicken";
+                : initialWorldRef.current === "alien"
+                  ? "ufo"
+                  : "chicken";
     activeEntityTypeRef.current = initType;
     activeIsPumpFunRef.current = initType === "pumpfun";
     entityAlphaRef.current = 1;

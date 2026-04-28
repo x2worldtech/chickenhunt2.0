@@ -3063,6 +3063,238 @@ const GameScreen: React.FC<GameScreenProps> = ({
     [drawExplosion],
   );
 
+  // ─── Alien UFO drawing ───────────────────────────────────────────────────────
+
+  const drawAlienUFO = useCallback(
+    (ctx: CanvasRenderingContext2D, chicken: Chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x, y, size, wingPhase, direction, type, isGolden } = chicken;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Size tiers by distance
+      let dw: number; // disc half-width
+      let dh: number; // disc half-height
+      let domH: number; // dome height
+      let domW: number; // dome half-width
+      if (chicken.distance === "far") {
+        dw = 28;
+        dh = 6;
+        domH = 10;
+        domW = 14;
+      } else if (chicken.distance === "medium") {
+        dw = 46;
+        dh = 10;
+        domH = 16;
+        domW = 22;
+      } else {
+        dw = 66;
+        dh = 14;
+        domH = 24;
+        domW = 32;
+      }
+
+      const t = Date.now();
+      const pulse = 0.7 + 0.3 * Math.sin(wingPhase * 2);
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+
+      // Glow ring
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      } else if (type === "fast") {
+        ctx.shadowColor = "#00ffcc";
+        ctx.shadowBlur = 14;
+      } else {
+        ctx.shadowColor = "rgba(100,220,255,0.6)";
+        ctx.shadowBlur = dw * 0.3;
+      }
+
+      // Tractor beam — faint cone downward
+      const beamAlpha = isGolden
+        ? 0.22 + 0.1 * Math.sin(wingPhase)
+        : 0.12 + 0.08 * Math.sin(wingPhase);
+      const beamColor = isGolden ? "rgba(255,220,60," : "rgba(120,255,180,";
+      const beamGrad = ctx.createLinearGradient(0, dh, 0, dh + dw * 1.4);
+      beamGrad.addColorStop(0, `${beamColor}${beamAlpha})`);
+      beamGrad.addColorStop(1, `${beamColor}0)`);
+      ctx.fillStyle = beamGrad;
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.moveTo(-dw * 0.45, dh);
+      ctx.lineTo(-dw * 0.75, dh + dw * 1.4);
+      ctx.lineTo(dw * 0.75, dh + dw * 1.4);
+      ctx.lineTo(dw * 0.45, dh);
+      ctx.closePath();
+      ctx.fill();
+
+      // Restore glow for disc
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      } else {
+        ctx.shadowColor = "rgba(100,220,255,0.6)";
+        ctx.shadowBlur = dw * 0.3;
+      }
+
+      // Disc body — flat ellipse
+      const discTop = isGolden ? "#d4a820" : "#8ab0c8";
+      const discMid = isGolden ? "#8b6914" : "#4a6a80";
+      const discBot = isGolden ? "#5a4000" : "#1e3040";
+      const discGrad = ctx.createLinearGradient(0, -dh, 0, dh);
+      discGrad.addColorStop(0, discTop);
+      discGrad.addColorStop(0.4, discMid);
+      discGrad.addColorStop(1, discBot);
+      ctx.fillStyle = discGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, dw, dh, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = isGolden
+        ? "rgba(255,200,80,0.6)"
+        : "rgba(160,220,255,0.5)";
+      ctx.lineWidth = Math.max(0.8, dh * 0.14);
+      ctx.stroke();
+
+      // Rim lights — pulsing colored LEDs
+      const rimColors = isGolden
+        ? ["#FFD700", "#FFA500", "#FFE066", "#FF8C00", "#FFFF00"]
+        : ["#00ff88", "#0088ff", "#ff4444", "#ffdd00", "#cc44ff"];
+      const numLights =
+        chicken.distance === "far" ? 6 : chicken.distance === "medium" ? 9 : 12;
+      ctx.shadowBlur = 0;
+      for (let i = 0; i < numLights; i++) {
+        const angle = (i / numLights) * Math.PI * 2;
+        const lx = Math.cos(angle) * dw * 0.82;
+        const ly = Math.sin(angle) * dh * 0.82;
+        const lightPhase = (t * 0.004 + i * 0.7) % (Math.PI * 2);
+        const brightness = 0.5 + 0.5 * Math.sin(lightPhase);
+        const col = rimColors[i % rimColors.length];
+        ctx.globalAlpha = 0.6 + 0.4 * brightness;
+        ctx.shadowColor = col;
+        ctx.shadowBlur = dh * 1.2 * brightness;
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.arc(lx, ly, Math.max(1.5, dh * 0.28), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+
+      // Disc top gloss
+      const glossGrad = ctx.createRadialGradient(
+        -dw * 0.25,
+        -dh * 0.4,
+        0,
+        0,
+        -dh * 0.2,
+        dw * 0.55,
+      );
+      glossGrad.addColorStop(0, "rgba(255,255,255,0.38)");
+      glossGrad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = glossGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, -dh * 0.1, dw * 0.85, dh * 0.7, 0, Math.PI, Math.PI * 2);
+      ctx.fill();
+
+      // Dome — translucent glass bubble on top
+      ctx.shadowColor = isGolden
+        ? "rgba(255,220,80,0.7)"
+        : "rgba(180,240,255,0.7)";
+      ctx.shadowBlur = domH * 0.8;
+      const d0 = isGolden ? "rgba(255,240,180,0.85)" : "rgba(200,240,255,0.85)";
+      const d1 = isGolden ? "rgba(180,120,0,0.65)" : "rgba(80,160,220,0.65)";
+      const d2 = isGolden ? "rgba(60,40,0,0.7)" : "rgba(20,60,100,0.7)";
+      const domeGrad = ctx.createRadialGradient(
+        -domW * 0.3,
+        -domH * 0.5,
+        0,
+        0,
+        0,
+        domW,
+      );
+      domeGrad.addColorStop(0, d0);
+      domeGrad.addColorStop(0.45, d1);
+      domeGrad.addColorStop(1, d2);
+      ctx.fillStyle = domeGrad;
+      ctx.strokeStyle = isGolden
+        ? "rgba(255,210,80,0.5)"
+        : "rgba(180,240,255,0.5)";
+      ctx.lineWidth = Math.max(0.6, domW * 0.05);
+      ctx.beginPath();
+      ctx.ellipse(0, -dh * 0.3, domW, domH, 0, Math.PI, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Alien silhouette inside dome
+      const headR = domW * 0.3;
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = isGolden ? "rgba(80,60,0,0.75)" : "rgba(30,80,40,0.75)";
+      ctx.beginPath();
+      ctx.ellipse(
+        0,
+        -dh * 0.3 - domH * 0.42,
+        headR,
+        headR * 1.2,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+      // Eyes
+      ctx.fillStyle = isGolden ? "rgba(255,200,0,0.9)" : "rgba(80,255,120,0.9)";
+      const eyeR = headR * 0.28;
+      ctx.globalAlpha = pulse;
+      ctx.beginPath();
+      ctx.ellipse(
+        -headR * 0.35,
+        -dh * 0.3 - domH * 0.5,
+        eyeR,
+        eyeR * 0.7,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(
+        headR * 0.35,
+        -dh * 0.3 - domH * 0.5,
+        eyeR,
+        eyeR * 0.7,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Dome glint
+      ctx.fillStyle = "rgba(255,255,255,0.45)";
+      ctx.beginPath();
+      ctx.ellipse(
+        -domW * 0.28,
+        -dh * 0.3 - domH * 0.72,
+        domW * 0.18,
+        domH * 0.16,
+        -0.4,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    },
+    [drawExplosion],
+  );
+
   const drawStopwatch = useCallback(
     (ctx: CanvasRenderingContext2D, sw: Stopwatch) => {
       if (sw.isExploding) {
@@ -3670,6 +3902,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
           drawCoronaVirus(ctx, ch);
         } else if (selectedWorld === "hormuz") {
           drawHormuzWarcraft(ctx, ch);
+        } else if (selectedWorld === "alien") {
+          drawAlienUFO(ctx, ch);
         } else {
           drawChicken(ctx, ch);
         }
@@ -3687,6 +3921,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
       drawOceanFish,
       drawCoronaVirus,
       drawHormuzWarcraft,
+      drawAlienUFO,
       drawStopwatch,
       selectedWorld,
       shouldSpawnStopwatch,

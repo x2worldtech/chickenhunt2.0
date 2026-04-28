@@ -3222,6 +3222,25 @@ body {
   border: 1.5px solid #dc2626 !important;
 }
 
+/* Alien world — deep space purple/teal sci-fi style */
+.start-game-button-alien {
+  background: linear-gradient(135deg, #1a0533 0%, #2e1065 50%, #0d1a33 100%);
+  color: #c084fc !important;
+  text-shadow: 0 1px 3px rgba(139, 92, 246, 0.6);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.45), 0 2px 6px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(192, 132, 252, 0.15);
+  border: 1.5px solid #7c3aed !important;
+}
+
+.start-game-button-alien:hover {
+  background: linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #1e3a5f 100%);
+  color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(139, 92, 246, 0.8);
+  box-shadow: 0 6px 22px rgba(139, 92, 246, 0.6), 0 3px 8px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(167, 139, 250, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border: 1.5px solid #a78bfa !important;
+}
+
 /* Tips container styling - Default for all worlds except snowy */
 .tips-container-default {
   border: 1px solid rgba(255, 255, 255, 0.2);
