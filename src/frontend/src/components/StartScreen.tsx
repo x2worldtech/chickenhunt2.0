@@ -40,6 +40,7 @@ interface StartChicken {
   color: string;
   wingPhase: number;
   direction: "left-to-right" | "right-to-left";
+  isRocket?: boolean;
 }
 
 const GAME_TIPS = [
@@ -330,6 +331,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
       color: CHICKEN_COLORS[Math.floor(Math.random() * CHICKEN_COLORS.length)],
       wingPhase: Math.random() * Math.PI * 2,
       direction: dir,
+      isRocket: Math.random() < 0.5,
     };
   }, []);
 
@@ -1195,10 +1197,10 @@ const StartScreen: React.FC<StartScreenProps> = ({
     [],
   );
 
-  // Draw Hormuz warcraft — premium rockets and fighter jets, alternating by entity id
+  // Draw Hormuz warcraft — premium rockets and fighter jets, random mix per entity
   const drawHormuzWarcraft = useCallback(
     (ctx: CanvasRenderingContext2D, c: StartChicken) => {
-      const { x, y, size, wingPhase, direction, id } = c;
+      const { x, y, size, wingPhase, direction } = c;
       const cx = x + size / 2;
       const cy = y + size / 2;
 
@@ -1217,7 +1219,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
       }
 
       const alpha = entityAlphaRef.current;
-      const isRocket = Math.floor(id) % 2 === 0;
+      const isRocket = c.isRocket ?? false;
 
       ctx.save();
       ctx.globalAlpha = alpha;
@@ -1227,44 +1229,120 @@ const StartScreen: React.FC<StartScreenProps> = ({
 
       if (isRocket) {
         // ── Premium Military Rocket / Missile ──
-        // Bright exhaust flame behind tail: white core → orange → fade
-        const flameLen = w * 0.45;
-        const flameCoreGrad = ctx.createLinearGradient(
-          w * 0.36,
-          0,
-          w * 0.36 + flameLen,
-          0,
-        );
-        flameCoreGrad.addColorStop(0, "rgba(255,255,255,0.95)");
-        flameCoreGrad.addColorStop(0.15, "rgba(255,220,80,0.9)");
-        flameCoreGrad.addColorStop(0.45, "rgba(255,100,0,0.65)");
-        flameCoreGrad.addColorStop(1, "rgba(255,60,0,0)");
-        // Outer flame halo
+        // Animated exhaust flame behind tail (time-based pulse)
+        const t = Date.now();
+        const flicker1 = 0.82 + 0.18 * Math.sin(t * 0.011);
+        const flicker2 = 0.88 + 0.12 * Math.sin(t * 0.017 + 1.3);
+        const flickerAlpha = 0.78 + 0.22 * Math.sin(t * 0.009 + 2.1);
+
+        const rearX = w * 0.36;
+        const flameBase = h * 0.28;
+        const flameLenOuter = w * 0.52 * flicker1;
+        const flameLenCore = w * 0.36 * flicker2;
+
+        // Outer halo
         const flameHaloGrad = ctx.createLinearGradient(
-          w * 0.36,
+          rearX,
           0,
-          w * 0.36 + flameLen * 1.1,
+          rearX + flameLenOuter,
           0,
         );
-        flameHaloGrad.addColorStop(0, "rgba(255,160,40,0.5)");
-        flameHaloGrad.addColorStop(0.5, "rgba(255,80,0,0.25)");
-        flameHaloGrad.addColorStop(1, "rgba(255,40,0,0)");
-        // Draw halo first
+        flameHaloGrad.addColorStop(0, `rgba(255,130,30,${0.4 * flickerAlpha})`);
+        flameHaloGrad.addColorStop(
+          0.5,
+          `rgba(255,70,0,${0.22 * flickerAlpha})`,
+        );
+        flameHaloGrad.addColorStop(1, "rgba(255,30,0,0)");
         ctx.fillStyle = flameHaloGrad;
         ctx.beginPath();
-        ctx.moveTo(w * 0.36, -h * 0.32);
-        ctx.lineTo(w * 0.36 + flameLen * 1.1, -h * 0.08);
-        ctx.lineTo(w * 0.36 + flameLen * 1.1, h * 0.08);
-        ctx.lineTo(w * 0.36, h * 0.32);
+        ctx.moveTo(rearX, -flameBase * 1.0);
+        ctx.bezierCurveTo(
+          rearX + flameLenOuter * 0.4,
+          -flameBase * 0.7,
+          rearX + flameLenOuter * 0.8,
+          -flameBase * 0.2,
+          rearX + flameLenOuter,
+          0,
+        );
+        ctx.bezierCurveTo(
+          rearX + flameLenOuter * 0.8,
+          flameBase * 0.2,
+          rearX + flameLenOuter * 0.4,
+          flameBase * 0.7,
+          rearX,
+          flameBase * 1.0,
+        );
         ctx.closePath();
         ctx.fill();
-        // Core flame
+        // Mid flame
+        const flameMidGrad = ctx.createLinearGradient(
+          rearX,
+          0,
+          rearX + flameLenCore * 1.25,
+          0,
+        );
+        flameMidGrad.addColorStop(0, `rgba(255,210,60,${0.82 * flickerAlpha})`);
+        flameMidGrad.addColorStop(
+          0.35,
+          `rgba(255,110,10,${0.6 * flickerAlpha})`,
+        );
+        flameMidGrad.addColorStop(1, "rgba(255,50,0,0)");
+        ctx.fillStyle = flameMidGrad;
+        ctx.beginPath();
+        ctx.moveTo(rearX, -flameBase * 0.62);
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.45,
+          -flameBase * 0.38,
+          rearX + flameLenCore * 0.9,
+          -flameBase * 0.1,
+          rearX + flameLenCore * 1.25,
+          0,
+        );
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.9,
+          flameBase * 0.1,
+          rearX + flameLenCore * 0.45,
+          flameBase * 0.38,
+          rearX,
+          flameBase * 0.62,
+        );
+        ctx.closePath();
+        ctx.fill();
+        // White-hot core
+        const flameCoreGrad = ctx.createLinearGradient(
+          rearX,
+          0,
+          rearX + flameLenCore * 0.7,
+          0,
+        );
+        flameCoreGrad.addColorStop(
+          0,
+          `rgba(255,255,255,${0.95 * flickerAlpha})`,
+        );
+        flameCoreGrad.addColorStop(
+          0.4,
+          `rgba(255,230,100,${0.8 * flickerAlpha})`,
+        );
+        flameCoreGrad.addColorStop(1, "rgba(255,120,0,0)");
         ctx.fillStyle = flameCoreGrad;
         ctx.beginPath();
-        ctx.moveTo(w * 0.36, -h * 0.2);
-        ctx.lineTo(w * 0.36 + flameLen, -h * 0.05);
-        ctx.lineTo(w * 0.36 + flameLen, h * 0.05);
-        ctx.lineTo(w * 0.36, h * 0.2);
+        ctx.moveTo(rearX, -flameBase * 0.28);
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.35,
+          -flameBase * 0.15,
+          rearX + flameLenCore * 0.6,
+          -flameBase * 0.04,
+          rearX + flameLenCore * 0.7,
+          0,
+        );
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.6,
+          flameBase * 0.04,
+          rearX + flameLenCore * 0.35,
+          flameBase * 0.15,
+          rearX,
+          flameBase * 0.28,
+        );
         ctx.closePath();
         ctx.fill();
 
@@ -1397,69 +1475,113 @@ const StartScreen: React.FC<StartScreenProps> = ({
         const bob = Math.sin(wingPhase) * 1.5;
         ctx.translate(0, bob);
 
-        // Twin engine afterburner cone: white → yellow → orange → transparent
-        const afterW = w * 0.22;
-        const afterGrad1 = ctx.createRadialGradient(
-          w * 0.4,
-          -h * 0.1,
-          0,
-          w * 0.4,
-          -h * 0.1,
-          afterW * 0.7,
-        );
-        afterGrad1.addColorStop(0, "rgba(255,255,220,0.98)");
-        afterGrad1.addColorStop(0.25, "rgba(255,200,50,0.85)");
-        afterGrad1.addColorStop(0.6, "rgba(255,90,0,0.5)");
-        afterGrad1.addColorStop(1, "rgba(255,40,0,0)");
-        const afterGrad2 = ctx.createRadialGradient(
-          w * 0.4,
-          h * 0.1,
-          0,
-          w * 0.4,
-          h * 0.1,
-          afterW * 0.7,
-        );
-        afterGrad2.addColorStop(0, "rgba(255,255,220,0.98)");
-        afterGrad2.addColorStop(0.25, "rgba(255,200,50,0.85)");
-        afterGrad2.addColorStop(0.6, "rgba(255,90,0,0.5)");
-        afterGrad2.addColorStop(1, "rgba(255,40,0,0)");
-        // Outer afterburner glow
-        const afterOuterGrad = ctx.createLinearGradient(
-          w * 0.34,
-          0,
-          w * 0.68,
-          0,
-        );
-        afterOuterGrad.addColorStop(0, "rgba(255,140,30,0.4)");
-        afterOuterGrad.addColorStop(1, "rgba(255,60,0,0)");
-        ctx.fillStyle = afterOuterGrad;
-        ctx.beginPath();
-        ctx.ellipse(w * 0.5, 0, w * 0.22, h * 0.3, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = afterGrad1;
-        ctx.beginPath();
-        ctx.ellipse(
-          w * 0.4,
-          -h * 0.1,
-          afterW * 0.6,
-          h * 0.16,
-          0,
-          0,
-          Math.PI * 2,
-        );
-        ctx.fill();
-        ctx.fillStyle = afterGrad2;
-        ctx.beginPath();
-        ctx.ellipse(
-          w * 0.4,
-          h * 0.1,
-          afterW * 0.6,
-          h * 0.16,
-          0,
-          0,
-          Math.PI * 2,
-        );
-        ctx.fill();
+        // Animated twin engine afterburner (time-based pulse)
+        const t = Date.now();
+        const abFlicker1 = 0.8 + 0.2 * Math.sin(t * 0.013);
+        const abFlicker2 = 0.85 + 0.15 * Math.sin(t * 0.019 + 0.9);
+        const abAlpha = 0.75 + 0.25 * Math.sin(t * 0.008 + 1.7);
+
+        const abBaseX = w * 0.4;
+        const abLenOuter = w * 0.3 * abFlicker1;
+        const abLenCore = w * 0.2 * abFlicker2;
+        const abRadOuter = h * 0.18;
+        const abRadCore = h * 0.1;
+
+        const drawABFlame = (yOff: number) => {
+          const outerGrad = ctx.createLinearGradient(
+            abBaseX,
+            yOff,
+            abBaseX + abLenOuter,
+            yOff,
+          );
+          outerGrad.addColorStop(0, `rgba(255,150,30,${0.38 * abAlpha})`);
+          outerGrad.addColorStop(0.55, `rgba(255,70,0,${0.2 * abAlpha})`);
+          outerGrad.addColorStop(1, "rgba(255,30,0,0)");
+          ctx.fillStyle = outerGrad;
+          ctx.beginPath();
+          ctx.moveTo(abBaseX, yOff - abRadOuter);
+          ctx.bezierCurveTo(
+            abBaseX + abLenOuter * 0.4,
+            yOff - abRadOuter * 0.65,
+            abBaseX + abLenOuter * 0.8,
+            yOff - abRadOuter * 0.15,
+            abBaseX + abLenOuter,
+            yOff,
+          );
+          ctx.bezierCurveTo(
+            abBaseX + abLenOuter * 0.8,
+            yOff + abRadOuter * 0.15,
+            abBaseX + abLenOuter * 0.4,
+            yOff + abRadOuter * 0.65,
+            abBaseX,
+            yOff + abRadOuter,
+          );
+          ctx.closePath();
+          ctx.fill();
+          const midGrad = ctx.createLinearGradient(
+            abBaseX,
+            yOff,
+            abBaseX + abLenCore * 1.3,
+            yOff,
+          );
+          midGrad.addColorStop(0, `rgba(255,210,50,${0.82 * abAlpha})`);
+          midGrad.addColorStop(0.4, `rgba(255,100,10,${0.55 * abAlpha})`);
+          midGrad.addColorStop(1, "rgba(255,40,0,0)");
+          ctx.fillStyle = midGrad;
+          ctx.beginPath();
+          ctx.moveTo(abBaseX, yOff - abRadCore * 1.1);
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.5,
+            yOff - abRadCore * 0.7,
+            abBaseX + abLenCore * 0.95,
+            yOff - abRadCore * 0.15,
+            abBaseX + abLenCore * 1.3,
+            yOff,
+          );
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.95,
+            yOff + abRadCore * 0.15,
+            abBaseX + abLenCore * 0.5,
+            yOff + abRadCore * 0.7,
+            abBaseX,
+            yOff + abRadCore * 1.1,
+          );
+          ctx.closePath();
+          ctx.fill();
+          const coreGrad = ctx.createLinearGradient(
+            abBaseX,
+            yOff,
+            abBaseX + abLenCore * 0.7,
+            yOff,
+          );
+          coreGrad.addColorStop(0, `rgba(255,255,240,${0.95 * abAlpha})`);
+          coreGrad.addColorStop(0.45, `rgba(255,220,80,${0.75 * abAlpha})`);
+          coreGrad.addColorStop(1, "rgba(255,100,0,0)");
+          ctx.fillStyle = coreGrad;
+          ctx.beginPath();
+          ctx.moveTo(abBaseX, yOff - abRadCore * 0.5);
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.35,
+            yOff - abRadCore * 0.28,
+            abBaseX + abLenCore * 0.6,
+            yOff - abRadCore * 0.06,
+            abBaseX + abLenCore * 0.7,
+            yOff,
+          );
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.6,
+            yOff + abRadCore * 0.06,
+            abBaseX + abLenCore * 0.35,
+            yOff + abRadCore * 0.28,
+            abBaseX,
+            yOff + abRadCore * 0.5,
+          );
+          ctx.closePath();
+          ctx.fill();
+        };
+
+        drawABFlame(-h * 0.1);
+        drawABFlame(h * 0.1);
 
         // Swept delta wing (F-22 planform) — main lifting surface
         const wingTopGrad = ctx.createLinearGradient(0, -h * 0.7, 0, 0);

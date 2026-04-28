@@ -56383,6 +56383,58 @@ const GameScreen = ({
     } catch {
     }
   }, [settings.soundEffectsEnabled]);
+  const playExplosionSound = reactExports.useCallback(() => {
+    const ctx = audioContextRef.current;
+    if (!ctx || !settings.soundEffectsEnabled) return;
+    try {
+      if (ctx.state === "suspended") ctx.resume();
+      const t = ctx.currentTime;
+      const boomOsc = ctx.createOscillator();
+      const boomGain = ctx.createGain();
+      boomOsc.connect(boomGain);
+      boomGain.connect(ctx.destination);
+      boomOsc.type = "sine";
+      boomOsc.frequency.setValueAtTime(80, t);
+      boomOsc.frequency.exponentialRampToValueAtTime(30, t + 0.4);
+      boomGain.gain.setValueAtTime(0, t);
+      boomGain.gain.linearRampToValueAtTime(0.8, t + 0.02);
+      boomGain.gain.exponentialRampToValueAtTime(0.01, t + 0.45);
+      boomOsc.start(t);
+      boomOsc.stop(t + 0.45);
+      const crackOsc = ctx.createOscillator();
+      const crackGain = ctx.createGain();
+      crackOsc.connect(crackGain);
+      crackGain.connect(ctx.destination);
+      crackOsc.type = "sawtooth";
+      crackOsc.frequency.setValueAtTime(400, t);
+      crackOsc.frequency.exponentialRampToValueAtTime(80, t + 0.25);
+      crackGain.gain.setValueAtTime(0, t);
+      crackGain.gain.linearRampToValueAtTime(0.5, t + 0.05);
+      crackGain.gain.exponentialRampToValueAtTime(0.01, t + 0.25);
+      crackOsc.start(t);
+      crackOsc.stop(t + 0.25);
+      const bufferSize = Math.floor(ctx.sampleRate * 0.6);
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      const noiseSrc = ctx.createBufferSource();
+      noiseSrc.buffer = noiseBuffer;
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = "lowpass";
+      noiseFilter.frequency.setValueAtTime(600, t);
+      const noiseGain = ctx.createGain();
+      noiseSrc.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+      noiseGain.gain.setValueAtTime(0.5, t);
+      noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.6);
+      noiseSrc.start(t);
+      noiseSrc.stop(t + 0.6);
+    } catch {
+    }
+  }, [settings.soundEffectsEnabled]);
   const playMissSound = reactExports.useCallback(() => {
     const ctx = audioContextRef.current;
     if (!ctx || !settings.soundEffectsEnabled) return;
@@ -56620,7 +56672,8 @@ const GameScreen = ({
       explosionPhase: 0,
       type,
       direction: dir,
-      isGolden
+      isGolden,
+      isRocket: Math.random() < 0.5
     };
   }, [shouldSpawnGoldenChicken]);
   const drawExplosion = reactExports.useCallback(
@@ -57598,7 +57651,7 @@ const GameScreen = ({
         drawExplosion(ctx, chicken);
         return;
       }
-      const { x: x2, y: y2, size, wingPhase, direction, type, isGolden, id } = chicken;
+      const { x: x2, y: y2, size, wingPhase, direction, type, isGolden } = chicken;
       const cx = x2 + size / 2;
       const cy = y2 + size / 2;
       let w2;
@@ -57613,7 +57666,7 @@ const GameScreen = ({
         w2 = 102;
         h2 = 32;
       }
-      const isRocket = id % 2 === 0;
+      const isRocket = chicken.isRocket ?? chicken.id % 2 === 0;
       ctx.save();
       ctx.translate(cx, cy);
       if (direction === "left-to-right") ctx.scale(-1, 1);
@@ -57629,239 +57682,424 @@ const GameScreen = ({
       }
       if (isRocket) {
         const gc = isGolden;
-        const flameLen = w2 * 0.45;
+        const t = Date.now();
+        const flicker1 = 0.82 + 0.18 * Math.sin(t * 0.011);
+        const flicker2 = 0.88 + 0.12 * Math.sin(t * 0.017 + 1.3);
+        const flickerAlpha = 0.78 + 0.22 * Math.sin(t * 9e-3 + 2.1);
+        const rearX = w2 * 0.38;
+        const flameBase = h2 * 0.28;
+        const flameLenOuter = w2 * 0.52 * flicker1;
+        const flameLenCore = w2 * 0.36 * flicker2;
         ctx.shadowColor = "transparent";
         ctx.shadowBlur = 0;
-        const flameCoreGrad = ctx.createLinearGradient(
-          w2 * 0.36,
-          0,
-          w2 * 0.36 + flameLen,
-          0
-        );
-        flameCoreGrad.addColorStop(
-          0,
-          gc ? "rgba(255,255,200,0.95)" : "rgba(255,255,255,0.95)"
-        );
-        flameCoreGrad.addColorStop(
-          0.15,
-          gc ? "rgba(255,200,50,0.9)" : "rgba(255,220,80,0.9)"
-        );
-        flameCoreGrad.addColorStop(0.45, "rgba(255,100,0,0.65)");
-        flameCoreGrad.addColorStop(1, "rgba(255,60,0,0)");
         const flameHaloGrad = ctx.createLinearGradient(
-          w2 * 0.36,
+          rearX,
           0,
-          w2 * 0.36 + flameLen * 1.1,
+          rearX + flameLenOuter,
           0
         );
-        flameHaloGrad.addColorStop(0, "rgba(255,160,40,0.5)");
-        flameHaloGrad.addColorStop(0.5, "rgba(255,80,0,0.25)");
-        flameHaloGrad.addColorStop(1, "rgba(255,40,0,0)");
+        flameHaloGrad.addColorStop(
+          0,
+          gc ? `rgba(255,180,40,${0.45 * flickerAlpha})` : `rgba(255,130,30,${0.4 * flickerAlpha})`
+        );
+        flameHaloGrad.addColorStop(
+          0.5,
+          `rgba(255,70,0,${0.22 * flickerAlpha})`
+        );
+        flameHaloGrad.addColorStop(1, "rgba(255,30,0,0)");
         ctx.fillStyle = flameHaloGrad;
         ctx.beginPath();
-        ctx.moveTo(w2 * 0.36, -h2 * 0.32);
-        ctx.lineTo(w2 * 0.36 + flameLen * 1.1, -h2 * 0.08);
-        ctx.lineTo(w2 * 0.36 + flameLen * 1.1, h2 * 0.08);
-        ctx.lineTo(w2 * 0.36, h2 * 0.32);
+        ctx.moveTo(rearX, -flameBase * 1);
+        ctx.bezierCurveTo(
+          rearX + flameLenOuter * 0.4,
+          -flameBase * 0.7,
+          rearX + flameLenOuter * 0.8,
+          -flameBase * 0.2,
+          rearX + flameLenOuter,
+          0
+        );
+        ctx.bezierCurveTo(
+          rearX + flameLenOuter * 0.8,
+          flameBase * 0.2,
+          rearX + flameLenOuter * 0.4,
+          flameBase * 0.7,
+          rearX,
+          flameBase * 1
+        );
         ctx.closePath();
         ctx.fill();
+        const flameMidGrad = ctx.createLinearGradient(
+          rearX,
+          0,
+          rearX + flameLenCore * 1.25,
+          0
+        );
+        flameMidGrad.addColorStop(
+          0,
+          gc ? `rgba(255,230,80,${0.88 * flickerAlpha})` : `rgba(255,210,60,${0.82 * flickerAlpha})`
+        );
+        flameMidGrad.addColorStop(
+          0.35,
+          `rgba(255,110,10,${0.6 * flickerAlpha})`
+        );
+        flameMidGrad.addColorStop(1, "rgba(255,50,0,0)");
+        ctx.fillStyle = flameMidGrad;
+        ctx.beginPath();
+        ctx.moveTo(rearX, -flameBase * 0.62);
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.45,
+          -flameBase * 0.38,
+          rearX + flameLenCore * 0.9,
+          -flameBase * 0.1,
+          rearX + flameLenCore * 1.25,
+          0
+        );
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.9,
+          flameBase * 0.1,
+          rearX + flameLenCore * 0.45,
+          flameBase * 0.38,
+          rearX,
+          flameBase * 0.62
+        );
+        ctx.closePath();
+        ctx.fill();
+        const flameCoreGrad = ctx.createLinearGradient(
+          rearX,
+          0,
+          rearX + flameLenCore * 0.7,
+          0
+        );
+        flameCoreGrad.addColorStop(
+          0,
+          gc ? `rgba(255,255,210,${0.98 * flickerAlpha})` : `rgba(255,255,255,${0.95 * flickerAlpha})`
+        );
+        flameCoreGrad.addColorStop(
+          0.4,
+          gc ? `rgba(255,220,80,${0.85 * flickerAlpha})` : `rgba(255,230,100,${0.8 * flickerAlpha})`
+        );
+        flameCoreGrad.addColorStop(1, "rgba(255,120,0,0)");
         ctx.fillStyle = flameCoreGrad;
         ctx.beginPath();
-        ctx.moveTo(w2 * 0.36, -h2 * 0.2);
-        ctx.lineTo(w2 * 0.36 + flameLen, -h2 * 0.05);
-        ctx.lineTo(w2 * 0.36 + flameLen, h2 * 0.05);
-        ctx.lineTo(w2 * 0.36, h2 * 0.2);
+        ctx.moveTo(rearX, -flameBase * 0.28);
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.35,
+          -flameBase * 0.15,
+          rearX + flameLenCore * 0.6,
+          -flameBase * 0.04,
+          rearX + flameLenCore * 0.7,
+          0
+        );
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.6,
+          flameBase * 0.04,
+          rearX + flameLenCore * 0.35,
+          flameBase * 0.15,
+          rearX,
+          flameBase * 0.28
+        );
         ctx.closePath();
         ctx.fill();
-        if (isGolden) ctx.shadowColor = "#FFD700";
-        ctx.shadowBlur = 18;
+        if (isGolden) {
+          ctx.shadowColor = "#FFD700";
+          ctx.shadowBlur = 18;
+        } else if (type === "fast") {
+          ctx.shadowColor = "#FF4500";
+          ctx.shadowBlur = 12;
+        } else {
+          ctx.shadowColor = "rgba(255,100,0,0.4)";
+          ctx.shadowBlur = 6;
+        }
+        const finColor = gc ? "#B8860B" : "#353545";
+        const finStroke = gc ? "#8B6914" : "#1E1E2A";
+        ctx.fillStyle = finColor;
+        ctx.strokeStyle = finStroke;
+        ctx.lineWidth = Math.max(0.5, h2 * 0.035);
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.16, -h2 * 0.22);
+        ctx.lineTo(w2 * 0.06, -h2 * 0.68);
+        ctx.lineTo(w2 * 0.38, -h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.16, h2 * 0.22);
+        ctx.lineTo(w2 * 0.06, h2 * 0.68);
+        ctx.lineTo(w2 * 0.38, h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.08, -h2 * 0.22);
+        ctx.lineTo(-w2 * 0.02, -h2 * 0.48);
+        ctx.lineTo(w2 * 0.22, -h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(w2 * 0.08, h2 * 0.22);
+        ctx.lineTo(-w2 * 0.02, h2 * 0.48);
+        ctx.lineTo(w2 * 0.22, h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
         const bodyMetalGrad = ctx.createLinearGradient(0, -h2 * 0.5, 0, h2 * 0.5);
         if (gc) {
-          bodyMetalGrad.addColorStop(0, "#FFF5CC");
-          bodyMetalGrad.addColorStop(0.18, "#FFE57F");
-          bodyMetalGrad.addColorStop(0.5, "#DAA520");
-          bodyMetalGrad.addColorStop(0.82, "#FFE082");
-          bodyMetalGrad.addColorStop(1, "#FFF0B0");
+          bodyMetalGrad.addColorStop(0, "#FFF8D0");
+          bodyMetalGrad.addColorStop(0.12, "#FFE57F");
+          bodyMetalGrad.addColorStop(0.45, "#C8960C");
+          bodyMetalGrad.addColorStop(0.72, "#FFE082");
+          bodyMetalGrad.addColorStop(1, "#FFF5C0");
         } else {
-          bodyMetalGrad.addColorStop(0, "#F0F0F8");
-          bodyMetalGrad.addColorStop(0.18, "#D8D8E8");
-          bodyMetalGrad.addColorStop(0.5, "#B0B0C8");
-          bodyMetalGrad.addColorStop(0.82, "#D0D0E0");
-          bodyMetalGrad.addColorStop(1, "#E8E8F0");
+          bodyMetalGrad.addColorStop(0, "#EEEEF6");
+          bodyMetalGrad.addColorStop(0.12, "#D2D2E2");
+          bodyMetalGrad.addColorStop(0.45, "#8C8CA2");
+          bodyMetalGrad.addColorStop(0.72, "#C8C8DA");
+          bodyMetalGrad.addColorStop(1, "#E4E4F0");
         }
         ctx.fillStyle = bodyMetalGrad;
         ctx.beginPath();
-        ctx.roundRect(-w2 * 0.38, -h2 * 0.22, w2 * 0.74, h2 * 0.44, h2 * 0.08);
+        ctx.roundRect(-w2 * 0.34, -h2 * 0.22, w2 * 0.72, h2 * 0.44, h2 * 0.07);
         ctx.fill();
-        ctx.strokeStyle = gc ? "#8B6914" : "#50506A";
-        ctx.lineWidth = Math.max(0.8, h2 * 0.05);
+        ctx.strokeStyle = gc ? "#8B6914" : "#48485E";
+        ctx.lineWidth = Math.max(0.8, h2 * 0.045);
         ctx.stroke();
-        const noseGrad = ctx.createLinearGradient(
-          -w2 * 0.52,
-          -h2 * 0.22,
-          -w2 * 0.52,
-          h2 * 0.22
-        );
+        const noseGrad = ctx.createLinearGradient(0, -h2 * 0.22, 0, h2 * 0.22);
         if (gc) {
-          noseGrad.addColorStop(0, "#FFE082");
-          noseGrad.addColorStop(0.5, "#B8860B");
+          noseGrad.addColorStop(0, "#FFF0C0");
+          noseGrad.addColorStop(0.4, "#C8960C");
           noseGrad.addColorStop(1, "#FFE082");
         } else {
-          noseGrad.addColorStop(0, "#E8E8F0");
-          noseGrad.addColorStop(0.5, "#C0C0D0");
-          noseGrad.addColorStop(1, "#E8E8F0");
+          noseGrad.addColorStop(0, "#F0F0F8");
+          noseGrad.addColorStop(0.4, "#B0B0C0");
+          noseGrad.addColorStop(1, "#D8D8E8");
         }
         ctx.fillStyle = noseGrad;
         ctx.beginPath();
-        ctx.moveTo(-w2 * 0.38, -h2 * 0.22);
+        ctx.moveTo(-w2 * 0.34, -h2 * 0.22);
         ctx.bezierCurveTo(
-          -w2 * 0.44,
-          -h2 * 0.1,
-          -w2 * 0.53,
-          -h2 * 0.04,
-          -w2 * 0.54,
+          -w2 * 0.46,
+          -h2 * 0.12,
+          -w2 * 0.6,
+          -h2 * 0.03,
+          -w2 * 0.64,
           0
         );
         ctx.bezierCurveTo(
-          -w2 * 0.53,
-          h2 * 0.04,
-          -w2 * 0.44,
-          h2 * 0.1,
-          -w2 * 0.38,
+          -w2 * 0.6,
+          h2 * 0.03,
+          -w2 * 0.46,
+          h2 * 0.12,
+          -w2 * 0.34,
           h2 * 0.22
         );
         ctx.closePath();
         ctx.fill();
-        ctx.strokeStyle = gc ? "#8B6914" : "#50506A";
-        ctx.lineWidth = Math.max(0.8, h2 * 0.05);
+        ctx.strokeStyle = gc ? "#8B6914" : "#48485E";
+        ctx.lineWidth = Math.max(0.8, h2 * 0.045);
         ctx.stroke();
-        ctx.fillStyle = gc ? "#FFD700" : "#CC1111";
+        const tipGrad = ctx.createLinearGradient(0, -h2 * 0.1, 0, h2 * 0.1);
+        tipGrad.addColorStop(0, gc ? "#FFD060" : "#D0D0DC");
+        tipGrad.addColorStop(1, gc ? "#A07010" : "#909098");
+        ctx.fillStyle = tipGrad;
         ctx.beginPath();
-        ctx.roundRect(-w2 * 0.26, -h2 * 0.22, w2 * 0.09, h2 * 0.44, h2 * 0.04);
+        ctx.moveTo(-w2 * 0.56, -h2 * 0.08);
+        ctx.lineTo(-w2 * 0.64, 0);
+        ctx.lineTo(-w2 * 0.56, h2 * 0.08);
+        ctx.lineTo(-w2 * 0.5, 0);
+        ctx.closePath();
+        ctx.fill();
+        const bandColor = gc ? "#FFD700" : "#CC1111";
+        ctx.fillStyle = bandColor;
+        ctx.beginPath();
+        ctx.roundRect(-w2 * 0.22, -h2 * 0.22, w2 * 0.07, h2 * 0.44, h2 * 0.025);
         ctx.fill();
         ctx.beginPath();
-        ctx.roundRect(w2 * 0.08, -h2 * 0.22, w2 * 0.09, h2 * 0.44, h2 * 0.04);
+        ctx.roundRect(w2 * 0, -h2 * 0.22, w2 * 0.07, h2 * 0.44, h2 * 0.025);
         ctx.fill();
-        ctx.strokeStyle = gc ? "rgba(150,120,0,0.4)" : "rgba(80,80,100,0.4)";
-        ctx.lineWidth = Math.max(0.5, h2 * 0.03);
-        ctx.setLineDash([h2 * 0.12, h2 * 0.08]);
         ctx.beginPath();
-        ctx.moveTo(-w2 * 0.3, 0);
+        ctx.roundRect(w2 * 0.22, -h2 * 0.22, w2 * 0.06, h2 * 0.44, h2 * 0.025);
+        ctx.fill();
+        const canardColor = gc ? "#C8960C" : "#5A5A70";
+        ctx.fillStyle = canardColor;
+        ctx.strokeStyle = gc ? "#8B6914" : "#2E2E3A";
+        ctx.lineWidth = Math.max(0.4, h2 * 0.03);
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.18, -h2 * 0.22);
+        ctx.lineTo(-w2 * 0.28, -h2 * 0.46);
+        ctx.lineTo(-w2 * 0.08, -h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.18, h2 * 0.22);
+        ctx.lineTo(-w2 * 0.28, h2 * 0.46);
+        ctx.lineTo(-w2 * 0.08, h2 * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = gc ? "rgba(120,90,0,0.35)" : "rgba(60,60,80,0.30)";
+        ctx.lineWidth = Math.max(0.4, h2 * 0.025);
+        ctx.setLineDash([h2 * 0.1, h2 * 0.07]);
+        ctx.beginPath();
+        ctx.moveTo(-w2 * 0.28, 0);
         ctx.lineTo(w2 * 0.35, 0);
         ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle = gc ? "#B8860B" : "#404050";
-        ctx.strokeStyle = gc ? "#8B6914" : "#28282E";
-        ctx.lineWidth = Math.max(0.5, h2 * 0.04);
+        ctx.strokeStyle = gc ? "rgba(100,75,0,0.25)" : "rgba(50,50,70,0.25)";
+        ctx.lineWidth = Math.max(0.3, h2 * 0.02);
         ctx.beginPath();
-        ctx.moveTo(w2 * 0.22, -h2 * 0.22);
-        ctx.lineTo(w2 * 0.18, -h2 * 0.55);
-        ctx.lineTo(w2 * 0.36, -h2 * 0.22);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(w2 * 0.22, h2 * 0.22);
-        ctx.lineTo(w2 * 0.18, h2 * 0.55);
-        ctx.lineTo(w2 * 0.36, h2 * 0.22);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(w2 * 0.14, -h2 * 0.22);
-        ctx.lineTo(w2 * 0.12, -h2 * 0.38);
-        ctx.lineTo(w2 * 0.24, -h2 * 0.22);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(w2 * 0.14, h2 * 0.22);
-        ctx.lineTo(w2 * 0.12, h2 * 0.38);
-        ctx.lineTo(w2 * 0.24, h2 * 0.22);
-        ctx.closePath();
-        ctx.fill();
+        ctx.moveTo(w2 * 0.1, -h2 * 0.16);
+        ctx.lineTo(w2 * 0.35, -h2 * 0.16);
+        ctx.moveTo(w2 * 0.1, h2 * 0.16);
+        ctx.lineTo(w2 * 0.35, h2 * 0.16);
         ctx.stroke();
         const glossGrad = ctx.createLinearGradient(
-          -w2 * 0.36,
+          -w2 * 0.32,
           -h2 * 0.22,
-          w2 * 0.34,
+          w2 * 0.36,
           -h2 * 0.22
         );
         glossGrad.addColorStop(0, "rgba(255,255,255,0)");
-        glossGrad.addColorStop(0.2, "rgba(255,255,255,0.45)");
-        glossGrad.addColorStop(0.8, "rgba(255,255,255,0.35)");
+        glossGrad.addColorStop(0.15, "rgba(255,255,255,0.5)");
+        glossGrad.addColorStop(0.75, "rgba(255,255,255,0.3)");
         glossGrad.addColorStop(1, "rgba(255,255,255,0)");
         ctx.fillStyle = glossGrad;
         ctx.beginPath();
-        ctx.roundRect(-w2 * 0.36, -h2 * 0.22, w2 * 0.7, h2 * 0.1, h2 * 0.04);
+        ctx.roundRect(-w2 * 0.32, -h2 * 0.22, w2 * 0.68, h2 * 0.09, h2 * 0.035);
         ctx.fill();
+        const nozzleGrad = ctx.createLinearGradient(0, -h2 * 0.18, 0, h2 * 0.18);
+        nozzleGrad.addColorStop(0, gc ? "#FFE082" : "#A0A0B0");
+        nozzleGrad.addColorStop(0.5, gc ? "#B8860B" : "#505060");
+        nozzleGrad.addColorStop(1, gc ? "#FFE082" : "#A0A0B0");
+        ctx.fillStyle = nozzleGrad;
+        ctx.strokeStyle = gc ? "#8B6914" : "#303040";
+        ctx.lineWidth = Math.max(0.5, h2 * 0.04);
+        ctx.beginPath();
+        ctx.roundRect(w2 * 0.3, -h2 * 0.18, w2 * 0.1, h2 * 0.36, h2 * 0.06);
+        ctx.fill();
+        ctx.stroke();
       } else {
         const bob = Math.sin(wingPhase) * 1.5;
         ctx.translate(0, bob);
         const gc = isGolden;
+        const t = Date.now();
+        const abFlicker1 = 0.8 + 0.2 * Math.sin(t * 0.013);
+        const abFlicker2 = 0.85 + 0.15 * Math.sin(t * 0.019 + 0.9);
+        const abAlpha = 0.75 + 0.25 * Math.sin(t * 8e-3 + 1.7);
         ctx.shadowColor = "transparent";
         ctx.shadowBlur = 0;
-        const afterOuterGrad = ctx.createLinearGradient(
-          w2 * 0.34,
-          0,
-          w2 * 0.68,
-          0
-        );
-        afterOuterGrad.addColorStop(
-          0,
-          gc ? "rgba(255,220,60,0.4)" : "rgba(255,140,30,0.4)"
-        );
-        afterOuterGrad.addColorStop(1, "rgba(255,60,0,0)");
-        ctx.fillStyle = afterOuterGrad;
-        ctx.beginPath();
-        ctx.ellipse(w2 * 0.5, 0, w2 * 0.22, h2 * 0.3, 0, 0, Math.PI * 2);
-        ctx.fill();
-        const afterW = w2 * 0.22;
-        const makeABGrad = (yOff) => {
-          const g2 = ctx.createRadialGradient(
-            w2 * 0.4,
+        const abBaseX = w2 * 0.4;
+        const abLenOuter = w2 * 0.3 * abFlicker1;
+        const abLenCore = w2 * 0.2 * abFlicker2;
+        const abRadOuter = h2 * 0.18;
+        const abRadCore = h2 * 0.1;
+        const drawABFlame = (yOff) => {
+          const outerGrad = ctx.createLinearGradient(
+            abBaseX,
             yOff,
+            abBaseX + abLenOuter,
+            yOff
+          );
+          outerGrad.addColorStop(
             0,
-            w2 * 0.4,
+            gc ? `rgba(255,210,50,${0.42 * abAlpha})` : `rgba(255,150,30,${0.38 * abAlpha})`
+          );
+          outerGrad.addColorStop(0.55, `rgba(255,70,0,${0.2 * abAlpha})`);
+          outerGrad.addColorStop(1, "rgba(255,30,0,0)");
+          ctx.fillStyle = outerGrad;
+          ctx.beginPath();
+          ctx.moveTo(abBaseX, yOff - abRadOuter);
+          ctx.bezierCurveTo(
+            abBaseX + abLenOuter * 0.4,
+            yOff - abRadOuter * 0.65,
+            abBaseX + abLenOuter * 0.8,
+            yOff - abRadOuter * 0.15,
+            abBaseX + abLenOuter,
+            yOff
+          );
+          ctx.bezierCurveTo(
+            abBaseX + abLenOuter * 0.8,
+            yOff + abRadOuter * 0.15,
+            abBaseX + abLenOuter * 0.4,
+            yOff + abRadOuter * 0.65,
+            abBaseX,
+            yOff + abRadOuter
+          );
+          ctx.closePath();
+          ctx.fill();
+          const midGrad = ctx.createLinearGradient(
+            abBaseX,
             yOff,
-            afterW * 0.7
+            abBaseX + abLenCore * 1.3,
+            yOff
           );
-          g2.addColorStop(
+          midGrad.addColorStop(
             0,
-            gc ? "rgba(255,255,180,0.98)" : "rgba(255,255,220,0.98)"
+            gc ? `rgba(255,240,80,${0.88 * abAlpha})` : `rgba(255,210,50,${0.82 * abAlpha})`
           );
-          g2.addColorStop(
-            0.25,
-            gc ? "rgba(255,210,60,0.85)" : "rgba(255,200,50,0.85)"
+          midGrad.addColorStop(0.4, `rgba(255,100,10,${0.55 * abAlpha})`);
+          midGrad.addColorStop(1, "rgba(255,40,0,0)");
+          ctx.fillStyle = midGrad;
+          ctx.beginPath();
+          ctx.moveTo(abBaseX, yOff - abRadCore * 1.1);
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.5,
+            yOff - abRadCore * 0.7,
+            abBaseX + abLenCore * 0.95,
+            yOff - abRadCore * 0.15,
+            abBaseX + abLenCore * 1.3,
+            yOff
           );
-          g2.addColorStop(0.6, "rgba(255,90,0,0.5)");
-          g2.addColorStop(1, "rgba(255,40,0,0)");
-          return g2;
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.95,
+            yOff + abRadCore * 0.15,
+            abBaseX + abLenCore * 0.5,
+            yOff + abRadCore * 0.7,
+            abBaseX,
+            yOff + abRadCore * 1.1
+          );
+          ctx.closePath();
+          ctx.fill();
+          const coreGrad = ctx.createLinearGradient(
+            abBaseX,
+            yOff,
+            abBaseX + abLenCore * 0.7,
+            yOff
+          );
+          coreGrad.addColorStop(
+            0,
+            gc ? `rgba(255,255,200,${0.98 * abAlpha})` : `rgba(255,255,240,${0.95 * abAlpha})`
+          );
+          coreGrad.addColorStop(
+            0.45,
+            gc ? `rgba(255,230,80,${0.8 * abAlpha})` : `rgba(255,220,80,${0.75 * abAlpha})`
+          );
+          coreGrad.addColorStop(1, "rgba(255,100,0,0)");
+          ctx.fillStyle = coreGrad;
+          ctx.beginPath();
+          ctx.moveTo(abBaseX, yOff - abRadCore * 0.5);
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.35,
+            yOff - abRadCore * 0.28,
+            abBaseX + abLenCore * 0.6,
+            yOff - abRadCore * 0.06,
+            abBaseX + abLenCore * 0.7,
+            yOff
+          );
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.6,
+            yOff + abRadCore * 0.06,
+            abBaseX + abLenCore * 0.35,
+            yOff + abRadCore * 0.28,
+            abBaseX,
+            yOff + abRadCore * 0.5
+          );
+          ctx.closePath();
+          ctx.fill();
         };
-        ctx.fillStyle = makeABGrad(-h2 * 0.1);
-        ctx.beginPath();
-        ctx.ellipse(
-          w2 * 0.4,
-          -h2 * 0.1,
-          afterW * 0.6,
-          h2 * 0.16,
-          0,
-          0,
-          Math.PI * 2
-        );
-        ctx.fill();
-        ctx.fillStyle = makeABGrad(h2 * 0.1);
-        ctx.beginPath();
-        ctx.ellipse(
-          w2 * 0.4,
-          h2 * 0.1,
-          afterW * 0.6,
-          h2 * 0.16,
-          0,
-          0,
-          Math.PI * 2
-        );
-        ctx.fill();
+        drawABFlame(-h2 * 0.1);
+        drawABFlame(h2 * 0.1);
         if (isGolden) {
           ctx.shadowColor = "#FFD700";
           ctx.shadowBlur = 18;
@@ -58417,7 +58655,11 @@ const GameScreen = ({
         for (let j2 = gs.chickens.length - 1; j2 >= 0; j2--) {
           const chicken = gs.chickens[j2];
           if (checkCollision(tapX, tapY, chicken)) {
-            playShotSound();
+            if (selectedWorld === "hormuz") {
+              playExplosionSound();
+            } else {
+              playShotSound();
+            }
             const pts = scoreMultiplier.isActive ? chicken.points * 2 : chicken.points;
             addHitEffect(tapX, tapY, pts);
             setScore(score + pts);
@@ -58439,13 +58681,15 @@ const GameScreen = ({
       gameEnded,
       checkCollision,
       playShotSound,
+      playExplosionSound,
       playStopwatchSound,
       addHitEffect,
       addXP,
       handleChickenHit,
       handleStopwatchHit,
       handleShotFired,
-      scoreMultiplier
+      scoreMultiplier,
+      selectedWorld
     ]
   );
   const handleCanvasClick = reactExports.useCallback(
@@ -59616,7 +59860,8 @@ const StartScreen = ({
       size,
       color: CHICKEN_COLORS[Math.floor(Math.random() * CHICKEN_COLORS.length)],
       wingPhase: Math.random() * Math.PI * 2,
-      direction: dir
+      direction: dir,
+      isRocket: Math.random() < 0.5
     };
   }, []);
   const drawChicken = reactExports.useCallback(
@@ -60369,7 +60614,7 @@ const StartScreen = ({
   );
   const drawHormuzWarcraft = reactExports.useCallback(
     (ctx, c2) => {
-      const { x: x2, y: y2, size, wingPhase, direction, id } = c2;
+      const { x: x2, y: y2, size, wingPhase, direction } = c2;
       const cx = x2 + size / 2;
       const cy = y2 + size / 2;
       let w2;
@@ -60385,46 +60630,120 @@ const StartScreen = ({
         h2 = 32;
       }
       const alpha = entityAlphaRef.current;
-      const isRocket = Math.floor(id) % 2 === 0;
+      const isRocket = c2.isRocket ?? false;
       ctx.save();
       ctx.globalAlpha = alpha;
       ctx.translate(cx, cy);
       if (direction === "left-to-right") ctx.scale(-1, 1);
       if (isRocket) {
-        const flameLen = w2 * 0.45;
-        const flameCoreGrad = ctx.createLinearGradient(
-          w2 * 0.36,
-          0,
-          w2 * 0.36 + flameLen,
-          0
-        );
-        flameCoreGrad.addColorStop(0, "rgba(255,255,255,0.95)");
-        flameCoreGrad.addColorStop(0.15, "rgba(255,220,80,0.9)");
-        flameCoreGrad.addColorStop(0.45, "rgba(255,100,0,0.65)");
-        flameCoreGrad.addColorStop(1, "rgba(255,60,0,0)");
+        const t = Date.now();
+        const flicker1 = 0.82 + 0.18 * Math.sin(t * 0.011);
+        const flicker2 = 0.88 + 0.12 * Math.sin(t * 0.017 + 1.3);
+        const flickerAlpha = 0.78 + 0.22 * Math.sin(t * 9e-3 + 2.1);
+        const rearX = w2 * 0.36;
+        const flameBase = h2 * 0.28;
+        const flameLenOuter = w2 * 0.52 * flicker1;
+        const flameLenCore = w2 * 0.36 * flicker2;
         const flameHaloGrad = ctx.createLinearGradient(
-          w2 * 0.36,
+          rearX,
           0,
-          w2 * 0.36 + flameLen * 1.1,
+          rearX + flameLenOuter,
           0
         );
-        flameHaloGrad.addColorStop(0, "rgba(255,160,40,0.5)");
-        flameHaloGrad.addColorStop(0.5, "rgba(255,80,0,0.25)");
-        flameHaloGrad.addColorStop(1, "rgba(255,40,0,0)");
+        flameHaloGrad.addColorStop(0, `rgba(255,130,30,${0.4 * flickerAlpha})`);
+        flameHaloGrad.addColorStop(
+          0.5,
+          `rgba(255,70,0,${0.22 * flickerAlpha})`
+        );
+        flameHaloGrad.addColorStop(1, "rgba(255,30,0,0)");
         ctx.fillStyle = flameHaloGrad;
         ctx.beginPath();
-        ctx.moveTo(w2 * 0.36, -h2 * 0.32);
-        ctx.lineTo(w2 * 0.36 + flameLen * 1.1, -h2 * 0.08);
-        ctx.lineTo(w2 * 0.36 + flameLen * 1.1, h2 * 0.08);
-        ctx.lineTo(w2 * 0.36, h2 * 0.32);
+        ctx.moveTo(rearX, -flameBase * 1);
+        ctx.bezierCurveTo(
+          rearX + flameLenOuter * 0.4,
+          -flameBase * 0.7,
+          rearX + flameLenOuter * 0.8,
+          -flameBase * 0.2,
+          rearX + flameLenOuter,
+          0
+        );
+        ctx.bezierCurveTo(
+          rearX + flameLenOuter * 0.8,
+          flameBase * 0.2,
+          rearX + flameLenOuter * 0.4,
+          flameBase * 0.7,
+          rearX,
+          flameBase * 1
+        );
         ctx.closePath();
         ctx.fill();
+        const flameMidGrad = ctx.createLinearGradient(
+          rearX,
+          0,
+          rearX + flameLenCore * 1.25,
+          0
+        );
+        flameMidGrad.addColorStop(0, `rgba(255,210,60,${0.82 * flickerAlpha})`);
+        flameMidGrad.addColorStop(
+          0.35,
+          `rgba(255,110,10,${0.6 * flickerAlpha})`
+        );
+        flameMidGrad.addColorStop(1, "rgba(255,50,0,0)");
+        ctx.fillStyle = flameMidGrad;
+        ctx.beginPath();
+        ctx.moveTo(rearX, -flameBase * 0.62);
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.45,
+          -flameBase * 0.38,
+          rearX + flameLenCore * 0.9,
+          -flameBase * 0.1,
+          rearX + flameLenCore * 1.25,
+          0
+        );
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.9,
+          flameBase * 0.1,
+          rearX + flameLenCore * 0.45,
+          flameBase * 0.38,
+          rearX,
+          flameBase * 0.62
+        );
+        ctx.closePath();
+        ctx.fill();
+        const flameCoreGrad = ctx.createLinearGradient(
+          rearX,
+          0,
+          rearX + flameLenCore * 0.7,
+          0
+        );
+        flameCoreGrad.addColorStop(
+          0,
+          `rgba(255,255,255,${0.95 * flickerAlpha})`
+        );
+        flameCoreGrad.addColorStop(
+          0.4,
+          `rgba(255,230,100,${0.8 * flickerAlpha})`
+        );
+        flameCoreGrad.addColorStop(1, "rgba(255,120,0,0)");
         ctx.fillStyle = flameCoreGrad;
         ctx.beginPath();
-        ctx.moveTo(w2 * 0.36, -h2 * 0.2);
-        ctx.lineTo(w2 * 0.36 + flameLen, -h2 * 0.05);
-        ctx.lineTo(w2 * 0.36 + flameLen, h2 * 0.05);
-        ctx.lineTo(w2 * 0.36, h2 * 0.2);
+        ctx.moveTo(rearX, -flameBase * 0.28);
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.35,
+          -flameBase * 0.15,
+          rearX + flameLenCore * 0.6,
+          -flameBase * 0.04,
+          rearX + flameLenCore * 0.7,
+          0
+        );
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.6,
+          flameBase * 0.04,
+          rearX + flameLenCore * 0.35,
+          flameBase * 0.15,
+          rearX,
+          flameBase * 0.28
+        );
         ctx.closePath();
         ctx.fill();
         const bodyMetalGrad = ctx.createLinearGradient(0, -h2 * 0.5, 0, h2 * 0.5);
@@ -60537,67 +60856,109 @@ const StartScreen = ({
       } else {
         const bob = Math.sin(wingPhase) * 1.5;
         ctx.translate(0, bob);
-        const afterW = w2 * 0.22;
-        const afterGrad1 = ctx.createRadialGradient(
-          w2 * 0.4,
-          -h2 * 0.1,
-          0,
-          w2 * 0.4,
-          -h2 * 0.1,
-          afterW * 0.7
-        );
-        afterGrad1.addColorStop(0, "rgba(255,255,220,0.98)");
-        afterGrad1.addColorStop(0.25, "rgba(255,200,50,0.85)");
-        afterGrad1.addColorStop(0.6, "rgba(255,90,0,0.5)");
-        afterGrad1.addColorStop(1, "rgba(255,40,0,0)");
-        const afterGrad2 = ctx.createRadialGradient(
-          w2 * 0.4,
-          h2 * 0.1,
-          0,
-          w2 * 0.4,
-          h2 * 0.1,
-          afterW * 0.7
-        );
-        afterGrad2.addColorStop(0, "rgba(255,255,220,0.98)");
-        afterGrad2.addColorStop(0.25, "rgba(255,200,50,0.85)");
-        afterGrad2.addColorStop(0.6, "rgba(255,90,0,0.5)");
-        afterGrad2.addColorStop(1, "rgba(255,40,0,0)");
-        const afterOuterGrad = ctx.createLinearGradient(
-          w2 * 0.34,
-          0,
-          w2 * 0.68,
-          0
-        );
-        afterOuterGrad.addColorStop(0, "rgba(255,140,30,0.4)");
-        afterOuterGrad.addColorStop(1, "rgba(255,60,0,0)");
-        ctx.fillStyle = afterOuterGrad;
-        ctx.beginPath();
-        ctx.ellipse(w2 * 0.5, 0, w2 * 0.22, h2 * 0.3, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = afterGrad1;
-        ctx.beginPath();
-        ctx.ellipse(
-          w2 * 0.4,
-          -h2 * 0.1,
-          afterW * 0.6,
-          h2 * 0.16,
-          0,
-          0,
-          Math.PI * 2
-        );
-        ctx.fill();
-        ctx.fillStyle = afterGrad2;
-        ctx.beginPath();
-        ctx.ellipse(
-          w2 * 0.4,
-          h2 * 0.1,
-          afterW * 0.6,
-          h2 * 0.16,
-          0,
-          0,
-          Math.PI * 2
-        );
-        ctx.fill();
+        const t = Date.now();
+        const abFlicker1 = 0.8 + 0.2 * Math.sin(t * 0.013);
+        const abFlicker2 = 0.85 + 0.15 * Math.sin(t * 0.019 + 0.9);
+        const abAlpha = 0.75 + 0.25 * Math.sin(t * 8e-3 + 1.7);
+        const abBaseX = w2 * 0.4;
+        const abLenOuter = w2 * 0.3 * abFlicker1;
+        const abLenCore = w2 * 0.2 * abFlicker2;
+        const abRadOuter = h2 * 0.18;
+        const abRadCore = h2 * 0.1;
+        const drawABFlame = (yOff) => {
+          const outerGrad = ctx.createLinearGradient(
+            abBaseX,
+            yOff,
+            abBaseX + abLenOuter,
+            yOff
+          );
+          outerGrad.addColorStop(0, `rgba(255,150,30,${0.38 * abAlpha})`);
+          outerGrad.addColorStop(0.55, `rgba(255,70,0,${0.2 * abAlpha})`);
+          outerGrad.addColorStop(1, "rgba(255,30,0,0)");
+          ctx.fillStyle = outerGrad;
+          ctx.beginPath();
+          ctx.moveTo(abBaseX, yOff - abRadOuter);
+          ctx.bezierCurveTo(
+            abBaseX + abLenOuter * 0.4,
+            yOff - abRadOuter * 0.65,
+            abBaseX + abLenOuter * 0.8,
+            yOff - abRadOuter * 0.15,
+            abBaseX + abLenOuter,
+            yOff
+          );
+          ctx.bezierCurveTo(
+            abBaseX + abLenOuter * 0.8,
+            yOff + abRadOuter * 0.15,
+            abBaseX + abLenOuter * 0.4,
+            yOff + abRadOuter * 0.65,
+            abBaseX,
+            yOff + abRadOuter
+          );
+          ctx.closePath();
+          ctx.fill();
+          const midGrad = ctx.createLinearGradient(
+            abBaseX,
+            yOff,
+            abBaseX + abLenCore * 1.3,
+            yOff
+          );
+          midGrad.addColorStop(0, `rgba(255,210,50,${0.82 * abAlpha})`);
+          midGrad.addColorStop(0.4, `rgba(255,100,10,${0.55 * abAlpha})`);
+          midGrad.addColorStop(1, "rgba(255,40,0,0)");
+          ctx.fillStyle = midGrad;
+          ctx.beginPath();
+          ctx.moveTo(abBaseX, yOff - abRadCore * 1.1);
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.5,
+            yOff - abRadCore * 0.7,
+            abBaseX + abLenCore * 0.95,
+            yOff - abRadCore * 0.15,
+            abBaseX + abLenCore * 1.3,
+            yOff
+          );
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.95,
+            yOff + abRadCore * 0.15,
+            abBaseX + abLenCore * 0.5,
+            yOff + abRadCore * 0.7,
+            abBaseX,
+            yOff + abRadCore * 1.1
+          );
+          ctx.closePath();
+          ctx.fill();
+          const coreGrad = ctx.createLinearGradient(
+            abBaseX,
+            yOff,
+            abBaseX + abLenCore * 0.7,
+            yOff
+          );
+          coreGrad.addColorStop(0, `rgba(255,255,240,${0.95 * abAlpha})`);
+          coreGrad.addColorStop(0.45, `rgba(255,220,80,${0.75 * abAlpha})`);
+          coreGrad.addColorStop(1, "rgba(255,100,0,0)");
+          ctx.fillStyle = coreGrad;
+          ctx.beginPath();
+          ctx.moveTo(abBaseX, yOff - abRadCore * 0.5);
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.35,
+            yOff - abRadCore * 0.28,
+            abBaseX + abLenCore * 0.6,
+            yOff - abRadCore * 0.06,
+            abBaseX + abLenCore * 0.7,
+            yOff
+          );
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.6,
+            yOff + abRadCore * 0.06,
+            abBaseX + abLenCore * 0.35,
+            yOff + abRadCore * 0.28,
+            abBaseX,
+            yOff + abRadCore * 0.5
+          );
+          ctx.closePath();
+          ctx.fill();
+        };
+        drawABFlame(-h2 * 0.1);
+        drawABFlame(h2 * 0.1);
         const wingTopGrad = ctx.createLinearGradient(0, -h2 * 0.7, 0, 0);
         wingTopGrad.addColorStop(0, "#C8C8D0");
         wingTopGrad.addColorStop(0.5, "#909098");

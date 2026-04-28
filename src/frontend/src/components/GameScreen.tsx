@@ -34,6 +34,7 @@ interface Chicken {
   type: "regular" | "fast";
   direction: "left-to-right" | "right-to-left";
   isGolden?: boolean;
+  isRocket?: boolean;
 }
 
 interface Stopwatch {
@@ -760,6 +761,66 @@ const GameScreen: React.FC<GameScreenProps> = ({
     }
   }, [settings.soundEffectsEnabled]);
 
+  const playExplosionSound = useCallback(() => {
+    const ctx = audioContextRef.current;
+    if (!ctx || !settings.soundEffectsEnabled) return;
+    try {
+      if (ctx.state === "suspended") ctx.resume();
+      const t = ctx.currentTime;
+
+      // Layer 1 — low-frequency BOOM (sine, 80Hz → 30Hz, 0.4s decay)
+      const boomOsc = ctx.createOscillator();
+      const boomGain = ctx.createGain();
+      boomOsc.connect(boomGain);
+      boomGain.connect(ctx.destination);
+      boomOsc.type = "sine";
+      boomOsc.frequency.setValueAtTime(80, t);
+      boomOsc.frequency.exponentialRampToValueAtTime(30, t + 0.4);
+      boomGain.gain.setValueAtTime(0, t);
+      boomGain.gain.linearRampToValueAtTime(0.8, t + 0.02);
+      boomGain.gain.exponentialRampToValueAtTime(0.01, t + 0.45);
+      boomOsc.start(t);
+      boomOsc.stop(t + 0.45);
+
+      // Layer 2 — mid crack/bang (sawtooth, 400Hz → 80Hz, short burst)
+      const crackOsc = ctx.createOscillator();
+      const crackGain = ctx.createGain();
+      crackOsc.connect(crackGain);
+      crackGain.connect(ctx.destination);
+      crackOsc.type = "sawtooth";
+      crackOsc.frequency.setValueAtTime(400, t);
+      crackOsc.frequency.exponentialRampToValueAtTime(80, t + 0.25);
+      crackGain.gain.setValueAtTime(0, t);
+      crackGain.gain.linearRampToValueAtTime(0.5, t + 0.05);
+      crackGain.gain.exponentialRampToValueAtTime(0.01, t + 0.25);
+      crackOsc.start(t);
+      crackOsc.stop(t + 0.25);
+
+      // Layer 3 — white noise rumble/debris (lowpass filtered, 0.6s)
+      const bufferSize = Math.floor(ctx.sampleRate * 0.6);
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      const noiseSrc = ctx.createBufferSource();
+      noiseSrc.buffer = noiseBuffer;
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = "lowpass";
+      noiseFilter.frequency.setValueAtTime(600, t);
+      const noiseGain = ctx.createGain();
+      noiseSrc.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+      noiseGain.gain.setValueAtTime(0.5, t);
+      noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.6);
+      noiseSrc.start(t);
+      noiseSrc.stop(t + 0.6);
+    } catch {
+      /* ignore */
+    }
+  }, [settings.soundEffectsEnabled]);
+
   const playMissSound = useCallback(() => {
     const ctx = audioContextRef.current;
     if (!ctx || !settings.soundEffectsEnabled) return;
@@ -1044,6 +1105,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
       type,
       direction: dir,
       isGolden,
+      isRocket: Math.random() < 0.5,
     };
   }, [shouldSpawnGoldenChicken]);
 
@@ -2206,7 +2268,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
         drawExplosion(ctx, chicken);
         return;
       }
-      const { x, y, size, wingPhase, direction, type, isGolden, id } = chicken;
+      const { x, y, size, wingPhase, direction, type, isGolden } = chicken;
       const cx = x + size / 2;
       const cy = y + size / 2;
 
@@ -2224,7 +2286,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
         h = 32;
       }
 
-      const isRocket = id % 2 === 0;
+      const isRocket = chicken.isRocket ?? chicken.id % 2 === 0;
 
       ctx.save();
       ctx.translate(cx, cy);
@@ -2244,260 +2306,496 @@ const GameScreen: React.FC<GameScreenProps> = ({
       }
 
       if (isRocket) {
-        // ── Premium Military Rocket / Missile ──
-        const gc = isGolden; // golden color mode
+        // ── Premium Realistic Military Rocket / Missile ──
+        const gc = isGolden;
 
-        // Exhaust flame: white core → orange → transparent
-        const flameLen = w * 0.45;
+        // ── Animated exhaust flame (time-based pulse) ──
+        const t = Date.now();
+        const flicker1 = 0.82 + 0.18 * Math.sin(t * 0.011);
+        const flicker2 = 0.88 + 0.12 * Math.sin(t * 0.017 + 1.3);
+        const flickerAlpha = 0.78 + 0.22 * Math.sin(t * 0.009 + 2.1);
+
+        // Rocket body is narrower — exhaust exits from the rear (right side in local coords, since nose is left)
+        const rearX = w * 0.38; // rear nozzle x-position
+        const flameBase = h * 0.28;
+        const flameLenOuter = w * 0.52 * flicker1;
+        const flameLenCore = w * 0.36 * flicker2;
+
         ctx.shadowColor = "transparent";
         ctx.shadowBlur = 0;
-        const flameCoreGrad = ctx.createLinearGradient(
-          w * 0.36,
-          0,
-          w * 0.36 + flameLen,
-          0,
-        );
-        flameCoreGrad.addColorStop(
-          0,
-          gc ? "rgba(255,255,200,0.95)" : "rgba(255,255,255,0.95)",
-        );
-        flameCoreGrad.addColorStop(
-          0.15,
-          gc ? "rgba(255,200,50,0.9)" : "rgba(255,220,80,0.9)",
-        );
-        flameCoreGrad.addColorStop(0.45, "rgba(255,100,0,0.65)");
-        flameCoreGrad.addColorStop(1, "rgba(255,60,0,0)");
+
+        // Outer halo — wide diffuse orange glow
         const flameHaloGrad = ctx.createLinearGradient(
-          w * 0.36,
+          rearX,
           0,
-          w * 0.36 + flameLen * 1.1,
+          rearX + flameLenOuter,
           0,
         );
-        flameHaloGrad.addColorStop(0, "rgba(255,160,40,0.5)");
-        flameHaloGrad.addColorStop(0.5, "rgba(255,80,0,0.25)");
-        flameHaloGrad.addColorStop(1, "rgba(255,40,0,0)");
+        flameHaloGrad.addColorStop(
+          0,
+          gc
+            ? `rgba(255,180,40,${0.45 * flickerAlpha})`
+            : `rgba(255,130,30,${0.4 * flickerAlpha})`,
+        );
+        flameHaloGrad.addColorStop(
+          0.5,
+          `rgba(255,70,0,${0.22 * flickerAlpha})`,
+        );
+        flameHaloGrad.addColorStop(1, "rgba(255,30,0,0)");
         ctx.fillStyle = flameHaloGrad;
         ctx.beginPath();
-        ctx.moveTo(w * 0.36, -h * 0.32);
-        ctx.lineTo(w * 0.36 + flameLen * 1.1, -h * 0.08);
-        ctx.lineTo(w * 0.36 + flameLen * 1.1, h * 0.08);
-        ctx.lineTo(w * 0.36, h * 0.32);
+        ctx.moveTo(rearX, -flameBase * 1.0);
+        ctx.bezierCurveTo(
+          rearX + flameLenOuter * 0.4,
+          -flameBase * 0.7,
+          rearX + flameLenOuter * 0.8,
+          -flameBase * 0.2,
+          rearX + flameLenOuter,
+          0,
+        );
+        ctx.bezierCurveTo(
+          rearX + flameLenOuter * 0.8,
+          flameBase * 0.2,
+          rearX + flameLenOuter * 0.4,
+          flameBase * 0.7,
+          rearX,
+          flameBase * 1.0,
+        );
         ctx.closePath();
         ctx.fill();
+
+        // Mid flame — orange/yellow
+        const flameMidGrad = ctx.createLinearGradient(
+          rearX,
+          0,
+          rearX + flameLenCore * 1.25,
+          0,
+        );
+        flameMidGrad.addColorStop(
+          0,
+          gc
+            ? `rgba(255,230,80,${0.88 * flickerAlpha})`
+            : `rgba(255,210,60,${0.82 * flickerAlpha})`,
+        );
+        flameMidGrad.addColorStop(
+          0.35,
+          `rgba(255,110,10,${0.6 * flickerAlpha})`,
+        );
+        flameMidGrad.addColorStop(1, "rgba(255,50,0,0)");
+        ctx.fillStyle = flameMidGrad;
+        ctx.beginPath();
+        ctx.moveTo(rearX, -flameBase * 0.62);
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.45,
+          -flameBase * 0.38,
+          rearX + flameLenCore * 0.9,
+          -flameBase * 0.1,
+          rearX + flameLenCore * 1.25,
+          0,
+        );
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.9,
+          flameBase * 0.1,
+          rearX + flameLenCore * 0.45,
+          flameBase * 0.38,
+          rearX,
+          flameBase * 0.62,
+        );
+        ctx.closePath();
+        ctx.fill();
+
+        // White-hot core
+        const flameCoreGrad = ctx.createLinearGradient(
+          rearX,
+          0,
+          rearX + flameLenCore * 0.7,
+          0,
+        );
+        flameCoreGrad.addColorStop(
+          0,
+          gc
+            ? `rgba(255,255,210,${0.98 * flickerAlpha})`
+            : `rgba(255,255,255,${0.95 * flickerAlpha})`,
+        );
+        flameCoreGrad.addColorStop(
+          0.4,
+          gc
+            ? `rgba(255,220,80,${0.85 * flickerAlpha})`
+            : `rgba(255,230,100,${0.8 * flickerAlpha})`,
+        );
+        flameCoreGrad.addColorStop(1, "rgba(255,120,0,0)");
         ctx.fillStyle = flameCoreGrad;
         ctx.beginPath();
-        ctx.moveTo(w * 0.36, -h * 0.2);
-        ctx.lineTo(w * 0.36 + flameLen, -h * 0.05);
-        ctx.lineTo(w * 0.36 + flameLen, h * 0.05);
-        ctx.lineTo(w * 0.36, h * 0.2);
+        ctx.moveTo(rearX, -flameBase * 0.28);
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.35,
+          -flameBase * 0.15,
+          rearX + flameLenCore * 0.6,
+          -flameBase * 0.04,
+          rearX + flameLenCore * 0.7,
+          0,
+        );
+        ctx.bezierCurveTo(
+          rearX + flameLenCore * 0.6,
+          flameBase * 0.04,
+          rearX + flameLenCore * 0.35,
+          flameBase * 0.15,
+          rearX,
+          flameBase * 0.28,
+        );
         ctx.closePath();
         ctx.fill();
 
-        if (isGolden) ctx.shadowColor = "#FFD700";
-        ctx.shadowBlur = 18;
+        if (isGolden) {
+          ctx.shadowColor = "#FFD700";
+          ctx.shadowBlur = 18;
+        } else if (type === "fast") {
+          ctx.shadowColor = "#FF4500";
+          ctx.shadowBlur = 12;
+        } else {
+          ctx.shadowColor = "rgba(255,100,0,0.4)";
+          ctx.shadowBlur = 6;
+        }
 
-        // Cylindrical body — metallic gradient
+        // ── Rear stabilizer fins (cruciform X-pattern) drawn BEFORE body ──
+        const finColor = gc ? "#B8860B" : "#353545";
+        const finStroke = gc ? "#8B6914" : "#1E1E2A";
+        ctx.fillStyle = finColor;
+        ctx.strokeStyle = finStroke;
+        ctx.lineWidth = Math.max(0.5, h * 0.035);
+        // Top fin — large, swept
+        ctx.beginPath();
+        ctx.moveTo(w * 0.16, -h * 0.22);
+        ctx.lineTo(w * 0.06, -h * 0.68);
+        ctx.lineTo(w * 0.38, -h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        // Bottom fin — large, swept
+        ctx.beginPath();
+        ctx.moveTo(w * 0.16, h * 0.22);
+        ctx.lineTo(w * 0.06, h * 0.68);
+        ctx.lineTo(w * 0.38, h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        // Diagonal fin (upper-forward)
+        ctx.beginPath();
+        ctx.moveTo(w * 0.08, -h * 0.22);
+        ctx.lineTo(-w * 0.02, -h * 0.48);
+        ctx.lineTo(w * 0.22, -h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        // Diagonal fin (lower-forward)
+        ctx.beginPath();
+        ctx.moveTo(w * 0.08, h * 0.22);
+        ctx.lineTo(-w * 0.02, h * 0.48);
+        ctx.lineTo(w * 0.22, h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // ── Elongated cylindrical body ──
         const bodyMetalGrad = ctx.createLinearGradient(0, -h * 0.5, 0, h * 0.5);
         if (gc) {
-          bodyMetalGrad.addColorStop(0, "#FFF5CC");
-          bodyMetalGrad.addColorStop(0.18, "#FFE57F");
-          bodyMetalGrad.addColorStop(0.5, "#DAA520");
-          bodyMetalGrad.addColorStop(0.82, "#FFE082");
-          bodyMetalGrad.addColorStop(1, "#FFF0B0");
+          bodyMetalGrad.addColorStop(0, "#FFF8D0");
+          bodyMetalGrad.addColorStop(0.12, "#FFE57F");
+          bodyMetalGrad.addColorStop(0.45, "#C8960C");
+          bodyMetalGrad.addColorStop(0.72, "#FFE082");
+          bodyMetalGrad.addColorStop(1, "#FFF5C0");
         } else {
-          bodyMetalGrad.addColorStop(0, "#F0F0F8");
-          bodyMetalGrad.addColorStop(0.18, "#D8D8E8");
-          bodyMetalGrad.addColorStop(0.5, "#B0B0C8");
-          bodyMetalGrad.addColorStop(0.82, "#D0D0E0");
-          bodyMetalGrad.addColorStop(1, "#E8E8F0");
+          bodyMetalGrad.addColorStop(0, "#EEEEF6");
+          bodyMetalGrad.addColorStop(0.12, "#D2D2E2");
+          bodyMetalGrad.addColorStop(0.45, "#8C8CA2");
+          bodyMetalGrad.addColorStop(0.72, "#C8C8DA");
+          bodyMetalGrad.addColorStop(1, "#E4E4F0");
         }
         ctx.fillStyle = bodyMetalGrad;
         ctx.beginPath();
-        ctx.roundRect(-w * 0.38, -h * 0.22, w * 0.74, h * 0.44, h * 0.08);
+        ctx.roundRect(-w * 0.34, -h * 0.22, w * 0.72, h * 0.44, h * 0.07);
         ctx.fill();
-        ctx.strokeStyle = gc ? "#8B6914" : "#50506A";
-        ctx.lineWidth = Math.max(0.8, h * 0.05);
+        ctx.strokeStyle = gc ? "#8B6914" : "#48485E";
+        ctx.lineWidth = Math.max(0.8, h * 0.045);
         ctx.stroke();
 
-        // Ogive nose cone
-        const noseGrad = ctx.createLinearGradient(
-          -w * 0.52,
-          -h * 0.22,
-          -w * 0.52,
-          h * 0.22,
-        );
+        // ── Sharp ogive nose cone ──
+        const noseGrad = ctx.createLinearGradient(0, -h * 0.22, 0, h * 0.22);
         if (gc) {
-          noseGrad.addColorStop(0, "#FFE082");
-          noseGrad.addColorStop(0.5, "#B8860B");
+          noseGrad.addColorStop(0, "#FFF0C0");
+          noseGrad.addColorStop(0.4, "#C8960C");
           noseGrad.addColorStop(1, "#FFE082");
         } else {
-          noseGrad.addColorStop(0, "#E8E8F0");
-          noseGrad.addColorStop(0.5, "#C0C0D0");
-          noseGrad.addColorStop(1, "#E8E8F0");
+          noseGrad.addColorStop(0, "#F0F0F8");
+          noseGrad.addColorStop(0.4, "#B0B0C0");
+          noseGrad.addColorStop(1, "#D8D8E8");
         }
         ctx.fillStyle = noseGrad;
         ctx.beginPath();
-        ctx.moveTo(-w * 0.38, -h * 0.22);
+        ctx.moveTo(-w * 0.34, -h * 0.22);
+        // Long ogive curve to sharp tip
         ctx.bezierCurveTo(
-          -w * 0.44,
-          -h * 0.1,
-          -w * 0.53,
-          -h * 0.04,
-          -w * 0.54,
+          -w * 0.46,
+          -h * 0.12,
+          -w * 0.6,
+          -h * 0.03,
+          -w * 0.64,
           0,
         );
         ctx.bezierCurveTo(
-          -w * 0.53,
-          h * 0.04,
-          -w * 0.44,
-          h * 0.1,
-          -w * 0.38,
+          -w * 0.6,
+          h * 0.03,
+          -w * 0.46,
+          h * 0.12,
+          -w * 0.34,
           h * 0.22,
         );
         ctx.closePath();
         ctx.fill();
-        ctx.strokeStyle = gc ? "#8B6914" : "#50506A";
-        ctx.lineWidth = Math.max(0.8, h * 0.05);
+        ctx.strokeStyle = gc ? "#8B6914" : "#48485E";
+        ctx.lineWidth = Math.max(0.8, h * 0.045);
         ctx.stroke();
 
-        // Warning band #1
-        ctx.fillStyle = gc ? "#FFD700" : "#CC1111";
+        // Nose tip sharp point (warhead tip darker shade)
+        const tipGrad = ctx.createLinearGradient(0, -h * 0.1, 0, h * 0.1);
+        tipGrad.addColorStop(0, gc ? "#FFD060" : "#D0D0DC");
+        tipGrad.addColorStop(1, gc ? "#A07010" : "#909098");
+        ctx.fillStyle = tipGrad;
         ctx.beginPath();
-        ctx.roundRect(-w * 0.26, -h * 0.22, w * 0.09, h * 0.44, h * 0.04);
-        ctx.fill();
-        // Warning band #2
-        ctx.beginPath();
-        ctx.roundRect(w * 0.08, -h * 0.22, w * 0.09, h * 0.44, h * 0.04);
+        ctx.moveTo(-w * 0.56, -h * 0.08);
+        ctx.lineTo(-w * 0.64, 0);
+        ctx.lineTo(-w * 0.56, h * 0.08);
+        ctx.lineTo(-w * 0.5, 0);
+        ctx.closePath();
         ctx.fill();
 
-        // Dashed center seam
-        ctx.strokeStyle = gc ? "rgba(150,120,0,0.4)" : "rgba(80,80,100,0.4)";
-        ctx.lineWidth = Math.max(0.5, h * 0.03);
-        ctx.setLineDash([h * 0.12, h * 0.08]);
+        // ── Warning bands (3 vivid bands) ──
+        const bandColor = gc ? "#FFD700" : "#CC1111";
+        // Band 1 — near nose
+        ctx.fillStyle = bandColor;
         ctx.beginPath();
-        ctx.moveTo(-w * 0.3, 0);
+        ctx.roundRect(-w * 0.22, -h * 0.22, w * 0.07, h * 0.44, h * 0.025);
+        ctx.fill();
+        // Band 2 — center
+        ctx.beginPath();
+        ctx.roundRect(w * 0.0, -h * 0.22, w * 0.07, h * 0.44, h * 0.025);
+        ctx.fill();
+        // Band 3 — near tail
+        ctx.beginPath();
+        ctx.roundRect(w * 0.22, -h * 0.22, w * 0.06, h * 0.44, h * 0.025);
+        ctx.fill();
+
+        // ── Small canard fins near nose ──
+        const canardColor = gc ? "#C8960C" : "#5A5A70";
+        ctx.fillStyle = canardColor;
+        ctx.strokeStyle = gc ? "#8B6914" : "#2E2E3A";
+        ctx.lineWidth = Math.max(0.4, h * 0.03);
+        // Upper canard
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.18, -h * 0.22);
+        ctx.lineTo(-w * 0.28, -h * 0.46);
+        ctx.lineTo(-w * 0.08, -h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        // Lower canard
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.18, h * 0.22);
+        ctx.lineTo(-w * 0.28, h * 0.46);
+        ctx.lineTo(-w * 0.08, h * 0.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // ── Panel lines / rivet details ──
+        ctx.strokeStyle = gc ? "rgba(120,90,0,0.35)" : "rgba(60,60,80,0.30)";
+        ctx.lineWidth = Math.max(0.4, h * 0.025);
+        ctx.setLineDash([h * 0.1, h * 0.07]);
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.28, 0);
         ctx.lineTo(w * 0.35, 0);
         ctx.stroke();
         ctx.setLineDash([]);
-
-        // 4 cruciform stabilizer fins
-        ctx.fillStyle = gc ? "#B8860B" : "#404050";
-        ctx.strokeStyle = gc ? "#8B6914" : "#28282E";
-        ctx.lineWidth = Math.max(0.5, h * 0.04);
+        // Short panel segment line near tail
+        ctx.strokeStyle = gc ? "rgba(100,75,0,0.25)" : "rgba(50,50,70,0.25)";
+        ctx.lineWidth = Math.max(0.3, h * 0.02);
         ctx.beginPath();
-        ctx.moveTo(w * 0.22, -h * 0.22);
-        ctx.lineTo(w * 0.18, -h * 0.55);
-        ctx.lineTo(w * 0.36, -h * 0.22);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(w * 0.22, h * 0.22);
-        ctx.lineTo(w * 0.18, h * 0.55);
-        ctx.lineTo(w * 0.36, h * 0.22);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(w * 0.14, -h * 0.22);
-        ctx.lineTo(w * 0.12, -h * 0.38);
-        ctx.lineTo(w * 0.24, -h * 0.22);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(w * 0.14, h * 0.22);
-        ctx.lineTo(w * 0.12, h * 0.38);
-        ctx.lineTo(w * 0.24, h * 0.22);
-        ctx.closePath();
-        ctx.fill();
+        ctx.moveTo(w * 0.1, -h * 0.16);
+        ctx.lineTo(w * 0.35, -h * 0.16);
+        ctx.moveTo(w * 0.1, h * 0.16);
+        ctx.lineTo(w * 0.35, h * 0.16);
         ctx.stroke();
 
-        // Body gloss
+        // ── Body gloss highlight ──
         const glossGrad = ctx.createLinearGradient(
-          -w * 0.36,
+          -w * 0.32,
           -h * 0.22,
-          w * 0.34,
+          w * 0.36,
           -h * 0.22,
         );
         glossGrad.addColorStop(0, "rgba(255,255,255,0)");
-        glossGrad.addColorStop(0.2, "rgba(255,255,255,0.45)");
-        glossGrad.addColorStop(0.8, "rgba(255,255,255,0.35)");
+        glossGrad.addColorStop(0.15, "rgba(255,255,255,0.5)");
+        glossGrad.addColorStop(0.75, "rgba(255,255,255,0.3)");
         glossGrad.addColorStop(1, "rgba(255,255,255,0)");
         ctx.fillStyle = glossGrad;
         ctx.beginPath();
-        ctx.roundRect(-w * 0.36, -h * 0.22, w * 0.7, h * 0.1, h * 0.04);
+        ctx.roundRect(-w * 0.32, -h * 0.22, w * 0.68, h * 0.09, h * 0.035);
         ctx.fill();
+
+        // ── Nozzle bell at rear ──
+        const nozzleGrad = ctx.createLinearGradient(0, -h * 0.18, 0, h * 0.18);
+        nozzleGrad.addColorStop(0, gc ? "#FFE082" : "#A0A0B0");
+        nozzleGrad.addColorStop(0.5, gc ? "#B8860B" : "#505060");
+        nozzleGrad.addColorStop(1, gc ? "#FFE082" : "#A0A0B0");
+        ctx.fillStyle = nozzleGrad;
+        ctx.strokeStyle = gc ? "#8B6914" : "#303040";
+        ctx.lineWidth = Math.max(0.5, h * 0.04);
+        ctx.beginPath();
+        ctx.roundRect(w * 0.3, -h * 0.18, w * 0.1, h * 0.36, h * 0.06);
+        ctx.fill();
+        ctx.stroke();
       } else {
         // ── Premium Fighter Jet (F-22 Raptor silhouette) ──
         const bob = Math.sin(wingPhase) * 1.5;
         ctx.translate(0, bob);
         const gc = isGolden;
 
-        // Twin engine afterburner cones
+        // ── Animated afterburner flames (time-based pulse) ──
+        const t = Date.now();
+        const abFlicker1 = 0.8 + 0.2 * Math.sin(t * 0.013);
+        const abFlicker2 = 0.85 + 0.15 * Math.sin(t * 0.019 + 0.9);
+        const abAlpha = 0.75 + 0.25 * Math.sin(t * 0.008 + 1.7);
+
         ctx.shadowColor = "transparent";
         ctx.shadowBlur = 0;
-        const afterOuterGrad = ctx.createLinearGradient(
-          w * 0.34,
-          0,
-          w * 0.68,
-          0,
-        );
-        afterOuterGrad.addColorStop(
-          0,
-          gc ? "rgba(255,220,60,0.4)" : "rgba(255,140,30,0.4)",
-        );
-        afterOuterGrad.addColorStop(1, "rgba(255,60,0,0)");
-        ctx.fillStyle = afterOuterGrad;
-        ctx.beginPath();
-        ctx.ellipse(w * 0.5, 0, w * 0.22, h * 0.3, 0, 0, Math.PI * 2);
-        ctx.fill();
-        const afterW = w * 0.22;
-        const makeABGrad = (yOff: number) => {
-          const g = ctx.createRadialGradient(
-            w * 0.4,
+
+        // Twin engine afterburner — one per engine nacelle (upper at -h*0.1, lower at +h*0.1)
+        const abBaseX = w * 0.4; // nozzle exit x
+        const abLenOuter = w * 0.3 * abFlicker1;
+        const abLenCore = w * 0.2 * abFlicker2;
+        const abRadOuter = h * 0.18;
+        const abRadCore = h * 0.1;
+
+        const drawABFlame = (yOff: number) => {
+          // Outer diffuse halo
+          const outerGrad = ctx.createLinearGradient(
+            abBaseX,
             yOff,
-            0,
-            w * 0.4,
+            abBaseX + abLenOuter,
             yOff,
-            afterW * 0.7,
           );
-          g.addColorStop(
+          outerGrad.addColorStop(
             0,
-            gc ? "rgba(255,255,180,0.98)" : "rgba(255,255,220,0.98)",
+            gc
+              ? `rgba(255,210,50,${0.42 * abAlpha})`
+              : `rgba(255,150,30,${0.38 * abAlpha})`,
           );
-          g.addColorStop(
-            0.25,
-            gc ? "rgba(255,210,60,0.85)" : "rgba(255,200,50,0.85)",
+          outerGrad.addColorStop(0.55, `rgba(255,70,0,${0.2 * abAlpha})`);
+          outerGrad.addColorStop(1, "rgba(255,30,0,0)");
+          ctx.fillStyle = outerGrad;
+          ctx.beginPath();
+          ctx.moveTo(abBaseX, yOff - abRadOuter);
+          ctx.bezierCurveTo(
+            abBaseX + abLenOuter * 0.4,
+            yOff - abRadOuter * 0.65,
+            abBaseX + abLenOuter * 0.8,
+            yOff - abRadOuter * 0.15,
+            abBaseX + abLenOuter,
+            yOff,
           );
-          g.addColorStop(0.6, "rgba(255,90,0,0.5)");
-          g.addColorStop(1, "rgba(255,40,0,0)");
-          return g;
+          ctx.bezierCurveTo(
+            abBaseX + abLenOuter * 0.8,
+            yOff + abRadOuter * 0.15,
+            abBaseX + abLenOuter * 0.4,
+            yOff + abRadOuter * 0.65,
+            abBaseX,
+            yOff + abRadOuter,
+          );
+          ctx.closePath();
+          ctx.fill();
+
+          // Mid orange/yellow
+          const midGrad = ctx.createLinearGradient(
+            abBaseX,
+            yOff,
+            abBaseX + abLenCore * 1.3,
+            yOff,
+          );
+          midGrad.addColorStop(
+            0,
+            gc
+              ? `rgba(255,240,80,${0.88 * abAlpha})`
+              : `rgba(255,210,50,${0.82 * abAlpha})`,
+          );
+          midGrad.addColorStop(0.4, `rgba(255,100,10,${0.55 * abAlpha})`);
+          midGrad.addColorStop(1, "rgba(255,40,0,0)");
+          ctx.fillStyle = midGrad;
+          ctx.beginPath();
+          ctx.moveTo(abBaseX, yOff - abRadCore * 1.1);
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.5,
+            yOff - abRadCore * 0.7,
+            abBaseX + abLenCore * 0.95,
+            yOff - abRadCore * 0.15,
+            abBaseX + abLenCore * 1.3,
+            yOff,
+          );
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.95,
+            yOff + abRadCore * 0.15,
+            abBaseX + abLenCore * 0.5,
+            yOff + abRadCore * 0.7,
+            abBaseX,
+            yOff + abRadCore * 1.1,
+          );
+          ctx.closePath();
+          ctx.fill();
+
+          // White-hot core
+          const coreGrad = ctx.createLinearGradient(
+            abBaseX,
+            yOff,
+            abBaseX + abLenCore * 0.7,
+            yOff,
+          );
+          coreGrad.addColorStop(
+            0,
+            gc
+              ? `rgba(255,255,200,${0.98 * abAlpha})`
+              : `rgba(255,255,240,${0.95 * abAlpha})`,
+          );
+          coreGrad.addColorStop(
+            0.45,
+            gc
+              ? `rgba(255,230,80,${0.8 * abAlpha})`
+              : `rgba(255,220,80,${0.75 * abAlpha})`,
+          );
+          coreGrad.addColorStop(1, "rgba(255,100,0,0)");
+          ctx.fillStyle = coreGrad;
+          ctx.beginPath();
+          ctx.moveTo(abBaseX, yOff - abRadCore * 0.5);
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.35,
+            yOff - abRadCore * 0.28,
+            abBaseX + abLenCore * 0.6,
+            yOff - abRadCore * 0.06,
+            abBaseX + abLenCore * 0.7,
+            yOff,
+          );
+          ctx.bezierCurveTo(
+            abBaseX + abLenCore * 0.6,
+            yOff + abRadCore * 0.06,
+            abBaseX + abLenCore * 0.35,
+            yOff + abRadCore * 0.28,
+            abBaseX,
+            yOff + abRadCore * 0.5,
+          );
+          ctx.closePath();
+          ctx.fill();
         };
-        ctx.fillStyle = makeABGrad(-h * 0.1);
-        ctx.beginPath();
-        ctx.ellipse(
-          w * 0.4,
-          -h * 0.1,
-          afterW * 0.6,
-          h * 0.16,
-          0,
-          0,
-          Math.PI * 2,
-        );
-        ctx.fill();
-        ctx.fillStyle = makeABGrad(h * 0.1);
-        ctx.beginPath();
-        ctx.ellipse(
-          w * 0.4,
-          h * 0.1,
-          afterW * 0.6,
-          h * 0.16,
-          0,
-          0,
-          Math.PI * 2,
-        );
-        ctx.fill();
+
+        drawABFlame(-h * 0.1);
+        drawABFlame(h * 0.1);
 
         if (isGolden) {
           ctx.shadowColor = "#FFD700";
@@ -3120,7 +3418,11 @@ const GameScreen: React.FC<GameScreenProps> = ({
         for (let j = gs.chickens.length - 1; j >= 0; j--) {
           const chicken = gs.chickens[j];
           if (checkCollision(tapX, tapY, chicken)) {
-            playShotSound();
+            if (selectedWorld === "hormuz") {
+              playExplosionSound();
+            } else {
+              playShotSound();
+            }
             const pts = scoreMultiplier.isActive
               ? chicken.points * 2
               : chicken.points;
@@ -3144,6 +3446,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
       gameEnded,
       checkCollision,
       playShotSound,
+      playExplosionSound,
       playStopwatchSound,
       addHitEffect,
       addXP,
@@ -3151,6 +3454,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
       handleStopwatchHit,
       handleShotFired,
       scoreMultiplier,
+      selectedWorld,
     ],
   );
 
