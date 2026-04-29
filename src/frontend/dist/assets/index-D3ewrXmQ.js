@@ -35931,7 +35931,7 @@ const BackgroundRenderer = ({
     "svg",
     {
       role: "img",
-      "aria-label": "CaffeineAI world background",
+      "aria-label": "Caffeine world background",
       className: "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
       viewBox: "0 0 1200 800",
       preserveAspectRatio: "xMidYMid slice",
@@ -61662,7 +61662,7 @@ const WORLDS = [
   { id: "snowy", name: "Snowy" },
   { id: "sky", name: "Heaven" },
   { id: "cyberpunk", name: "Cyberpunk City" },
-  { id: "caffeineai", name: "CaffeineAI" },
+  { id: "caffeineai", name: "Caffeine" },
   { id: "zombietown", name: "ZombieTown" },
   { id: "halloween", name: "Halloween" },
   { id: "tokyo", name: "Tokyo" },
@@ -61716,6 +61716,7 @@ const StartScreen = ({
   const isBitcoinSelected = selectedWorld === "bitcoin";
   const isHormuzSelected = selectedWorld === "hormuz";
   const isDogecoinSelected = selectedWorld === "dogecoin";
+  const isCaffeineSelected = selectedWorld === "caffeineai";
   const { data: pumpPriceData } = usePumpFunPrice();
   const { data: btcPriceData } = useBitcoinPrice();
   const { data: brentPriceData } = useBrentOilPrice();
@@ -63622,6 +63623,65 @@ const StartScreen = ({
               )
             ] })
           ] }),
+          isCaffeineSelected && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "a",
+            {
+              href: "https://caffeine.ai",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              "aria-label": "Visit caffeine.ai – Build apps with chat",
+              className: "mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/60 backdrop-blur-sm border pointer-events-auto hover:opacity-90 transition-opacity duration-150",
+              style: { borderColor: "rgba(204,255,0,0.35)" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex flex-row items-center gap-1.5", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "span",
+                    {
+                      style: {
+                        fontFamily: "'Courier New', Courier, monospace",
+                        color: "#ccff00"
+                      },
+                      className: "font-bold text-base tracking-wide leading-none",
+                      children: "caffeine.ai"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "svg",
+                    {
+                      xmlns: "http://www.w3.org/2000/svg",
+                      width: "12",
+                      height: "12",
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "#ccff00",
+                      strokeWidth: "2.5",
+                      strokeLinecap: "round",
+                      strokeLinejoin: "round",
+                      "aria-hidden": "true",
+                      style: { opacity: 0.8, flexShrink: 0 },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "15 3 21 3 21 9" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "10", y1: "14", x2: "21", y2: "3" })
+                      ]
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "span",
+                  {
+                    style: {
+                      fontFamily: "'Courier New', Courier, monospace",
+                      color: "#ccff00",
+                      opacity: 0.6
+                    },
+                    className: "text-xs tracking-wide leading-none",
+                    children: "Build apps with chat"
+                  }
+                )
+              ]
+            }
+          ),
           isHormuzSelected && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/60 backdrop-blur-sm border border-red-900/50", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "span",

@@ -74,7 +74,7 @@ const WORLDS: { id: BackgroundWorld; name: string }[] = [
   { id: "snowy", name: "Snowy" },
   { id: "sky", name: "Heaven" },
   { id: "cyberpunk", name: "Cyberpunk City" },
-  { id: "caffeineai", name: "CaffeineAI" },
+  { id: "caffeineai", name: "Caffeine" },
   { id: "zombietown", name: "ZombieTown" },
   { id: "halloween", name: "Halloween" },
   { id: "tokyo", name: "Tokyo" },
@@ -131,6 +131,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
   const isBitcoinSelected = selectedWorld === "bitcoin";
   const isHormuzSelected = selectedWorld === "hormuz";
   const isDogecoinSelected = selectedWorld === "dogecoin";
+  const isCaffeineSelected = selectedWorld === "caffeineai";
   const { data: pumpPriceData } = usePumpFunPrice();
   const { data: btcPriceData } = useBitcoinPrice();
   const { data: brentPriceData } = useBrentOilPrice();
@@ -2395,6 +2396,58 @@ const StartScreen: React.FC<StartScreenProps> = ({
               )}
             </div>
           </div>
+        )}
+        {/* Caffeine URL — only shown when Caffeine world is selected */}
+        {isCaffeineSelected && (
+          <a
+            href="https://caffeine.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visit caffeine.ai – Build apps with chat"
+            className="mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/60 backdrop-blur-sm border pointer-events-auto hover:opacity-90 transition-opacity duration-150"
+            style={{ borderColor: "rgba(204,255,0,0.35)" }}
+          >
+            {/* Row 1: caffeine.ai + external-link icon */}
+            <span className="inline-flex flex-row items-center gap-1.5">
+              <span
+                style={{
+                  fontFamily: "'Courier New', Courier, monospace",
+                  color: "#ccff00",
+                }}
+                className="font-bold text-base tracking-wide leading-none"
+              >
+                caffeine.ai
+              </span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#ccff00"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                style={{ opacity: 0.8, flexShrink: 0 }}
+              >
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
+            </span>
+            {/* Row 2: tagline */}
+            <span
+              style={{
+                fontFamily: "'Courier New', Courier, monospace",
+                color: "#ccff00",
+                opacity: 0.6,
+              }}
+              className="text-xs tracking-wide leading-none"
+            >
+              Build apps with chat
+            </span>
+          </a>
         )}
         {/* BRENT/USD live oil price — only shown when Hormuz world is selected */}
         {isHormuzSelected && (

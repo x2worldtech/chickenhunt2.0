@@ -4531,7 +4531,7 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
   const renderCaffeineAIWorld = () => (
     <svg
       role="img"
-      aria-label="CaffeineAI world background"
+      aria-label="Caffeine world background"
       className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
       viewBox="0 0 1200 800"
       preserveAspectRatio="xMidYMid slice"
