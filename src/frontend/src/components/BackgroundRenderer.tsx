@@ -16,6 +16,7 @@ interface BackgroundRendererProps {
   pumpFunPrice?: PriceDisplay | null;
   btcPrice?: PriceDisplay | null;
   brentOilPrice?: BrentOilPriceDisplay | null;
+  dogePrice?: PriceDisplay | null;
 }
 
 const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
@@ -23,6 +24,7 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
   pumpFunPrice,
   btcPrice,
   brentOilPrice,
+  dogePrice,
 }) => {
   const renderOriginalWorld = () => (
     <svg
@@ -19346,6 +19348,414 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
     </svg>
   );
 
+  const renderDogeWorld = () => {
+    const priceStr = dogePrice
+      ? `$${dogePrice.price < 0.001 ? dogePrice.price.toFixed(6) : dogePrice.price.toFixed(4)}`
+      : "--";
+    const changeVal = dogePrice ? dogePrice.change24h : null;
+    const changeStr =
+      changeVal !== null
+        ? `${changeVal >= 0 ? "+" : ""}${changeVal.toFixed(2)}%`
+        : "--";
+    const changeColor =
+      changeVal === null ? "#9CA3AF" : changeVal >= 0 ? "#22C55E" : "#EF4444";
+
+    return (
+      <div
+        aria-label="Dogecoin world background"
+        className="absolute inset-0 w-full h-full overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(180deg, #C97A00 0%, #E09A00 18%, #F5BF20 45%, #FFD84A 72%, #FFF0A0 100%)",
+        }}
+      >
+        {/* Warm golden sky glow overlay */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 70% 60% at 50% 0%, rgba(255,220,60,0.35) 0%, transparent 80%)",
+          }}
+        />
+
+        {/* Doge dog — prominent centered background element */}
+        <div
+          className="absolute"
+          style={{
+            right: "5%",
+            bottom: "18%",
+            width: "75%",
+            maxWidth: 900,
+            aspectRatio: "1 / 1",
+            opacity: 0.92,
+            filter: "drop-shadow(0 0 40px rgba(255,200,50,0.55))",
+          }}
+        >
+          <img
+            src="/assets/img_8763-019dd4d8-8e0a-75d8-b4be-514e1c300fe8.png"
+            alt="Doge Shiba Inu"
+            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          />
+        </div>
+
+        {/* Ground strip */}
+        <div
+          className="absolute bottom-0 left-0 right-0"
+          style={{
+            height: "22%",
+            background:
+              "linear-gradient(180deg, #B8860B 0%, #8B6400 60%, #5A3E00 100%)",
+            borderTop: "3px solid #C8940A",
+          }}
+        />
+        {/* Ground texture ripples */}
+        <svg
+          role="img"
+          aria-label="Ground texture"
+          className="absolute bottom-0 left-0 right-0"
+          style={{ height: "22%", width: "100%" }}
+          viewBox="0 0 1200 176"
+          preserveAspectRatio="none"
+        >
+          <g stroke="#C8A45A" strokeWidth="1.5" fill="none" opacity="0.35">
+            <path d="M0,40 Q150,34 300,40 T600,36 T900,40 T1200,36" />
+            <path d="M0,80 Q150,74 300,80 T600,76 T900,80 T1200,76" />
+            <path d="M0,120 Q150,114 300,120 T600,116 T900,120 T1200,116" />
+          </g>
+        </svg>
+
+        {/* Decorative coin images scattered in background */}
+        {[
+          { left: "13%", top: "58%", size: 72, id: "dl" },
+          { left: "80%", top: "55%", size: 56, id: "dr" },
+          { left: "24%", top: "30%", size: 40, id: "dsl" },
+          { left: "68%", top: "28%", size: 36, id: "dsr" },
+        ].map((pos) => (
+          <div
+            key={`deco-coin-${pos.id}`}
+            className="absolute"
+            style={{
+              left: pos.left,
+              top: pos.top,
+              width: pos.size,
+              height: pos.size,
+              borderRadius: "50%",
+              overflow: "hidden",
+              boxShadow: "0 0 18px 4px rgba(255,200,30,0.55)",
+              opacity: 0.85,
+            }}
+          >
+            <img
+              src="/assets/img_8762-019dd4d8-8dae-77d4-bc88-50b76c9a6fff.jpeg"
+              alt="Dogecoin"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          </div>
+        ))}
+
+        {/* Meme speech bubbles */}
+        <svg
+          role="img"
+          aria-label="Dogecoin world overlay"
+          className="absolute inset-0 w-full h-full"
+          viewBox="0 0 1200 800"
+          preserveAspectRatio="xMidYMid slice"
+        >
+          {/* Stars in sky */}
+          <g fill="#FFD700" opacity="0.55">
+            {(
+              [
+                [80, 50, 2],
+                [200, 35, 1.5],
+                [360, 55, 2.5],
+                [480, 30, 1.8],
+                [140, 120, 1.5],
+                [420, 110, 2],
+                [60, 155, 1.5],
+                [310, 145, 1.8],
+              ] as [number, number, number][]
+            ).map(([x, y, r]) => (
+              <circle key={`doge-star-${x}-${y}`} cx={x} cy={y} r={r} />
+            ))}
+          </g>
+
+          {/* "wow" bubble */}
+          <g transform="translate(155, 195)">
+            <rect
+              x="-42"
+              y="-22"
+              width="84"
+              height="44"
+              rx="22"
+              fill="#FFFDE7"
+              stroke="#FFD700"
+              strokeWidth="2.5"
+              opacity="0.95"
+            />
+            <polygon
+              points="-10,22 -22,38 8,22"
+              fill="#FFFDE7"
+              stroke="#FFD700"
+              strokeWidth="2"
+            />
+            <text
+              x="0"
+              y="8"
+              textAnchor="middle"
+              fontFamily="'Comic Sans MS', cursive"
+              fontSize="22"
+              fontWeight="bold"
+              fill="#B8860B"
+            >
+              wow
+            </text>
+          </g>
+          {/* "such coin" bubble */}
+          <g transform="translate(310, 145)">
+            <rect
+              x="-62"
+              y="-22"
+              width="124"
+              height="44"
+              rx="22"
+              fill="#FFFDE7"
+              stroke="#FFD700"
+              strokeWidth="2.5"
+              opacity="0.95"
+            />
+            <polygon
+              points="10,22 22,38 -8,22"
+              fill="#FFFDE7"
+              stroke="#FFD700"
+              strokeWidth="2"
+            />
+            <text
+              x="0"
+              y="8"
+              textAnchor="middle"
+              fontFamily="'Comic Sans MS', cursive"
+              fontSize="18"
+              fontWeight="bold"
+              fill="#8B6914"
+            >
+              such coin
+            </text>
+          </g>
+          {/* "very doge" bubble */}
+          <g transform="translate(130, 370)">
+            <rect
+              x="-62"
+              y="-22"
+              width="124"
+              height="44"
+              rx="22"
+              fill="#FFFDE7"
+              stroke="#FFD700"
+              strokeWidth="2.5"
+              opacity="0.95"
+            />
+            <polygon
+              points="15,22 28,38 -5,22"
+              fill="#FFFDE7"
+              stroke="#FFD700"
+              strokeWidth="2"
+            />
+            <text
+              x="0"
+              y="8"
+              textAnchor="middle"
+              fontFamily="'Comic Sans MS', cursive"
+              fontSize="18"
+              fontWeight="bold"
+              fill="#8B6914"
+            >
+              very doge
+            </text>
+          </g>
+          {/* "to the moon" bubble */}
+          <g transform="translate(430, 60)">
+            <rect
+              x="-82"
+              y="-22"
+              width="164"
+              height="44"
+              rx="22"
+              fill="#FFFDE7"
+              stroke="#FFD700"
+              strokeWidth="2.5"
+              opacity="0.95"
+            />
+            <polygon
+              points="-5,22 -15,36 12,22"
+              fill="#FFFDE7"
+              stroke="#FFD700"
+              strokeWidth="2"
+            />
+            <text
+              x="0"
+              y="8"
+              textAnchor="middle"
+              fontFamily="'Comic Sans MS', cursive"
+              fontSize="18"
+              fontWeight="bold"
+              fill="#B8860B"
+            >
+              to the moon 🚀
+            </text>
+          </g>
+
+          {/* === "Wow. Such wow." animated bubble from Doge dog === */}
+          <defs>
+            <style>{`
+              @keyframes dogeWowPopIn {
+                0%   { transform: scale(0); opacity: 0; }
+                60%  { transform: scale(1.12); opacity: 1; }
+                80%  { transform: scale(0.94); }
+                100% { transform: scale(1); opacity: 1; }
+              }
+              @keyframes dogeWowFloat {
+                0%   { transform: scale(1) translateY(0px); }
+                50%  { transform: scale(1.04) translateY(-4px); }
+                100% { transform: scale(1) translateY(0px); }
+              }
+              .doge-wow-bubble {
+                transform-origin: 105px 78px;
+                animation:
+                  dogeWowPopIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both,
+                  dogeWowFloat 2s ease-in-out 0.85s infinite;
+              }
+              @media (prefers-reduced-motion: reduce) {
+                .doge-wow-bubble {
+                  animation: none;
+                  opacity: 1;
+                }
+              }
+            `}</style>
+          </defs>
+          {/* Bubble origin offset: tail tip at (105,78) pointing down-right toward dog face */}
+          <g transform="translate(740, 340)" className="doge-wow-bubble">
+            {/* Rounded rect body */}
+            <rect
+              x="-8"
+              y="-56"
+              width="180"
+              height="60"
+              rx="24"
+              fill="#FFFDE7"
+              stroke="#FFD700"
+              strokeWidth="3"
+              opacity="0.97"
+            />
+            {/* Tail pointing down-right toward dog's face */}
+            <polygon
+              points="90,-2 105,18 70,-2"
+              fill="#FFFDE7"
+              stroke="#FFD700"
+              strokeWidth="2.5"
+              strokeLinejoin="round"
+            />
+            {/* Cover the stroke seam between rect and tail */}
+            <line
+              x1="71"
+              y1="-2"
+              x2="109"
+              y2="-2"
+              stroke="#FFFDE7"
+              strokeWidth="3"
+            />
+            {/* "Wow." — line 1 */}
+            <text
+              x="82"
+              y="-30"
+              textAnchor="middle"
+              fontFamily="'Comic Sans MS', cursive"
+              fontSize="20"
+              fontWeight="bold"
+              fill="#8B6914"
+            >
+              Wow.
+            </text>
+            {/* "Such wow." — line 2 */}
+            <text
+              x="82"
+              y="-8"
+              textAnchor="middle"
+              fontFamily="'Comic Sans MS', cursive"
+              fontSize="18"
+              fontWeight="bold"
+              fill="#8B6914"
+            >
+              Such wow.
+            </text>
+          </g>
+
+          {/* === LIVE DOGE / USD PRICE OVERLAY === */}
+          <g transform="translate(600, 590)">
+            <rect
+              x="-110"
+              y="-46"
+              width="220"
+              height="88"
+              rx="8"
+              ry="8"
+              fill="#050505"
+              fillOpacity="0.82"
+              stroke="#3a2800"
+              strokeWidth="1"
+            />
+            <text
+              x="0"
+              y="-28"
+              textAnchor="middle"
+              fontFamily="'Courier New', Courier, monospace"
+              fontWeight="400"
+              fontSize="11"
+              fill="#c8940a"
+              opacity="0.85"
+              letterSpacing="2"
+            >
+              DOGE / USD
+            </text>
+            <text
+              x="0"
+              y="2"
+              textAnchor="middle"
+              fontFamily="'Courier New', Courier, monospace"
+              fontWeight="700"
+              fontSize="22"
+              fill="#FFFFFF"
+              letterSpacing="0.5"
+            >
+              {priceStr}
+            </text>
+            <rect
+              x="-38"
+              y="12"
+              width="76"
+              height="22"
+              rx="4"
+              ry="4"
+              fill={changeColor}
+              fillOpacity="0.15"
+            />
+            <text
+              x="0"
+              y="28"
+              textAnchor="middle"
+              fontFamily="'Courier New', Courier, monospace"
+              fontWeight="600"
+              fontSize="13"
+              fill={changeColor}
+              letterSpacing="0.3"
+            >
+              {changeStr}
+            </text>
+          </g>
+        </svg>
+      </div>
+    );
+  };
+
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -19388,6 +19798,8 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
         return renderHormuzWorld();
       case "alien":
         return renderAlienWorld();
+      case "dogecoin":
+        return renderDogeWorld();
       default:
         return renderOriginalWorld();
     }

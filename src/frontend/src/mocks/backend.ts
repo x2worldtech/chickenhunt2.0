@@ -36,11 +36,11 @@ export const mockBackend: backendInterface = {
   getClanMessages: async () => ok([] as ClanMessage[]),
   getCurrentUserApprovalStatus: async () => "approved" as unknown as ApprovalStatus,
   getCurrentUserProfile: async (): Promise<UserProfile | null> => ({
-    bio: "ChickenHunt Spieler",
+    bio: "World of Hunt Spieler",
     name: "Jäger",
   }),
   getCurrentUserProfileWithChangeStatus: async (): Promise<UserProfileWithChangeStatus | null> => ({
-    bio: "ChickenHunt Spieler",
+    bio: "World of Hunt Spieler",
     name: "Jäger",
     hasChangedName: false,
   }),
@@ -54,11 +54,11 @@ export const mockBackend: backendInterface = {
   getPendingJoinRequests: async () => ok([] as PrincipalInfo[]),
   getUserGameStats: async (): Promise<GameStatistics | null> => null,
   getUserProfile: async (): Promise<UserProfile | null> => ({
-    bio: "ChickenHunt Spieler",
+    bio: "World of Hunt Spieler",
     name: "Jäger",
   }),
   getUserProfileWithChangeStatus: async (): Promise<UserProfileWithChangeStatus | null> => ({
-    bio: "ChickenHunt Spieler",
+    bio: "World of Hunt Spieler",
     name: "Jäger",
     hasChangedName: false,
   }),

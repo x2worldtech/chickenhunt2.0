@@ -58,7 +58,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   );
 
   const initLetters = useCallback((canvas: HTMLCanvasElement) => {
-    const text = "CHICKEN HUNT";
+    const text = "WORLD OF HUNT";
     const fontSize = Math.min(canvas.width * 0.1, 110);
     const letterSpacing = fontSize * 0.72;
     const totalWidth = (text.length - 1) * letterSpacing;

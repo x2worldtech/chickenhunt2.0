@@ -29458,6 +29458,21 @@ function usePumpFunPrice() {
     placeholderData: (prev) => prev ?? null
   });
 }
+function useDogecoinPrice() {
+  return useQuery({
+    queryKey: ["dogecoinPrice"],
+    queryFn: async () => {
+      try {
+        return await fetchFromBinance("DOGEUSDT");
+      } catch {
+        return await fetchFromCoinGecko("dogecoin");
+      }
+    },
+    staleTime: 5e3,
+    refetchInterval: 1e4,
+    placeholderData: (prev) => prev ?? null
+  });
+}
 function useBitcoinPrice() {
   return useQuery({
     queryKey: ["bitcoinPrice"],
@@ -30771,7 +30786,8 @@ const BackgroundRenderer = ({
   world,
   pumpFunPrice,
   btcPrice,
-  brentOilPrice
+  brentOilPrice,
+  dogePrice
 }) => {
   const renderOriginalWorld = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "svg",
@@ -50846,6 +50862,448 @@ const BackgroundRenderer = ({
       ]
     }
   );
+  const renderDogeWorld = () => {
+    const priceStr = dogePrice ? `$${dogePrice.price < 1e-3 ? dogePrice.price.toFixed(6) : dogePrice.price.toFixed(4)}` : "--";
+    const changeVal = dogePrice ? dogePrice.change24h : null;
+    const changeStr = changeVal !== null ? `${changeVal >= 0 ? "+" : ""}${changeVal.toFixed(2)}%` : "--";
+    const changeColor = changeVal === null ? "#9CA3AF" : changeVal >= 0 ? "#22C55E" : "#EF4444";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        "aria-label": "Dogecoin world background",
+        className: "absolute inset-0 w-full h-full overflow-hidden",
+        style: {
+          background: "linear-gradient(180deg, #C97A00 0%, #E09A00 18%, #F5BF20 45%, #FFD84A 72%, #FFF0A0 100%)"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "absolute inset-0",
+              style: {
+                background: "radial-gradient(ellipse 70% 60% at 50% 0%, rgba(255,220,60,0.35) 0%, transparent 80%)"
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "absolute",
+              style: {
+                right: "5%",
+                bottom: "18%",
+                width: "75%",
+                maxWidth: 900,
+                aspectRatio: "1 / 1",
+                opacity: 0.92,
+                filter: "drop-shadow(0 0 40px rgba(255,200,50,0.55))"
+              },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "img",
+                {
+                  src: "/assets/img_8763-019dd4d8-8e0a-75d8-b4be-514e1c300fe8.png",
+                  alt: "Doge Shiba Inu",
+                  style: { width: "100%", height: "100%", objectFit: "contain" }
+                }
+              )
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "absolute bottom-0 left-0 right-0",
+              style: {
+                height: "22%",
+                background: "linear-gradient(180deg, #B8860B 0%, #8B6400 60%, #5A3E00 100%)",
+                borderTop: "3px solid #C8940A"
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "svg",
+            {
+              role: "img",
+              "aria-label": "Ground texture",
+              className: "absolute bottom-0 left-0 right-0",
+              style: { height: "22%", width: "100%" },
+              viewBox: "0 0 1200 176",
+              preserveAspectRatio: "none",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { stroke: "#C8A45A", strokeWidth: "1.5", fill: "none", opacity: "0.35", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,40 Q150,34 300,40 T600,36 T900,40 T1200,36" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,80 Q150,74 300,80 T600,76 T900,80 T1200,76" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M0,120 Q150,114 300,120 T600,116 T900,120 T1200,116" })
+              ] })
+            }
+          ),
+          [
+            { left: "13%", top: "58%", size: 72, id: "dl" },
+            { left: "80%", top: "55%", size: 56, id: "dr" },
+            { left: "24%", top: "30%", size: 40, id: "dsl" },
+            { left: "68%", top: "28%", size: 36, id: "dsr" }
+          ].map((pos) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "absolute",
+              style: {
+                left: pos.left,
+                top: pos.top,
+                width: pos.size,
+                height: pos.size,
+                borderRadius: "50%",
+                overflow: "hidden",
+                boxShadow: "0 0 18px 4px rgba(255,200,30,0.55)",
+                opacity: 0.85
+              },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "img",
+                {
+                  src: "/assets/img_8762-019dd4d8-8dae-77d4-bc88-50b76c9a6fff.jpeg",
+                  alt: "Dogecoin",
+                  style: { width: "100%", height: "100%", objectFit: "cover" }
+                }
+              )
+            },
+            `deco-coin-${pos.id}`
+          )),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "svg",
+            {
+              role: "img",
+              "aria-label": "Dogecoin world overlay",
+              className: "absolute inset-0 w-full h-full",
+              viewBox: "0 0 1200 800",
+              preserveAspectRatio: "xMidYMid slice",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("g", { fill: "#FFD700", opacity: "0.55", children: [
+                  [80, 50, 2],
+                  [200, 35, 1.5],
+                  [360, 55, 2.5],
+                  [480, 30, 1.8],
+                  [140, 120, 1.5],
+                  [420, 110, 2],
+                  [60, 155, 1.5],
+                  [310, 145, 1.8]
+                ].map(([x2, y2, r2]) => /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: x2, cy: y2, r: r2 }, `doge-star-${x2}-${y2}`)) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(155, 195)", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "rect",
+                    {
+                      x: "-42",
+                      y: "-22",
+                      width: "84",
+                      height: "44",
+                      rx: "22",
+                      fill: "#FFFDE7",
+                      stroke: "#FFD700",
+                      strokeWidth: "2.5",
+                      opacity: "0.95"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "polygon",
+                    {
+                      points: "-10,22 -22,38 8,22",
+                      fill: "#FFFDE7",
+                      stroke: "#FFD700",
+                      strokeWidth: "2"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "text",
+                    {
+                      x: "0",
+                      y: "8",
+                      textAnchor: "middle",
+                      fontFamily: "'Comic Sans MS', cursive",
+                      fontSize: "22",
+                      fontWeight: "bold",
+                      fill: "#B8860B",
+                      children: "wow"
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(310, 145)", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "rect",
+                    {
+                      x: "-62",
+                      y: "-22",
+                      width: "124",
+                      height: "44",
+                      rx: "22",
+                      fill: "#FFFDE7",
+                      stroke: "#FFD700",
+                      strokeWidth: "2.5",
+                      opacity: "0.95"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "polygon",
+                    {
+                      points: "10,22 22,38 -8,22",
+                      fill: "#FFFDE7",
+                      stroke: "#FFD700",
+                      strokeWidth: "2"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "text",
+                    {
+                      x: "0",
+                      y: "8",
+                      textAnchor: "middle",
+                      fontFamily: "'Comic Sans MS', cursive",
+                      fontSize: "18",
+                      fontWeight: "bold",
+                      fill: "#8B6914",
+                      children: "such coin"
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(130, 370)", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "rect",
+                    {
+                      x: "-62",
+                      y: "-22",
+                      width: "124",
+                      height: "44",
+                      rx: "22",
+                      fill: "#FFFDE7",
+                      stroke: "#FFD700",
+                      strokeWidth: "2.5",
+                      opacity: "0.95"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "polygon",
+                    {
+                      points: "15,22 28,38 -5,22",
+                      fill: "#FFFDE7",
+                      stroke: "#FFD700",
+                      strokeWidth: "2"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "text",
+                    {
+                      x: "0",
+                      y: "8",
+                      textAnchor: "middle",
+                      fontFamily: "'Comic Sans MS', cursive",
+                      fontSize: "18",
+                      fontWeight: "bold",
+                      fill: "#8B6914",
+                      children: "very doge"
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(430, 60)", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "rect",
+                    {
+                      x: "-82",
+                      y: "-22",
+                      width: "164",
+                      height: "44",
+                      rx: "22",
+                      fill: "#FFFDE7",
+                      stroke: "#FFD700",
+                      strokeWidth: "2.5",
+                      opacity: "0.95"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "polygon",
+                    {
+                      points: "-5,22 -15,36 12,22",
+                      fill: "#FFFDE7",
+                      stroke: "#FFD700",
+                      strokeWidth: "2"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "text",
+                    {
+                      x: "0",
+                      y: "8",
+                      textAnchor: "middle",
+                      fontFamily: "'Comic Sans MS', cursive",
+                      fontSize: "18",
+                      fontWeight: "bold",
+                      fill: "#B8860B",
+                      children: "to the moon 🚀"
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("defs", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: `
+              @keyframes dogeWowPopIn {
+                0%   { transform: scale(0); opacity: 0; }
+                60%  { transform: scale(1.12); opacity: 1; }
+                80%  { transform: scale(0.94); }
+                100% { transform: scale(1); opacity: 1; }
+              }
+              @keyframes dogeWowFloat {
+                0%   { transform: scale(1) translateY(0px); }
+                50%  { transform: scale(1.04) translateY(-4px); }
+                100% { transform: scale(1) translateY(0px); }
+              }
+              .doge-wow-bubble {
+                transform-origin: 105px 78px;
+                animation:
+                  dogeWowPopIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both,
+                  dogeWowFloat 2s ease-in-out 0.85s infinite;
+              }
+              @media (prefers-reduced-motion: reduce) {
+                .doge-wow-bubble {
+                  animation: none;
+                  opacity: 1;
+                }
+              }
+            ` }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(740, 340)", className: "doge-wow-bubble", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "rect",
+                    {
+                      x: "-8",
+                      y: "-56",
+                      width: "180",
+                      height: "60",
+                      rx: "24",
+                      fill: "#FFFDE7",
+                      stroke: "#FFD700",
+                      strokeWidth: "3",
+                      opacity: "0.97"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "polygon",
+                    {
+                      points: "90,-2 105,18 70,-2",
+                      fill: "#FFFDE7",
+                      stroke: "#FFD700",
+                      strokeWidth: "2.5",
+                      strokeLinejoin: "round"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "line",
+                    {
+                      x1: "71",
+                      y1: "-2",
+                      x2: "109",
+                      y2: "-2",
+                      stroke: "#FFFDE7",
+                      strokeWidth: "3"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "text",
+                    {
+                      x: "82",
+                      y: "-30",
+                      textAnchor: "middle",
+                      fontFamily: "'Comic Sans MS', cursive",
+                      fontSize: "20",
+                      fontWeight: "bold",
+                      fill: "#8B6914",
+                      children: "Wow."
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "text",
+                    {
+                      x: "82",
+                      y: "-8",
+                      textAnchor: "middle",
+                      fontFamily: "'Comic Sans MS', cursive",
+                      fontSize: "18",
+                      fontWeight: "bold",
+                      fill: "#8B6914",
+                      children: "Such wow."
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(600, 590)", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "rect",
+                    {
+                      x: "-110",
+                      y: "-46",
+                      width: "220",
+                      height: "88",
+                      rx: "8",
+                      ry: "8",
+                      fill: "#050505",
+                      fillOpacity: "0.82",
+                      stroke: "#3a2800",
+                      strokeWidth: "1"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "text",
+                    {
+                      x: "0",
+                      y: "-28",
+                      textAnchor: "middle",
+                      fontFamily: "'Courier New', Courier, monospace",
+                      fontWeight: "400",
+                      fontSize: "11",
+                      fill: "#c8940a",
+                      opacity: "0.85",
+                      letterSpacing: "2",
+                      children: "DOGE / USD"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "text",
+                    {
+                      x: "0",
+                      y: "2",
+                      textAnchor: "middle",
+                      fontFamily: "'Courier New', Courier, monospace",
+                      fontWeight: "700",
+                      fontSize: "22",
+                      fill: "#FFFFFF",
+                      letterSpacing: "0.5",
+                      children: priceStr
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "rect",
+                    {
+                      x: "-38",
+                      y: "12",
+                      width: "76",
+                      height: "22",
+                      rx: "4",
+                      ry: "4",
+                      fill: changeColor,
+                      fillOpacity: "0.15"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "text",
+                    {
+                      x: "0",
+                      y: "28",
+                      textAnchor: "middle",
+                      fontFamily: "'Courier New', Courier, monospace",
+                      fontWeight: "600",
+                      fontSize: "13",
+                      fill: changeColor,
+                      letterSpacing: "0.3",
+                      children: changeStr
+                    }
+                  )
+                ] })
+              ]
+            }
+          )
+        ]
+      }
+    );
+  };
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -50888,6 +51346,8 @@ const BackgroundRenderer = ({
         return renderHormuzWorld();
       case "alien":
         return renderAlienWorld();
+      case "dogecoin":
+        return renderDogeWorld();
       default:
         return renderOriginalWorld();
     }
@@ -52761,7 +53221,7 @@ const SettingsView = ({
   const isAuthenticated = !!identity;
   const isLoggingIn = loginStatus === "logging-in";
   reactExports.useEffect(() => {
-    const savedSettings = localStorage.getItem("chickenHuntSettings");
+    const savedSettings = localStorage.getItem("worldOfHuntSettings");
     if (savedSettings) {
       try {
         const parsed = JSON.parse(savedSettings);
@@ -52772,7 +53232,7 @@ const SettingsView = ({
     }
   }, []);
   reactExports.useEffect(() => {
-    localStorage.setItem("chickenHuntSettings", JSON.stringify(settings));
+    localStorage.setItem("worldOfHuntSettings", JSON.stringify(settings));
   }, [settings]);
   const handleVolumeIncrease = reactExports.useCallback(() => {
     setSettings((prev) => ({
@@ -52920,7 +53380,7 @@ const SettingsView = ({
               }
             )
           ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center text-gray-700 text-xs pt-2 font-medium", children: "ChickenHunt — Settings are saved automatically" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-center text-gray-700 text-xs pt-2 font-medium", children: "World of Hunt — Settings are saved automatically" })
         ] })
       ]
     }
@@ -56727,6 +57187,35 @@ const BOTTOM_MENU_HEIGHT = 60;
 const HITBOX_SIZE_MULTIPLIER = 1.25;
 const GAME_DURATION = 60;
 const TOUCH_MOVEMENT_THRESHOLD = 10;
+const DOGE_POP_WORDS = [
+  "Wow",
+  "Such tap",
+  "Much coin",
+  "Very click",
+  "So fast",
+  "Much gain",
+  "Wow profit",
+  "So moon 🚀",
+  "Very rich",
+  "Such speed",
+  "Much finger",
+  "Wow streak",
+  "So skill",
+  "Many coin",
+  "Very wow"
+];
+const DOGE_POP_COLORS = [
+  "#FF6B6B",
+  "#FFD93D",
+  "#6BCB77",
+  "#4D96FF",
+  "#FF6BD6",
+  "#FF9F1C",
+  "#A8DADC",
+  "#E63946",
+  "#FF66CC",
+  "#00E5FF"
+];
 const GameScreen = ({
   score,
   setScore,
@@ -56749,6 +57238,11 @@ const GameScreen = ({
   const btcPrice = selectedWorld === "bitcoin" && btcPriceData ? {
     price: Number(btcPriceData.price),
     change24h: Number(btcPriceData.change24h)
+  } : null;
+  const { data: dogePriceData } = useDogecoinPrice();
+  const dogePrice = selectedWorld === "dogecoin" && dogePriceData ? {
+    price: Number(dogePriceData.price),
+    change24h: Number(dogePriceData.change24h)
   } : null;
   const { data: brentOilData } = useBrentOilPrice();
   const brentOilPrice = selectedWorld === "hormuz" && brentOilData ? { price: brentOilData.price, change24h: brentOilData.change24h } : null;
@@ -56773,9 +57267,19 @@ const GameScreen = ({
     goldenChickensSpawned: 0,
     goldenChickenSpawnTimes: [],
     totalGameDuration: GAME_DURATION,
-    lastBonusTime: 0
+    lastBonusTime: 0,
+    // Whale Buy event (Dogecoin world only)
+    whaleEventActive: false,
+    whaleEventTriggered: false,
+    whaleEventStartTime: null,
+    whaleCoins: [],
+    // Paper Hands Panic event (Dogecoin world only)
+    paperHandsPanicActive: false,
+    paperHandsPanicCount: 0,
+    paperHandsPanicStartTime: null
   });
   const [hitEffects, setHitEffects] = reactExports.useState([]);
+  const [popWords, setPopWords] = reactExports.useState([]);
   const [currentView, setCurrentView] = reactExports.useState(initialView);
   const [timeRemaining, setTimeRemaining] = reactExports.useState(GAME_DURATION);
   const [gameEnded, setGameEnded] = reactExports.useState(false);
@@ -58081,6 +58585,82 @@ const GameScreen = ({
       ctx.fill(p2);
       ctx.globalAlpha = 1;
       ctx.restore();
+      ctx.restore();
+    },
+    [drawExplosion]
+  );
+  const dogeCoinImgRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    const img = new Image();
+    img.src = "/assets/img_8762-019dd4d8-8dae-77d4-bc88-50b76c9a6fff.jpeg";
+    dogeCoinImgRef.current = img;
+  }, []);
+  const drawDogecoinCoin = reactExports.useCallback(
+    (ctx, chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x: x2, y: y2, size, type, isGolden, wingPhase, direction } = chicken;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let r2;
+      if (chicken.distance === "far") {
+        r2 = 14;
+      } else if (chicken.distance === "medium") {
+        r2 = 22;
+      } else {
+        r2 = 32;
+      }
+      const bob = Math.sin(wingPhase) * 2.5;
+      const img = dogeCoinImgRef.current;
+      ctx.save();
+      ctx.translate(cx, cy + bob);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      if (type === "fast" && !isGolden) {
+        ctx.shadowColor = "#FF6600";
+        ctx.shadowBlur = 12;
+      }
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      }
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.clip();
+      if ((img == null ? void 0 : img.complete) && img.naturalWidth > 0) {
+        ctx.drawImage(img, -r2, -r2, r2 * 2, r2 * 2);
+      } else {
+        const grad = ctx.createRadialGradient(
+          -r2 * 0.3,
+          -r2 * 0.3,
+          r2 * 0.05,
+          0,
+          0,
+          r2
+        );
+        grad.addColorStop(0, "#FFF3A0");
+        grad.addColorStop(0.45, "#FFC200");
+        grad.addColorStop(1, "#8B6400");
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+      ctx.restore();
+      ctx.save();
+      ctx.translate(cx, cy + bob);
+      if (direction === "right-to-left") ctx.scale(-1, 1);
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.strokeStyle = isGolden ? "#FFD700" : "#B8860B";
+      ctx.lineWidth = r2 * 0.1;
+      ctx.stroke();
+      if (isGolden) {
+        ctx.beginPath();
+        ctx.arc(0, 0, r2 + 3, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255,215,0,0.4)";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+      }
       ctx.restore();
     },
     [drawExplosion]
@@ -59697,23 +60277,95 @@ const GameScreen = ({
         gs.stopwatch.explosionPhase = 0;
         hit = true;
       } else {
-        for (let j2 = gs.chickens.length - 1; j2 >= 0; j2--) {
-          const chicken = gs.chickens[j2];
-          if (checkCollision(tapX, tapY, chicken)) {
-            if (selectedWorld === "hormuz") {
-              playExplosionSound();
-            } else {
+        if (selectedWorld === "dogecoin" && gs.whaleEventActive && gs.whaleCoins.length > 0) {
+          for (let wi = gs.whaleCoins.length - 1; wi >= 0; wi--) {
+            const wc = gs.whaleCoins[wi];
+            if (wc.hit) continue;
+            const dx = tapX - wc.x;
+            const dy = tapY - wc.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist <= wc.size / 2 * HITBOX_SIZE_MULTIPLIER) {
               playShotSound();
+              const whalePoints = 10;
+              const pts = scoreMultiplier.isActive ? whalePoints * 2 : whalePoints;
+              addHitEffect(tapX, tapY, pts);
+              setScore(score + pts);
+              addXP(whalePoints);
+              wc.hit = true;
+              hit = true;
+              const word = DOGE_POP_WORDS[Math.floor(Math.random() * DOGE_POP_WORDS.length)];
+              const color = DOGE_POP_COLORS[Math.floor(Math.random() * DOGE_POP_COLORS.length)];
+              const canvasW = window.innerWidth;
+              const canvasH = window.innerHeight - BOTTOM_MENU_HEIGHT;
+              const px = 40 + Math.random() * (canvasW - 80);
+              const py = 40 + Math.random() * (canvasH - 80);
+              const rotation = Math.random() * 50 - 25;
+              const fontSize = 24 + Math.floor(Math.random() * 13);
+              const popWord = {
+                id: Date.now() + Math.random(),
+                word,
+                x: px,
+                y: py,
+                color,
+                rotation,
+                fontSize
+              };
+              setPopWords((prev) => [...prev, popWord]);
+              setTimeout(
+                () => setPopWords(
+                  (prev) => prev.filter((w2) => w2.id !== popWord.id)
+                ),
+                2e3
+              );
+              break;
             }
-            const pts = scoreMultiplier.isActive ? chicken.points * 2 : chicken.points;
-            addHitEffect(tapX, tapY, pts);
-            setScore(score + pts);
-            addXP(chicken.points);
-            handleChickenHit(chicken);
-            chicken.isExploding = true;
-            chicken.explosionPhase = 0;
-            hit = true;
-            break;
+          }
+        }
+        if (!hit) {
+          for (let j2 = gs.chickens.length - 1; j2 >= 0; j2--) {
+            const chicken = gs.chickens[j2];
+            if (checkCollision(tapX, tapY, chicken)) {
+              if (selectedWorld === "hormuz") {
+                playExplosionSound();
+              } else {
+                playShotSound();
+              }
+              const pts = scoreMultiplier.isActive ? chicken.points * 2 : chicken.points;
+              addHitEffect(tapX, tapY, pts);
+              setScore(score + pts);
+              addXP(chicken.points);
+              handleChickenHit(chicken);
+              chicken.isExploding = true;
+              chicken.explosionPhase = 0;
+              hit = true;
+              if (selectedWorld === "dogecoin") {
+                const word = DOGE_POP_WORDS[Math.floor(Math.random() * DOGE_POP_WORDS.length)];
+                const color = DOGE_POP_COLORS[Math.floor(Math.random() * DOGE_POP_COLORS.length)];
+                const canvasW = window.innerWidth;
+                const canvasH = window.innerHeight - BOTTOM_MENU_HEIGHT;
+                const px = 40 + Math.random() * (canvasW - 80);
+                const py = 40 + Math.random() * (canvasH - 80);
+                const rotation = Math.random() * 50 - 25;
+                const fontSize = 24 + Math.floor(Math.random() * 13);
+                const popWord = {
+                  id: Date.now() + Math.random(),
+                  word,
+                  x: px,
+                  y: py,
+                  color,
+                  rotation,
+                  fontSize
+                };
+                setPopWords((prev) => [...prev, popWord]);
+                setTimeout(
+                  () => setPopWords(
+                    (prev) => prev.filter((w2) => w2.id !== popWord.id)
+                  ),
+                  2e3
+                );
+              }
+              break;
+            }
           }
         }
       }
@@ -59904,7 +60556,8 @@ const GameScreen = ({
             continue;
           }
         } else {
-          ch.x += ch.speed;
+          const speedMult = selectedWorld === "dogecoin" && gs.paperHandsPanicActive ? 2 : 1;
+          ch.x += ch.speed * speedMult;
           ch.wingPhase += ch.type === "fast" ? 0.5 : 0.3;
           const offscreen = ch.direction === "left-to-right" ? ch.x > canvas.width + ch.size : ch.x < -ch.size;
           if (offscreen) {
@@ -59917,6 +60570,8 @@ const GameScreen = ({
           drawPumpFunPill(ctx, ch);
         } else if (selectedWorld === "bitcoin") {
           drawBitcoinCoin(ctx, ch);
+        } else if (selectedWorld === "dogecoin") {
+          drawDogecoinCoin(ctx, ch);
         } else if (selectedWorld === "ocean") {
           drawOceanFish(ctx, ch);
         } else if (selectedWorld === "corona") {
@@ -59930,6 +60585,203 @@ const GameScreen = ({
         }
       }
       while (gs.chickens.length < 10) gs.chickens.push(createChicken());
+      if (selectedWorld === "dogecoin" && gs.whaleEventActive) {
+        const now2 = Date.now();
+        if (!gs.whaleEventTriggered) {
+          gs.whaleEventTriggered = true;
+          gs.whaleEventStartTime = now2;
+          gs.whaleCoins = [];
+          for (let wi = 0; wi < 100; wi++) {
+            gs.whaleCoins.push({
+              id: wi,
+              x: 10 + Math.random() * (canvas.width - 20),
+              y: -50 - Math.random() * 150,
+              speed: 2 + Math.random() * 3,
+              size: 24 + Math.random() * 20,
+              opacity: 1,
+              hit: false,
+              bobPhase: Math.random() * Math.PI * 2
+            });
+          }
+        }
+        const elapsed = gs.whaleEventStartTime ? now2 - gs.whaleEventStartTime : 0;
+        if (elapsed < 2e3) {
+          const bannerAlpha = elapsed < 300 ? elapsed / 300 : elapsed > 1600 ? Math.max(0, 1 - (elapsed - 1600) / 400) : 1;
+          ctx.save();
+          ctx.globalAlpha = bannerAlpha;
+          const bannerText = "🐳 Whale Buy Incoming!";
+          const bannerFontSize = Math.min(canvas.width * 0.065, 28);
+          ctx.font = `bold ${bannerFontSize}px sans-serif`;
+          const textMetrics = ctx.measureText(bannerText);
+          const tw = textMetrics.width;
+          const th = bannerFontSize;
+          const bx = canvas.width / 2;
+          const by = canvas.height * 0.22;
+          const padX = 22;
+          const padY = 12;
+          const bw = tw + padX * 2;
+          const bh = th + padY * 2;
+          const brad = bh / 2;
+          ctx.fillStyle = "rgba(0,0,0,0.65)";
+          ctx.beginPath();
+          ctx.moveTo(bx - bw / 2 + brad, by - bh / 2);
+          ctx.lineTo(bx + bw / 2 - brad, by - bh / 2);
+          ctx.arcTo(
+            bx + bw / 2,
+            by - bh / 2,
+            bx + bw / 2,
+            by - bh / 2 + brad,
+            brad
+          );
+          ctx.lineTo(bx + bw / 2, by + bh / 2 - brad);
+          ctx.arcTo(
+            bx + bw / 2,
+            by + bh / 2,
+            bx + bw / 2 - brad,
+            by + bh / 2,
+            brad
+          );
+          ctx.lineTo(bx - bw / 2 + brad, by + bh / 2);
+          ctx.arcTo(
+            bx - bw / 2,
+            by + bh / 2,
+            bx - bw / 2,
+            by + bh / 2 - brad,
+            brad
+          );
+          ctx.lineTo(bx - bw / 2, by - bh / 2 + brad);
+          ctx.arcTo(
+            bx - bw / 2,
+            by - bh / 2,
+            bx - bw / 2 + brad,
+            by - bh / 2,
+            brad
+          );
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = "#FFFFFF";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(bannerText, bx, by);
+          ctx.restore();
+        }
+        const img = dogeCoinImgRef.current;
+        for (let wi = gs.whaleCoins.length - 1; wi >= 0; wi--) {
+          const wc = gs.whaleCoins[wi];
+          if (wc.hit) {
+            gs.whaleCoins.splice(wi, 1);
+            continue;
+          }
+          wc.y += wc.speed * (gs.paperHandsPanicActive ? 2 : 1);
+          wc.bobPhase += 0.05;
+          if (wc.y > canvas.height + wc.size) {
+            gs.whaleCoins.splice(wi, 1);
+            continue;
+          }
+          const r2 = wc.size / 2;
+          ctx.save();
+          ctx.globalAlpha = wc.opacity;
+          ctx.translate(wc.x, wc.y);
+          ctx.shadowColor = "#B8860B";
+          ctx.shadowBlur = 8;
+          ctx.beginPath();
+          ctx.arc(0, 0, r2, 0, Math.PI * 2);
+          ctx.clip();
+          if ((img == null ? void 0 : img.complete) && img.naturalWidth > 0) {
+            ctx.drawImage(img, -r2, -r2, r2 * 2, r2 * 2);
+          } else {
+            const grad = ctx.createRadialGradient(
+              -r2 * 0.3,
+              -r2 * 0.3,
+              r2 * 0.05,
+              0,
+              0,
+              r2
+            );
+            grad.addColorStop(0, "#FFF3A0");
+            grad.addColorStop(0.45, "#FFC200");
+            grad.addColorStop(1, "#8B6400");
+            ctx.fillStyle = grad;
+            ctx.fill();
+          }
+          ctx.restore();
+          ctx.save();
+          ctx.globalAlpha = wc.opacity;
+          ctx.translate(wc.x, wc.y);
+          ctx.beginPath();
+          ctx.arc(0, 0, r2, 0, Math.PI * 2);
+          ctx.strokeStyle = "#B8860B";
+          ctx.lineWidth = r2 * 0.1;
+          ctx.stroke();
+          ctx.restore();
+        }
+        if (elapsed >= 8e3) {
+          gs.whaleEventActive = false;
+          gs.whaleCoins = [];
+          gs.whaleEventStartTime = null;
+        }
+      }
+      if (selectedWorld === "dogecoin" && gs.paperHandsPanicActive && gs.paperHandsPanicStartTime) {
+        const panicElapsed = Date.now() - gs.paperHandsPanicStartTime;
+        const bannerAlpha = panicElapsed < 300 ? panicElapsed / 300 : panicElapsed > 3400 ? Math.max(0, 1 - (panicElapsed - 3400) / 600) : 1;
+        ctx.save();
+        ctx.globalAlpha = bannerAlpha;
+        const panicText = "📉 Paper Hands Panic!";
+        const panicFontSize = Math.min(canvas.width * 0.065, 28);
+        ctx.font = `bold ${panicFontSize}px sans-serif`;
+        const pTextMetrics = ctx.measureText(panicText);
+        const ptw = pTextMetrics.width;
+        const pth = panicFontSize;
+        const pbx = canvas.width / 2;
+        const pby = canvas.height * 0.33;
+        const ppadX = 22;
+        const ppadY = 12;
+        const pbw = ptw + ppadX * 2;
+        const pbh = pth + ppadY * 2;
+        const pbrad = pbh / 2;
+        ctx.fillStyle = "rgba(180,20,20,0.75)";
+        ctx.beginPath();
+        ctx.moveTo(pbx - pbw / 2 + pbrad, pby - pbh / 2);
+        ctx.lineTo(pbx + pbw / 2 - pbrad, pby - pbh / 2);
+        ctx.arcTo(
+          pbx + pbw / 2,
+          pby - pbh / 2,
+          pbx + pbw / 2,
+          pby - pbh / 2 + pbrad,
+          pbrad
+        );
+        ctx.lineTo(pbx + pbw / 2, pby + pbh / 2 - pbrad);
+        ctx.arcTo(
+          pbx + pbw / 2,
+          pby + pbh / 2,
+          pbx + pbw / 2 - pbrad,
+          pby + pbh / 2,
+          pbrad
+        );
+        ctx.lineTo(pbx - pbw / 2 + pbrad, pby + pbh / 2);
+        ctx.arcTo(
+          pbx - pbw / 2,
+          pby + pbh / 2,
+          pbx - pbw / 2,
+          pby + pbh / 2 - pbrad,
+          pbrad
+        );
+        ctx.lineTo(pbx - pbw / 2, pby - pbh / 2 + pbrad);
+        ctx.arcTo(
+          pbx - pbw / 2,
+          pby - pbh / 2,
+          pbx - pbw / 2 + pbrad,
+          pby - pbh / 2,
+          pbrad
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "#FFFFFF";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(panicText, pbx, pby);
+        ctx.restore();
+      }
       gs.animationId = requestAnimationFrame(gameLoop);
     },
     [
@@ -59938,6 +60790,7 @@ const GameScreen = ({
       drawChicken,
       drawPumpFunPill,
       drawBitcoinCoin,
+      drawDogecoinCoin,
       drawOceanFish,
       drawCoronaVirus,
       drawHormuzWarcraft,
@@ -59960,6 +60813,41 @@ const GameScreen = ({
     gs.stopwatchSpawnTime = void 0;
     gs.totalGameDuration = GAME_DURATION;
     gs.lastBonusTime = 0;
+    gs.whaleCoins = [];
+    gs.whaleEventStartTime = null;
+    gs.whaleEventTriggered = false;
+    gs.whaleEventActive = selectedWorld === "dogecoin" && Math.random() < 0.01;
+    gs.paperHandsPanicActive = false;
+    gs.paperHandsPanicCount = 0;
+    gs.paperHandsPanicStartTime = null;
+    if (selectedWorld === "dogecoin" && Math.random() < 0.2) {
+      const delay = 2e3 + Math.random() * 6e3;
+      setTimeout(() => {
+        const gsCurrent = gameStateRef.current;
+        if (gsCurrent.isRunning && !gsCurrent.gameEnded && gsCurrent.paperHandsPanicCount < 2) {
+          gsCurrent.paperHandsPanicActive = true;
+          gsCurrent.paperHandsPanicCount = 1;
+          gsCurrent.paperHandsPanicStartTime = Date.now();
+          setTimeout(() => {
+            gsCurrent.paperHandsPanicActive = false;
+            gsCurrent.paperHandsPanicStartTime = null;
+            if (gsCurrent.isRunning && !gsCurrent.gameEnded && Math.random() < 0.2) {
+              setTimeout(() => {
+                if (gsCurrent.isRunning && !gsCurrent.gameEnded && gsCurrent.paperHandsPanicCount < 2) {
+                  gsCurrent.paperHandsPanicActive = true;
+                  gsCurrent.paperHandsPanicCount = 2;
+                  gsCurrent.paperHandsPanicStartTime = Date.now();
+                  setTimeout(() => {
+                    gsCurrent.paperHandsPanicActive = false;
+                    gsCurrent.paperHandsPanicStartTime = null;
+                  }, 4e3);
+                }
+              }, 500);
+            }
+          }, 4e3);
+        }
+      }, delay);
+    }
     setGameEnded(false);
     setTimeRemaining(GAME_DURATION);
     setScore(0);
@@ -59990,7 +60878,8 @@ const GameScreen = ({
     setScore,
     createBackgroundMusic,
     createChicken,
-    gameLoop
+    gameLoop,
+    selectedWorld
   ]);
   reactExports.useEffect(() => {
     if (currentView !== "game" || gameEnded) return;
@@ -60120,152 +61009,216 @@ const GameScreen = ({
     stopAISound,
     generateGoldenChickenSpawnTimes
   ]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed inset-0 overflow-hidden", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      BackgroundRenderer,
-      {
-        world: selectedWorld,
-        pumpFunPrice,
-        btcPrice,
-        brentOilPrice
-      }
-    ),
-    currentView === "game" && !gameEnded && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 left-4 z-10", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "score-container-left-aligned-compact bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5 relative", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-bold text-lg", children: [
-          "Score: ",
-          score
-        ] }),
-        scoreMultiplier.isActive && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "multiplier-indicator", children: "2x" })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 left-1/2 transform -translate-x-1/2 z-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "timer-container-extra-compact bg-red-500/20 backdrop-blur-sm rounded-lg px-3 py-1.5 border-2 border-red-500", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-bold text-lg", children: [
-        timeRemaining,
-        "s"
-      ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "end-game-container-aligned-compact bg-red-500 hover:bg-red-600 rounded-lg px-3 py-1.5 transition-colors", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          onClick: endGame,
-          className: "text-white font-bold text-lg",
-          "data-ocid": "game.end_button",
-          children: "End Game"
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: `fixed inset-0 overflow-hidden${selectedWorld === "dogecoin" && sessionStats.consecutiveHits >= 4 ? " doge-shake-active" : ""}`,
+      style: selectedWorld === "dogecoin" && sessionStats.consecutiveHits >= 4 ? {
+        "--shake-amp": `${Math.min(sessionStats.consecutiveHits - 3, 10)}px`,
+        "--shake-speed": `${Math.max(0.12, 0.35 - (sessionStats.consecutiveHits - 4) * 0.02)}s`
+      } : void 0,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: `
+        @keyframes doge-pop {
+          0%   { opacity: 0; transform: var(--pw-rotate) scale(0); }
+          15%  { opacity: 1; transform: var(--pw-rotate) scale(1.2); }
+          30%  { transform: var(--pw-rotate) scale(1.0); }
+          70%  { opacity: 1; transform: var(--pw-rotate) scale(1.0); }
+          100% { opacity: 0; transform: var(--pw-rotate) scale(0.8); }
         }
-      ) }) })
-    ] }),
-    gameEnded && currentView === "game" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      GameOverWindow,
-      {
-        score,
-        chickensShot: sessionStats.chickensShot,
-        xpEarned: sessionStats.xpEarned,
-        onRetry: startNewRound,
-        onHome: onEndGame,
-        playerData,
-        levelXPRequirements
-      }
-    ),
-    hitEffects.map((effect) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
-      {
-        className: "absolute z-20 pointer-events-none",
-        style: { left: effect.x - 30, top: effect.y - 30 },
-        children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hit-effect-container", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hit-effect-burst" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              className: `hit-effect-points ${effect.points < 0 ? "miss-effect" : ""}`,
-              children: effect.points > 0 ? `+${effect.points}` : effect.points
-            }
-          )
-        ] })
-      },
-      effect.id
-    )),
-    rewardNotifications.map((n) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
-      {
-        className: "absolute top-20 right-4 z-20 pointer-events-none",
-        children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "reward-notification-compact bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold px-3 py-1.5 rounded-md shadow-md border border-yellow-600 animate-bounce text-sm", children: [
-          n.type === "multiplier" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-            "🌟 2X ",
-            n.value,
-            "s!"
-          ] }),
-          n.type === "score" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-            "💰 +",
-            n.value
-          ] }),
-          n.type === "xp" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-            "⭐ +",
-            n.value,
-            " XP"
-          ] }),
-          n.type === "time" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-            "⏰ +",
-            n.value,
+        .doge-pop-word {
+          animation: doge-pop 2s ease-in-out forwards;
+          pointer-events: none;
+          position: absolute;
+          font-family: "Comic Sans MS", "Comic Sans", cursive;
+          font-weight: bold;
+          text-shadow:
+            1px 1px 0 rgba(0,0,0,0.55),
+            -1px -1px 0 rgba(0,0,0,0.3);
+          white-space: nowrap;
+          transform-origin: center center;
+          z-index: 15;
+        }
+        @keyframes doge-shake {
+          0%   { transform: translate(0px, 0px); }
+          10%  { transform: translate(calc(var(--shake-amp) * -1), calc(var(--shake-amp) * 0.5)); }
+          20%  { transform: translate(var(--shake-amp), calc(var(--shake-amp) * -0.5)); }
+          30%  { transform: translate(calc(var(--shake-amp) * -0.7), var(--shake-amp)); }
+          40%  { transform: translate(calc(var(--shake-amp) * 0.8), calc(var(--shake-amp) * -0.8)); }
+          50%  { transform: translate(calc(var(--shake-amp) * -1), calc(var(--shake-amp) * 0.3)); }
+          60%  { transform: translate(var(--shake-amp), var(--shake-amp)); }
+          70%  { transform: translate(calc(var(--shake-amp) * -0.5), calc(var(--shake-amp) * -1)); }
+          80%  { transform: translate(calc(var(--shake-amp) * 0.6), calc(var(--shake-amp) * 0.6)); }
+          90%  { transform: translate(calc(var(--shake-amp) * -0.8), calc(var(--shake-amp) * -0.4)); }
+          100% { transform: translate(0px, 0px); }
+        }
+        .doge-shake-active {
+          animation: doge-shake var(--shake-speed) ease-in-out infinite;
+        }
+      ` }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          BackgroundRenderer,
+          {
+            world: selectedWorld,
+            pumpFunPrice,
+            btcPrice,
+            brentOilPrice,
+            dogePrice
+          }
+        ),
+        currentView === "game" && !gameEnded && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 left-4 z-10", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "score-container-left-aligned-compact bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5 relative", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-bold text-lg", children: [
+              "Score: ",
+              score
+            ] }),
+            scoreMultiplier.isActive && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "multiplier-indicator", children: "2x" })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 left-1/2 transform -translate-x-1/2 z-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "timer-container-extra-compact bg-red-500/20 backdrop-blur-sm rounded-lg px-3 py-1.5 border-2 border-red-500", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-bold text-lg", children: [
+            timeRemaining,
             "s"
-          ] })
-        ] })
-      },
-      n.id
-    )),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "canvas",
-      {
-        ref: canvasRef,
-        onClick: handleCanvasClick,
-        onKeyDown: () => {
-        },
-        onKeyUp: () => {
-        },
-        onTouchStart: handleTouchStart,
-        onTouchMove: handleTouchMove,
-        onTouchEnd: handleTouchEnd,
-        className: "absolute inset-0 cursor-crosshair touch-none",
-        style: { display: currentView === "game" ? "block" : "none" },
-        "data-ocid": "game.canvas_target"
-      }
-    ),
-    currentView === "achievements" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-      AchievementsView,
-      {
-        gameStatistics,
-        isAuthenticated,
-        addXP,
-        playerLevel: playerData.level
-      }
-    ) }),
-    currentView === "profile" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-      ProfileView,
-      {
-        score,
-        playerData,
-        isAuthenticated,
-        gameStatistics
-      }
-    ) }),
-    currentView === "leaderboard" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-      LeaderboardView,
-      {
-        currentPlayerScore: gameStatistics.highestScore,
-        isAuthenticated
-      }
-    ) }),
-    currentView === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsView, { onClose: () => setCurrentView("game") }) }),
-    currentView === "socials" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SocialsView, { isAuthenticated }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      BottomMenu,
-      {
-        currentView,
-        onViewChange: (view) => {
-          if (view !== "worldSelection") setCurrentView(view);
-        },
-        zIndex: 50
-      }
-    )
-  ] });
+          ] }) }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 right-4 z-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "end-game-container-aligned-compact bg-red-500 hover:bg-red-600 rounded-lg px-3 py-1.5 transition-colors", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: endGame,
+              className: "text-white font-bold text-lg",
+              "data-ocid": "game.end_button",
+              children: "End Game"
+            }
+          ) }) })
+        ] }),
+        gameEnded && currentView === "game" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          GameOverWindow,
+          {
+            score,
+            chickensShot: sessionStats.chickensShot,
+            xpEarned: sessionStats.xpEarned,
+            onRetry: startNewRound,
+            onHome: onEndGame,
+            playerData,
+            levelXPRequirements
+          }
+        ),
+        hitEffects.map((effect) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "absolute z-20 pointer-events-none",
+            style: { left: effect.x - 30, top: effect.y - 30 },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hit-effect-container", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hit-effect-burst" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: `hit-effect-points ${effect.points < 0 ? "miss-effect" : ""}`,
+                  children: effect.points > 0 ? `+${effect.points}` : effect.points
+                }
+              )
+            ] })
+          },
+          effect.id
+        )),
+        rewardNotifications.map((n) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "absolute top-20 right-4 z-20 pointer-events-none",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "reward-notification-compact bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold px-3 py-1.5 rounded-md shadow-md border border-yellow-600 animate-bounce text-sm", children: [
+              n.type === "multiplier" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                "🌟 2X ",
+                n.value,
+                "s!"
+              ] }),
+              n.type === "score" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                "💰 +",
+                n.value
+              ] }),
+              n.type === "xp" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                "⭐ +",
+                n.value,
+                " XP"
+              ] }),
+              n.type === "time" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                "⏰ +",
+                n.value,
+                "s"
+              ] })
+            ] })
+          },
+          n.id
+        )),
+        selectedWorld === "dogecoin" && popWords.map((pw) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "doge-pop-word",
+            style: {
+              left: pw.x,
+              top: pw.y,
+              color: pw.color,
+              fontSize: `${pw.fontSize}px`,
+              "--pw-rotate": `rotate(${pw.rotation}deg)`
+            },
+            children: pw.word
+          },
+          pw.id
+        )),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "canvas",
+          {
+            ref: canvasRef,
+            onClick: handleCanvasClick,
+            onKeyDown: () => {
+            },
+            onKeyUp: () => {
+            },
+            onTouchStart: handleTouchStart,
+            onTouchMove: handleTouchMove,
+            onTouchEnd: handleTouchEnd,
+            className: "absolute inset-0 cursor-crosshair touch-none",
+            style: { display: currentView === "game" ? "block" : "none" },
+            "data-ocid": "game.canvas_target"
+          }
+        ),
+        currentView === "achievements" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          AchievementsView,
+          {
+            gameStatistics,
+            isAuthenticated,
+            addXP,
+            playerLevel: playerData.level
+          }
+        ) }),
+        currentView === "profile" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          ProfileView,
+          {
+            score,
+            playerData,
+            isAuthenticated,
+            gameStatistics
+          }
+        ) }),
+        currentView === "leaderboard" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          LeaderboardView,
+          {
+            currentPlayerScore: gameStatistics.highestScore,
+            isAuthenticated
+          }
+        ) }),
+        currentView === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsView, { onClose: () => setCurrentView("game") }) }),
+        currentView === "socials" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SocialsView, { isAuthenticated }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          BottomMenu,
+          {
+            currentView,
+            onViewChange: (view) => {
+              if (view !== "worldSelection") setCurrentView(view);
+            },
+            zIndex: 50
+          }
+        )
+      ]
+    }
+  );
 };
 const FIXED_CHICKEN_COLOR = "#8B4513";
 const easeOutCubic = (t) => 1 - (1 - t) ** 3;
@@ -60292,7 +61245,7 @@ const SplashScreen = ({ onComplete }) => {
     []
   );
   const initLetters = reactExports.useCallback((canvas) => {
-    const text = "CHICKEN HUNT";
+    const text = "WORLD OF HUNT";
     const fontSize = Math.min(canvas.width * 0.1, 110);
     const letterSpacing = fontSize * 0.72;
     const totalWidth = (text.length - 1) * letterSpacing;
@@ -60721,7 +61674,8 @@ const WORLDS = [
   { id: "pumpfun", name: "pump.fun" },
   { id: "corona", name: "Corona" },
   { id: "hormuz", name: "Hormuz" },
-  { id: "alien", name: "Alien" }
+  { id: "alien", name: "Alien" },
+  { id: "dogecoin", name: "Dogecoin" }
 ];
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
 const START_BUTTON_CLASSES = {
@@ -60745,7 +61699,8 @@ const START_BUTTON_CLASSES = {
   pumpfun: "start-game-button-pumpfun",
   corona: "start-game-button-corona",
   hormuz: "start-game-button-hormuz",
-  alien: "start-game-button-alien"
+  alien: "start-game-button-alien",
+  dogecoin: "start-game-button-dogecoin"
 };
 const StartScreen = ({
   onStartGame,
@@ -60760,9 +61715,11 @@ const StartScreen = ({
   const isPumpFunSelected = selectedWorld === "pumpfun";
   const isBitcoinSelected = selectedWorld === "bitcoin";
   const isHormuzSelected = selectedWorld === "hormuz";
+  const isDogecoinSelected = selectedWorld === "dogecoin";
   const { data: pumpPriceData } = usePumpFunPrice();
   const { data: btcPriceData } = useBitcoinPrice();
   const { data: brentPriceData } = useBrentOilPrice();
+  const { data: dogePriceData } = useDogecoinPrice();
   const [worldIndex, setWorldIndex] = reactExports.useState(() => {
     const idx = WORLDS.findIndex((w2) => w2.id === selectedWorld);
     return idx >= 0 ? idx : 0;
@@ -60785,7 +61742,7 @@ const StartScreen = ({
     if (idx >= 0) setWorldIndex(idx);
   }, [selectedWorld]);
   reactExports.useEffect(() => {
-    const nextType = selectedWorld === "pumpfun" ? "pumpfun" : selectedWorld === "bitcoin" ? "bitcoin" : selectedWorld === "ocean" ? "fish" : selectedWorld === "corona" ? "virus" : selectedWorld === "hormuz" ? "warcraft" : selectedWorld === "alien" ? "ufo" : "chicken";
+    const nextType = selectedWorld === "pumpfun" ? "pumpfun" : selectedWorld === "bitcoin" ? "bitcoin" : selectedWorld === "ocean" ? "fish" : selectedWorld === "corona" ? "virus" : selectedWorld === "hormuz" ? "warcraft" : selectedWorld === "alien" ? "ufo" : selectedWorld === "dogecoin" ? "dogecoin" : "chicken";
     if (nextType === activeEntityTypeRef.current) return;
     pendingEntityTypeRef.current = nextType;
     pendingIsPumpFunRef.current = nextType === "pumpfun";
@@ -61316,6 +62273,67 @@ const StartScreen = ({
       );
       ctx.fill(p2);
       ctx.restore();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    []
+  );
+  const dogeCoinImgRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    const img = new Image();
+    img.src = "/assets/img_8762-019dd4d8-8dae-77d4-bc88-50b76c9a6fff.jpeg";
+    dogeCoinImgRef.current = img;
+  }, []);
+  const drawDogecoinCoin = reactExports.useCallback(
+    (ctx, c2) => {
+      const { x: x2, y: y2, size, wingPhase, direction } = c2;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let r2;
+      if (size <= 25) {
+        r2 = 14;
+      } else if (size <= 40) {
+        r2 = 22;
+      } else {
+        r2 = 32;
+      }
+      const bob = Math.sin(wingPhase) * 2.5;
+      const alpha = entityAlphaRef.current;
+      const img = dogeCoinImgRef.current;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy + bob);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.clip();
+      if ((img == null ? void 0 : img.complete) && img.naturalWidth > 0) {
+        ctx.drawImage(img, -r2, -r2, r2 * 2, r2 * 2);
+      } else {
+        const grad = ctx.createRadialGradient(
+          -r2 * 0.3,
+          -r2 * 0.3,
+          r2 * 0.05,
+          0,
+          0,
+          r2
+        );
+        grad.addColorStop(0, "#FFF3A0");
+        grad.addColorStop(0.45, "#FFC200");
+        grad.addColorStop(1, "#8B6400");
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+      ctx.restore();
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy + bob);
+      if (direction === "right-to-left") ctx.scale(-1, 1);
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, 0, Math.PI * 2);
+      ctx.strokeStyle = "#B8860B";
+      ctx.lineWidth = r2 * 0.1;
+      ctx.stroke();
       ctx.globalAlpha = 1;
       ctx.restore();
     },
@@ -62415,7 +63433,7 @@ const StartScreen = ({
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const activeType = activeEntityTypeRef.current;
-    const drawFn = activeType === "pumpfun" ? drawPumpFunPill : activeType === "bitcoin" ? drawBitcoinCoin : activeType === "fish" ? drawOceanFish : activeType === "virus" ? drawCoronaVirus : activeType === "warcraft" ? drawHormuzWarcraft : activeType === "ufo" ? drawAlienUFO : drawChicken;
+    const drawFn = activeType === "pumpfun" ? drawPumpFunPill : activeType === "bitcoin" ? drawBitcoinCoin : activeType === "dogecoin" ? drawDogecoinCoin : activeType === "fish" ? drawOceanFish : activeType === "virus" ? drawCoronaVirus : activeType === "warcraft" ? drawHormuzWarcraft : activeType === "ufo" ? drawAlienUFO : drawChicken;
     for (let i = chickensRef.current.length - 1; i >= 0; i--) {
       const ch = chickensRef.current[i];
       ch.x += ch.speed;
@@ -62444,6 +63462,7 @@ const StartScreen = ({
     drawChicken,
     drawPumpFunPill,
     drawBitcoinCoin,
+    drawDogecoinCoin,
     drawOceanFish,
     drawCoronaVirus,
     drawHormuzWarcraft,
@@ -62453,7 +63472,7 @@ const StartScreen = ({
   reactExports.useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const initType = initialWorldRef.current === "pumpfun" ? "pumpfun" : initialWorldRef.current === "bitcoin" ? "bitcoin" : initialWorldRef.current === "ocean" ? "fish" : initialWorldRef.current === "corona" ? "virus" : initialWorldRef.current === "hormuz" ? "warcraft" : initialWorldRef.current === "alien" ? "ufo" : "chicken";
+    const initType = initialWorldRef.current === "pumpfun" ? "pumpfun" : initialWorldRef.current === "bitcoin" ? "bitcoin" : initialWorldRef.current === "ocean" ? "fish" : initialWorldRef.current === "corona" ? "virus" : initialWorldRef.current === "hormuz" ? "warcraft" : initialWorldRef.current === "alien" ? "ufo" : initialWorldRef.current === "dogecoin" ? "dogecoin" : "chicken";
     activeEntityTypeRef.current = initType;
     activeIsPumpFunRef.current = initType === "pumpfun";
     entityAlphaRef.current = 1;
@@ -62561,6 +63580,42 @@ const StartScreen = ({
                   children: [
                     btcPriceData.change24h >= 0 ? "+" : "",
                     btcPriceData.change24h.toFixed(2),
+                    "%"
+                  ]
+                }
+              )
+            ] })
+          ] }),
+          isDogecoinSelected && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/60 backdrop-blur-sm border border-yellow-900/50", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                style: {
+                  fontFamily: "'Courier New', Courier, monospace",
+                  color: "#c8940a",
+                  opacity: 0.85
+                },
+                className: "text-xs tracking-widest leading-none",
+                children: "DOGE / USD"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  style: { fontFamily: "'Courier New', Courier, monospace" },
+                  className: "text-white font-bold text-base tracking-wide leading-none",
+                  children: dogePriceData ? `$${dogePriceData.price < 1e-3 ? dogePriceData.price.toFixed(6) : dogePriceData.price.toFixed(4)}` : "--"
+                }
+              ),
+              dogePriceData && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "span",
+                {
+                  style: { fontFamily: "'Courier New', Courier, monospace" },
+                  className: `text-xs font-semibold tracking-wide leading-none ${dogePriceData.change24h >= 0 ? "text-green-400" : "text-red-400"}`,
+                  children: [
+                    dogePriceData.change24h >= 0 ? "+" : "",
+                    dogePriceData.change24h.toFixed(2),
                     "%"
                   ]
                 }
@@ -62845,7 +63900,8 @@ const VALID_WORLDS = [
   "pumpfun",
   "corona",
   "hormuz",
-  "alien"
+  "alien",
+  "dogecoin"
 ];
 const DEFAULT_PLAYER_DATA = {
   level: 1,
@@ -62998,6 +64054,471 @@ function App() {
     )
   ] });
 }
+function isMobileDevice() {
+  const uaMatch = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|webOS/i.test(
+    navigator.userAgent
+  );
+  const widthMatch = window.innerWidth <= 768;
+  return uaMatch || widthMatch;
+}
+function isLandscape() {
+  var _a3, _b3;
+  if ((_b3 = (_a3 = window.screen) == null ? void 0 : _a3.orientation) == null ? void 0 : _b3.type) {
+    return window.screen.orientation.type.startsWith("landscape");
+  }
+  if (window.matchMedia) {
+    return window.matchMedia("(orientation: landscape)").matches;
+  }
+  return window.innerWidth > window.innerHeight;
+}
+function PortraitOnlyOverlay() {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      style: {
+        position: "fixed",
+        inset: 0,
+        width: "100vw",
+        height: "100vh",
+        background: "linear-gradient(135deg, #0a0a0a 0%, #111008 50%, #0a0a0a 100%)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 999999,
+        fontFamily: "'Cinzel', serif",
+        overflow: "hidden",
+        touchAction: "none",
+        userSelect: "none"
+      },
+      onClick: (e) => e.stopPropagation(),
+      onKeyDown: (e) => e.stopPropagation(),
+      onTouchStart: (e) => e.stopPropagation(),
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "500px",
+              height: "500px",
+              background: "radial-gradient(ellipse at center, rgba(212,175,55,0.10) 0%, transparent 70%)",
+              pointerEvents: "none"
+            }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            style: {
+              width: "180px",
+              height: "1px",
+              background: "linear-gradient(90deg, transparent, #d4af37, transparent)",
+              marginBottom: "36px"
+            }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: "28px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "svg",
+          {
+            width: "72",
+            height: "72",
+            viewBox: "0 0 72 72",
+            fill: "none",
+            xmlns: "http://www.w3.org/2000/svg",
+            "aria-label": "Rotate device to portrait",
+            role: "img",
+            style: { filter: "drop-shadow(0 0 14px rgba(212,175,55,0.5))" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "rect",
+                {
+                  x: "6",
+                  y: "22",
+                  width: "44",
+                  height: "26",
+                  rx: "4",
+                  stroke: "#d4af37",
+                  strokeWidth: "2",
+                  fill: "rgba(212,175,55,0.05)",
+                  opacity: "0.45"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "path",
+                {
+                  d: "M56 44 C62 44, 66 38, 66 32 C66 22, 58 15, 50 15",
+                  stroke: "#d4af37",
+                  strokeWidth: "2.2",
+                  fill: "none",
+                  strokeLinecap: "round"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "polyline",
+                {
+                  points: "46,11 50,15 47,20",
+                  stroke: "#d4af37",
+                  strokeWidth: "2.2",
+                  fill: "none",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "rect",
+                {
+                  x: "28",
+                  y: "38",
+                  width: "18",
+                  height: "28",
+                  rx: "3",
+                  stroke: "#d4af37",
+                  strokeWidth: "2",
+                  fill: "rgba(212,175,55,0.08)"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "line",
+                {
+                  x1: "28",
+                  y1: "43",
+                  x2: "46",
+                  y2: "43",
+                  stroke: "#d4af37",
+                  strokeWidth: "1.2",
+                  opacity: "0.4"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "line",
+                {
+                  x1: "28",
+                  y1: "60",
+                  x2: "46",
+                  y2: "60",
+                  stroke: "#d4af37",
+                  strokeWidth: "1.2",
+                  opacity: "0.4"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "37", cy: "63", r: "1.2", fill: "#d4af37", opacity: "0.6" })
+            ]
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "h1",
+          {
+            style: {
+              fontSize: "clamp(20px, 5vw, 28px)",
+              fontWeight: "700",
+              color: "#d4af37",
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              textShadow: "0 0 28px rgba(212,175,55,0.45), 0 2px 8px rgba(0,0,0,0.8)",
+              marginBottom: "16px",
+              textAlign: "center",
+              padding: "0 24px"
+            },
+            children: "World of Hunt"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "p",
+          {
+            style: {
+              fontSize: "clamp(13px, 3.5vw, 17px)",
+              color: "rgba(255,255,255,0.88)",
+              textAlign: "center",
+              maxWidth: "320px",
+              lineHeight: "1.65",
+              marginBottom: "10px",
+              fontFamily: "'Cinzel', serif",
+              letterSpacing: "0.04em",
+              padding: "0 24px"
+            },
+            children: "Please rotate your device to portrait mode."
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "p",
+          {
+            style: {
+              fontSize: "clamp(11px, 3vw, 13px)",
+              color: "rgba(212,175,55,0.60)",
+              textAlign: "center",
+              maxWidth: "280px",
+              lineHeight: "1.7",
+              fontFamily: "sans-serif",
+              letterSpacing: "0.02em",
+              padding: "0 24px"
+            },
+            children: "This game is only playable in portrait orientation."
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            style: {
+              width: "180px",
+              height: "1px",
+              background: "linear-gradient(90deg, transparent, #d4af37, transparent)",
+              marginTop: "36px"
+            }
+          }
+        )
+      ]
+    }
+  );
+}
+function MobileOnlyGuard({ children }) {
+  const [isMobile, setIsMobile] = reactExports.useState(() => isMobileDevice());
+  const [landscape, setLandscape] = reactExports.useState(() => isLandscape());
+  reactExports.useEffect(() => {
+    if (!isMobile) return;
+    const lockOrientation = async () => {
+      try {
+        const orientation = screen.orientation;
+        if (orientation && typeof orientation.lock === "function") {
+          await orientation.lock("portrait");
+        }
+      } catch {
+      }
+    };
+    lockOrientation();
+  }, [isMobile]);
+  reactExports.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(isMobileDevice());
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  reactExports.useEffect(() => {
+    var _a3;
+    const update = () => setLandscape(isLandscape());
+    if ((_a3 = window.screen) == null ? void 0 : _a3.orientation) {
+      window.screen.orientation.addEventListener("change", update);
+    }
+    window.addEventListener("orientationchange", update);
+    window.addEventListener("resize", update);
+    return () => {
+      var _a4;
+      if ((_a4 = window.screen) == null ? void 0 : _a4.orientation) {
+        window.screen.orientation.removeEventListener("change", update);
+      }
+      window.removeEventListener("orientationchange", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+  if (!isMobile) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        style: {
+          position: "fixed",
+          inset: 0,
+          width: "100vw",
+          height: "100vh",
+          background: "linear-gradient(135deg, #0a0a0a 0%, #111008 50%, #0a0a0a 100%)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 99999,
+          fontFamily: "'Cinzel', serif",
+          overflow: "hidden"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              style: {
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "600px",
+                height: "600px",
+                background: "radial-gradient(ellipse at center, rgba(212,175,55,0.08) 0%, transparent 70%)",
+                pointerEvents: "none"
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              style: {
+                width: "220px",
+                height: "1px",
+                background: "linear-gradient(90deg, transparent, #d4af37, transparent)",
+                marginBottom: "40px"
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "64px", marginBottom: "24px", lineHeight: 1 }, children: "🐔" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "h1",
+            {
+              style: {
+                fontSize: "clamp(28px, 4vw, 44px)",
+                fontWeight: "700",
+                color: "#d4af37",
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                textShadow: "0 0 32px rgba(212,175,55,0.45), 0 2px 8px rgba(0,0,0,0.8)",
+                marginBottom: "8px",
+                textAlign: "center"
+              },
+              children: "World of Hunt"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "p",
+            {
+              style: {
+                fontSize: "11px",
+                color: "rgba(212,175,55,0.55)",
+                letterSpacing: "0.25em",
+                textTransform: "uppercase",
+                marginBottom: "48px",
+                fontFamily: "'Cinzel', serif"
+              },
+              children: "100% AI Made"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: "32px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "svg",
+            {
+              width: "56",
+              height: "56",
+              viewBox: "0 0 56 56",
+              fill: "none",
+              xmlns: "http://www.w3.org/2000/svg",
+              "aria-label": "Mobile phone icon",
+              role: "img",
+              style: { filter: "drop-shadow(0 0 12px rgba(212,175,55,0.4))" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "rect",
+                  {
+                    x: "14",
+                    y: "4",
+                    width: "28",
+                    height: "48",
+                    rx: "5",
+                    stroke: "#d4af37",
+                    strokeWidth: "2.5",
+                    fill: "none"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "rect",
+                  {
+                    x: "14",
+                    y: "4",
+                    width: "28",
+                    height: "48",
+                    rx: "5",
+                    fill: "rgba(212,175,55,0.05)"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "line",
+                  {
+                    x1: "14",
+                    y1: "12",
+                    x2: "42",
+                    y2: "12",
+                    stroke: "#d4af37",
+                    strokeWidth: "1.5",
+                    opacity: "0.5"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "line",
+                  {
+                    x1: "14",
+                    y1: "44",
+                    x2: "42",
+                    y2: "44",
+                    stroke: "#d4af37",
+                    strokeWidth: "1.5",
+                    opacity: "0.5"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "28", cy: "49", r: "1.5", fill: "#d4af37", opacity: "0.6" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "rect",
+                  {
+                    x: "22",
+                    y: "8",
+                    width: "12",
+                    height: "1.5",
+                    rx: "0.75",
+                    fill: "#d4af37",
+                    opacity: "0.4"
+                  }
+                )
+              ]
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "p",
+            {
+              style: {
+                fontSize: "clamp(16px, 2vw, 20px)",
+                color: "rgba(255,255,255,0.9)",
+                textAlign: "center",
+                maxWidth: "440px",
+                lineHeight: "1.6",
+                marginBottom: "12px",
+                fontFamily: "'Cinzel', serif",
+                letterSpacing: "0.04em",
+                padding: "0 24px"
+              },
+              children: "This game is designed for mobile phones."
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "p",
+            {
+              style: {
+                fontSize: "clamp(12px, 1.4vw, 15px)",
+                color: "rgba(212,175,55,0.65)",
+                textAlign: "center",
+                maxWidth: "380px",
+                lineHeight: "1.7",
+                fontFamily: "sans-serif",
+                letterSpacing: "0.02em",
+                padding: "0 24px"
+              },
+              children: "Please open World of Hunt on your smartphone to play."
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              style: {
+                width: "220px",
+                height: "1px",
+                background: "linear-gradient(90deg, transparent, #d4af37, transparent)",
+                marginTop: "48px"
+              }
+            }
+          )
+        ]
+      }
+    );
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    children,
+    landscape && /* @__PURE__ */ jsxRuntimeExports.jsx(PortraitOnlyOverlay, {})
+  ] });
+}
 BigInt.prototype.toJSON = function() {
   return this.toString();
 };
@@ -63010,5 +64531,5 @@ const queryClient = new QueryClient({
   }
 });
 ReactDOM.createRoot(document.getElementById("root")).render(
-  /* @__PURE__ */ jsxRuntimeExports.jsx(QueryClientProvider, { client: queryClient, children: /* @__PURE__ */ jsxRuntimeExports.jsx(InternetIdentityProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
+  /* @__PURE__ */ jsxRuntimeExports.jsx(MobileOnlyGuard, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(QueryClientProvider, { client: queryClient, children: /* @__PURE__ */ jsxRuntimeExports.jsx(InternetIdentityProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) }) })
 );

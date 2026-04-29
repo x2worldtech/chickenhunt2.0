@@ -5,6 +5,7 @@ import type { BackgroundWorld, GameStatisticsLocal } from "../App";
 import {
   useBitcoinPrice,
   useBrentOilPrice,
+  useDogecoinPrice,
   usePumpFunPrice,
   useSaveGameStatistics,
 } from "../hooks/useQueries";
@@ -97,6 +98,27 @@ interface ScoreMultiplier {
   endTime: number;
 }
 
+interface PopWord {
+  id: number;
+  word: string;
+  x: number;
+  y: number;
+  color: string;
+  rotation: number;
+  fontSize: number;
+}
+
+interface WhaleCoin {
+  id: number;
+  x: number;
+  y: number;
+  speed: number;
+  size: number;
+  opacity: number;
+  hit: boolean;
+  bobPhase: number;
+}
+
 interface Point {
   x: number;
   y: number;
@@ -169,6 +191,37 @@ const HITBOX_SIZE_MULTIPLIER = 1.25;
 const GAME_DURATION = 60;
 const TOUCH_MOVEMENT_THRESHOLD = 10;
 
+const DOGE_POP_WORDS = [
+  "Wow",
+  "Such tap",
+  "Much coin",
+  "Very click",
+  "So fast",
+  "Much gain",
+  "Wow profit",
+  "So moon 🚀",
+  "Very rich",
+  "Such speed",
+  "Much finger",
+  "Wow streak",
+  "So skill",
+  "Many coin",
+  "Very wow",
+];
+
+const DOGE_POP_COLORS = [
+  "#FF6B6B",
+  "#FFD93D",
+  "#6BCB77",
+  "#4D96FF",
+  "#FF6BD6",
+  "#FF9F1C",
+  "#A8DADC",
+  "#E63946",
+  "#FF66CC",
+  "#00E5FF",
+];
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const GameScreen: React.FC<GameScreenProps> = ({
@@ -205,6 +258,16 @@ const GameScreen: React.FC<GameScreenProps> = ({
         }
       : null;
 
+  // Live DOGE/USD price — only fetches when world is dogecoin
+  const { data: dogePriceData } = useDogecoinPrice();
+  const dogePrice =
+    selectedWorld === "dogecoin" && dogePriceData
+      ? {
+          price: Number(dogePriceData.price),
+          change24h: Number(dogePriceData.change24h),
+        }
+      : null;
+
   // Live BRENT/USD price — only fetches when world is hormuz
   const { data: brentOilData } = useBrentOilPrice();
   const brentOilPrice =
@@ -234,9 +297,19 @@ const GameScreen: React.FC<GameScreenProps> = ({
     goldenChickenSpawnTimes: [] as number[],
     totalGameDuration: GAME_DURATION,
     lastBonusTime: 0,
+    // Whale Buy event (Dogecoin world only)
+    whaleEventActive: false,
+    whaleEventTriggered: false,
+    whaleEventStartTime: null as number | null,
+    whaleCoins: [] as WhaleCoin[],
+    // Paper Hands Panic event (Dogecoin world only)
+    paperHandsPanicActive: false,
+    paperHandsPanicCount: 0,
+    paperHandsPanicStartTime: null as number | null,
   });
 
   const [hitEffects, setHitEffects] = useState<HitEffect[]>([]);
+  const [popWords, setPopWords] = useState<PopWord[]>([]);
   const [currentView, setCurrentView] = useState<GameView>(initialView);
   const [timeRemaining, setTimeRemaining] = useState(GAME_DURATION);
   const [gameEnded, setGameEnded] = useState(false);
@@ -1750,6 +1823,104 @@ const GameScreen: React.FC<GameScreenProps> = ({
       ctx.fill(p);
       ctx.globalAlpha = 1;
       ctx.restore();
+
+      ctx.restore();
+    },
+    [drawExplosion],
+  );
+
+  // ─── Dogecoin coin image (preloaded once) ────────────────────────────────────
+  const dogeCoinImgRef = useRef<HTMLImageElement | null>(null);
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/assets/img_8762-019dd4d8-8dae-77d4-bc88-50b76c9a6fff.jpeg";
+    dogeCoinImgRef.current = img;
+  }, []);
+
+  // ─── Dogecoin coin drawing ────────────────────────────────────────────────────
+
+  const drawDogecoinCoin = useCallback(
+    (ctx: CanvasRenderingContext2D, chicken: Chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x, y, size, type, isGolden, wingPhase, direction } = chicken;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      // Coin radius based on distance
+      let r: number;
+      if (chicken.distance === "far") {
+        r = 14;
+      } else if (chicken.distance === "medium") {
+        r = 22;
+      } else {
+        r = 32;
+      }
+
+      const bob = Math.sin(wingPhase) * 2.5;
+      const img = dogeCoinImgRef.current;
+
+      ctx.save();
+      ctx.translate(cx, cy + bob);
+
+      // Mirror coin when flying left-to-right so it stays visually natural
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+
+      // Glow for fast / golden variants
+      if (type === "fast" && !isGolden) {
+        ctx.shadowColor = "#FF6600";
+        ctx.shadowBlur = 12;
+      }
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 18;
+      }
+
+      // Clip to circle so the JPEG renders as a coin
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.clip();
+
+      if (img?.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, -r, -r, r * 2, r * 2);
+      } else {
+        // Fallback gradient while image loads
+        const grad = ctx.createRadialGradient(
+          -r * 0.3,
+          -r * 0.3,
+          r * 0.05,
+          0,
+          0,
+          r,
+        );
+        grad.addColorStop(0, "#FFF3A0");
+        grad.addColorStop(0.45, "#FFC200");
+        grad.addColorStop(1, "#8B6400");
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      // Subtle golden ring border
+      ctx.restore();
+      ctx.save();
+      ctx.translate(cx, cy + bob);
+      if (direction === "right-to-left") ctx.scale(-1, 1);
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.strokeStyle = isGolden ? "#FFD700" : "#B8860B";
+      ctx.lineWidth = r * 0.1;
+      ctx.stroke();
+
+      // Golden glow overlay for golden variant
+      if (isGolden) {
+        ctx.beginPath();
+        ctx.arc(0, 0, r + 3, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255,215,0,0.4)";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+      }
 
       ctx.restore();
     },
@@ -3647,25 +3818,124 @@ const GameScreen: React.FC<GameScreenProps> = ({
         gs.stopwatch.explosionPhase = 0;
         hit = true;
       } else {
-        for (let j = gs.chickens.length - 1; j >= 0; j--) {
-          const chicken = gs.chickens[j];
-          if (checkCollision(tapX, tapY, chicken)) {
-            if (selectedWorld === "hormuz") {
-              playExplosionSound();
-            } else {
+        // Whale Buy event: check whale coins first (Dogecoin world only)
+        if (
+          selectedWorld === "dogecoin" &&
+          gs.whaleEventActive &&
+          gs.whaleCoins.length > 0
+        ) {
+          for (let wi = gs.whaleCoins.length - 1; wi >= 0; wi--) {
+            const wc = gs.whaleCoins[wi];
+            if (wc.hit) continue;
+            const dx = tapX - wc.x;
+            const dy = tapY - wc.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist <= (wc.size / 2) * HITBOX_SIZE_MULTIPLIER) {
+              // Hit a whale coin — same score logic as regular coins
               playShotSound();
+              const whalePoints = 10; // medium coin value
+              const pts = scoreMultiplier.isActive
+                ? whalePoints * 2
+                : whalePoints;
+              addHitEffect(tapX, tapY, pts);
+              setScore(score + pts);
+              addXP(whalePoints);
+              wc.hit = true;
+              hit = true;
+              // Dogecoin pop word
+              const word =
+                DOGE_POP_WORDS[
+                  Math.floor(Math.random() * DOGE_POP_WORDS.length)
+                ];
+              const color =
+                DOGE_POP_COLORS[
+                  Math.floor(Math.random() * DOGE_POP_COLORS.length)
+                ];
+              const canvasW = window.innerWidth;
+              const canvasH = window.innerHeight - BOTTOM_MENU_HEIGHT;
+              const px = 40 + Math.random() * (canvasW - 80);
+              const py = 40 + Math.random() * (canvasH - 80);
+              const rotation = Math.random() * 50 - 25;
+              const fontSize = 24 + Math.floor(Math.random() * 13);
+              const popWord: PopWord = {
+                id: Date.now() + Math.random(),
+                word,
+                x: px,
+                y: py,
+                color,
+                rotation,
+                fontSize,
+              };
+              setPopWords((prev) => [...prev, popWord]);
+              setTimeout(
+                () =>
+                  setPopWords((prev) =>
+                    prev.filter((w) => w.id !== popWord.id),
+                  ),
+                2000,
+              );
+              break;
             }
-            const pts = scoreMultiplier.isActive
-              ? chicken.points * 2
-              : chicken.points;
-            addHitEffect(tapX, tapY, pts);
-            setScore(score + pts);
-            addXP(chicken.points);
-            handleChickenHit(chicken);
-            chicken.isExploding = true;
-            chicken.explosionPhase = 0;
-            hit = true;
-            break;
+          }
+        }
+
+        if (!hit) {
+          for (let j = gs.chickens.length - 1; j >= 0; j--) {
+            const chicken = gs.chickens[j];
+            if (checkCollision(tapX, tapY, chicken)) {
+              if (selectedWorld === "hormuz") {
+                playExplosionSound();
+              } else {
+                playShotSound();
+              }
+              const pts = scoreMultiplier.isActive
+                ? chicken.points * 2
+                : chicken.points;
+              addHitEffect(tapX, tapY, pts);
+              setScore(score + pts);
+              addXP(chicken.points);
+              handleChickenHit(chicken);
+              chicken.isExploding = true;
+              chicken.explosionPhase = 0;
+              hit = true;
+
+              // Dogecoin world: spawn a pop word at a random background position
+              if (selectedWorld === "dogecoin") {
+                const word =
+                  DOGE_POP_WORDS[
+                    Math.floor(Math.random() * DOGE_POP_WORDS.length)
+                  ];
+                const color =
+                  DOGE_POP_COLORS[
+                    Math.floor(Math.random() * DOGE_POP_COLORS.length)
+                  ];
+                const canvasW = window.innerWidth;
+                const canvasH = window.innerHeight - BOTTOM_MENU_HEIGHT;
+                const px = 40 + Math.random() * (canvasW - 80);
+                const py = 40 + Math.random() * (canvasH - 80);
+                const rotation = Math.random() * 50 - 25;
+                const fontSize = 24 + Math.floor(Math.random() * 13);
+                const popWord: PopWord = {
+                  id: Date.now() + Math.random(),
+                  word,
+                  x: px,
+                  y: py,
+                  color,
+                  rotation,
+                  fontSize,
+                };
+                setPopWords((prev) => [...prev, popWord]);
+                setTimeout(
+                  () =>
+                    setPopWords((prev) =>
+                      prev.filter((w) => w.id !== popWord.id),
+                    ),
+                  2000,
+                );
+              }
+
+              break;
+            }
           }
         }
       }
@@ -3880,7 +4150,9 @@ const GameScreen: React.FC<GameScreenProps> = ({
             continue;
           }
         } else {
-          ch.x += ch.speed;
+          const speedMult =
+            selectedWorld === "dogecoin" && gs.paperHandsPanicActive ? 2 : 1;
+          ch.x += ch.speed * speedMult;
           ch.wingPhase += ch.type === "fast" ? 0.5 : 0.3;
           const offscreen =
             ch.direction === "left-to-right"
@@ -3896,6 +4168,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
           drawPumpFunPill(ctx, ch);
         } else if (selectedWorld === "bitcoin") {
           drawBitcoinCoin(ctx, ch);
+        } else if (selectedWorld === "dogecoin") {
+          drawDogecoinCoin(ctx, ch);
         } else if (selectedWorld === "ocean") {
           drawOceanFish(ctx, ch);
         } else if (selectedWorld === "corona") {
@@ -3910,6 +4184,234 @@ const GameScreen: React.FC<GameScreenProps> = ({
       }
       while (gs.chickens.length < 10) gs.chickens.push(createChicken());
 
+      // ── Whale Buy Event (Dogecoin world only) ──────────────────────────────
+      if (selectedWorld === "dogecoin" && gs.whaleEventActive) {
+        const now = Date.now();
+
+        // Trigger: first frame — spawn 100 coins
+        if (!gs.whaleEventTriggered) {
+          gs.whaleEventTriggered = true;
+          gs.whaleEventStartTime = now;
+          gs.whaleCoins = [];
+          for (let wi = 0; wi < 100; wi++) {
+            gs.whaleCoins.push({
+              id: wi,
+              x: 10 + Math.random() * (canvas.width - 20),
+              y: -50 - Math.random() * 150,
+              speed: 2 + Math.random() * 3,
+              size: 24 + Math.random() * 20,
+              opacity: 1,
+              hit: false,
+              bobPhase: Math.random() * Math.PI * 2,
+            });
+          }
+        }
+
+        const elapsed = gs.whaleEventStartTime
+          ? now - gs.whaleEventStartTime
+          : 0;
+
+        // Draw banner for first 2 seconds
+        if (elapsed < 2000) {
+          const bannerAlpha =
+            elapsed < 300
+              ? elapsed / 300
+              : elapsed > 1600
+                ? Math.max(0, 1 - (elapsed - 1600) / 400)
+                : 1;
+          ctx.save();
+          ctx.globalAlpha = bannerAlpha;
+          const bannerText = "🐳 Whale Buy Incoming!";
+          const bannerFontSize = Math.min(canvas.width * 0.065, 28);
+          ctx.font = `bold ${bannerFontSize}px sans-serif`;
+          const textMetrics = ctx.measureText(bannerText);
+          const tw = textMetrics.width;
+          const th = bannerFontSize;
+          const bx = canvas.width / 2;
+          const by = canvas.height * 0.22;
+          const padX = 22;
+          const padY = 12;
+          const bw = tw + padX * 2;
+          const bh = th + padY * 2;
+          const brad = bh / 2;
+          ctx.fillStyle = "rgba(0,0,0,0.65)";
+          ctx.beginPath();
+          ctx.moveTo(bx - bw / 2 + brad, by - bh / 2);
+          ctx.lineTo(bx + bw / 2 - brad, by - bh / 2);
+          ctx.arcTo(
+            bx + bw / 2,
+            by - bh / 2,
+            bx + bw / 2,
+            by - bh / 2 + brad,
+            brad,
+          );
+          ctx.lineTo(bx + bw / 2, by + bh / 2 - brad);
+          ctx.arcTo(
+            bx + bw / 2,
+            by + bh / 2,
+            bx + bw / 2 - brad,
+            by + bh / 2,
+            brad,
+          );
+          ctx.lineTo(bx - bw / 2 + brad, by + bh / 2);
+          ctx.arcTo(
+            bx - bw / 2,
+            by + bh / 2,
+            bx - bw / 2,
+            by + bh / 2 - brad,
+            brad,
+          );
+          ctx.lineTo(bx - bw / 2, by - bh / 2 + brad);
+          ctx.arcTo(
+            bx - bw / 2,
+            by - bh / 2,
+            bx - bw / 2 + brad,
+            by - bh / 2,
+            brad,
+          );
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = "#FFFFFF";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(bannerText, bx, by);
+          ctx.restore();
+        }
+
+        // Update & draw whale coins
+        const img = dogeCoinImgRef.current;
+        for (let wi = gs.whaleCoins.length - 1; wi >= 0; wi--) {
+          const wc = gs.whaleCoins[wi];
+          if (wc.hit) {
+            gs.whaleCoins.splice(wi, 1);
+            continue;
+          }
+          wc.y += wc.speed * (gs.paperHandsPanicActive ? 2 : 1);
+          wc.bobPhase += 0.05;
+          if (wc.y > canvas.height + wc.size) {
+            gs.whaleCoins.splice(wi, 1);
+            continue;
+          }
+          // Draw coin (same style as drawDogecoinCoin)
+          const r = wc.size / 2;
+          ctx.save();
+          ctx.globalAlpha = wc.opacity;
+          ctx.translate(wc.x, wc.y);
+          ctx.shadowColor = "#B8860B";
+          ctx.shadowBlur = 8;
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.clip();
+          if (img?.complete && img.naturalWidth > 0) {
+            ctx.drawImage(img, -r, -r, r * 2, r * 2);
+          } else {
+            const grad = ctx.createRadialGradient(
+              -r * 0.3,
+              -r * 0.3,
+              r * 0.05,
+              0,
+              0,
+              r,
+            );
+            grad.addColorStop(0, "#FFF3A0");
+            grad.addColorStop(0.45, "#FFC200");
+            grad.addColorStop(1, "#8B6400");
+            ctx.fillStyle = grad;
+            ctx.fill();
+          }
+          ctx.restore();
+          // Border ring
+          ctx.save();
+          ctx.globalAlpha = wc.opacity;
+          ctx.translate(wc.x, wc.y);
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.strokeStyle = "#B8860B";
+          ctx.lineWidth = r * 0.1;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Clear event after 8 seconds
+        if (elapsed >= 8000) {
+          gs.whaleEventActive = false;
+          gs.whaleCoins = [];
+          gs.whaleEventStartTime = null;
+        }
+      }
+
+      // ── Paper Hands Panic banner (Dogecoin world only) ─────────────────────
+      if (
+        selectedWorld === "dogecoin" &&
+        gs.paperHandsPanicActive &&
+        gs.paperHandsPanicStartTime
+      ) {
+        const panicElapsed = Date.now() - gs.paperHandsPanicStartTime;
+        const bannerAlpha =
+          panicElapsed < 300
+            ? panicElapsed / 300
+            : panicElapsed > 3400
+              ? Math.max(0, 1 - (panicElapsed - 3400) / 600)
+              : 1;
+        ctx.save();
+        ctx.globalAlpha = bannerAlpha;
+        const panicText = "📉 Paper Hands Panic!";
+        const panicFontSize = Math.min(canvas.width * 0.065, 28);
+        ctx.font = `bold ${panicFontSize}px sans-serif`;
+        const pTextMetrics = ctx.measureText(panicText);
+        const ptw = pTextMetrics.width;
+        const pth = panicFontSize;
+        const pbx = canvas.width / 2;
+        const pby = canvas.height * 0.33;
+        const ppadX = 22;
+        const ppadY = 12;
+        const pbw = ptw + ppadX * 2;
+        const pbh = pth + ppadY * 2;
+        const pbrad = pbh / 2;
+        ctx.fillStyle = "rgba(180,20,20,0.75)";
+        ctx.beginPath();
+        ctx.moveTo(pbx - pbw / 2 + pbrad, pby - pbh / 2);
+        ctx.lineTo(pbx + pbw / 2 - pbrad, pby - pbh / 2);
+        ctx.arcTo(
+          pbx + pbw / 2,
+          pby - pbh / 2,
+          pbx + pbw / 2,
+          pby - pbh / 2 + pbrad,
+          pbrad,
+        );
+        ctx.lineTo(pbx + pbw / 2, pby + pbh / 2 - pbrad);
+        ctx.arcTo(
+          pbx + pbw / 2,
+          pby + pbh / 2,
+          pbx + pbw / 2 - pbrad,
+          pby + pbh / 2,
+          pbrad,
+        );
+        ctx.lineTo(pbx - pbw / 2 + pbrad, pby + pbh / 2);
+        ctx.arcTo(
+          pbx - pbw / 2,
+          pby + pbh / 2,
+          pbx - pbw / 2,
+          pby + pbh / 2 - pbrad,
+          pbrad,
+        );
+        ctx.lineTo(pbx - pbw / 2, pby - pbh / 2 + pbrad);
+        ctx.arcTo(
+          pbx - pbw / 2,
+          pby - pbh / 2,
+          pbx - pbw / 2 + pbrad,
+          pby - pbh / 2,
+          pbrad,
+        );
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "#FFFFFF";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(panicText, pbx, pby);
+        ctx.restore();
+      }
+
       gs.animationId = requestAnimationFrame(gameLoop);
     },
     [
@@ -3918,6 +4420,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
       drawChicken,
       drawPumpFunPill,
       drawBitcoinCoin,
+      drawDogecoinCoin,
       drawOceanFish,
       drawCoronaVirus,
       drawHormuzWarcraft,
@@ -3943,6 +4446,58 @@ const GameScreen: React.FC<GameScreenProps> = ({
     gs.stopwatchSpawnTime = undefined;
     gs.totalGameDuration = GAME_DURATION;
     gs.lastBonusTime = 0;
+    // Reset whale event and roll 1% chance (Dogecoin world only)
+    gs.whaleCoins = [];
+    gs.whaleEventStartTime = null;
+    gs.whaleEventTriggered = false;
+    gs.whaleEventActive = selectedWorld === "dogecoin" && Math.random() < 0.01;
+    // Reset Paper Hands Panic and schedule first trigger if Dogecoin world
+    gs.paperHandsPanicActive = false;
+    gs.paperHandsPanicCount = 0;
+    gs.paperHandsPanicStartTime = null;
+    if (selectedWorld === "dogecoin" && Math.random() < 0.2) {
+      // Schedule first Paper Hands Panic after a short random delay (2–8s into the round)
+      const delay = 2000 + Math.random() * 6000;
+      setTimeout(() => {
+        const gsCurrent = gameStateRef.current;
+        if (
+          gsCurrent.isRunning &&
+          !gsCurrent.gameEnded &&
+          gsCurrent.paperHandsPanicCount < 2
+        ) {
+          gsCurrent.paperHandsPanicActive = true;
+          gsCurrent.paperHandsPanicCount = 1;
+          gsCurrent.paperHandsPanicStartTime = Date.now();
+          // After first 4s, roll second 20% chance
+          setTimeout(() => {
+            gsCurrent.paperHandsPanicActive = false;
+            gsCurrent.paperHandsPanicStartTime = null;
+            if (
+              gsCurrent.isRunning &&
+              !gsCurrent.gameEnded &&
+              Math.random() < 0.2
+            ) {
+              // Second trigger (only if round still active)
+              setTimeout(() => {
+                if (
+                  gsCurrent.isRunning &&
+                  !gsCurrent.gameEnded &&
+                  gsCurrent.paperHandsPanicCount < 2
+                ) {
+                  gsCurrent.paperHandsPanicActive = true;
+                  gsCurrent.paperHandsPanicCount = 2;
+                  gsCurrent.paperHandsPanicStartTime = Date.now();
+                  setTimeout(() => {
+                    gsCurrent.paperHandsPanicActive = false;
+                    gsCurrent.paperHandsPanicStartTime = null;
+                  }, 4000);
+                }
+              }, 500);
+            }
+          }, 4000);
+        }
+      }, delay);
+    }
     setGameEnded(false);
     setTimeRemaining(GAME_DURATION);
     setScore(0);
@@ -3977,6 +4532,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
     createBackgroundMusic,
     createChicken,
     gameLoop,
+    selectedWorld,
   ]);
 
   // ─── Timer effect ────────────────────────────────────────────────────────────
@@ -4147,12 +4703,63 @@ const GameScreen: React.FC<GameScreenProps> = ({
   // ─── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="fixed inset-0 overflow-hidden">
+    <div
+      className={`fixed inset-0 overflow-hidden${selectedWorld === "dogecoin" && sessionStats.consecutiveHits >= 4 ? " doge-shake-active" : ""}`}
+      style={
+        selectedWorld === "dogecoin" && sessionStats.consecutiveHits >= 4
+          ? ({
+              "--shake-amp": `${Math.min(sessionStats.consecutiveHits - 3, 10)}px`,
+              "--shake-speed": `${Math.max(0.12, 0.35 - (sessionStats.consecutiveHits - 4) * 0.02)}s`,
+            } as React.CSSProperties)
+          : undefined
+      }
+    >
+      {/* Dogecoin pop-word & screen-shake keyframe styles */}
+      <style>{`
+        @keyframes doge-pop {
+          0%   { opacity: 0; transform: var(--pw-rotate) scale(0); }
+          15%  { opacity: 1; transform: var(--pw-rotate) scale(1.2); }
+          30%  { transform: var(--pw-rotate) scale(1.0); }
+          70%  { opacity: 1; transform: var(--pw-rotate) scale(1.0); }
+          100% { opacity: 0; transform: var(--pw-rotate) scale(0.8); }
+        }
+        .doge-pop-word {
+          animation: doge-pop 2s ease-in-out forwards;
+          pointer-events: none;
+          position: absolute;
+          font-family: "Comic Sans MS", "Comic Sans", cursive;
+          font-weight: bold;
+          text-shadow:
+            1px 1px 0 rgba(0,0,0,0.55),
+            -1px -1px 0 rgba(0,0,0,0.3);
+          white-space: nowrap;
+          transform-origin: center center;
+          z-index: 15;
+        }
+        @keyframes doge-shake {
+          0%   { transform: translate(0px, 0px); }
+          10%  { transform: translate(calc(var(--shake-amp) * -1), calc(var(--shake-amp) * 0.5)); }
+          20%  { transform: translate(var(--shake-amp), calc(var(--shake-amp) * -0.5)); }
+          30%  { transform: translate(calc(var(--shake-amp) * -0.7), var(--shake-amp)); }
+          40%  { transform: translate(calc(var(--shake-amp) * 0.8), calc(var(--shake-amp) * -0.8)); }
+          50%  { transform: translate(calc(var(--shake-amp) * -1), calc(var(--shake-amp) * 0.3)); }
+          60%  { transform: translate(var(--shake-amp), var(--shake-amp)); }
+          70%  { transform: translate(calc(var(--shake-amp) * -0.5), calc(var(--shake-amp) * -1)); }
+          80%  { transform: translate(calc(var(--shake-amp) * 0.6), calc(var(--shake-amp) * 0.6)); }
+          90%  { transform: translate(calc(var(--shake-amp) * -0.8), calc(var(--shake-amp) * -0.4)); }
+          100% { transform: translate(0px, 0px); }
+        }
+        .doge-shake-active {
+          animation: doge-shake var(--shake-speed) ease-in-out infinite;
+        }
+      `}</style>
+
       <BackgroundRenderer
         world={selectedWorld}
         pumpFunPrice={pumpFunPrice}
         btcPrice={btcPrice}
         brentOilPrice={brentOilPrice}
+        dogePrice={dogePrice}
       />
 
       {/* HUD */}
@@ -4237,6 +4844,26 @@ const GameScreen: React.FC<GameScreenProps> = ({
           </div>
         </div>
       ))}
+
+      {/* Dogecoin world pop-word overlay */}
+      {selectedWorld === "dogecoin" &&
+        popWords.map((pw) => (
+          <div
+            key={pw.id}
+            className="doge-pop-word"
+            style={
+              {
+                left: pw.x,
+                top: pw.y,
+                color: pw.color,
+                fontSize: `${pw.fontSize}px`,
+                "--pw-rotate": `rotate(${pw.rotation}deg)`,
+              } as React.CSSProperties & { "--pw-rotate": string }
+            }
+          >
+            {pw.word}
+          </div>
+        ))}
 
       {/* Canvas */}
       <canvas

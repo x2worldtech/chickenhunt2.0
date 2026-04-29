@@ -39,7 +39,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   const isLoggingIn = loginStatus === "logging-in";
 
   useEffect(() => {
-    const savedSettings = localStorage.getItem("chickenHuntSettings");
+    const savedSettings = localStorage.getItem("worldOfHuntSettings");
     if (savedSettings) {
       try {
         const parsed = JSON.parse(savedSettings) as Partial<SettingsData>;
@@ -51,7 +51,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("chickenHuntSettings", JSON.stringify(settings));
+    localStorage.setItem("worldOfHuntSettings", JSON.stringify(settings));
   }, [settings]);
 
   const handleVolumeIncrease = useCallback(() => {
@@ -268,7 +268,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
 
         {/* Footer note */}
         <p className="text-center text-gray-700 text-xs pt-2 font-medium">
-          ChickenHunt — Settings are saved automatically
+          World of Hunt — Settings are saved automatically
         </p>
       </div>
     </div>

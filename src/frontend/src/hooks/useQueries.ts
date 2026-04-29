@@ -750,6 +750,24 @@ export function usePumpFunPrice() {
   });
 }
 
+// ─── Dogecoin live price (Binance REST, CoinGecko fallback) ──────────────────
+
+export function useDogecoinPrice() {
+  return useQuery<PumpPriceData | null>({
+    queryKey: ["dogecoinPrice"],
+    queryFn: async () => {
+      try {
+        return await fetchFromBinance("DOGEUSDT");
+      } catch {
+        return await fetchFromCoinGecko("dogecoin");
+      }
+    },
+    staleTime: 5_000,
+    refetchInterval: 10_000,
+    placeholderData: (prev) => prev ?? null,
+  });
+}
+
 // ─── Bitcoin live price (Binance REST, CoinGecko fallback) ────────────────────
 
 export function useBitcoinPrice() {

@@ -5,6 +5,7 @@ import type { BackgroundWorld, GameStatisticsLocal, PlayerData } from "../App";
 import {
   useBitcoinPrice,
   useBrentOilPrice,
+  useDogecoinPrice,
   usePumpFunPrice,
 } from "../hooks/useQueries";
 import AchievementsView from "./AchievementsView";
@@ -86,6 +87,7 @@ const WORLDS: { id: BackgroundWorld; name: string }[] = [
   { id: "corona", name: "Corona" },
   { id: "hormuz", name: "Hormuz" },
   { id: "alien", name: "Alien" },
+  { id: "dogecoin", name: "Dogecoin" },
 ];
 
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
@@ -112,6 +114,7 @@ const START_BUTTON_CLASSES: Record<BackgroundWorld, string> = {
   corona: "start-game-button-corona",
   hormuz: "start-game-button-hormuz",
   alien: "start-game-button-alien",
+  dogecoin: "start-game-button-dogecoin",
 };
 
 const StartScreen: React.FC<StartScreenProps> = ({
@@ -127,9 +130,11 @@ const StartScreen: React.FC<StartScreenProps> = ({
   const isPumpFunSelected = selectedWorld === "pumpfun";
   const isBitcoinSelected = selectedWorld === "bitcoin";
   const isHormuzSelected = selectedWorld === "hormuz";
+  const isDogecoinSelected = selectedWorld === "dogecoin";
   const { data: pumpPriceData } = usePumpFunPrice();
   const { data: btcPriceData } = useBitcoinPrice();
   const { data: brentPriceData } = useBrentOilPrice();
+  const { data: dogePriceData } = useDogecoinPrice();
   const [worldIndex, setWorldIndex] = useState(() => {
     const idx = WORLDS.findIndex((w) => w.id === selectedWorld);
     return idx >= 0 ? idx : 0;
@@ -143,18 +148,32 @@ const StartScreen: React.FC<StartScreenProps> = ({
   const touchStartXRef = useRef(0);
   const touchCurXRef = useRef(0);
 
-  // Transition state for smooth chicken ↔ pill/coin/fish/virus/warcraft/ufo swap
+  // Transition state for smooth chicken ↔ pill/coin/fish/virus/warcraft/ufo/dogecoin swap
   // entityAlpha: current draw alpha (0..1)
   // transitionPhase: 'idle' | 'fade-out' | 'fade-in'
   // pendingEntityType: the entity type we're transitioning TO
-  // "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft" | "ufo"
+  // "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft" | "ufo" | "dogecoin"
   const entityAlphaRef = useRef<number>(1);
   const transitionPhaseRef = useRef<"idle" | "fade-out" | "fade-in">("idle");
   const pendingEntityTypeRef = useRef<
-    "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft" | "ufo"
+    | "chicken"
+    | "pumpfun"
+    | "bitcoin"
+    | "fish"
+    | "virus"
+    | "warcraft"
+    | "ufo"
+    | "dogecoin"
   >("chicken");
   const activeEntityTypeRef = useRef<
-    "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft" | "ufo"
+    | "chicken"
+    | "pumpfun"
+    | "bitcoin"
+    | "fish"
+    | "virus"
+    | "warcraft"
+    | "ufo"
+    | "dogecoin"
   >("chicken");
 
   // Keep backward-compat booleans used by pill drawing (entityAlphaRef is shared)
@@ -176,7 +195,8 @@ const StartScreen: React.FC<StartScreenProps> = ({
       | "fish"
       | "virus"
       | "warcraft"
-      | "ufo" =
+      | "ufo"
+      | "dogecoin" =
       selectedWorld === "pumpfun"
         ? "pumpfun"
         : selectedWorld === "bitcoin"
@@ -189,7 +209,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
                 ? "warcraft"
                 : selectedWorld === "alien"
                   ? "ufo"
-                  : "chicken";
+                  : selectedWorld === "dogecoin"
+                    ? "dogecoin"
+                    : "chicken";
     if (nextType === activeEntityTypeRef.current) return; // no change
     pendingEntityTypeRef.current = nextType;
     pendingIsPumpFunRef.current = nextType === "pumpfun";
@@ -803,6 +825,82 @@ const StartScreen: React.FC<StartScreenProps> = ({
       ctx.fill(p);
       ctx.restore();
 
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    [],
+  );
+
+  // Draw Dogecoin coin — uses provided JPEG asset, clipped to circle
+  const dogeCoinImgRef = useRef<HTMLImageElement | null>(null);
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/assets/img_8762-019dd4d8-8dae-77d4-bc88-50b76c9a6fff.jpeg";
+    dogeCoinImgRef.current = img;
+  }, []);
+
+  const drawDogecoinCoin = useCallback(
+    (ctx: CanvasRenderingContext2D, c: StartChicken) => {
+      const { x, y, size, wingPhase, direction } = c;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      let r: number;
+      if (size <= 25) {
+        r = 14;
+      } else if (size <= 40) {
+        r = 22;
+      } else {
+        r = 32;
+      }
+
+      const bob = Math.sin(wingPhase) * 2.5;
+      const alpha = entityAlphaRef.current;
+      const img = dogeCoinImgRef.current;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy + bob);
+
+      // Mirror when flying left-to-right
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+
+      // Clip to circle
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.clip();
+
+      if (img?.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, -r, -r, r * 2, r * 2);
+      } else {
+        // Fallback gradient
+        const grad = ctx.createRadialGradient(
+          -r * 0.3,
+          -r * 0.3,
+          r * 0.05,
+          0,
+          0,
+          r,
+        );
+        grad.addColorStop(0, "#FFF3A0");
+        grad.addColorStop(0.45, "#FFC200");
+        grad.addColorStop(1, "#8B6400");
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      ctx.restore();
+
+      // Border ring (drawn outside clip region)
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy + bob);
+      if (direction === "right-to-left") ctx.scale(-1, 1);
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.strokeStyle = "#B8860B";
+      ctx.lineWidth = r * 0.1;
+      ctx.stroke();
       ctx.globalAlpha = 1;
       ctx.restore();
     },
@@ -2063,15 +2161,17 @@ const StartScreen: React.FC<StartScreenProps> = ({
         ? drawPumpFunPill
         : activeType === "bitcoin"
           ? drawBitcoinCoin
-          : activeType === "fish"
-            ? drawOceanFish
-            : activeType === "virus"
-              ? drawCoronaVirus
-              : activeType === "warcraft"
-                ? drawHormuzWarcraft
-                : activeType === "ufo"
-                  ? drawAlienUFO
-                  : drawChicken;
+          : activeType === "dogecoin"
+            ? drawDogecoinCoin
+            : activeType === "fish"
+              ? drawOceanFish
+              : activeType === "virus"
+                ? drawCoronaVirus
+                : activeType === "warcraft"
+                  ? drawHormuzWarcraft
+                  : activeType === "ufo"
+                    ? drawAlienUFO
+                    : drawChicken;
 
     for (let i = chickensRef.current.length - 1; i >= 0; i--) {
       const ch = chickensRef.current[i];
@@ -2105,6 +2205,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
     drawChicken,
     drawPumpFunPill,
     drawBitcoinCoin,
+    drawDogecoinCoin,
     drawOceanFish,
     drawCoronaVirus,
     drawHormuzWarcraft,
@@ -2125,7 +2226,8 @@ const StartScreen: React.FC<StartScreenProps> = ({
       | "fish"
       | "virus"
       | "warcraft"
-      | "ufo" =
+      | "ufo"
+      | "dogecoin" =
       initialWorldRef.current === "pumpfun"
         ? "pumpfun"
         : initialWorldRef.current === "bitcoin"
@@ -2138,7 +2240,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
                 ? "warcraft"
                 : initialWorldRef.current === "alien"
                   ? "ufo"
-                  : "chicken";
+                  : initialWorldRef.current === "dogecoin"
+                    ? "dogecoin"
+                    : "chicken";
     activeEntityTypeRef.current = initType;
     activeIsPumpFunRef.current = initType === "pumpfun";
     entityAlphaRef.current = 1;
@@ -2253,6 +2357,40 @@ const StartScreen: React.FC<StartScreenProps> = ({
                 >
                   {btcPriceData.change24h >= 0 ? "+" : ""}
                   {btcPriceData.change24h.toFixed(2)}%
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+        {/* DOGE/USD live price — only shown when Dogecoin world is selected */}
+        {isDogecoinSelected && (
+          <div className="mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/60 backdrop-blur-sm border border-yellow-900/50">
+            <span
+              style={{
+                fontFamily: "'Courier New', Courier, monospace",
+                color: "#c8940a",
+                opacity: 0.85,
+              }}
+              className="text-xs tracking-widest leading-none"
+            >
+              DOGE / USD
+            </span>
+            <div className="flex items-center gap-2">
+              <span
+                style={{ fontFamily: "'Courier New', Courier, monospace" }}
+                className="text-white font-bold text-base tracking-wide leading-none"
+              >
+                {dogePriceData
+                  ? `$${dogePriceData.price < 0.001 ? dogePriceData.price.toFixed(6) : dogePriceData.price.toFixed(4)}`
+                  : "--"}
+              </span>
+              {dogePriceData && (
+                <span
+                  style={{ fontFamily: "'Courier New', Courier, monospace" }}
+                  className={`text-xs font-semibold tracking-wide leading-none ${dogePriceData.change24h >= 0 ? "text-green-400" : "text-red-400"}`}
+                >
+                  {dogePriceData.change24h >= 0 ? "+" : ""}
+                  {dogePriceData.change24h.toFixed(2)}%
                 </span>
               )}
             </div>
