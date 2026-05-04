@@ -1,6 +1,7 @@
 import { useActor } from "@caffeineai/core-infrastructure";
 import { Principal } from "@icp-sdk/core/principal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
   ApprovalStatus,
   type ClanDetails,
@@ -131,10 +132,10 @@ export function useSaveGameStatistics() {
   });
 }
 
-// Leaderboard returns [name, score, level] tuples
+// Leaderboard returns [principal, name, score, level] tuples
 export function useLeaderboard() {
   const { actor, isFetching } = useActor(createActor);
-  return useQuery<Array<[string, bigint, bigint]>>({
+  return useQuery<Array<[Principal, string, bigint, bigint]>>({
     queryKey: ["leaderboard"],
     queryFn: async () => {
       if (!actor) return [];
@@ -668,11 +669,14 @@ export interface LeaderboardEntry {
   highestScore: number;
   level: number;
   key: string;
+  /** The player's principal — always available from the backend. */
+  principal: Principal;
 }
 
 /**
  * Returns leaderboard entries derived from getLeaderboard().
- * Does NOT call listUsers() (admin-only) — principal enrichment is skipped.
+ * The backend now always returns the principal as the first tuple element,
+ * so every entry is always clickable.
  */
 export function useLeaderboardEntries() {
   const { actor, isFetching } = useActor(createActor);
@@ -681,14 +685,52 @@ export function useLeaderboardEntries() {
     queryFn: async () => {
       if (!actor) return [];
       const leaderboard = await actor.getLeaderboard();
-      return leaderboard.map(([username, score, level], index) => ({
+      return leaderboard.map(([principal, username, score, level], index) => ({
+        principal,
         username,
         highestScore: Number(score),
         level: Number(level),
-        key: `lb-${index}-${username}`,
+        key: `lb-${index}-${principal.toText()}`,
       }));
     },
     enabled: !!actor && !isFetching,
+  });
+}
+
+// ─── Player display name / number ────────────────────────────────────────────
+
+/**
+ * Returns the backend-assigned display name for any player.
+ * For unnamed players this is "Player #N" based on registration order.
+ * For players with a custom username it returns their chosen name.
+ */
+export function usePlayerDisplayName(user: Principal | null) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<string>({
+    queryKey: ["playerDisplayName", user?.toText()],
+    queryFn: async () => {
+      if (!actor || !user) return "Player #?";
+      return actor.getPlayerDisplayName(user);
+    },
+    enabled: !!actor && !isFetching && user !== null,
+    staleTime: 60_000,
+  });
+}
+
+/**
+ * Returns the backend-assigned registration number for a player, or null
+ * if the player hasn't registered yet.
+ */
+export function usePlayerNumber(user: Principal | null) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery<bigint | null>({
+    queryKey: ["playerNumber", user?.toText()],
+    queryFn: async () => {
+      if (!actor || !user) return null;
+      return actor.getPlayerNumber(user);
+    },
+    enabled: !!actor && !isFetching && user !== null,
+    staleTime: 60_000,
   });
 }
 
@@ -868,4 +910,45 @@ export function useBrentOilPrice() {
     refetchInterval: 10_000,
     placeholderData: (prev) => prev ?? { price: null, change24h: null },
   });
+}
+
+// ─── Cigarettes smoked today counter (client-side, WHO/Tobacco Atlas data) ────
+// ~5.8 trillion cigarettes/year = ~183,732 per second
+// Counter: Math.floor(secondsSinceStartOfDayUTC * 183732)
+
+const CIGARETTES_PER_SECOND = 183_732;
+
+export interface CigarettesCounterData {
+  count: number;
+}
+
+export function useCigarettesTodayCounter(): CigarettesCounterData {
+  const getCount = () => {
+    const now = new Date();
+    const startOfDayUTC = Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+    );
+    const secondsSinceStartOfDay = (Date.now() - startOfDayUTC) / 1000;
+    return Math.floor(secondsSinceStartOfDay * CIGARETTES_PER_SECOND);
+  };
+
+  const [count, setCount] = useState<number>(() => getCount());
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      const now = new Date();
+      const startOfDayUTC = Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+      );
+      const secondsSinceStartOfDay = (Date.now() - startOfDayUTC) / 1000;
+      setCount(Math.floor(secondsSinceStartOfDay * CIGARETTES_PER_SECOND));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return { count };
 }

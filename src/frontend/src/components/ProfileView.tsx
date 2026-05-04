@@ -23,7 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFileUrl } from "../file-storage/FileList";
 import { useFileUpload } from "../file-storage/FileUpload";
 import {
-  useListUsers,
+  usePlayerDisplayName,
   useSaveCurrentUserProfile,
   useSaveCurrentUserProfileWithChangeStatus,
   useUserProfileWithChangeStatus,
@@ -218,7 +218,8 @@ const ProfileView: React.FC<ProfileViewProps> = ({
 }) => {
   const { identity, clear, login, loginStatus } = useInternetIdentity();
   const { data: userProfile } = useUserProfileWithChangeStatus();
-  const { data: allUsers = [] } = useListUsers();
+  const currentPrincipal = identity?.getPrincipal() ?? null;
+  const { data: backendDisplayName } = usePlayerDisplayName(currentPrincipal);
   const saveProfileMutation = useSaveCurrentUserProfileWithChangeStatus();
   const saveImagesMutation = useSaveCurrentUserProfile();
   const { uploadFile, isUploading } = useFileUpload();
@@ -267,18 +268,10 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     }
   };
 
-  const getDefaultUsername = () => {
-    if (!identity || !isAuthenticated) return "Guest User";
-    const currentPrincipal = identity.getPrincipal().toString();
-    const idx = allUsers.findIndex(
-      (u) => u.principal.toString() === currentPrincipal,
-    );
-    return idx >= 0 ? `Player #${idx + 1}` : "Player #1";
-  };
-
   const getDisplayUsername = () => {
     if (!isAuthenticated) return "Guest User";
-    return userProfile?.name?.trim() || getDefaultUsername();
+    // Use backend display name (already "Player #N" for unnamed players)
+    return userProfile?.name?.trim() || backendDisplayName || "Player #?";
   };
 
   const getDisplayBio = () => {
@@ -451,7 +444,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
       await saveProfileMutation.mutateAsync({
         name: canEditUsername()
           ? editedUsername.trim()
-          : (userProfile?.name ?? getDefaultUsername()),
+          : (userProfile?.name ?? backendDisplayName ?? "Player #?"),
         bio: editedBio.trim(),
         hasChangedName: userProfile?.hasChangedName || isFirstChange,
         xUrl: editedXUrl.trim() || undefined,

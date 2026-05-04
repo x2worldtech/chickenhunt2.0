@@ -26,14 +26,15 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useFileUrl } from "../file-storage/FileList";
-import type { GameStatistics } from "../hooks/useQueries";
 import {
   useAddFriend,
   useGetUserGameStats,
   useGetUserProfile,
   useIsFriend,
+  usePlayerDisplayName,
   useRemoveFriend,
 } from "../hooks/useQueries";
+import type { GameStatistics } from "../hooks/useQueries";
 
 // ─── Shared helpers (mirrored from ProfileView.tsx) ───────────────────────────
 
@@ -249,6 +250,7 @@ const PlayerProfileScreen: React.FC<PlayerProfileScreenProps> = ({
   const { data: isFriend, isLoading: friendLoading } = useIsFriend(
     isOwnProfile ? null : principal,
   );
+  const { data: resolvedDisplayName } = usePlayerDisplayName(principal);
   const addFriend = useAddFriend();
   const removeFriend = useRemoveFriend();
 
@@ -263,20 +265,17 @@ const PlayerProfileScreen: React.FC<PlayerProfileScreenProps> = ({
   const { data: bannerImageUrl } = useFileUrl(bannerImagePath);
 
   // Social links
-  const socialProfile = profile as
-    | {
-        xUrl?: string;
-        telegramUrl?: string;
-        youtubeUrl?: string;
-        githubUrl?: string;
-      }
-    | null
-    | undefined;
-
+  const socialProfile = profile as {
+    xUrl?: string;
+    telegramUrl?: string;
+    youtubeUrl?: string;
+    githubUrl?: string;
+  } | null;
   const displayName =
     profile?.name?.trim() ||
     fallbackName?.trim() ||
-    `${principal.toText().slice(0, 10)}…`;
+    resolvedDisplayName ||
+    "Player #?";
 
   const level = gameStats ? Number(gameStats.level) : fallbackLevel;
   const currentTitle = getPlayerTitle(level);

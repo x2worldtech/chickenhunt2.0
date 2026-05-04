@@ -720,6 +720,50 @@ body {
   border: 2px solid #ffd700 !important;
 }
 
+/* Smoke world start button — dark amber/brown theme, moody lounge aesthetic */
+.start-game-button-smoke {
+  background: linear-gradient(135deg, #0d0604 0%, #1c0e06 40%, #0d0604 100%);
+  color: rgb(220, 170, 80) !important;
+  text-shadow: 0 0 10px rgba(220, 150, 50, 0.7), 0 0 22px
+    rgba(180, 100, 20, 0.45);
+  box-shadow: 0 4px 16px rgba(200, 130, 40, 0.35), 0 2px 6px rgba(0, 0, 0, 0.7),
+    0 0 0 2px rgba(200, 140, 50, 0.28), inset 0 1px 0 rgba(255, 210, 120, 0.15);
+  border: 1px solid rgba(200, 150, 50, 0.6) !important;
+}
+
+.start-game-button-smoke:hover {
+  background: linear-gradient(135deg, #1c0e06 0%, #2e1808 40%, #1c0e06 100%);
+  color: rgb(240, 195, 100) !important;
+  text-shadow: 0 0 14px rgba(240, 180, 60, 0.85), 0 0 30px
+    rgba(210, 130, 30, 0.55);
+  box-shadow: 0 6px 22px rgba(220, 150, 50, 0.5), 0 3px 8px rgba(0, 0, 0, 0.7),
+    0 0 0 2px rgba(220, 165, 70, 0.4), inset 0 1px 0 rgba(255, 225, 140, 0.22);
+  border: 1px solid rgba(220, 170, 70, 0.8) !important;
+}
+
+/* Weather world start button — premium glass-frosted sky blue aesthetic */
+.start-game-button-weather {
+  background: linear-gradient(135deg, #0d1b2e 0%, #1a3a54 50%, #0d2a3f 100%);
+  color: #e0f2ff !important;
+  text-shadow: 0 0 10px rgba(200, 230, 255, 0.7), 0 0 20px
+    rgba(100, 180, 255, 0.4);
+  box-shadow: 0 4px 16px rgba(100, 180, 255, 0.3), 0 2px 6px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(150, 200, 255, 0.25), inset 0 1px 0 rgba(200, 230, 255, 0.15);
+  border: 1.5px solid #4a9eff !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.start-game-button-weather:hover {
+  background: linear-gradient(135deg, #1a2e42 0%, #2a4a68 50%, #1a3a52 100%);
+  color: #ffffff !important;
+  text-shadow: 0 0 14px rgba(200, 230, 255, 0.95), 0 0 28px
+    rgba(120, 200, 255, 0.6);
+  box-shadow: 0 6px 22px rgba(120, 200, 255, 0.45), 0 3px 8px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(180, 220, 255, 0.4), inset 0 1px 0 rgba(220, 240, 255, 0.2);
+  border: 1.5px solid #7ab8ff !important;
+}
+
 /* Tips container styling - Default for all worlds except snowy */
 .tips-container-default {
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1002,6 +1046,78 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Glassmorphism utilities for Weather world */
+.glassmorphic-card {
+  background: rgba(20, 30, 50, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+}
+
+.glassmorphic-light {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.split-flap-display {
+  animation: splitFlapFlip 0.6s ease-in-out forwards;
+  transform-style: preserve-3d;
+}
+
+/* Weather particle animations */
+@keyframes fallAnimation {
+  0% {
+    transform: translateY(-100vh) translateX(0);
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+@keyframes swayAnimation {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(15px);
+  }
+}
+
+.weather-particle-rain {
+  animation: fallAnimation 2s linear infinite, swayAnimation 3s ease-in-out
+    infinite;
+}
+
+.weather-particle-snow {
+  animation: fallAnimation 4s linear infinite, swayAnimation 5s ease-in-out
+    infinite;
+}
+
+@keyframes floatAnimation {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+    opacity: 0.8;
+  }
+}
+
+.weather-particle-cloud {
+  animation: floatAnimation 6s ease-in-out infinite;
 }
 
 /* Enhanced tip navigation arrows */
@@ -1492,4 +1608,105 @@ body {
 
 .profile-view {
   padding-bottom: 70px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Weather World — Split-Flap Display + Glassmorphism
+════════════════════════════════════════════════════════════ */
+
+/* Split-flap character base */
+.split-flap-char {
+  display: inline-block;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  perspective: 400px;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Split-flap flip animation */
+.split-flap-char.flipping {
+  animation: splitFlapFlip 0.6s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+@keyframes splitFlapFlip {
+  0% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: rotateX(-90deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: rotateX(-90deg);
+    opacity: 0;
+  }
+  75% {
+    transform: rotateX(0deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+}
+
+/* Split-flap word container */
+.split-flap-word {
+  display: inline-flex;
+  gap: 1px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* City name size */
+.split-flap-city {
+  font-size: clamp(26px, 7vw, 42px);
+  color: #ffffff;
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.06em;
+}
+
+/* Temperature size */
+.split-flap-temp {
+  font-size: clamp(36px, 11vw, 64px);
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.04em;
+}
+
+/* Glassmorphic forecast card */
+.glassmorphic-card {
+  background: rgba(20, 30, 50, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Weather particle fall animation */
+@keyframes weatherFall {
+  0% {
+    transform: translateY(-10px) translateX(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(110vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+/* Weather particle sway float */
+@keyframes weatherFloat {
+  0% {
+    transform: translateX(-12px) translateY(0);
+  }
+  50% {
+    transform: translateX(12px) translateY(-8px);
+  }
+  100% {
+    transform: translateX(-12px) translateY(0);
+  }
 }

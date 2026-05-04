@@ -49,7 +49,7 @@ function getInitials(name: string): string {
 
 function memberName(members: PrincipalInfo[], principalStr: string): string {
   const m = members.find((p) => p.principal.toString() === principalStr);
-  return m?.name?.trim() || `${principalStr.slice(0, 6)}…`;
+  return m?.name?.trim() || "Player #?";
 }
 
 function memberLevel(members: PrincipalInfo[], principalStr: string): number {

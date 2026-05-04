@@ -219,7 +219,7 @@ export const idlService = IDL.Service({
   'getFriends' : IDL.Func([], [IDL.Vec(PrincipalInfo)], ['query']),
   'getLeaderboard' : IDL.Func(
       [],
-      [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat, IDL.Nat))],
+      [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Text, IDL.Nat, IDL.Nat))],
       ['query'],
     ),
   'getPendingJoinRequests' : IDL.Func(
@@ -227,6 +227,8 @@ export const idlService = IDL.Service({
       [IDL.Variant({ 'ok' : IDL.Vec(PrincipalInfo), 'err' : IDL.Text })],
       [],
     ),
+  'getPlayerDisplayName' : IDL.Func([IDL.Principal], [IDL.Text], ['query']),
+  'getPlayerNumber' : IDL.Func([IDL.Principal], [IDL.Opt(IDL.Nat)], ['query']),
   'getPumpFunPrice' : IDL.Func([], [PumpPriceData], []),
   'getUserGameStats' : IDL.Func(
       [IDL.Principal],
@@ -517,13 +519,19 @@ export const idlFactory = ({ IDL }) => {
     'getFriends' : IDL.Func([], [IDL.Vec(PrincipalInfo)], ['query']),
     'getLeaderboard' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat, IDL.Nat))],
+        [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Text, IDL.Nat, IDL.Nat))],
         ['query'],
       ),
     'getPendingJoinRequests' : IDL.Func(
         [IDL.Nat],
         [IDL.Variant({ 'ok' : IDL.Vec(PrincipalInfo), 'err' : IDL.Text })],
         [],
+      ),
+    'getPlayerDisplayName' : IDL.Func([IDL.Principal], [IDL.Text], ['query']),
+    'getPlayerNumber' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(IDL.Nat)],
+        ['query'],
       ),
     'getPumpFunPrice' : IDL.Func([], [PumpPriceData], []),
     'getUserGameStats' : IDL.Func(

@@ -196,12 +196,17 @@ export interface _SERVICE {
       { 'err' : string }
   >,
   'getFriends' : ActorMethod<[], Array<PrincipalInfo>>,
-  'getLeaderboard' : ActorMethod<[], Array<[string, bigint, bigint]>>,
+  'getLeaderboard' : ActorMethod<
+    [],
+    Array<[Principal, string, bigint, bigint]>
+  >,
   'getPendingJoinRequests' : ActorMethod<
     [bigint],
     { 'ok' : Array<PrincipalInfo> } |
       { 'err' : string }
   >,
+  'getPlayerDisplayName' : ActorMethod<[Principal], string>,
+  'getPlayerNumber' : ActorMethod<[Principal], [] | [bigint]>,
   'getPumpFunPrice' : ActorMethod<[], PumpPriceData>,
   'getUserGameStats' : ActorMethod<[Principal], [] | [GameStatistics]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,

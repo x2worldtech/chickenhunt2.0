@@ -221,6 +221,7 @@ service : {
     }) query;
   getFriends: () -> (vec PrincipalInfo) query;
   getLeaderboard: () -> (vec record {
+                               principal;
                                text;
                                nat;
                                nat;
@@ -230,6 +231,8 @@ service : {
       err: text;
       ok: vec PrincipalInfo;
     });
+  getPlayerDisplayName: (user: principal) -> (text) query;
+  getPlayerNumber: (user: principal) -> (opt nat) query;
   getPumpFunPrice: () -> (PumpPriceData);
   getUserGameStats: (userId: principal) -> (opt GameStatistics) query;
   getUserProfile: (user: principal) -> (opt UserProfile) query;

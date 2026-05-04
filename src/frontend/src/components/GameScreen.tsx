@@ -1,10 +1,12 @@
 import { useInternetIdentity } from "@caffeineai/core-infrastructure";
+import type { Principal } from "@icp-sdk/core/principal";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BackgroundWorld, GameStatisticsLocal } from "../App";
 import {
   useBitcoinPrice,
   useBrentOilPrice,
+  useCigarettesTodayCounter,
   useDogecoinPrice,
   usePumpFunPrice,
   useSaveGameStatistics,
@@ -14,9 +16,11 @@ import BackgroundRenderer from "./BackgroundRenderer";
 import BottomMenu from "./BottomMenu";
 import GameOverWindow from "./GameOverWindow";
 import LeaderboardView from "./LeaderboardView";
+import PlayerProfileScreen from "./PlayerProfileScreen";
 import ProfileView from "./ProfileView";
 import SettingsView from "./SettingsView";
 import SocialsView from "./SocialsView";
+import WeatherWorld from "./WeatherWorld";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -274,6 +278,9 @@ const GameScreen: React.FC<GameScreenProps> = ({
     selectedWorld === "hormuz" && brentOilData
       ? { price: brentOilData.price, change24h: brentOilData.change24h }
       : null;
+
+  // Cigarettes smoked today counter — only active when world is smoke
+  const { count: cigarettesCount } = useCigarettesTodayCounter();
   const audioContextRef = useRef<AudioContext | null>(null);
   const backgroundMusicGainRef = useRef<GainNode | null>(null);
   const rainSoundGainRef = useRef<GainNode | null>(null);
@@ -306,11 +313,21 @@ const GameScreen: React.FC<GameScreenProps> = ({
     paperHandsPanicActive: false,
     paperHandsPanicCount: 0,
     paperHandsPanicStartTime: null as number | null,
+    // Mid-round periodic event check timestamps (Dogecoin world only)
+    lastWhaleCheckTime: 0,
+    lastPanicCheckTime: 0,
   });
 
   const [hitEffects, setHitEffects] = useState<HitEffect[]>([]);
   const [popWords, setPopWords] = useState<PopWord[]>([]);
+  const [showPanicBanner, setShowPanicBanner] = useState(false);
+  const [showWhaleBanner, setShowWhaleBanner] = useState(false);
   const [currentView, setCurrentView] = useState<GameView>(initialView);
+  // Leaderboard profile overlay — same pattern as ClanChatView
+  const [leaderboardViewingProfile, setLeaderboardViewingProfile] = useState<{
+    principal: Principal;
+    name: string;
+  } | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(GAME_DURATION);
   const [gameEnded, setGameEnded] = useState(false);
   const [scoreMultiplier, setScoreMultiplier] = useState<ScoreMultiplier>({
@@ -333,7 +350,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
     xpEarned: 0,
   });
 
-  const { isAuthenticated } = useInternetIdentity();
+  const { isAuthenticated, identity } = useInternetIdentity();
+  const currentPrincipal = identity?.getPrincipal() ?? null;
   const saveGameStatsMutation = useSaveGameStatistics();
 
   // ─── Settings sync ──────────────────────────────────────────────────────────
@@ -3466,6 +3484,311 @@ const GameScreen: React.FC<GameScreenProps> = ({
     [drawExplosion],
   );
 
+  // ─── Cigarette drawing ───────────────────────────────────────────────────────
+
+  const drawCigarette = useCallback(
+    (ctx: CanvasRenderingContext2D, chicken: Chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x, y, size, wingPhase, direction, type, isGolden } = chicken;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      let cw: number;
+      let ch: number;
+      if (chicken.distance === "far") {
+        cw = 52;
+        ch = 10;
+      } else if (chicken.distance === "medium") {
+        cw = 80;
+        ch = 16;
+      } else {
+        cw = 112;
+        ch = 22;
+      }
+      const r = ch / 2;
+      const filterLen = cw * 0.22;
+      const t = Date.now();
+      const emberPulse = 0.75 + 0.25 * Math.sin(wingPhase * 1.8 + t * 0.004);
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+
+      if (type === "fast" && !isGolden) {
+        ctx.shadowColor = "#FF6600";
+        ctx.shadowBlur = 10;
+      }
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 14;
+      }
+
+      // Smoke wisps
+      const wispAlpha = 0.22 + 0.1 * Math.sin(wingPhase + t * 0.003);
+      ctx.save();
+      ctx.shadowBlur = 0;
+      for (let i = 0; i < 3; i++) {
+        const wx = -cw / 2 + (i - 1) * ch * 0.35;
+        const wyBase = -r - 3;
+        const waveX = Math.sin(wingPhase * 0.9 + i * 1.2) * ch * 0.6;
+        ctx.strokeStyle = `rgba(200,200,200,${wispAlpha * (1 - i * 0.2)})`;
+        ctx.lineWidth = Math.max(1, ch * 0.12);
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(wx, wyBase);
+        ctx.quadraticCurveTo(
+          wx + waveX,
+          wyBase - ch * 0.9,
+          wx - waveX * 0.5,
+          wyBase - ch * 1.8,
+        );
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Paper body
+      const paperGrad = ctx.createLinearGradient(0, -r, 0, r);
+      if (isGolden) {
+        paperGrad.addColorStop(0, "#FFF8E0");
+        paperGrad.addColorStop(0.5, "#FFE080");
+        paperGrad.addColorStop(1, "#FFF0C0");
+      } else {
+        paperGrad.addColorStop(0, "#F8F6F0");
+        paperGrad.addColorStop(0.35, "#EEECE4");
+        paperGrad.addColorStop(0.65, "#D8D4C8");
+        paperGrad.addColorStop(1, "#EDEAE0");
+      }
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-cw / 2 + filterLen, -r, cw - filterLen, ch);
+      ctx.clip();
+      ctx.fillStyle = paperGrad;
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r, cw, ch, r);
+      ctx.fill();
+      ctx.restore();
+
+      // Band lines
+      ctx.strokeStyle = isGolden
+        ? "rgba(180,140,20,0.35)"
+        : "rgba(180,175,160,0.35)";
+      ctx.lineWidth = Math.max(0.5, ch * 0.04);
+      const bandStep = cw * 0.1;
+      for (
+        let bx = -cw / 2 + filterLen + bandStep;
+        bx < cw / 2 - r;
+        bx += bandStep
+      ) {
+        ctx.beginPath();
+        ctx.moveTo(bx, -r + ch * 0.15);
+        ctx.lineTo(bx, r - ch * 0.15);
+        ctx.stroke();
+      }
+
+      // Filter tip
+      const filterGrad = ctx.createLinearGradient(0, -r, 0, r);
+      if (isGolden) {
+        filterGrad.addColorStop(0, "#FFD060");
+        filterGrad.addColorStop(0.5, "#C89020");
+        filterGrad.addColorStop(1, "#FFD060");
+      } else {
+        filterGrad.addColorStop(0, "#D4A96A");
+        filterGrad.addColorStop(0.4, "#C49058");
+        filterGrad.addColorStop(0.7, "#A87840");
+        filterGrad.addColorStop(1, "#C49058");
+      }
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(cw / 2 - filterLen, -r, filterLen, ch);
+      ctx.clip();
+      ctx.fillStyle = filterGrad;
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r, cw, ch, r);
+      ctx.fill();
+      ctx.restore();
+
+      // Filter seam
+      ctx.strokeStyle = isGolden ? "rgba(120,80,0,0.5)" : "rgba(90,60,30,0.4)";
+      ctx.lineWidth = Math.max(0.8, ch * 0.06);
+      ctx.beginPath();
+      ctx.moveTo(cw / 2 - filterLen, -r + 1);
+      ctx.lineTo(cw / 2 - filterLen, r - 1);
+      ctx.stroke();
+
+      // Outer border
+      ctx.strokeStyle = isGolden ? "rgba(140,100,0,0.6)" : "rgba(90,85,75,0.5)";
+      ctx.lineWidth = Math.max(0.8, ch * 0.07);
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r, cw, ch, r);
+      ctx.stroke();
+
+      // Ember
+      const emberX = -cw / 2 + r * 0.5;
+      ctx.shadowColor = isGolden
+        ? `rgba(255,220,60,${0.7 * emberPulse})`
+        : `rgba(255,130,20,${0.7 * emberPulse})`;
+      ctx.shadowBlur = ch * 1.5 * emberPulse;
+      const emberGlow = ctx.createRadialGradient(
+        emberX,
+        0,
+        0,
+        emberX,
+        0,
+        r * 1.4 * emberPulse,
+      );
+      emberGlow.addColorStop(0, `rgba(255,220,80,${0.85 * emberPulse})`);
+      emberGlow.addColorStop(0.4, `rgba(255,100,10,${0.55 * emberPulse})`);
+      emberGlow.addColorStop(1, "rgba(200,40,0,0)");
+      ctx.fillStyle = emberGlow;
+      ctx.beginPath();
+      ctx.arc(emberX, 0, r * 1.4 * emberPulse, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Ash tip
+      const ashGrad = ctx.createRadialGradient(
+        emberX - r * 0.2,
+        -r * 0.1,
+        0,
+        emberX,
+        0,
+        r,
+      );
+      ashGrad.addColorStop(0, `rgba(255,230,100,${emberPulse})`);
+      ashGrad.addColorStop(0.35, `rgba(220,80,10,${0.9 * emberPulse})`);
+      ashGrad.addColorStop(0.7, "#8B3A00");
+      ashGrad.addColorStop(1, "#3A2010");
+      ctx.fillStyle = ashGrad;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-cw / 2, -r, r * 1.5, ch);
+      ctx.clip();
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r, cw, ch, r);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    },
+    [drawExplosion],
+  );
+
+  // Draw Weather particle — animated cloud puffs, raindrops, snowflakes, sun sparkles
+  const drawWeatherParticle = useCallback(
+    (ctx: CanvasRenderingContext2D, ch: Chicken) => {
+      if (ch.isExploding) {
+        drawExplosion(ctx, ch);
+        return;
+      }
+      const { x, y, size, wingPhase, direction } = ch;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      let r: number;
+      if (size <= 25) r = 14;
+      else if (size <= 40) r = 22;
+      else r = 32;
+
+      const bob = Math.sin(wingPhase) * 2;
+      const t = Date.now();
+      const pulse = 0.8 + 0.2 * Math.sin(wingPhase * 1.5);
+
+      ctx.save();
+      ctx.translate(cx, cy + bob);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+
+      if (ch.isGolden) {
+        // Sun sparkle for golden targets
+        ctx.shadowColor = "rgba(255,220,50,0.7)";
+        ctx.shadowBlur = r * 0.8;
+        const sunGrad = ctx.createRadialGradient(
+          -r * 0.2,
+          -r * 0.2,
+          0,
+          0,
+          0,
+          r,
+        );
+        sunGrad.addColorStop(0, "#FFE066");
+        sunGrad.addColorStop(0.5, "#FFB800");
+        sunGrad.addColorStop(1, "#FF7700");
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.fill();
+        // Rays
+        ctx.strokeStyle = "rgba(255,220,80,0.8)";
+        ctx.lineWidth = r * 0.12;
+        ctx.lineCap = "round";
+        for (let i = 0; i < 8; i++) {
+          const angle = (i / 8) * Math.PI * 2 + wingPhase * 0.2;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(angle) * r * 1.1, Math.sin(angle) * r * 1.1);
+          ctx.lineTo(Math.cos(angle) * r * 1.6, Math.sin(angle) * r * 1.6);
+          ctx.stroke();
+        }
+        ctx.shadowBlur = 0;
+      } else if (ch.type === "fast") {
+        // Raindrop for fast entities
+        ctx.shadowColor = "rgba(96,165,250,0.6)";
+        ctx.shadowBlur = r * 0.5;
+        const dropGrad = ctx.createLinearGradient(0, -r, 0, r * 0.8);
+        dropGrad.addColorStop(0, "#93C5FD");
+        dropGrad.addColorStop(0.5, "#3B82F6");
+        dropGrad.addColorStop(1, "#1D4ED8");
+        ctx.fillStyle = dropGrad;
+        ctx.beginPath();
+        ctx.moveTo(0, -r * 1.1);
+        ctx.bezierCurveTo(r * 0.5, -r * 0.3, r * 0.7, r * 0.3, 0, r * 0.8);
+        ctx.bezierCurveTo(-r * 0.7, r * 0.3, -r * 0.5, -r * 0.3, 0, -r * 1.1);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(147,197,253,0.5)";
+        ctx.lineWidth = r * 0.1;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      } else {
+        // Cloud puff for regular entities
+        ctx.shadowColor = "rgba(200,220,255,0.4)";
+        ctx.shadowBlur = r * 0.6;
+        const cloudAlpha = 0.85 * pulse;
+        ctx.fillStyle = `rgba(226,232,240,${cloudAlpha})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = `rgba(241,245,249,${cloudAlpha})`;
+        ctx.beginPath();
+        ctx.arc(-r * 0.55, r * 0.1, r * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(r * 0.55, r * 0.1, r * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(r * 0.0, r * 0.35, r * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+        // Bottom fill to make cloud look solid
+        ctx.fillRect(-r * 1.1, r * 0.1, r * 2.2, r * 0.6);
+        ctx.shadowBlur = 0;
+        // Snowflake accent on cloud for wintry look (subtle)
+        const phasedTick = t * 0.001 + wingPhase;
+        ctx.globalAlpha = 0.4 * pulse;
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.arc(0, -r * 0.05, r * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        void phasedTick;
+      }
+
+      ctx.restore();
+    },
+    [drawExplosion],
+  );
+
   const drawStopwatch = useCallback(
     (ctx: CanvasRenderingContext2D, sw: Stopwatch) => {
       if (sw.isExploding) {
@@ -4034,6 +4357,27 @@ const GameScreen: React.FC<GameScreenProps> = ({
     [processTap],
   );
 
+  // ─── World Explorer tracking ───────────────────────────────────────────────
+
+  const recordWorldPlayed = useCallback(() => {
+    const userKey =
+      isAuthenticated && identity
+        ? identity.getPrincipal().toString()
+        : "guest";
+    const storageKey = `woh_worlds_played_${userKey}`;
+    let played: string[] = [];
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) played = JSON.parse(saved) as string[];
+    } catch {
+      /* ignore */
+    }
+    if (!played.includes(selectedWorld)) {
+      played = [...played, selectedWorld];
+      localStorage.setItem(storageKey, JSON.stringify(played));
+    }
+  }, [isAuthenticated, identity, selectedWorld]);
+
   // ─── End game ────────────────────────────────────────────────────────────────
 
   const endGame = useCallback(() => {
@@ -4046,6 +4390,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
     stopZombieSound();
     setScoreMultiplier({ isActive: false, endTime: 0 });
     touchTrackersRef.current.clear();
+    // Record this world as played for the World Explorer achievement
+    recordWorldPlayed();
     const durationMin = Math.round(
       (Date.now() - sessionStats.startTime) / 60000,
     );
@@ -4095,6 +4441,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
     stopRainSound,
     stopAISound,
     stopZombieSound,
+    recordWorldPlayed,
     sessionStats,
     gameStatistics,
     updateStatistics,
@@ -4151,7 +4498,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
           }
         } else {
           const speedMult =
-            selectedWorld === "dogecoin" && gs.paperHandsPanicActive ? 2 : 1;
+            selectedWorld === "dogecoin" && gs.paperHandsPanicActive ? 3 : 1;
           ch.x += ch.speed * speedMult;
           ch.wingPhase += ch.type === "fast" ? 0.5 : 0.3;
           const offscreen =
@@ -4178,6 +4525,10 @@ const GameScreen: React.FC<GameScreenProps> = ({
           drawHormuzWarcraft(ctx, ch);
         } else if (selectedWorld === "alien") {
           drawAlienUFO(ctx, ch);
+        } else if (selectedWorld === "smoke") {
+          drawCigarette(ctx, ch);
+        } else if (selectedWorld === "weather") {
+          drawWeatherParticle(ctx, ch);
         } else {
           drawChicken(ctx, ch);
         }
@@ -4205,78 +4556,14 @@ const GameScreen: React.FC<GameScreenProps> = ({
               bobPhase: Math.random() * Math.PI * 2,
             });
           }
+          // Show HTML banner overlay for 2 seconds
+          setShowWhaleBanner(true);
+          setTimeout(() => setShowWhaleBanner(false), 2000);
         }
 
         const elapsed = gs.whaleEventStartTime
           ? now - gs.whaleEventStartTime
           : 0;
-
-        // Draw banner for first 2 seconds
-        if (elapsed < 2000) {
-          const bannerAlpha =
-            elapsed < 300
-              ? elapsed / 300
-              : elapsed > 1600
-                ? Math.max(0, 1 - (elapsed - 1600) / 400)
-                : 1;
-          ctx.save();
-          ctx.globalAlpha = bannerAlpha;
-          const bannerText = "🐳 Whale Buy Incoming!";
-          const bannerFontSize = Math.min(canvas.width * 0.065, 28);
-          ctx.font = `bold ${bannerFontSize}px sans-serif`;
-          const textMetrics = ctx.measureText(bannerText);
-          const tw = textMetrics.width;
-          const th = bannerFontSize;
-          const bx = canvas.width / 2;
-          const by = canvas.height * 0.22;
-          const padX = 22;
-          const padY = 12;
-          const bw = tw + padX * 2;
-          const bh = th + padY * 2;
-          const brad = bh / 2;
-          ctx.fillStyle = "rgba(0,0,0,0.65)";
-          ctx.beginPath();
-          ctx.moveTo(bx - bw / 2 + brad, by - bh / 2);
-          ctx.lineTo(bx + bw / 2 - brad, by - bh / 2);
-          ctx.arcTo(
-            bx + bw / 2,
-            by - bh / 2,
-            bx + bw / 2,
-            by - bh / 2 + brad,
-            brad,
-          );
-          ctx.lineTo(bx + bw / 2, by + bh / 2 - brad);
-          ctx.arcTo(
-            bx + bw / 2,
-            by + bh / 2,
-            bx + bw / 2 - brad,
-            by + bh / 2,
-            brad,
-          );
-          ctx.lineTo(bx - bw / 2 + brad, by + bh / 2);
-          ctx.arcTo(
-            bx - bw / 2,
-            by + bh / 2,
-            bx - bw / 2,
-            by + bh / 2 - brad,
-            brad,
-          );
-          ctx.lineTo(bx - bw / 2, by - bh / 2 + brad);
-          ctx.arcTo(
-            bx - bw / 2,
-            by - bh / 2,
-            bx - bw / 2 + brad,
-            by - bh / 2,
-            brad,
-          );
-          ctx.closePath();
-          ctx.fill();
-          ctx.fillStyle = "#FFFFFF";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(bannerText, bx, by);
-          ctx.restore();
-        }
 
         // Update & draw whale coins
         const img = dogeCoinImgRef.current;
@@ -4286,7 +4573,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
             gs.whaleCoins.splice(wi, 1);
             continue;
           }
-          wc.y += wc.speed * (gs.paperHandsPanicActive ? 2 : 1);
+          wc.y += wc.speed * (gs.paperHandsPanicActive ? 3 : 1);
           wc.bobPhase += 0.05;
           if (wc.y > canvas.height + wc.size) {
             gs.whaleCoins.splice(wi, 1);
@@ -4340,76 +4627,51 @@ const GameScreen: React.FC<GameScreenProps> = ({
         }
       }
 
-      // ── Paper Hands Panic banner (Dogecoin world only) ─────────────────────
-      if (
-        selectedWorld === "dogecoin" &&
-        gs.paperHandsPanicActive &&
-        gs.paperHandsPanicStartTime
-      ) {
-        const panicElapsed = Date.now() - gs.paperHandsPanicStartTime;
-        const bannerAlpha =
-          panicElapsed < 300
-            ? panicElapsed / 300
-            : panicElapsed > 3400
-              ? Math.max(0, 1 - (panicElapsed - 3400) / 600)
-              : 1;
-        ctx.save();
-        ctx.globalAlpha = bannerAlpha;
-        const panicText = "📉 Paper Hands Panic!";
-        const panicFontSize = Math.min(canvas.width * 0.065, 28);
-        ctx.font = `bold ${panicFontSize}px sans-serif`;
-        const pTextMetrics = ctx.measureText(panicText);
-        const ptw = pTextMetrics.width;
-        const pth = panicFontSize;
-        const pbx = canvas.width / 2;
-        const pby = canvas.height * 0.33;
-        const ppadX = 22;
-        const ppadY = 12;
-        const pbw = ptw + ppadX * 2;
-        const pbh = pth + ppadY * 2;
-        const pbrad = pbh / 2;
-        ctx.fillStyle = "rgba(180,20,20,0.75)";
-        ctx.beginPath();
-        ctx.moveTo(pbx - pbw / 2 + pbrad, pby - pbh / 2);
-        ctx.lineTo(pbx + pbw / 2 - pbrad, pby - pbh / 2);
-        ctx.arcTo(
-          pbx + pbw / 2,
-          pby - pbh / 2,
-          pbx + pbw / 2,
-          pby - pbh / 2 + pbrad,
-          pbrad,
-        );
-        ctx.lineTo(pbx + pbw / 2, pby + pbh / 2 - pbrad);
-        ctx.arcTo(
-          pbx + pbw / 2,
-          pby + pbh / 2,
-          pbx + pbw / 2 - pbrad,
-          pby + pbh / 2,
-          pbrad,
-        );
-        ctx.lineTo(pbx - pbw / 2 + pbrad, pby + pbh / 2);
-        ctx.arcTo(
-          pbx - pbw / 2,
-          pby + pbh / 2,
-          pbx - pbw / 2,
-          pby + pbh / 2 - pbrad,
-          pbrad,
-        );
-        ctx.lineTo(pbx - pbw / 2, pby - pbh / 2 + pbrad);
-        ctx.arcTo(
-          pbx - pbw / 2,
-          pby - pbh / 2,
-          pbx - pbw / 2 + pbrad,
-          pby - pbh / 2,
-          pbrad,
-        );
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = "#FFFFFF";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(panicText, pbx, pby);
-        ctx.restore();
+      // ── Paper Hands Panic banner handled via HTML overlay (see JSX below) ────
+
+      // ── Mid-round periodic event checks (Dogecoin world only) ───────────────
+      if (selectedWorld === "dogecoin" && gs.isRunning && !gs.gameEnded) {
+        const nowCheck = Date.now();
+
+        // Whale Buy: check every ~10 seconds, max 1x per round
+        if (
+          nowCheck - gs.lastWhaleCheckTime >= 10000 &&
+          !gs.whaleEventActive &&
+          !gs.whaleEventTriggered &&
+          Math.random() < 0.01
+        ) {
+          gs.whaleEventActive = true;
+        }
+        if (nowCheck - gs.lastWhaleCheckTime >= 10000) {
+          gs.lastWhaleCheckTime = nowCheck;
+        }
+
+        // Paper Hands Panic: check every ~8 seconds, max 2x per round
+        if (
+          nowCheck - gs.lastPanicCheckTime >= 8000 &&
+          !gs.paperHandsPanicActive &&
+          gs.paperHandsPanicCount < 2 &&
+          Math.random() < 0.2
+        ) {
+          gs.paperHandsPanicActive = true;
+          gs.paperHandsPanicCount += 1;
+          gs.paperHandsPanicStartTime = nowCheck;
+          // Show HTML banner for 2 seconds
+          setShowPanicBanner(true);
+          setTimeout(() => setShowPanicBanner(false), 2000);
+          const currentCount = gs.paperHandsPanicCount;
+          // Auto-deactivate after 7s
+          setTimeout(() => {
+            const gsc = gameStateRef.current;
+            if (gsc.paperHandsPanicCount === currentCount) {
+              gsc.paperHandsPanicActive = false;
+              gsc.paperHandsPanicStartTime = null;
+            }
+          }, 7000);
+        }
+        if (nowCheck - gs.lastPanicCheckTime >= 8000) {
+          gs.lastPanicCheckTime = nowCheck;
+        }
       }
 
       gs.animationId = requestAnimationFrame(gameLoop);
@@ -4425,6 +4687,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
       drawCoronaVirus,
       drawHormuzWarcraft,
       drawAlienUFO,
+      drawCigarette,
+      drawWeatherParticle,
       drawStopwatch,
       selectedWorld,
       shouldSpawnStopwatch,
@@ -4455,6 +4719,9 @@ const GameScreen: React.FC<GameScreenProps> = ({
     gs.paperHandsPanicActive = false;
     gs.paperHandsPanicCount = 0;
     gs.paperHandsPanicStartTime = null;
+    // Reset mid-round check timestamps (set to now so first check fires after the interval)
+    gs.lastWhaleCheckTime = Date.now();
+    gs.lastPanicCheckTime = Date.now();
     if (selectedWorld === "dogecoin" && Math.random() < 0.2) {
       // Schedule first Paper Hands Panic after a short random delay (2–8s into the round)
       const delay = 2000 + Math.random() * 6000;
@@ -4468,7 +4735,10 @@ const GameScreen: React.FC<GameScreenProps> = ({
           gsCurrent.paperHandsPanicActive = true;
           gsCurrent.paperHandsPanicCount = 1;
           gsCurrent.paperHandsPanicStartTime = Date.now();
-          // After first 4s, roll second 20% chance
+          // Show HTML banner for 2 seconds
+          setShowPanicBanner(true);
+          setTimeout(() => setShowPanicBanner(false), 2000);
+          // After first 7s, roll second 20% chance
           setTimeout(() => {
             gsCurrent.paperHandsPanicActive = false;
             gsCurrent.paperHandsPanicStartTime = null;
@@ -4487,14 +4757,17 @@ const GameScreen: React.FC<GameScreenProps> = ({
                   gsCurrent.paperHandsPanicActive = true;
                   gsCurrent.paperHandsPanicCount = 2;
                   gsCurrent.paperHandsPanicStartTime = Date.now();
+                  // Show HTML banner for 2 seconds
+                  setShowPanicBanner(true);
+                  setTimeout(() => setShowPanicBanner(false), 2000);
                   setTimeout(() => {
                     gsCurrent.paperHandsPanicActive = false;
                     gsCurrent.paperHandsPanicStartTime = null;
-                  }, 4000);
+                  }, 7000);
                 }
               }, 500);
             }
-          }, 4000);
+          }, 7000);
         }
       }, delay);
     }
@@ -4714,7 +4987,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
           : undefined
       }
     >
-      {/* Dogecoin pop-word & screen-shake keyframe styles */}
+      {/* Dogecoin pop-word & screen-shake & event banner keyframe styles */}
       <style>{`
         @keyframes doge-pop {
           0%   { opacity: 0; transform: var(--pw-rotate) scale(0); }
@@ -4752,6 +5025,98 @@ const GameScreen: React.FC<GameScreenProps> = ({
         .doge-shake-active {
           animation: doge-shake var(--shake-speed) ease-in-out infinite;
         }
+
+        /* ── Panic Banner ───────────────────────────────────────── */
+        @keyframes panic-explode {
+          0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.05); letter-spacing: -0.05em; }
+          18%  { opacity: 1; transform: translate(-50%, -50%) scale(1.18); letter-spacing: 0.04em; }
+          30%  { transform: translate(-50%, -50%) scale(0.96); }
+          42%  { transform: translate(-50%, -50%) scale(1.06); }
+          55%  { transform: translate(-50%, -50%) scale(1.0); }
+          75%  { opacity: 1; transform: translate(-50%, -50%) scale(1.0); letter-spacing: 0.04em; }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(0.85); letter-spacing: 0; }
+        }
+        @keyframes panic-glow-pulse {
+          0%, 100% { text-shadow:
+            0 0 12px #ff4400,
+            0 0 28px #ff2200,
+            0 0 52px rgba(255,60,0,0.6),
+            2px 2px 0 rgba(0,0,0,0.8); }
+          50% { text-shadow:
+            0 0 20px #ff6600,
+            0 0 40px #ff3300,
+            0 0 80px rgba(255,80,0,0.9),
+            2px 2px 0 rgba(0,0,0,0.8); }
+        }
+        .panic-banner {
+          position: absolute;
+          top: 38%;
+          left: 50%;
+          z-index: 60;
+          pointer-events: none;
+          white-space: nowrap;
+          font-family: 'Arial Black', 'Arial Bold', Impact, sans-serif;
+          font-weight: 900;
+          font-size: clamp(22px, 6.5vw, 36px);
+          color: #ff4400;
+          animation:
+            panic-explode 2s cubic-bezier(0.22, 1.2, 0.36, 1) forwards,
+            panic-glow-pulse 0.4s ease-in-out 0.3s 4 alternate;
+          -webkit-text-stroke: 1.5px rgba(0,0,0,0.6);
+          text-transform: uppercase;
+          transform-origin: center center;
+        }
+
+        /* ── Whale Banner ───────────────────────────────────────── */
+        @keyframes whale-explode {
+          0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.05) rotate(-4deg); }
+          18%  { opacity: 1; transform: translate(-50%, -50%) scale(1.22) rotate(2deg); }
+          30%  { transform: translate(-50%, -50%) scale(0.94) rotate(-1deg); }
+          44%  { transform: translate(-50%, -50%) scale(1.08) rotate(1deg); }
+          56%  { transform: translate(-50%, -50%) scale(1.0) rotate(0deg); }
+          75%  { opacity: 1; transform: translate(-50%, -50%) scale(1.0) rotate(0deg); }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(0.88) rotate(0deg); }
+        }
+        @keyframes whale-shimmer {
+          0%   { text-shadow:
+            0 0 14px #00cfff,
+            0 0 30px #0080ff,
+            0 0 55px rgba(0,180,255,0.6),
+            2px 2px 0 rgba(0,0,0,0.8); }
+          33%  { text-shadow:
+            0 0 22px #ffe066,
+            0 0 44px #ffc200,
+            0 0 80px rgba(255,200,0,0.8),
+            2px 2px 0 rgba(0,0,0,0.8); }
+          66%  { text-shadow:
+            0 0 18px #00e5ff,
+            0 0 36px #00b0d8,
+            0 0 65px rgba(0,200,230,0.7),
+            2px 2px 0 rgba(0,0,0,0.8); }
+          100% { text-shadow:
+            0 0 14px #00cfff,
+            0 0 30px #0080ff,
+            0 0 55px rgba(0,180,255,0.6),
+            2px 2px 0 rgba(0,0,0,0.8); }
+        }
+        .whale-banner {
+          position: absolute;
+          top: 25%;
+          left: 50%;
+          z-index: 60;
+          pointer-events: none;
+          white-space: nowrap;
+          font-family: 'Arial Black', 'Arial Bold', Impact, sans-serif;
+          font-weight: 900;
+          font-size: clamp(20px, 6vw, 34px);
+          color: #00e0ff;
+          animation:
+            whale-explode 2s cubic-bezier(0.22, 1.2, 0.36, 1) forwards,
+            whale-shimmer 0.5s ease-in-out 0.3s 3 alternate;
+          -webkit-text-stroke: 1.5px rgba(0,0,0,0.6);
+          text-transform: uppercase;
+          transform-origin: center center;
+        }
       `}</style>
 
       <BackgroundRenderer
@@ -4760,7 +5125,11 @@ const GameScreen: React.FC<GameScreenProps> = ({
         btcPrice={btcPrice}
         brentOilPrice={brentOilPrice}
         dogePrice={dogePrice}
+        cigarettesCount={selectedWorld === "smoke" ? cigarettesCount : null}
       />
+
+      {/* Weather world full overlay */}
+      {selectedWorld === "weather" && <WeatherWorld isGameplay={true} />}
 
       {/* HUD */}
       {currentView === "game" && !gameEnded && (
@@ -4865,6 +5234,20 @@ const GameScreen: React.FC<GameScreenProps> = ({
           </div>
         ))}
 
+      {/* Paper Hands Panic explosive banner */}
+      {selectedWorld === "dogecoin" && showPanicBanner && (
+        <div key={`panic-${Date.now()}`} className="panic-banner">
+          📉 Paper Hands Panic!
+        </div>
+      )}
+
+      {/* Whale Buy Incoming explosive banner */}
+      {selectedWorld === "dogecoin" && showWhaleBanner && (
+        <div key={`whale-${Date.now()}`} className="whale-banner">
+          🐳 Whale Buy Incoming!
+        </div>
+      )}
+
       {/* Canvas */}
       <canvas
         ref={canvasRef}
@@ -4905,6 +5288,23 @@ const GameScreen: React.FC<GameScreenProps> = ({
           <LeaderboardView
             currentPlayerScore={gameStatistics.highestScore}
             isAuthenticated={isAuthenticated}
+            onOpenProfile={(principal, name) =>
+              setLeaderboardViewingProfile({ principal, name })
+            }
+          />
+        </div>
+      )}
+      {leaderboardViewingProfile && (
+        <div className="fixed inset-0 z-[60]">
+          <PlayerProfileScreen
+            principal={leaderboardViewingProfile.principal}
+            fallbackName={leaderboardViewingProfile.name}
+            isOwnProfile={
+              !!currentPrincipal &&
+              leaderboardViewingProfile.principal.toText() ===
+                currentPrincipal.toText()
+            }
+            onBack={() => setLeaderboardViewingProfile(null)}
           />
         </div>
       )}

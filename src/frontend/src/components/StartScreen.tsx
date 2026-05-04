@@ -1,10 +1,12 @@
 import { useInternetIdentity } from "@caffeineai/core-infrastructure";
+import type { Principal } from "@icp-sdk/core/principal";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BackgroundWorld, GameStatisticsLocal, PlayerData } from "../App";
 import {
   useBitcoinPrice,
   useBrentOilPrice,
+  useCigarettesTodayCounter,
   useDogecoinPrice,
   usePumpFunPrice,
 } from "../hooks/useQueries";
@@ -12,9 +14,11 @@ import AchievementsView from "./AchievementsView";
 import BackgroundRenderer from "./BackgroundRenderer";
 import BottomMenu from "./BottomMenu";
 import LeaderboardView from "./LeaderboardView";
+import PlayerProfileScreen from "./PlayerProfileScreen";
 import ProfileView from "./ProfileView";
 import SettingsView from "./SettingsView";
 import SocialsView from "./SocialsView";
+import WeatherWorld from "./WeatherWorld";
 
 type OverlayView =
   | "achievements"
@@ -88,6 +92,8 @@ const WORLDS: { id: BackgroundWorld; name: string }[] = [
   { id: "hormuz", name: "Hormuz" },
   { id: "alien", name: "Alien" },
   { id: "dogecoin", name: "Dogecoin" },
+  { id: "smoke", name: "Smoke" },
+  { id: "weather", name: "Weather" },
 ];
 
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
@@ -115,6 +121,8 @@ const START_BUTTON_CLASSES: Record<BackgroundWorld, string> = {
   hormuz: "start-game-button-hormuz",
   alien: "start-game-button-alien",
   dogecoin: "start-game-button-dogecoin",
+  smoke: "start-game-button-smoke",
+  weather: "start-game-button-weather",
 };
 
 const StartScreen: React.FC<StartScreenProps> = ({
@@ -125,17 +133,25 @@ const StartScreen: React.FC<StartScreenProps> = ({
   gameStatistics,
   addXP,
 }) => {
-  const { isAuthenticated } = useInternetIdentity();
+  const { isAuthenticated, identity } = useInternetIdentity();
+  const currentPrincipal = identity?.getPrincipal() ?? null;
   const [overlayView, setOverlayView] = useState<OverlayView | null>(null);
+  const [leaderboardViewingProfile, setLeaderboardViewingProfile] = useState<{
+    principal: Principal;
+    name: string;
+  } | null>(null);
   const isPumpFunSelected = selectedWorld === "pumpfun";
   const isBitcoinSelected = selectedWorld === "bitcoin";
   const isHormuzSelected = selectedWorld === "hormuz";
   const isDogecoinSelected = selectedWorld === "dogecoin";
   const isCaffeineSelected = selectedWorld === "caffeineai";
+  const isSmokeSelected = selectedWorld === "smoke";
+  const isWeatherSelected = selectedWorld === "weather";
   const { data: pumpPriceData } = usePumpFunPrice();
   const { data: btcPriceData } = useBitcoinPrice();
   const { data: brentPriceData } = useBrentOilPrice();
   const { data: dogePriceData } = useDogecoinPrice();
+  const { count: cigarettesCount } = useCigarettesTodayCounter();
   const [worldIndex, setWorldIndex] = useState(() => {
     const idx = WORLDS.findIndex((w) => w.id === selectedWorld);
     return idx >= 0 ? idx : 0;
@@ -149,11 +165,11 @@ const StartScreen: React.FC<StartScreenProps> = ({
   const touchStartXRef = useRef(0);
   const touchCurXRef = useRef(0);
 
-  // Transition state for smooth chicken ↔ pill/coin/fish/virus/warcraft/ufo/dogecoin swap
+  // Transition state for smooth chicken ↔ pill/coin/fish/virus/warcraft/ufo/dogecoin/cigarette/weather swap
   // entityAlpha: current draw alpha (0..1)
   // transitionPhase: 'idle' | 'fade-out' | 'fade-in'
   // pendingEntityType: the entity type we're transitioning TO
-  // "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft" | "ufo" | "dogecoin"
+  // "chicken" | "pumpfun" | "bitcoin" | "fish" | "virus" | "warcraft" | "ufo" | "dogecoin" | "cigarette" | "weather"
   const entityAlphaRef = useRef<number>(1);
   const transitionPhaseRef = useRef<"idle" | "fade-out" | "fade-in">("idle");
   const pendingEntityTypeRef = useRef<
@@ -165,6 +181,8 @@ const StartScreen: React.FC<StartScreenProps> = ({
     | "warcraft"
     | "ufo"
     | "dogecoin"
+    | "cigarette"
+    | "weather"
   >("chicken");
   const activeEntityTypeRef = useRef<
     | "chicken"
@@ -175,6 +193,8 @@ const StartScreen: React.FC<StartScreenProps> = ({
     | "warcraft"
     | "ufo"
     | "dogecoin"
+    | "cigarette"
+    | "weather"
   >("chicken");
 
   // Keep backward-compat booleans used by pill drawing (entityAlphaRef is shared)
@@ -197,7 +217,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
       | "virus"
       | "warcraft"
       | "ufo"
-      | "dogecoin" =
+      | "dogecoin"
+      | "cigarette"
+      | "weather" =
       selectedWorld === "pumpfun"
         ? "pumpfun"
         : selectedWorld === "bitcoin"
@@ -212,7 +234,11 @@ const StartScreen: React.FC<StartScreenProps> = ({
                   ? "ufo"
                   : selectedWorld === "dogecoin"
                     ? "dogecoin"
-                    : "chicken";
+                    : selectedWorld === "smoke"
+                      ? "cigarette"
+                      : selectedWorld === "weather"
+                        ? "weather"
+                        : "chicken";
     if (nextType === activeEntityTypeRef.current) return; // no change
     pendingEntityTypeRef.current = nextType;
     pendingIsPumpFunRef.current = nextType === "pumpfun";
@@ -2130,6 +2156,246 @@ const StartScreen: React.FC<StartScreenProps> = ({
     [],
   );
 
+  // Draw Cigarette — cream paper body with tan filter, glowing orange ember, smoke wisps
+  const drawCigarette = useCallback(
+    (ctx: CanvasRenderingContext2D, c: StartChicken) => {
+      const { x, y, size, wingPhase, direction } = c;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      let cw: number;
+      let ch: number;
+      if (size <= 25) {
+        cw = 52;
+        ch = 10;
+      } else if (size <= 40) {
+        cw = 80;
+        ch = 16;
+      } else {
+        cw = 112;
+        ch = 22;
+      }
+      const r = ch / 2;
+      const filterLen = cw * 0.22;
+      const alpha = entityAlphaRef.current;
+      const t = Date.now();
+      const emberPulse = 0.75 + 0.25 * Math.sin(wingPhase * 1.8 + t * 0.004);
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+
+      // Smoke wisps above ember
+      const wispAlpha = 0.22 + 0.1 * Math.sin(wingPhase + t * 0.003);
+      ctx.save();
+      for (let i = 0; i < 3; i++) {
+        const wx = -cw / 2 + (i - 1) * ch * 0.35;
+        const wyBase = -r - 3;
+        const waveX = Math.sin(wingPhase * 0.9 + i * 1.2) * ch * 0.6;
+        ctx.strokeStyle = `rgba(200,200,200,${wispAlpha * (1 - i * 0.2)})`;
+        ctx.lineWidth = Math.max(1, ch * 0.12);
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(wx, wyBase);
+        ctx.quadraticCurveTo(
+          wx + waveX,
+          wyBase - ch * 0.9,
+          wx - waveX * 0.5,
+          wyBase - ch * 1.8,
+        );
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Paper body
+      const paperGrad = ctx.createLinearGradient(0, -r, 0, r);
+      paperGrad.addColorStop(0, "#F8F6F0");
+      paperGrad.addColorStop(0.35, "#EEECE4");
+      paperGrad.addColorStop(0.65, "#D8D4C8");
+      paperGrad.addColorStop(1, "#EDEAE0");
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-cw / 2 + filterLen, -r, cw - filterLen, ch);
+      ctx.clip();
+      ctx.fillStyle = paperGrad;
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r, cw, ch, r);
+      ctx.fill();
+      ctx.restore();
+
+      // Paper band lines
+      ctx.strokeStyle = "rgba(180,175,160,0.35)";
+      ctx.lineWidth = Math.max(0.5, ch * 0.04);
+      const bandStep = cw * 0.1;
+      for (
+        let bx = -cw / 2 + filterLen + bandStep;
+        bx < cw / 2 - r;
+        bx += bandStep
+      ) {
+        ctx.beginPath();
+        ctx.moveTo(bx, -r + ch * 0.15);
+        ctx.lineTo(bx, r - ch * 0.15);
+        ctx.stroke();
+      }
+
+      // Filter tip
+      const filterGrad = ctx.createLinearGradient(0, -r, 0, r);
+      filterGrad.addColorStop(0, "#D4A96A");
+      filterGrad.addColorStop(0.4, "#C49058");
+      filterGrad.addColorStop(0.7, "#A87840");
+      filterGrad.addColorStop(1, "#C49058");
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(cw / 2 - filterLen, -r, filterLen, ch);
+      ctx.clip();
+      ctx.fillStyle = filterGrad;
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r, cw, ch, r);
+      ctx.fill();
+      ctx.restore();
+
+      // Filter seam
+      ctx.strokeStyle = "rgba(90,60,30,0.4)";
+      ctx.lineWidth = Math.max(0.8, ch * 0.06);
+      ctx.beginPath();
+      ctx.moveTo(cw / 2 - filterLen, -r + 1);
+      ctx.lineTo(cw / 2 - filterLen, r - 1);
+      ctx.stroke();
+
+      // Outer border
+      ctx.strokeStyle = "rgba(90,85,75,0.5)";
+      ctx.lineWidth = Math.max(0.8, ch * 0.07);
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r, cw, ch, r);
+      ctx.stroke();
+
+      // Ember at left tip
+      const emberX = -cw / 2 + r * 0.5;
+      ctx.shadowColor = `rgba(255,130,20,${0.7 * emberPulse})`;
+      ctx.shadowBlur = ch * 1.5 * emberPulse;
+      const emberGlow = ctx.createRadialGradient(
+        emberX,
+        0,
+        0,
+        emberX,
+        0,
+        r * 1.4 * emberPulse,
+      );
+      emberGlow.addColorStop(0, `rgba(255,220,80,${0.85 * emberPulse})`);
+      emberGlow.addColorStop(0.4, `rgba(255,100,10,${0.55 * emberPulse})`);
+      emberGlow.addColorStop(1, "rgba(200,40,0,0)");
+      ctx.fillStyle = emberGlow;
+      ctx.beginPath();
+      ctx.arc(emberX, 0, r * 1.4 * emberPulse, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Ash tip
+      const ashGrad = ctx.createRadialGradient(
+        emberX - r * 0.2,
+        -r * 0.1,
+        0,
+        emberX,
+        0,
+        r,
+      );
+      ashGrad.addColorStop(0, `rgba(255,230,100,${emberPulse})`);
+      ashGrad.addColorStop(0.35, `rgba(220,80,10,${0.9 * emberPulse})`);
+      ashGrad.addColorStop(0.7, "#8B3A00");
+      ashGrad.addColorStop(1, "#3A2010");
+      ctx.fillStyle = ashGrad;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-cw / 2, -r, r * 1.5, ch);
+      ctx.clip();
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r, cw, ch, r);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    [],
+  );
+
+  // Draw weather particle — cloud puff / raindrop decorative entity for Weather world
+  const drawWeatherParticle = useCallback(
+    (ctx: CanvasRenderingContext2D, c: StartChicken) => {
+      const { x, y, size, wingPhase } = c;
+      const cx = x + size / 2;
+      const cy = y + size / 2;
+
+      let r: number;
+      if (size <= 25) r = 14;
+      else if (size <= 40) r = 22;
+      else r = 32;
+
+      const bob = Math.sin(wingPhase) * 2;
+      const pulse = 0.8 + 0.2 * Math.sin(wingPhase * 1.5);
+      const alpha = entityAlphaRef.current;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy + bob);
+
+      // Alternate between cloud puff and raindrop based on id parity
+      const isRaindrop = Math.floor(c.id) % 2 === 0;
+
+      if (isRaindrop) {
+        // Raindrop
+        ctx.shadowColor = "rgba(96,165,250,0.6)";
+        ctx.shadowBlur = r * 0.5;
+        const dropGrad = ctx.createLinearGradient(0, -r, 0, r * 0.8);
+        dropGrad.addColorStop(0, "#93C5FD");
+        dropGrad.addColorStop(0.5, "#3B82F6");
+        dropGrad.addColorStop(1, "#1D4ED8");
+        ctx.fillStyle = dropGrad;
+        ctx.beginPath();
+        ctx.moveTo(0, -r * 1.1);
+        ctx.bezierCurveTo(r * 0.5, -r * 0.3, r * 0.7, r * 0.3, 0, r * 0.8);
+        ctx.bezierCurveTo(-r * 0.7, r * 0.3, -r * 0.5, -r * 0.3, 0, -r * 1.1);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(147,197,253,0.5)";
+        ctx.lineWidth = r * 0.1;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      } else {
+        // Cloud puff
+        ctx.shadowColor = "rgba(200,220,255,0.4)";
+        ctx.shadowBlur = r * 0.6;
+        const cloudAlpha = 0.85 * pulse;
+        ctx.fillStyle = `rgba(226,232,240,${cloudAlpha})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = `rgba(241,245,249,${cloudAlpha})`;
+        ctx.beginPath();
+        ctx.arc(-r * 0.55, r * 0.1, r * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(r * 0.55, r * 0.1, r * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(0, r * 0.35, r * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(-r * 1.1, r * 0.1, r * 2.2, r * 0.6);
+        ctx.shadowBlur = 0;
+        // Subtle snowflake dot
+        ctx.globalAlpha = 0.4 * pulse * alpha;
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.arc(0, -r * 0.05, r * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = alpha;
+      }
+
+      ctx.restore();
+    },
+    [],
+  );
+
   const animateChickens = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -2172,7 +2438,11 @@ const StartScreen: React.FC<StartScreenProps> = ({
                   ? drawHormuzWarcraft
                   : activeType === "ufo"
                     ? drawAlienUFO
-                    : drawChicken;
+                    : activeType === "cigarette"
+                      ? drawCigarette
+                      : activeType === "weather"
+                        ? drawWeatherParticle
+                        : drawChicken;
 
     for (let i = chickensRef.current.length - 1; i >= 0; i--) {
       const ch = chickensRef.current[i];
@@ -2211,6 +2481,8 @@ const StartScreen: React.FC<StartScreenProps> = ({
     drawCoronaVirus,
     drawHormuzWarcraft,
     drawAlienUFO,
+    drawCigarette,
+    drawWeatherParticle,
   ]);
 
   // Capture initial world for mount-time entity setup (no dependency on selectedWorld changes)
@@ -2228,7 +2500,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
       | "virus"
       | "warcraft"
       | "ufo"
-      | "dogecoin" =
+      | "dogecoin"
+      | "cigarette"
+      | "weather" =
       initialWorldRef.current === "pumpfun"
         ? "pumpfun"
         : initialWorldRef.current === "bitcoin"
@@ -2243,7 +2517,11 @@ const StartScreen: React.FC<StartScreenProps> = ({
                   ? "ufo"
                   : initialWorldRef.current === "dogecoin"
                     ? "dogecoin"
-                    : "chicken";
+                    : initialWorldRef.current === "smoke"
+                      ? "cigarette"
+                      : initialWorldRef.current === "weather"
+                        ? "weather"
+                        : "chicken";
     activeEntityTypeRef.current = initType;
     activeIsPumpFunRef.current = initType === "pumpfun";
     entityAlphaRef.current = 1;
@@ -2282,6 +2560,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
     >
       {/* Background */}
       <BackgroundRenderer world={selectedWorld} />
+
+      {/* Weather world overlay — full screen dynamic display */}
+      {isWeatherSelected && <WeatherWorld isGameplay={false} />}
 
       {/* Canvas overlay for decorative chickens */}
       <canvas
@@ -2483,6 +2764,27 @@ const StartScreen: React.FC<StartScreenProps> = ({
             </div>
           </div>
         )}
+        {/* Cigarettes smoked today counter — only shown when Smoke world is selected */}
+        {isSmokeSelected && (
+          <div className="mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/70 backdrop-blur-sm border border-amber-900/40">
+            <span
+              style={{
+                fontFamily: "'Courier New', Courier, monospace",
+                color: "#9a7040",
+                opacity: 0.9,
+              }}
+              className="text-xs tracking-widest leading-none"
+            >
+              🚬 Cigarettes smoked today
+            </span>
+            <span
+              style={{ fontFamily: "'Courier New', Courier, monospace" }}
+              className="text-white font-bold text-base tracking-wide leading-none tabular-nums"
+            >
+              {cigarettesCount.toLocaleString()}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Left world nav */}
@@ -2600,6 +2902,23 @@ const StartScreen: React.FC<StartScreenProps> = ({
           <LeaderboardView
             currentPlayerScore={gameStatistics.highestScore}
             isAuthenticated={isAuthenticated}
+            onOpenProfile={(principal, name) =>
+              setLeaderboardViewingProfile({ principal, name })
+            }
+          />
+        </div>
+      )}
+      {leaderboardViewingProfile && (
+        <div className="fixed inset-0 z-[60]">
+          <PlayerProfileScreen
+            principal={leaderboardViewingProfile.principal}
+            fallbackName={leaderboardViewingProfile.name}
+            isOwnProfile={
+              !!currentPrincipal &&
+              leaderboardViewingProfile.principal.toText() ===
+                currentPrincipal.toText()
+            }
+            onBack={() => setLeaderboardViewingProfile(null)}
           />
         </div>
       )}

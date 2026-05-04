@@ -41,7 +41,7 @@ module {
   ) : PrincipalInfo {
     {
       principal;
-      name = switch (getName(principal)) { case (?n) n; case null principal.toText() };
+      name = switch (getName(principal)) { case (?n) if (n.size() > 0) n else "Player #?"; case null "Player #?" };
       avatarUrl = getAvatarUrl(principal);
       level = getLevel(principal);
     };

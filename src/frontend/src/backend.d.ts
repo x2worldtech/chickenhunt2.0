@@ -223,7 +223,7 @@ export interface backendInterface {
         err: string;
     }>;
     getFriends(): Promise<Array<PrincipalInfo>>;
-    getLeaderboard(): Promise<Array<[string, bigint, bigint]>>;
+    getLeaderboard(): Promise<Array<[Principal, string, bigint, bigint]>>;
     getPendingJoinRequests(clanId: bigint): Promise<{
         __kind__: "ok";
         ok: Array<PrincipalInfo>;
@@ -231,6 +231,8 @@ export interface backendInterface {
         __kind__: "err";
         err: string;
     }>;
+    getPlayerDisplayName(user: Principal): Promise<string>;
+    getPlayerNumber(user: Principal): Promise<bigint | null>;
     getPumpFunPrice(): Promise<PumpPriceData>;
     getUserGameStats(userId: Principal): Promise<GameStatistics | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;

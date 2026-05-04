@@ -1,4 +1,5 @@
 import { useInternetIdentity } from "@caffeineai/core-infrastructure";
+import type { Principal } from "@icp-sdk/core/principal";
 import { useQueryClient } from "@tanstack/react-query";
 import { Crown, LogIn, Medal, Star, Trophy } from "lucide-react";
 import type React from "react";
@@ -7,11 +8,14 @@ import { useLeaderboard, useLeaderboardEntries } from "../hooks/useQueries";
 interface LeaderboardViewProps {
   currentPlayerScore?: number;
   isAuthenticated: boolean;
+  /** Called when a player row is tapped. Only fires for entries with a resolvable principal. */
+  onOpenProfile?: (principal: Principal, name: string) => void;
 }
 
 const LeaderboardView: React.FC<LeaderboardViewProps> = ({
   currentPlayerScore: _currentPlayerScore = 0,
   isAuthenticated,
+  onOpenProfile,
 }) => {
   const { login, loginStatus } = useInternetIdentity();
   const { data: entries = [], isLoading } = useLeaderboardEntries();
@@ -127,43 +131,45 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({
             className="max-w-4xl mx-auto space-y-3 pointer-events-none"
             style={{ opacity: 0.25, filter: "blur(2px)" }}
           >
-            {previewData.slice(0, 5).map(([username, score, level], index) => (
-              <div
-                // biome-ignore lint/suspicious/noArrayIndexKey: static preview list
-                key={`preview-${index}`}
-                className={getRankStyling(index)}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
-                    <span className="text-white font-black text-lg">
-                      #{index + 1}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-center w-8 h-8">
-                    {getRankIcon(index)}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-white">
-                      {username}
-                      <span className="text-sm font-normal text-white/60 ml-2">
-                        Lv.{Number(level)}
+            {previewData
+              .slice(0, 5)
+              .map(([_principal, username, score, level], index) => (
+                <div
+                  // biome-ignore lint/suspicious/noArrayIndexKey: static preview list
+                  key={`preview-${index}`}
+                  className={getRankStyling(index)}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
+                      <span className="text-white font-black text-lg">
+                        #{index + 1}
                       </span>
-                    </h3>
-                    <p className="text-white/70 text-sm font-medium">
-                      Personal Best
-                    </p>
+                    </div>
+                    <div className="flex items-center justify-center w-8 h-8">
+                      {getRankIcon(index)}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-white">
+                        {username}
+                        <span className="text-sm font-normal text-white/60 ml-2">
+                          Lv.{Number(level)}
+                        </span>
+                      </h3>
+                      <p className="text-white/70 text-sm font-medium">
+                        Personal Best
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-black text-white">
+                      {Number(score).toLocaleString()}
+                    </div>
+                    <div className="text-white/50 text-xs font-medium">
+                      POINTS
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-black text-white">
-                    {Number(score).toLocaleString()}
-                  </div>
-                  <div className="text-white/50 text-xs font-medium">
-                    POINTS
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </div>
@@ -212,43 +218,86 @@ const LeaderboardView: React.FC<LeaderboardViewProps> = ({
             className="max-w-4xl mx-auto space-y-3"
             data-ocid="leaderboard.list"
           >
-            {entries.map((entry, index) => (
-              <div
-                key={entry.key}
-                className={getRankStyling(index)}
-                data-ocid={`leaderboard.item.${index + 1}`}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm">
-                    <span className="text-white font-black text-lg">
-                      #{index + 1}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-center w-8 h-8">
-                    {getRankIcon(index)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-lg text-white flex items-center gap-2 flex-wrap">
-                      <span className="truncate">{entry.username}</span>
-                      <span className="text-sm font-normal text-white/60 shrink-0">
-                        Lv.{entry.level}
+            {entries.map((entry, index) => {
+              const isClickable = !!onOpenProfile;
+              const rowClass = `${getRankStyling(index)}${isClickable ? " cursor-pointer active:scale-[0.98]" : ""}`;
+              // Track pointer start position to distinguish taps from scrolls
+              const pointerStart = { x: 0, y: 0 };
+              return (
+                <div
+                  key={entry.key}
+                  className={rowClass}
+                  onPointerDown={
+                    isClickable
+                      ? (e) => {
+                          pointerStart.x = e.clientX;
+                          pointerStart.y = e.clientY;
+                        }
+                      : undefined
+                  }
+                  onClick={
+                    isClickable
+                      ? (e) => {
+                          const dx = e.clientX - pointerStart.x;
+                          const dy = e.clientY - pointerStart.y;
+                          if (Math.sqrt(dx * dx + dy * dy) < 8) {
+                            onOpenProfile!(entry.principal, entry.username);
+                          }
+                        }
+                      : undefined
+                  }
+                  role={isClickable ? "button" : undefined}
+                  tabIndex={isClickable ? 0 : undefined}
+                  onKeyDown={
+                    isClickable
+                      ? (e) => {
+                          if (e.key === "Enter" || e.key === " ")
+                            onOpenProfile!(entry.principal, entry.username);
+                        }
+                      : undefined
+                  }
+                  data-ocid={`leaderboard.item.${index + 1}`}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm">
+                      <span className="text-white font-black text-lg">
+                        #{index + 1}
                       </span>
-                    </h3>
-                    <p className="text-white/70 text-sm font-medium">
-                      Personal Best
-                    </p>
+                    </div>
+                    <div className="flex items-center justify-center w-8 h-8">
+                      {getRankIcon(index)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-lg text-white flex items-center gap-2 flex-wrap">
+                        <span
+                          className={`truncate${
+                            isClickable
+                              ? " underline underline-offset-2 decoration-white/40 hover:decoration-white/80 transition-all duration-150"
+                              : ""
+                          }`}
+                        >
+                          {entry.username}
+                        </span>
+                        <span className="text-sm font-normal text-white/60 shrink-0">
+                          Lv.{entry.level}
+                        </span>
+                      </h3>
+                      <p className="text-white/70 text-sm font-medium">
+                        Personal Best
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-black text-white">
+                      {entry.highestScore.toLocaleString()}
+                    </div>
+                    <div className="text-white/50 text-xs font-medium">
+                      POINTS
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-black text-white">
-                    {entry.highestScore.toLocaleString()}
-                  </div>
-                  <div className="text-white/50 text-xs font-medium">
-                    POINTS
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

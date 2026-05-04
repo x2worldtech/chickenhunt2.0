@@ -27635,7 +27635,7 @@ Service({
   "getFriends": Func([], [Vec(PrincipalInfo)], ["query"]),
   "getLeaderboard": Func(
     [],
-    [Vec(Tuple(Text, Nat, Nat))],
+    [Vec(Tuple(Principal2, Text, Nat, Nat))],
     ["query"]
   ),
   "getPendingJoinRequests": Func(
@@ -27643,6 +27643,8 @@ Service({
     [Variant({ "ok": Vec(PrincipalInfo), "err": Text })],
     []
   ),
+  "getPlayerDisplayName": Func([Principal2], [Text], ["query"]),
+  "getPlayerNumber": Func([Principal2], [Opt(Nat)], ["query"]),
   "getPumpFunPrice": Func([], [PumpPriceData], []),
   "getUserGameStats": Func(
     [Principal2],
@@ -27929,13 +27931,19 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "getFriends": IDL2.Func([], [IDL2.Vec(PrincipalInfo2)], ["query"]),
     "getLeaderboard": IDL2.Func(
       [],
-      [IDL2.Vec(IDL2.Tuple(IDL2.Text, IDL2.Nat, IDL2.Nat))],
+      [IDL2.Vec(IDL2.Tuple(IDL2.Principal, IDL2.Text, IDL2.Nat, IDL2.Nat))],
       ["query"]
     ),
     "getPendingJoinRequests": IDL2.Func(
       [IDL2.Nat],
       [IDL2.Variant({ "ok": IDL2.Vec(PrincipalInfo2), "err": IDL2.Text })],
       []
+    ),
+    "getPlayerDisplayName": IDL2.Func([IDL2.Principal], [IDL2.Text], ["query"]),
+    "getPlayerNumber": IDL2.Func(
+      [IDL2.Principal],
+      [IDL2.Opt(IDL2.Nat)],
+      ["query"]
     ),
     "getPumpFunPrice": IDL2.Func([], [PumpPriceData2], []),
     "getUserGameStats": IDL2.Func(
@@ -28340,6 +28348,34 @@ class Backend {
       return from_candid_variant_n32(this._uploadFile, this._downloadFile, result);
     }
   }
+  async getPlayerDisplayName(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.getPlayerDisplayName(arg0);
+        return result;
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.getPlayerDisplayName(arg0);
+      return result;
+    }
+  }
+  async getPlayerNumber(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.getPlayerNumber(arg0);
+        return from_candid_opt_n33(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.getPlayerNumber(arg0);
+      return from_candid_opt_n33(this._uploadFile, this._downloadFile, result);
+    }
+  }
   async getPumpFunPrice() {
     if (this.processError) {
       try {
@@ -28358,14 +28394,14 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.getUserGameStats(arg0);
-        return from_candid_opt_n33(this._uploadFile, this._downloadFile, result);
+        return from_candid_opt_n34(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getUserGameStats(arg0);
-      return from_candid_opt_n33(this._uploadFile, this._downloadFile, result);
+      return from_candid_opt_n34(this._uploadFile, this._downloadFile, result);
     }
   }
   async getUserProfile(arg0) {
@@ -28400,28 +28436,28 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.httpStreamingCallback(arg0);
-        return from_candid_StreamingCallbackHttpResponse_n34(this._uploadFile, this._downloadFile, result);
+        return from_candid_StreamingCallbackHttpResponse_n35(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.httpStreamingCallback(arg0);
-      return from_candid_StreamingCallbackHttpResponse_n34(this._uploadFile, this._downloadFile, result);
+      return from_candid_StreamingCallbackHttpResponse_n35(this._uploadFile, this._downloadFile, result);
     }
   }
   async http_request(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.http_request(arg0);
-        return from_candid_HttpResponse_n37(this._uploadFile, this._downloadFile, result);
+        return from_candid_HttpResponse_n38(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.http_request(arg0);
-      return from_candid_HttpResponse_n37(this._uploadFile, this._downloadFile, result);
+      return from_candid_HttpResponse_n38(this._uploadFile, this._downloadFile, result);
     }
   }
   async initializeAuth() {
@@ -28498,14 +28534,14 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.listUsers();
-        return from_candid_vec_n42(this._uploadFile, this._downloadFile, result);
+        return from_candid_vec_n43(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.listUsers();
-      return from_candid_vec_n42(this._uploadFile, this._downloadFile, result);
+      return from_candid_vec_n43(this._uploadFile, this._downloadFile, result);
     }
   }
   async removeFriend(arg0) {
@@ -28525,28 +28561,28 @@ class Backend {
   async saveCurrentUserProfile(arg0) {
     if (this.processError) {
       try {
-        const result = await this.actor.saveCurrentUserProfile(to_candid_UserProfile_n45(this._uploadFile, this._downloadFile, arg0));
+        const result = await this.actor.saveCurrentUserProfile(to_candid_UserProfile_n46(this._uploadFile, this._downloadFile, arg0));
         return result;
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.saveCurrentUserProfile(to_candid_UserProfile_n45(this._uploadFile, this._downloadFile, arg0));
+      const result = await this.actor.saveCurrentUserProfile(to_candid_UserProfile_n46(this._uploadFile, this._downloadFile, arg0));
       return result;
     }
   }
   async saveCurrentUserProfileWithChangeStatus(arg0) {
     if (this.processError) {
       try {
-        const result = await this.actor.saveCurrentUserProfileWithChangeStatus(to_candid_UserProfileWithChangeStatus_n47(this._uploadFile, this._downloadFile, arg0));
+        const result = await this.actor.saveCurrentUserProfileWithChangeStatus(to_candid_UserProfileWithChangeStatus_n48(this._uploadFile, this._downloadFile, arg0));
         return result;
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.saveCurrentUserProfileWithChangeStatus(to_candid_UserProfileWithChangeStatus_n47(this._uploadFile, this._downloadFile, arg0));
+      const result = await this.actor.saveCurrentUserProfileWithChangeStatus(to_candid_UserProfileWithChangeStatus_n48(this._uploadFile, this._downloadFile, arg0));
       return result;
     }
   }
@@ -28582,41 +28618,41 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.sendClanMessage(arg0, arg1);
-        return from_candid_variant_n49(this._uploadFile, this._downloadFile, result);
-      } catch (e) {
-        this.processError(e);
-        throw new Error("unreachable");
-      }
-    } else {
-      const result = await this.actor.sendClanMessage(arg0, arg1);
-      return from_candid_variant_n49(this._uploadFile, this._downloadFile, result);
-    }
-  }
-  async sendDirectMessage(arg0, arg1) {
-    if (this.processError) {
-      try {
-        const result = await this.actor.sendDirectMessage(arg0, arg1);
         return from_candid_variant_n50(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.sendDirectMessage(arg0, arg1);
+      const result = await this.actor.sendClanMessage(arg0, arg1);
       return from_candid_variant_n50(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async sendDirectMessage(arg0, arg1) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.sendDirectMessage(arg0, arg1);
+        return from_candid_variant_n51(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.sendDirectMessage(arg0, arg1);
+      return from_candid_variant_n51(this._uploadFile, this._downloadFile, result);
     }
   }
   async setApproval(arg0, arg1) {
     if (this.processError) {
       try {
-        const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n51(this._uploadFile, this._downloadFile, arg1));
+        const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n52(this._uploadFile, this._downloadFile, arg1));
         return result;
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n51(this._uploadFile, this._downloadFile, arg1));
+      const result = await this.actor.setApproval(arg0, to_candid_ApprovalStatus_n52(this._uploadFile, this._downloadFile, arg1));
       return result;
     }
   }
@@ -28658,8 +28694,8 @@ function from_candid_ClanDetails_n15(_uploadFile, _downloadFile, value) {
 function from_candid_ClanSummary_n8(_uploadFile, _downloadFile, value) {
   return from_candid_record_n9(_uploadFile, _downloadFile, value);
 }
-function from_candid_HttpResponse_n37(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n38(_uploadFile, _downloadFile, value);
+function from_candid_HttpResponse_n38(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n39(_uploadFile, _downloadFile, value);
 }
 function from_candid_JoinMode_n10(_uploadFile, _downloadFile, value) {
   return from_candid_variant_n11(_uploadFile, _downloadFile, value);
@@ -28667,14 +28703,14 @@ function from_candid_JoinMode_n10(_uploadFile, _downloadFile, value) {
 function from_candid_PrincipalInfo_n18(_uploadFile, _downloadFile, value) {
   return from_candid_record_n19(_uploadFile, _downloadFile, value);
 }
-function from_candid_StreamingCallbackHttpResponse_n34(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n35(_uploadFile, _downloadFile, value);
+function from_candid_StreamingCallbackHttpResponse_n35(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n36(_uploadFile, _downloadFile, value);
 }
-function from_candid_StreamingStrategy_n40(_uploadFile, _downloadFile, value) {
-  return from_candid_variant_n41(_uploadFile, _downloadFile, value);
+function from_candid_StreamingStrategy_n41(_uploadFile, _downloadFile, value) {
+  return from_candid_variant_n42(_uploadFile, _downloadFile, value);
 }
-function from_candid_UserInfo_n43(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n44(_uploadFile, _downloadFile, value);
+function from_candid_UserInfo_n44(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n45(_uploadFile, _downloadFile, value);
 }
 function from_candid_UserProfileWithChangeStatus_n27(_uploadFile, _downloadFile, value) {
   return from_candid_record_n28(_uploadFile, _downloadFile, value);
@@ -28697,11 +28733,14 @@ function from_candid_opt_n26(_uploadFile, _downloadFile, value) {
 function from_candid_opt_n33(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n36(_uploadFile, _downloadFile, value) {
+function from_candid_opt_n34(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n39(_uploadFile, _downloadFile, value) {
-  return value.length === 0 ? null : from_candid_StreamingStrategy_n40(_uploadFile, _downloadFile, value[0]);
+function from_candid_opt_n37(_uploadFile, _downloadFile, value) {
+  return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n40(_uploadFile, _downloadFile, value) {
+  return value.length === 0 ? null : from_candid_StreamingStrategy_n41(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_record_n16(_uploadFile, _downloadFile, value) {
   return {
@@ -28749,21 +28788,21 @@ function from_candid_record_n28(_uploadFile, _downloadFile, value) {
     youtubeUrl: record_opt_to_undefined(from_candid_opt_n20(_uploadFile, _downloadFile, value.youtubeUrl))
   };
 }
-function from_candid_record_n35(_uploadFile, _downloadFile, value) {
+function from_candid_record_n36(_uploadFile, _downloadFile, value) {
   return {
-    token: record_opt_to_undefined(from_candid_opt_n36(_uploadFile, _downloadFile, value.token)),
+    token: record_opt_to_undefined(from_candid_opt_n37(_uploadFile, _downloadFile, value.token)),
     body: value.body
   };
 }
-function from_candid_record_n38(_uploadFile, _downloadFile, value) {
+function from_candid_record_n39(_uploadFile, _downloadFile, value) {
   return {
     body: value.body,
     headers: value.headers,
-    streaming_strategy: record_opt_to_undefined(from_candid_opt_n39(_uploadFile, _downloadFile, value.streaming_strategy)),
+    streaming_strategy: record_opt_to_undefined(from_candid_opt_n40(_uploadFile, _downloadFile, value.streaming_strategy)),
     status_code: value.status_code
   };
 }
-function from_candid_record_n44(_uploadFile, _downloadFile, value) {
+function from_candid_record_n45(_uploadFile, _downloadFile, value) {
   return {
     principal: value.principal,
     role: from_candid_UserRole_n29(_uploadFile, _downloadFile, value.role),
@@ -28836,13 +28875,13 @@ function from_candid_variant_n32(_uploadFile, _downloadFile, value) {
     err: value.err
   } : value;
 }
-function from_candid_variant_n41(_uploadFile, _downloadFile, value) {
+function from_candid_variant_n42(_uploadFile, _downloadFile, value) {
   return "Callback" in value ? {
     __kind__: "Callback",
     Callback: value.Callback
   } : value;
 }
-function from_candid_variant_n49(_uploadFile, _downloadFile, value) {
+function from_candid_variant_n50(_uploadFile, _downloadFile, value) {
   return "ok" in value ? {
     __kind__: "ok",
     ok: value.ok
@@ -28851,7 +28890,7 @@ function from_candid_variant_n49(_uploadFile, _downloadFile, value) {
     err: value.err
   } : value;
 }
-function from_candid_variant_n50(_uploadFile, _downloadFile, value) {
+function from_candid_variant_n51(_uploadFile, _downloadFile, value) {
   return "ok" in value ? {
     __kind__: "ok",
     ok: value.ok
@@ -28872,23 +28911,23 @@ function from_candid_variant_n6(_uploadFile, _downloadFile, value) {
 function from_candid_vec_n17(_uploadFile, _downloadFile, value) {
   return value.map((x2) => from_candid_PrincipalInfo_n18(_uploadFile, _downloadFile, x2));
 }
-function from_candid_vec_n42(_uploadFile, _downloadFile, value) {
-  return value.map((x2) => from_candid_UserInfo_n43(_uploadFile, _downloadFile, x2));
+function from_candid_vec_n43(_uploadFile, _downloadFile, value) {
+  return value.map((x2) => from_candid_UserInfo_n44(_uploadFile, _downloadFile, x2));
 }
 function from_candid_vec_n7(_uploadFile, _downloadFile, value) {
   return value.map((x2) => from_candid_ClanSummary_n8(_uploadFile, _downloadFile, x2));
 }
-function to_candid_ApprovalStatus_n51(_uploadFile, _downloadFile, value) {
-  return to_candid_variant_n52(_uploadFile, _downloadFile, value);
+function to_candid_ApprovalStatus_n52(_uploadFile, _downloadFile, value) {
+  return to_candid_variant_n53(_uploadFile, _downloadFile, value);
 }
 function to_candid_JoinMode_n4(_uploadFile, _downloadFile, value) {
   return to_candid_variant_n5(_uploadFile, _downloadFile, value);
 }
-function to_candid_UserProfileWithChangeStatus_n47(_uploadFile, _downloadFile, value) {
-  return to_candid_record_n48(_uploadFile, _downloadFile, value);
+function to_candid_UserProfileWithChangeStatus_n48(_uploadFile, _downloadFile, value) {
+  return to_candid_record_n49(_uploadFile, _downloadFile, value);
 }
-function to_candid_UserProfile_n45(_uploadFile, _downloadFile, value) {
-  return to_candid_record_n46(_uploadFile, _downloadFile, value);
+function to_candid_UserProfile_n46(_uploadFile, _downloadFile, value) {
+  return to_candid_record_n47(_uploadFile, _downloadFile, value);
 }
 function to_candid_UserRole_n2(_uploadFile, _downloadFile, value) {
   return to_candid_variant_n3(_uploadFile, _downloadFile, value);
@@ -28896,7 +28935,7 @@ function to_candid_UserRole_n2(_uploadFile, _downloadFile, value) {
 function to_candid_opt_n21(_uploadFile, _downloadFile, value) {
   return value === null ? candid_none() : candid_some(value);
 }
-function to_candid_record_n46(_uploadFile, _downloadFile, value) {
+function to_candid_record_n47(_uploadFile, _downloadFile, value) {
   return {
     bio: value.bio,
     telegramUrl: value.telegramUrl ? candid_some(value.telegramUrl) : candid_none(),
@@ -28908,7 +28947,7 @@ function to_candid_record_n46(_uploadFile, _downloadFile, value) {
     youtubeUrl: value.youtubeUrl ? candid_some(value.youtubeUrl) : candid_none()
   };
 }
-function to_candid_record_n48(_uploadFile, _downloadFile, value) {
+function to_candid_record_n49(_uploadFile, _downloadFile, value) {
   return {
     bio: value.bio,
     telegramUrl: value.telegramUrl ? candid_some(value.telegramUrl) : candid_none(),
@@ -28935,7 +28974,7 @@ function to_candid_variant_n5(_uploadFile, _downloadFile, value) {
     requestRequired: null
   } : value;
 }
-function to_candid_variant_n52(_uploadFile, _downloadFile, value) {
+function to_candid_variant_n53(_uploadFile, _downloadFile, value) {
   return value == "pending" ? {
     pending: null
   } : value == "approved" ? {
@@ -29020,17 +29059,6 @@ function useLeaderboard() {
     queryFn: async () => {
       if (!actor) return [];
       return actor.getLeaderboard();
-    },
-    enabled: !!actor && !isFetching
-  });
-}
-function useListUsers() {
-  const { actor, isFetching } = useActor(createActor);
-  return useQuery({
-    queryKey: ["listUsers"],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.listUsers();
     },
     enabled: !!actor && !isFetching
   });
@@ -29407,14 +29435,27 @@ function useLeaderboardEntries() {
     queryFn: async () => {
       if (!actor) return [];
       const leaderboard = await actor.getLeaderboard();
-      return leaderboard.map(([username, score, level], index2) => ({
+      return leaderboard.map(([principal, username, score, level], index2) => ({
+        principal,
         username,
         highestScore: Number(score),
         level: Number(level),
-        key: `lb-${index2}-${username}`
+        key: `lb-${index2}-${principal.toText()}`
       }));
     },
     enabled: !!actor && !isFetching
+  });
+}
+function usePlayerDisplayName(user) {
+  const { actor, isFetching } = useActor(createActor);
+  return useQuery({
+    queryKey: ["playerDisplayName", user == null ? void 0 : user.toText()],
+    queryFn: async () => {
+      if (!actor || !user) return "Player #?";
+      return actor.getPlayerDisplayName(user);
+    },
+    enabled: !!actor && !isFetching && user !== null,
+    staleTime: 6e4
   });
 }
 async function fetchFromBinance(symbol) {
@@ -29537,6 +29578,34 @@ function useBrentOilPrice() {
     refetchInterval: 1e4,
     placeholderData: (prev) => prev ?? { price: null, change24h: null }
   });
+}
+const CIGARETTES_PER_SECOND = 183732;
+function useCigarettesTodayCounter() {
+  const getCount = () => {
+    const now2 = /* @__PURE__ */ new Date();
+    const startOfDayUTC = Date.UTC(
+      now2.getUTCFullYear(),
+      now2.getUTCMonth(),
+      now2.getUTCDate()
+    );
+    const secondsSinceStartOfDay = (Date.now() - startOfDayUTC) / 1e3;
+    return Math.floor(secondsSinceStartOfDay * CIGARETTES_PER_SECOND);
+  };
+  const [count, setCount] = reactExports.useState(() => getCount());
+  reactExports.useEffect(() => {
+    const id = setInterval(() => {
+      const now2 = /* @__PURE__ */ new Date();
+      const startOfDayUTC = Date.UTC(
+        now2.getUTCFullYear(),
+        now2.getUTCMonth(),
+        now2.getUTCDate()
+      );
+      const secondsSinceStartOfDay = (Date.now() - startOfDayUTC) / 1e3;
+      setCount(Math.floor(secondsSinceStartOfDay * CIGARETTES_PER_SECOND));
+    }, 1e3);
+    return () => clearInterval(id);
+  }, []);
+  return { count };
 }
 /**
  * @license lucide-react v0.511.0 - ISC
@@ -30296,6 +30365,32 @@ const getMilestoneIcon = (level) => {
       return "🏆";
   }
 };
+const WORLD_NAMES = [
+  { id: "original", label: "Meadow" },
+  { id: "volcano", label: "Volcano" },
+  { id: "space", label: "Space" },
+  { id: "desert", label: "Desert" },
+  { id: "jungle", label: "Jungle" },
+  { id: "snowy", label: "Snowy" },
+  { id: "sky", label: "Heaven" },
+  { id: "cyberpunk", label: "Cyberpunk" },
+  { id: "caffeineai", label: "Caffeine" },
+  { id: "zombietown", label: "Zombietown" },
+  { id: "halloween", label: "Halloween" },
+  { id: "tokyo", label: "Tokyo" },
+  { id: "windows", label: "Windows XP" },
+  { id: "bitcoin", label: "Bitcoin" },
+  { id: "matrix", label: "Matrix" },
+  { id: "ocean", label: "Ocean" },
+  { id: "minecraft", label: "Minecraft" },
+  { id: "pumpfun", label: "pump.fun" },
+  { id: "corona", label: "Corona" },
+  { id: "hormuz", label: "Hormuz" },
+  { id: "alien", label: "Alien" },
+  { id: "dogecoin", label: "Dogecoin" },
+  { id: "smoke", label: "Smoke" },
+  { id: "weather", label: "Weather" }
+];
 const AchievementsView = ({
   gameStatistics,
   isAuthenticated,
@@ -30307,6 +30402,7 @@ const AchievementsView = ({
   const [collectedMilestones, setCollectedMilestones] = reactExports.useState(
     /* @__PURE__ */ new Set()
   );
+  const [worldsPlayed, setWorldsPlayed] = reactExports.useState([]);
   const audioContextRef = reactExports.useRef(null);
   const handleLogin = async () => {
     try {
@@ -30377,6 +30473,10 @@ const AchievementsView = ({
     }
     return "achievementMilestones_guest";
   }, [isAuthenticated, identity]);
+  const getWorldsPlayedKey = reactExports.useCallback(() => {
+    const userKey = isAuthenticated && identity ? identity.getPrincipal().toString() : "guest";
+    return `woh_worlds_played_${userKey}`;
+  }, [isAuthenticated, identity]);
   reactExports.useEffect(() => {
     const key = getStorageKey();
     const saved = localStorage.getItem(key);
@@ -30388,6 +30488,29 @@ const AchievementsView = ({
       }
     }
   }, [getStorageKey]);
+  reactExports.useEffect(() => {
+    const wpKey = getWorldsPlayedKey();
+    const saved = localStorage.getItem(wpKey);
+    if (saved) {
+      try {
+        setWorldsPlayed(JSON.parse(saved));
+      } catch {
+      }
+    }
+  }, [getWorldsPlayedKey]);
+  reactExports.useEffect(() => {
+    const interval = setInterval(() => {
+      const wpKey = getWorldsPlayedKey();
+      const saved = localStorage.getItem(wpKey);
+      if (saved) {
+        try {
+          setWorldsPlayed(JSON.parse(saved));
+        } catch {
+        }
+      }
+    }, 2e3);
+    return () => clearInterval(interval);
+  }, [getWorldsPlayedKey]);
   const saveCollectedMilestones = reactExports.useCallback(
     (milestones) => {
       localStorage.setItem(
@@ -30514,6 +30637,15 @@ const AchievementsView = ({
       milestones: createMilestones([10, 25, 50, 75, 100]),
       currentProgress: playerLevel,
       category: "Progress"
+    },
+    {
+      id: "world-explorer",
+      title: "World Explorer",
+      description: "Worlds explored (complete games played)",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-5 h-5" }),
+      milestones: createMilestones([5, 10, 15, 19, 24]),
+      currentProgress: worldsPlayed.length,
+      category: "Explorer"
     }
   ];
   for (const achievement of achievements) {
@@ -30552,7 +30684,7 @@ const AchievementsView = ({
           /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl md:text-4xl font-black text-black tracking-tight", children: "ACHIEVEMENTS" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg shadow-md", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-4 h-4 mr-2" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-sm", children: "0/65" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-sm", children: "0/70" })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -30728,6 +30860,21 @@ const AchievementsView = ({
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", children: "XP" })
                   ] })
                 ] }, milestone.level)) }),
+                achievement.id === "world-explorer" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-4 gap-1 mb-4", children: WORLD_NAMES.map((w2) => {
+                  const played = worldsPlayed.includes(w2.id);
+                  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "div",
+                    {
+                      className: `rounded-md px-1 py-0.5 text-center text-xs font-bold truncate transition-all duration-200 ${played ? "bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-sm" : "bg-gray-100 text-gray-400 border border-gray-200"}`,
+                      title: w2.label,
+                      children: [
+                        played ? "✓ " : "",
+                        w2.label
+                      ]
+                    },
+                    w2.id
+                  );
+                }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between text-black text-sm font-medium mb-2", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Progress" }),
@@ -30787,7 +30934,8 @@ const BackgroundRenderer = ({
   pumpFunPrice,
   btcPrice,
   brentOilPrice,
-  dogePrice
+  dogePrice,
+  cigarettesCount
 }) => {
   const renderOriginalWorld = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "svg",
@@ -51098,132 +51246,6 @@ const BackgroundRenderer = ({
                     }
                   )
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(430, 60)", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "rect",
-                    {
-                      x: "-82",
-                      y: "-22",
-                      width: "164",
-                      height: "44",
-                      rx: "22",
-                      fill: "#FFFDE7",
-                      stroke: "#FFD700",
-                      strokeWidth: "2.5",
-                      opacity: "0.95"
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "polygon",
-                    {
-                      points: "-5,22 -15,36 12,22",
-                      fill: "#FFFDE7",
-                      stroke: "#FFD700",
-                      strokeWidth: "2"
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "text",
-                    {
-                      x: "0",
-                      y: "8",
-                      textAnchor: "middle",
-                      fontFamily: "'Comic Sans MS', cursive",
-                      fontSize: "18",
-                      fontWeight: "bold",
-                      fill: "#B8860B",
-                      children: "to the moon 🚀"
-                    }
-                  )
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("defs", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: `
-              @keyframes dogeWowPopIn {
-                0%   { transform: scale(0); opacity: 0; }
-                60%  { transform: scale(1.12); opacity: 1; }
-                80%  { transform: scale(0.94); }
-                100% { transform: scale(1); opacity: 1; }
-              }
-              @keyframes dogeWowFloat {
-                0%   { transform: scale(1) translateY(0px); }
-                50%  { transform: scale(1.04) translateY(-4px); }
-                100% { transform: scale(1) translateY(0px); }
-              }
-              .doge-wow-bubble {
-                transform-origin: 105px 78px;
-                animation:
-                  dogeWowPopIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both,
-                  dogeWowFloat 2s ease-in-out 0.85s infinite;
-              }
-              @media (prefers-reduced-motion: reduce) {
-                .doge-wow-bubble {
-                  animation: none;
-                  opacity: 1;
-                }
-              }
-            ` }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(740, 340)", className: "doge-wow-bubble", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "rect",
-                    {
-                      x: "-8",
-                      y: "-56",
-                      width: "180",
-                      height: "60",
-                      rx: "24",
-                      fill: "#FFFDE7",
-                      stroke: "#FFD700",
-                      strokeWidth: "3",
-                      opacity: "0.97"
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "polygon",
-                    {
-                      points: "90,-2 105,18 70,-2",
-                      fill: "#FFFDE7",
-                      stroke: "#FFD700",
-                      strokeWidth: "2.5",
-                      strokeLinejoin: "round"
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "line",
-                    {
-                      x1: "71",
-                      y1: "-2",
-                      x2: "109",
-                      y2: "-2",
-                      stroke: "#FFFDE7",
-                      strokeWidth: "3"
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "text",
-                    {
-                      x: "82",
-                      y: "-30",
-                      textAnchor: "middle",
-                      fontFamily: "'Comic Sans MS', cursive",
-                      fontSize: "20",
-                      fontWeight: "bold",
-                      fill: "#8B6914",
-                      children: "Wow."
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "text",
-                    {
-                      x: "82",
-                      y: "-8",
-                      textAnchor: "middle",
-                      fontFamily: "'Comic Sans MS', cursive",
-                      fontSize: "18",
-                      fontWeight: "bold",
-                      fill: "#8B6914",
-                      children: "Such wow."
-                    }
-                  )
-                ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(600, 590)", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "rect",
@@ -51304,6 +51326,1137 @@ const BackgroundRenderer = ({
       }
     );
   };
+  const renderSmokeWorld = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      role: "img",
+      "aria-label": "Smoke world background",
+      className: "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+      viewBox: "0 0 1200 800",
+      preserveAspectRatio: "xMidYMid slice",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("defs", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "smokeBg", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0d0505" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "40%", stopColor: "#110808" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#1a0a0a" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "amberLight1", cx: "30%", cy: "15%", r: "40%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#60300a", stopOpacity: "0.55" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#60300a", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "amberLight2", cx: "75%", cy: "10%", r: "35%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#50280a", stopOpacity: "0.45" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#50280a", stopOpacity: "0" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "smokeHaze", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#ffffff", stopOpacity: "0.03" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "#ffffff", stopOpacity: "0.06" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#ffffff", stopOpacity: "0.02" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "barGrad", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#3a1f0a" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "30%", stopColor: "#2a1408" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#1a0c05" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "barTopGrad", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#6a3a15" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#3a1f0a" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "neonGlow", x: "-30%", y: "-30%", width: "160%", height: "160%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "3", result: "blur1" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "8", result: "blur2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur2" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blur1" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("filter", { id: "softGlow", x: "-20%", y: "-20%", width: "140%", height: "140%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("feGaussianBlur", { stdDeviation: "4", result: "blurred" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("feMerge", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "blurred" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("feMergeNode", { in: "SourceGraphic" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "windowGrad", x1: "0%", y1: "0%", x2: "100%", y2: "100%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#0a1530", stopOpacity: "0.9" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "#0d1a3a", stopOpacity: "0.8" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#060e20", stopOpacity: "0.95" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "cityGlow", cx: "50%", cy: "50%", r: "50%", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#ffdd99", stopOpacity: "0.9" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#ffaa44", stopOpacity: "0" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#smokeBg)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "360", cy: "0", rx: "340", ry: "260", fill: "url(#amberLight1)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "900", cy: "0", rx: "290", ry: "220", fill: "url(#amberLight2)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "400",
+            cy: "320",
+            rx: "380",
+            ry: "160",
+            fill: "#c8c0b0",
+            opacity: "0.045"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "850",
+            cy: "200",
+            rx: "300",
+            ry: "120",
+            fill: "#d0c8b8",
+            opacity: "0.038"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "600",
+            cy: "450",
+            rx: "480",
+            ry: "100",
+            fill: "#b8b0a0",
+            opacity: "0.05"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#smokeHaze)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "0",
+            width: "1200",
+            height: "570",
+            fill: "#140808",
+            opacity: "0.6"
+          }
+        ),
+        [0, 120, 240, 360, 480, 600, 720, 840, 960, 1080].map((x2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: x2,
+            y: "320",
+            width: "2",
+            height: "250",
+            fill: "#2a1208",
+            opacity: "0.5"
+          },
+          x2
+        )),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "318",
+            width: "1200",
+            height: "4",
+            fill: "#3a1a08",
+            opacity: "0.6"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(60, 80)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "0", width: "220", height: "260", rx: "4", fill: "#3a1f0a" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "8", y: "8", width: "204", height: "244", fill: "url(#windowGrad)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "10",
+              y: "120",
+              width: "30",
+              height: "130",
+              fill: "#05080f",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "45",
+              y: "90",
+              width: "22",
+              height: "162",
+              fill: "#04070e",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "72",
+              y: "140",
+              width: "35",
+              height: "112",
+              fill: "#050810",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "112",
+              y: "100",
+              width: "28",
+              height: "152",
+              fill: "#04070e",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "145",
+              y: "125",
+              width: "40",
+              height: "127",
+              fill: "#060911",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "190",
+              y: "108",
+              width: "22",
+              height: "144",
+              fill: "#04070e",
+              opacity: "0.95"
+            }
+          ),
+          [
+            [22, 128],
+            [26, 140],
+            [32, 155],
+            [48, 98],
+            [54, 115],
+            [60, 130],
+            [75, 148],
+            [80, 162],
+            [115, 110],
+            [120, 128],
+            [135, 142],
+            [150, 133],
+            [158, 148],
+            [170, 163],
+            [195, 120],
+            [200, 138]
+          ].map(([cx, cy], i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "circle",
+            {
+              cx,
+              cy,
+              r: "1.5",
+              fill: "#ffdd88",
+              opacity: 0.4 + i % 3 * 0.12
+            },
+            `l-dot-${cx}-${cy}`
+          )),
+          [
+            [12, 130],
+            [18, 142],
+            [12, 154],
+            [18, 165],
+            [50, 95],
+            [56, 107],
+            [50, 120],
+            [116, 108],
+            [128, 108],
+            [116, 122],
+            [152, 130],
+            [164, 130],
+            [152, 144],
+            [196, 115],
+            [196, 130]
+          ].map(([x2, y2], i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: x2,
+              y: y2,
+              width: "4",
+              height: "6",
+              fill: "#ffee99",
+              opacity: 0.35 + i % 3 * 0.15
+            },
+            `l-win-${x2}-${y2}`
+          )),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "178", cy: "38", r: "16", fill: "#e8e0cc", opacity: "0.18" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "178", cy: "38", r: "13", fill: "#f0e8d8", opacity: "0.12" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "8", y: "128", width: "204", height: "3", fill: "#3a1f0a" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "110", y: "8", width: "3", height: "244", fill: "#3a1f0a" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "8",
+              y: "8",
+              width: "204",
+              height: "244",
+              fill: "#0d1830",
+              opacity: "0.15"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(350, 50)", filter: "url(#neonGlow)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "-10",
+              y: "-10",
+              width: "500",
+              height: "90",
+              rx: "8",
+              fill: "#0a0404",
+              opacity: "0.85"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "-10",
+              y: "-10",
+              width: "500",
+              height: "90",
+              rx: "8",
+              fill: "none",
+              stroke: "#2a1010",
+              strokeWidth: "2"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M10,20 Q10,10 20,10 L45,10 Q55,10 55,20 Q55,30 30,35 Q5,40 5,50 Q5,60 15,60 L50,60 Q60,60 60,50",
+              fill: "none",
+              stroke: "#ff4400",
+              strokeWidth: "4",
+              strokeLinecap: "round",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M75,60 L75,10 L95,40 L115,10 L115,60",
+              fill: "none",
+              stroke: "#ff4400",
+              strokeWidth: "4",
+              strokeLinecap: "round",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "130",
+              y: "10",
+              width: "40",
+              height: "50",
+              rx: "20",
+              fill: "none",
+              stroke: "#ff4400",
+              strokeWidth: "4",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M185,10 L185,60 M185,35 L215,10 M185,35 L215,60",
+              fill: "none",
+              stroke: "#ff4400",
+              strokeWidth: "4",
+              strokeLinecap: "round",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M230,10 L230,60 M230,10 L265,10 M230,35 L258,35 M230,60 L265,60",
+              fill: "none",
+              stroke: "#ff4400",
+              strokeWidth: "4",
+              strokeLinecap: "round",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(290, 25)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "0",
+                y: "12",
+                width: "120",
+                height: "16",
+                rx: "8",
+                fill: "none",
+                stroke: "#ffcc44",
+                strokeWidth: "3",
+                opacity: "0.9"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "94",
+                y: "13",
+                width: "28",
+                height: "14",
+                rx: "5",
+                fill: "none",
+                stroke: "#cc8822",
+                strokeWidth: "3",
+                opacity: "0.85"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "circle",
+              {
+                cx: "5",
+                cy: "20",
+                r: "6",
+                fill: "none",
+                stroke: "#ff6600",
+                strokeWidth: "3",
+                opacity: "0.9"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "path",
+              {
+                d: "M5,14 Q8,6 4,0",
+                fill: "none",
+                stroke: "#aaaaaa",
+                strokeWidth: "2",
+                strokeLinecap: "round",
+                opacity: "0.5"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(300, 0)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "0", y1: "0", x2: "0", y2: "60", stroke: "#2a1408", strokeWidth: "3" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "72", rx: "28", ry: "16", fill: "#3a1f0a" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "66", rx: "22", ry: "12", fill: "#50280c" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M-50,80 L-80,220 L80,220 L50,80 Z",
+              fill: "#60300a",
+              opacity: "0.12"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "72",
+              rx: "18",
+              ry: "9",
+              fill: "#ffcc66",
+              opacity: "0.22",
+              filter: "url(#softGlow)"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(900, 0)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "0", y1: "0", x2: "0", y2: "50", stroke: "#2a1408", strokeWidth: "3" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "62", rx: "28", ry: "16", fill: "#3a1f0a" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "56", rx: "22", ry: "12", fill: "#50280c" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M-50,70 L-80,200 L80,200 L50,70 Z",
+              fill: "#60300a",
+              opacity: "0.10"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "ellipse",
+            {
+              cx: "0",
+              cy: "62",
+              rx: "18",
+              ry: "9",
+              fill: "#ffcc66",
+              opacity: "0.2",
+              filter: "url(#softGlow)"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(520, 90)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "180", width: "280", height: "10", rx: "3", fill: "#3a1f0a" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "240", width: "280", height: "10", rx: "3", fill: "#2e1808" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(20, 100)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-8",
+                y: "0",
+                width: "16",
+                height: "80",
+                rx: "3",
+                fill: "#704010",
+                opacity: "0.85"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-5",
+                y: "-15",
+                width: "10",
+                height: "18",
+                rx: "2",
+                fill: "#60380a",
+                opacity: "0.9"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-3",
+                y: "-18",
+                width: "6",
+                height: "6",
+                rx: "1",
+                fill: "#3a2008",
+                opacity: "0.9"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-7",
+                y: "18",
+                width: "14",
+                height: "4",
+                fill: "#ffcc44",
+                opacity: "0.3"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(55, 120)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "ellipse",
+              {
+                cx: "0",
+                cy: "45",
+                rx: "13",
+                ry: "28",
+                fill: "#8B4513",
+                opacity: "0.8"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-5",
+                y: "-8",
+                width: "10",
+                height: "20",
+                rx: "3",
+                fill: "#6a3010",
+                opacity: "0.9"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-3",
+                y: "-12",
+                width: "6",
+                height: "7",
+                rx: "1",
+                fill: "#3a1a08",
+                opacity: "0.9"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(95, 105)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-7",
+                y: "0",
+                width: "14",
+                height: "75",
+                rx: "4",
+                fill: "#2a5a18",
+                opacity: "0.8"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-4",
+                y: "-14",
+                width: "8",
+                height: "17",
+                rx: "2",
+                fill: "#1a4010",
+                opacity: "0.9"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-3", y: "-17", width: "6", height: "6", rx: "1", fill: "#0e2808" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-6",
+                y: "25",
+                width: "12",
+                height: "3",
+                fill: "#88cc44",
+                opacity: "0.35"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(132, 112)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-7",
+                y: "0",
+                width: "14",
+                height: "68",
+                rx: "3",
+                fill: "#c8c8d8",
+                opacity: "0.4",
+                stroke: "#8090a0",
+                strokeWidth: "1"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-4",
+                y: "-13",
+                width: "8",
+                height: "16",
+                rx: "2",
+                fill: "#9090a0",
+                opacity: "0.6"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-3",
+                y: "-16",
+                width: "6",
+                height: "6",
+                rx: "1",
+                fill: "#606070",
+                opacity: "0.8"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(168, 108)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-7",
+                y: "0",
+                width: "14",
+                height: "72",
+                rx: "3",
+                fill: "#2a1004",
+                opacity: "0.9"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-5",
+                y: "-12",
+                width: "10",
+                height: "15",
+                rx: "2",
+                fill: "#1a0803",
+                opacity: "0.9"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-3", y: "-15", width: "6", height: "6", rx: "1", fill: "#0a0402" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-6",
+                y: "20",
+                width: "12",
+                height: "3",
+                fill: "#ff8800",
+                opacity: "0.25"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(204, 115)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-7",
+                y: "0",
+                width: "14",
+                height: "65",
+                rx: "4",
+                fill: "#0a3068",
+                opacity: "0.7"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-4",
+                y: "-11",
+                width: "8",
+                height: "14",
+                rx: "2",
+                fill: "#082050",
+                opacity: "0.9"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-3", y: "-14", width: "6", height: "6", rx: "1", fill: "#041030" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(240, 100)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-8",
+                y: "0",
+                width: "16",
+                height: "80",
+                rx: "3",
+                fill: "#c8a840",
+                opacity: "0.55",
+                stroke: "#a08828",
+                strokeWidth: "1"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-5",
+                y: "-14",
+                width: "10",
+                height: "17",
+                rx: "2",
+                fill: "#a08020",
+                opacity: "0.7"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-3", y: "-17", width: "6", height: "6", rx: "1", fill: "#705a10" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "-7",
+                y: "20",
+                width: "14",
+                height: "3",
+                fill: "#ffee88",
+                opacity: "0.3"
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "560", width: "1200", height: "240", fill: "url(#barGrad)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "558", width: "1200", height: "22", fill: "url(#barTopGrad)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "558",
+            width: "1200",
+            height: "2",
+            fill: "#9a5820",
+            opacity: "0.55"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "578",
+            width: "1200",
+            height: "2",
+            fill: "#1a0c04",
+            opacity: "0.7"
+          }
+        ),
+        [30, 90, 150, 250, 380, 520, 680, 820, 960, 1080].map((x2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "line",
+          {
+            x1: x2,
+            y1: "560",
+            x2: x2 + 160,
+            y2: "578",
+            stroke: "#2a1008",
+            strokeWidth: "1.5",
+            opacity: "0.3"
+          },
+          `grain-${x2}`
+        )),
+        [120, 300, 500, 720, 940, 1100].map((x2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: `translate(${x2}, 558)`, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "-5", rx: "28", ry: "8", fill: "#2a1008", opacity: "0.8" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "-3",
+              y: "-2",
+              width: "6",
+              height: "120",
+              fill: "#1e0e06",
+              opacity: "0.7"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "-25",
+              y1: "100",
+              x2: "25",
+              y2: "100",
+              stroke: "#1e0e06",
+              strokeWidth: "4",
+              strokeLinecap: "round",
+              opacity: "0.7"
+            }
+          )
+        ] }, `stool-${x2}`)),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(590, 560)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "0", rx: "38", ry: "12", fill: "#252020" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "-3", rx: "28", ry: "7", fill: "#1a1515" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "-30", y: "-8", width: "8", height: "5", rx: "2", fill: "#252020" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "22", y: "-8", width: "8", height: "5", rx: "2", fill: "#252020" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(-8, -2) rotate(-15)", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "0",
+                y: "-3",
+                width: "28",
+                height: "6",
+                rx: "3",
+                fill: "#f0ede0",
+                opacity: "0.85"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "rect",
+              {
+                x: "22",
+                y: "-2.5",
+                width: "7",
+                height: "5",
+                rx: "2.5",
+                fill: "#c49058",
+                opacity: "0.9"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "circle",
+              {
+                cx: "1",
+                cy: "0",
+                r: "3",
+                fill: "#ff4400",
+                opacity: "0.7",
+                filter: "url(#softGlow)"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "5", cy: "-1", rx: "10", ry: "4", fill: "#888070", opacity: "0.45" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(180, 555)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M-14,0 L-10,-42 L10,-42 L14,0 Z",
+              fill: "#9a5010",
+              opacity: "0.55"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M-14,0 L-10,-42 L10,-42 L14,0 Z",
+              fill: "none",
+              stroke: "#7a3a08",
+              strokeWidth: "1.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M-13,-2 L-10,-30 L10,-30 L13,-2 Z",
+              fill: "#c06810",
+              opacity: "0.4"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "0", cy: "-30", rx: "10", ry: "3", fill: "#e08020", opacity: "0.3" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "-4",
+              y: "-28",
+              width: "8",
+              height: "8",
+              rx: "1",
+              fill: "#b8d8f0",
+              opacity: "0.35"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(420, 560)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M-12,0 L-9,-35 L9,-35 L12,0 Z", fill: "#8a4008", opacity: "0.55" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M-12,0 L-9,-35 L9,-35 L12,0 Z",
+              fill: "none",
+              stroke: "#6a2808",
+              strokeWidth: "1.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "path",
+            {
+              d: "M-11,-2 L-9,-25 L9,-25 L11,-2 Z",
+              fill: "#b05810",
+              opacity: "0.4"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "200",
+            cy: "260",
+            rx: "60",
+            ry: "30",
+            fill: "#c0b8aa",
+            opacity: "0.025"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "650",
+            cy: "180",
+            rx: "90",
+            ry: "40",
+            fill: "#c8c0b0",
+            opacity: "0.03"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "ellipse",
+          {
+            cx: "1050",
+            cy: "300",
+            rx: "70",
+            ry: "28",
+            fill: "#b8b0a0",
+            opacity: "0.028"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(940, 95)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "0", width: "210", height: "250", rx: "4", fill: "#3a1f0a" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "8", y: "8", width: "194", height: "234", fill: "url(#windowGrad)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "10",
+              y: "110",
+              width: "25",
+              height: "120",
+              fill: "#040710",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "40",
+              y: "80",
+              width: "30",
+              height: "154",
+              fill: "#030610",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "76",
+              y: "130",
+              width: "35",
+              height: "104",
+              fill: "#050810",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "116",
+              y: "95",
+              width: "28",
+              height: "139",
+              fill: "#04070e",
+              opacity: "0.95"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "150",
+              y: "115",
+              width: "45",
+              height: "119",
+              fill: "#060911",
+              opacity: "0.95"
+            }
+          ),
+          [
+            [12, 130],
+            [18, 145],
+            [24, 158],
+            [43, 88],
+            [52, 100],
+            [60, 118],
+            [78, 138],
+            [88, 153],
+            [118, 103],
+            [128, 118],
+            [135, 135],
+            [154, 122],
+            [162, 140],
+            [170, 156],
+            [198, 118]
+          ].map(([cx, cy]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "circle",
+            {
+              cx,
+              cy,
+              r: "1.5",
+              fill: "#ffdd88",
+              opacity: "0.4"
+            },
+            `r-light-${cx}-${cy}`
+          )),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "170", cy: "40", r: "14", fill: "#f0e8d8", opacity: "0.16" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "8", y: "124", width: "194", height: "3", fill: "#3a1f0a" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "105", y: "8", width: "3", height: "234", fill: "#3a1f0a" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "0", width: "1200", height: "40", fill: "#0a0404", opacity: "0.5" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "0", y: "38", width: "1200", height: "6", fill: "#2a1208", opacity: "0.6" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "690",
+            width: "1200",
+            height: "110",
+            fill: "#100606",
+            opacity: "0.65"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "rect",
+          {
+            x: "0",
+            y: "690",
+            width: "1200",
+            height: "2",
+            fill: "#2a1008",
+            opacity: "0.4"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("defs", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("radialGradient", { id: "vignette", cx: "50%", cy: "50%", r: "75%", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "transparent" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#000000", stopOpacity: "0.65" })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#vignette)" }),
+        cigarettesCount != null && /* @__PURE__ */ jsxRuntimeExports.jsxs("g", { transform: "translate(600, 28)", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "-130",
+              y: "-18",
+              width: "260",
+              height: "44",
+              rx: "8",
+              fill: "#0a0404",
+              opacity: "0.78"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "rect",
+            {
+              x: "-130",
+              y: "-18",
+              width: "260",
+              height: "44",
+              rx: "8",
+              fill: "none",
+              stroke: "rgba(180,120,40,0.35)",
+              strokeWidth: "1.5"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "text",
+            {
+              x: "0",
+              y: "-3",
+              textAnchor: "middle",
+              fontFamily: "'Courier New', Courier, monospace",
+              fontSize: "10",
+              fill: "#9a7040",
+              opacity: "0.9",
+              letterSpacing: "1.2",
+              children: "🚬 CIGARETTES SMOKED TODAY"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "text",
+            {
+              x: "0",
+              y: "16",
+              textAnchor: "middle",
+              fontFamily: "'Courier New', Courier, monospace",
+              fontSize: "16",
+              fontWeight: "bold",
+              fill: "#ffffff",
+              letterSpacing: "0.5",
+              children: cigarettesCount.toLocaleString()
+            }
+          )
+        ] })
+      ]
+    }
+  );
+  const renderWeatherWorld = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      role: "img",
+      "aria-label": "Weather world background",
+      className: "absolute inset-0 w-full h-full object-cover",
+      viewBox: "0 0 1200 800",
+      preserveAspectRatio: "xMidYMid slice",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("defs", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("linearGradient", { id: "weatherSky", x1: "0%", y1: "0%", x2: "0%", y2: "100%", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "0%", stopColor: "#1a6bce" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "50%", stopColor: "#3a8ee8" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("stop", { offset: "100%", stopColor: "#7bbff7" })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "1200", height: "800", fill: "url(#weatherSky)" })
+      ]
+    }
+  );
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -51348,6 +52501,10 @@ const BackgroundRenderer = ({
         return renderAlienWorld();
       case "dogecoin":
         return renderDogeWorld();
+      case "weather":
+        return renderWeatherWorld();
+      case "smoke":
+        return renderSmokeWorld();
       default:
         return renderOriginalWorld();
     }
@@ -51736,7 +52893,8 @@ const GameOverWindow = ({
 };
 const LeaderboardView = ({
   currentPlayerScore: _currentPlayerScore = 0,
-  isAuthenticated
+  isAuthenticated,
+  onOpenProfile
 }) => {
   const { login, loginStatus } = useInternetIdentity();
   const { data: entries = [], isLoading } = useLeaderboardEntries();
@@ -51828,7 +52986,7 @@ const LeaderboardView = ({
         {
           className: "max-w-4xl mx-auto space-y-3 pointer-events-none",
           style: { opacity: 0.25, filter: "blur(2px)" },
-          children: previewData.slice(0, 5).map(([username, score, level], index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          children: previewData.slice(0, 5).map(([_principal, username, score, level], index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "div",
             {
               className: getRankStyling(index2),
@@ -51889,37 +53047,65 @@ const LeaderboardView = ({
       {
         className: "max-w-4xl mx-auto space-y-3",
         "data-ocid": "leaderboard.list",
-        children: entries.map((entry, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
-          {
-            className: getRankStyling(index2),
-            "data-ocid": `leaderboard.item.${index2 + 1}`,
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-black text-lg", children: [
-                  "#",
-                  index2 + 1
-                ] }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-8 h-8", children: getRankIcon(index2) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-lg text-white flex items-center gap-2 flex-wrap", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: entry.username }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-normal text-white/60 shrink-0", children: [
-                      "Lv.",
-                      entry.level
-                    ] })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white/70 text-sm font-medium", children: "Personal Best" })
+        children: entries.map((entry, index2) => {
+          const isClickable = !!onOpenProfile;
+          const rowClass = `${getRankStyling(index2)}${isClickable ? " cursor-pointer active:scale-[0.98]" : ""}`;
+          const pointerStart = { x: 0, y: 0 };
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: rowClass,
+              onPointerDown: isClickable ? (e) => {
+                pointerStart.x = e.clientX;
+                pointerStart.y = e.clientY;
+              } : void 0,
+              onClick: isClickable ? (e) => {
+                const dx = e.clientX - pointerStart.x;
+                const dy = e.clientY - pointerStart.y;
+                if (Math.sqrt(dx * dx + dy * dy) < 8) {
+                  onOpenProfile(entry.principal, entry.username);
+                }
+              } : void 0,
+              role: isClickable ? "button" : void 0,
+              tabIndex: isClickable ? 0 : void 0,
+              onKeyDown: isClickable ? (e) => {
+                if (e.key === "Enter" || e.key === " ")
+                  onOpenProfile(entry.principal, entry.username);
+              } : void 0,
+              "data-ocid": `leaderboard.item.${index2 + 1}`,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-4", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-black text-lg", children: [
+                    "#",
+                    index2 + 1
+                  ] }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-8 h-8", children: getRankIcon(index2) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-lg text-white flex items-center gap-2 flex-wrap", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          className: `truncate${isClickable ? " underline underline-offset-2 decoration-white/40 hover:decoration-white/80 transition-all duration-150" : ""}`,
+                          children: entry.username
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-normal text-white/60 shrink-0", children: [
+                        "Lv.",
+                        entry.level
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white/70 text-sm font-medium", children: "Personal Best" })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-black text-white", children: entry.highestScore.toLocaleString() }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-white/50 text-xs font-medium", children: "POINTS" })
                 ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-black text-white", children: entry.highestScore.toLocaleString() }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-white/50 text-xs font-medium", children: "POINTS" })
-              ] })
-            ]
-          },
-          entry.key
-        ))
+              ]
+            },
+            entry.key
+          );
+        })
       }
     ),
     !isLoading && entries.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -51975,6 +53161,477 @@ const useInvalidateQueries = () => {
       queryClient2.invalidateQueries({ queryKey: ["fileUrl"] });
     }
   };
+};
+const DEFAULT_AVATAR_SVG$1 = `data:image/svg+xml,${encodeURIComponent(`
+  <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="bg2" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.95" />
+        <stop offset="100%" style="stop-color:#f3f4f6;stop-opacity:0.95" />
+      </linearGradient>
+    </defs>
+    <circle cx="40" cy="40" r="40" fill="url(#ag)"/>
+    <circle cx="40" cy="40" r="36" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    <circle cx="40" cy="30" r="12" fill="url(#bg2)" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+    <path d="M22 62 Q22 50 40 50 Q58 50 58 62 Q58 66 40 66 Q22 66 22 62 Z" fill="url(#bg2)" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+    <circle cx="40" cy="40" r="40" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+  </svg>
+`)}`;
+const getPlayerTitle$1 = (level) => {
+  if (level >= 95) return "Eggsplosion Master";
+  if (level >= 90) return "Hen House Hero";
+  if (level >= 85) return "Rooster Ruler";
+  if (level >= 80) return "Coop Conqueror";
+  if (level >= 75) return "Cluck Commander";
+  if (level >= 70) return "Ultimate Chicken Champion";
+  if (level >= 65) return "Chicken Dragon Tamer";
+  if (level >= 60) return "Master of Molt";
+  if (level >= 55) return "Feather Curse Slayer";
+  if (level >= 50) return "Galactic Rooster Hunter";
+  if (level >= 45) return "Egg Exterminator";
+  if (level >= 40) return "Poultry Destroyer";
+  if (level >= 35) return "King of Chickens";
+  if (level >= 30) return "Turbo Tractorman";
+  if (level >= 25) return "Wing Hunter";
+  if (level >= 20) return "Roasted Hen Tamer";
+  if (level >= 15) return "Corn Massacre";
+  if (level >= 10) return "Feather Catcher";
+  if (level >= 5) return "Egg Breaker";
+  return "Chick Warrior";
+};
+const formatPlayTime$1 = (minutes) => {
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  const rem = minutes % 60;
+  return rem > 0 ? `${hours}h ${rem}m` : `${hours}h`;
+};
+const STAT_ITEMS$1 = [
+  {
+    key: "totalChickensShot",
+    label: "Total Chickens",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "highestScore",
+    label: "Best Score",
+    icon: Trophy,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "currentAccuracy",
+    label: "Accuracy",
+    icon: TrendingUp,
+    format: (v2) => `${v2.toFixed(1)}%`
+  },
+  {
+    key: "totalPlayTimeMinutes",
+    label: "Play Time",
+    icon: Clock,
+    format: (v2) => formatPlayTime$1(v2)
+  },
+  {
+    key: "totalMissedShots",
+    label: "Missed Shots",
+    icon: X,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "goldenChickensShot",
+    label: "Golden Chickens",
+    icon: Star,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "fastChickensShot",
+    label: "Fast Chickens",
+    icon: Zap,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "smallChickensShot",
+    label: "Small Chickens",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "mediumChickensShot",
+    label: "Medium Chickens",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "largeChickensShot",
+    label: "Large Chickens",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "bestConsecutiveHits",
+    label: "Best Streak",
+    icon: TrendingUp,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "perfectAccuracySessions",
+    label: "Perfect Sessions",
+    icon: Award,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "totalScore",
+    label: "Total Score",
+    icon: Star,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "totalShotsFired",
+    label: "Total Shots",
+    icon: Target,
+    format: (v2) => v2.toLocaleString()
+  },
+  {
+    key: "bestSessionChickens",
+    label: "Best Session",
+    icon: Trophy,
+    format: (v2) => v2.toLocaleString()
+  }
+];
+const StatSkeleton = () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 md:grid-cols-3 gap-3", children: Array.from({ length: 6 }, (_2, i) => `skel-${i}`).map((id) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  "div",
+  {
+    className: "h-16 rounded-lg bg-muted border border-border animate-pulse"
+  },
+  id
+)) });
+const PlayerProfileScreen = ({
+  principal,
+  fallbackName,
+  fallbackLevel = 1,
+  isOwnProfile = false,
+  onBack,
+  onOpenDM
+}) => {
+  var _a3, _b3;
+  const { data: profile, isLoading: profileLoading } = useGetUserProfile(principal);
+  const { data: gameStats, isLoading: statsLoading } = useGetUserGameStats(principal);
+  const { data: isFriend, isLoading: friendLoading } = useIsFriend(
+    isOwnProfile ? null : principal
+  );
+  const { data: resolvedDisplayName } = usePlayerDisplayName(principal);
+  const addFriend = useAddFriend();
+  const removeFriend = useRemoveFriend();
+  const profilePicturePath = (profile == null ? void 0 : profile.profilePictureUrl) ?? "";
+  const bannerImagePath = (profile == null ? void 0 : profile.bannerImageUrl) ?? "";
+  const { data: profilePictureUrl } = useFileUrl(profilePicturePath);
+  const { data: bannerImageUrl } = useFileUrl(bannerImagePath);
+  const socialProfile = profile;
+  const displayName = ((_a3 = profile == null ? void 0 : profile.name) == null ? void 0 : _a3.trim()) || (fallbackName == null ? void 0 : fallbackName.trim()) || resolvedDisplayName || "Player #?";
+  const level = gameStats ? Number(gameStats.level) : fallbackLevel;
+  const currentTitle = getPlayerTitle$1(level);
+  const highestScore = gameStats ? Number(gameStats.highestScore) : 0;
+  const xpForLevel = (lvl) => Math.floor(100 * lvl ** 1.5);
+  const currentXP = highestScore % Math.max(1, xpForLevel(level));
+  const requiredXP = xpForLevel(level);
+  const getAvatarSrc = () => (profilePictureUrl == null ? void 0 : profilePictureUrl.trim()) ? profilePictureUrl : DEFAULT_AVATAR_SVG$1;
+  const getBannerStyle = () => (bannerImageUrl == null ? void 0 : bannerImageUrl.trim()) ? {
+    backgroundImage: `url(${bannerImageUrl})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat"
+  } : {};
+  const handleImageError = (e) => {
+    e.currentTarget.src = DEFAULT_AVATAR_SVG$1;
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "flex flex-col overflow-hidden",
+      style: { height: "100%", width: "100%" },
+      "data-ocid": "player_profile.page",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 px-4 pt-4 pb-3 border-b border-gray-800 shrink-0 bg-black", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              "data-ocid": "player_profile.back_button",
+              onClick: onBack,
+              className: "flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-gray-200 text-black hover:border-orange-400 transition-colors shadow-sm shrink-0",
+              "aria-label": "Back",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 18 })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg font-black text-white truncate flex-1", children: "Player Profile" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto bg-black pb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-4 mt-4 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "h-28 relative bg-gradient-to-br from-orange-900 via-orange-700 to-black",
+              style: getBannerStyle(),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute left-6 bottom-0 translate-y-1/2 w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg bg-orange-100", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "img",
+                {
+                  src: getAvatarSrc(),
+                  alt: `${displayName}'s avatar`,
+                  className: "w-full h-full object-cover",
+                  onError: handleImageError
+                }
+              ) })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-6 pt-14", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-2", children: profileLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-40 bg-gray-200 rounded animate-pulse mb-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center flex-wrap gap-2 mb-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold text-black", children: displayName }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 px-2 py-1 rounded-full shadow-sm", children: [
+                "Lv.",
+                level
+              ] })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4", children: profileLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-4 w-full bg-gray-100 rounded animate-pulse" }) : ((_b3 = profile == null ? void 0 : profile.bio) == null ? void 0 : _b3.trim()) ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-700 whitespace-pre-wrap break-words", children: profile.bio.trim() }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-400 italic", children: "No bio set." }) }),
+            !profileLoading && ((socialProfile == null ? void 0 : socialProfile.xUrl) || (socialProfile == null ? void 0 : socialProfile.telegramUrl) || (socialProfile == null ? void 0 : socialProfile.youtubeUrl) || (socialProfile == null ? void 0 : socialProfile.githubUrl)) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: "flex items-center gap-3 mb-4",
+                "data-ocid": "player_profile.social_links",
+                children: [
+                  (socialProfile == null ? void 0 : socialProfile.xUrl) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "a",
+                    {
+                      href: socialProfile.xUrl,
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      className: "w-9 h-9 flex items-center justify-center rounded-xl bg-black hover:scale-110 hover:opacity-90 transition-all shadow-sm",
+                      "aria-label": "X profile",
+                      "data-ocid": "player_profile.x_link",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "X profile" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "svg",
+                          {
+                            width: "16",
+                            height: "16",
+                            viewBox: "0 0 24 24",
+                            fill: "white",
+                            xmlns: "http://www.w3.org/2000/svg",
+                            "aria-hidden": "true",
+                            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" })
+                          }
+                        )
+                      ]
+                    }
+                  ),
+                  (socialProfile == null ? void 0 : socialProfile.telegramUrl) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "a",
+                    {
+                      href: socialProfile.telegramUrl,
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      className: "w-9 h-9 flex items-center justify-center rounded-xl hover:scale-110 hover:opacity-90 transition-all shadow-sm",
+                      style: { backgroundColor: "#229ED9" },
+                      "aria-label": "Telegram profile",
+                      "data-ocid": "player_profile.telegram_link",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Telegram profile" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "svg",
+                          {
+                            width: "16",
+                            height: "16",
+                            viewBox: "0 0 24 24",
+                            fill: "white",
+                            xmlns: "http://www.w3.org/2000/svg",
+                            "aria-hidden": "true",
+                            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" })
+                          }
+                        )
+                      ]
+                    }
+                  ),
+                  (socialProfile == null ? void 0 : socialProfile.youtubeUrl) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "a",
+                    {
+                      href: socialProfile.youtubeUrl,
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      className: "w-9 h-9 flex items-center justify-center rounded-xl hover:scale-110 hover:opacity-90 transition-all shadow-sm",
+                      style: { backgroundColor: "#FF0000" },
+                      "aria-label": "YouTube channel",
+                      "data-ocid": "player_profile.youtube_link",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "YouTube channel" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "svg",
+                          {
+                            width: "16",
+                            height: "16",
+                            viewBox: "0 0 24 24",
+                            fill: "white",
+                            xmlns: "http://www.w3.org/2000/svg",
+                            "aria-hidden": "true",
+                            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" })
+                          }
+                        )
+                      ]
+                    }
+                  ),
+                  (socialProfile == null ? void 0 : socialProfile.githubUrl) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "a",
+                    {
+                      href: socialProfile.githubUrl,
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      className: "w-9 h-9 flex items-center justify-center rounded-xl hover:scale-110 hover:opacity-90 transition-all shadow-sm",
+                      style: { backgroundColor: "#181717" },
+                      "aria-label": "GitHub profile",
+                      "data-ocid": "player_profile.github_link",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "GitHub profile" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "svg",
+                          {
+                            width: "16",
+                            height: "16",
+                            viewBox: "0 0 24 24",
+                            fill: "white",
+                            xmlns: "http://www.w3.org/2000/svg",
+                            "aria-hidden": "true",
+                            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" })
+                          }
+                        )
+                      ]
+                    }
+                  )
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center mb-5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg px-3 py-1.5 shadow-md", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-4 h-4 mr-2 text-yellow-300" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-sm", children: currentTitle })
+            ] }) }),
+            level < 100 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between text-xs font-medium text-gray-600 mb-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  "Level ",
+                  level
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  currentXP.toLocaleString(),
+                  " / ",
+                  requiredXP.toLocaleString(),
+                  " ",
+                  "XP"
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full bg-gray-200 rounded-full h-2 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "h-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full transition-all duration-500",
+                  style: {
+                    width: `${Math.min(100, currentXP / Math.max(1, requiredXP) * 100)}%`
+                  }
+                }
+              ) })
+            ] }),
+            !isOwnProfile && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-5", children: [
+              friendLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "w-full h-11 rounded-xl bg-gray-100 border border-gray-200 animate-pulse",
+                  "data-ocid": "player_profile.friend_button.loading_state"
+                }
+              ) : isFriend ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  "data-ocid": "player_profile.remove_friend_button",
+                  disabled: removeFriend.isPending,
+                  onClick: () => removeFriend.mutate(principal),
+                  className: "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 font-bold text-sm hover:bg-red-50 transition-colors disabled:opacity-40 shadow-sm",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(UserMinus, { size: 16 }),
+                    removeFriend.isPending ? "Removing…" : "Remove Friend"
+                  ]
+                }
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  "data-ocid": "player_profile.add_friend_button",
+                  disabled: addFriend.isPending,
+                  onClick: () => addFriend.mutate(principal),
+                  className: "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 shadow-md",
+                  children: addFriend.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-white" }),
+                    "Adding…"
+                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { size: 16 }),
+                    "Add Friend"
+                  ] })
+                }
+              ),
+              addFriend.isSuccess && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center gap-1.5 mt-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 14, className: "text-green-600" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-green-600 font-medium", children: "You are now friends!" })
+              ] }),
+              onOpenDM && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  "data-ocid": "player_profile.chat_button",
+                  onClick: () => onOpenDM(principal, displayName),
+                  className: "w-full flex items-center justify-center gap-2 py-2.5 mt-2 rounded-xl bg-white border border-gray-200 hover:border-orange-400 hover:text-orange-600 text-gray-700 font-bold text-sm transition-all shadow-sm",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { size: 16 }),
+                    "Message"
+                  ]
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-gray-200 pt-5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-lg font-black text-black flex items-center mb-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-5 h-5 mr-2 text-orange-500" }),
+                "Statistics Overview"
+              ] }),
+              statsLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(StatSkeleton, {}) : !gameStats ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "text-center py-6 text-gray-400 text-sm",
+                  "data-ocid": "player_profile.stats.empty_state",
+                  children: "No statistics yet"
+                }
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "grid grid-cols-2 md:grid-cols-3 gap-4",
+                  "data-ocid": "player_profile.stats.list",
+                  children: STAT_ITEMS$1.map(({ key, label, icon: Icon2, format }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "div",
+                    {
+                      className: "bg-gray-50 rounded-lg p-3 border border-gray-200",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center mb-2", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-4 h-4 text-orange-500 mr-2" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium text-gray-600 truncate", children: label })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-lg font-black text-gray-700", children: format(Number(gameStats[key] ?? 0)) })
+                      ]
+                    },
+                    key
+                  ))
+                }
+              )
+            ] })
+          ] })
+        ] }) })
+      ]
+    }
+  );
 };
 const CHUNK_SIZE = 2e6;
 const useFileUpload = () => {
@@ -52053,7 +53710,7 @@ async function compressImage$1(file) {
     reader.readAsDataURL(file);
   });
 }
-const getPlayerTitle$1 = (level) => {
+const getPlayerTitle = (level) => {
   if (level >= 95) return "Eggsplosion Master";
   if (level >= 90) return "Hen House Hero";
   if (level >= 85) return "Rooster Ruler";
@@ -52075,7 +53732,7 @@ const getPlayerTitle$1 = (level) => {
   if (level >= 5) return "Egg Breaker";
   return "Chick Warrior";
 };
-const formatPlayTime$1 = (minutes) => {
+const formatPlayTime = (minutes) => {
   if (minutes < 60) return `${minutes}m`;
   const hours = Math.floor(minutes / 60);
   const rem = minutes % 60;
@@ -52085,7 +53742,7 @@ const truncatePrincipal = (id) => {
   if (id.length <= 20) return id;
   return `${id.substring(0, 10)}...${id.substring(id.length - 10)}`;
 };
-const DEFAULT_AVATAR_SVG$1 = `data:image/svg+xml,${encodeURIComponent(`
+const DEFAULT_AVATAR_SVG = `data:image/svg+xml,${encodeURIComponent(`
   <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -52104,7 +53761,7 @@ const DEFAULT_AVATAR_SVG$1 = `data:image/svg+xml,${encodeURIComponent(`
     <circle cx="40" cy="40" r="40" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
   </svg>
 `)}`;
-const STAT_ITEMS$1 = [
+const STAT_ITEMS = [
   {
     key: "totalChickensShot",
     label: "Total Chickens",
@@ -52127,7 +53784,7 @@ const STAT_ITEMS$1 = [
     key: "totalPlayTimeMinutes",
     label: "Play Time",
     icon: Clock,
-    format: (v2) => formatPlayTime$1(v2)
+    format: (v2) => formatPlayTime(v2)
   },
   {
     key: "totalMissedShots",
@@ -52204,7 +53861,8 @@ const ProfileView = ({
 }) => {
   const { identity, clear, login, loginStatus } = useInternetIdentity();
   const { data: userProfile } = useUserProfileWithChangeStatus();
-  const { data: allUsers = [] } = useListUsers();
+  const currentPrincipal = (identity == null ? void 0 : identity.getPrincipal()) ?? null;
+  const { data: backendDisplayName } = usePlayerDisplayName(currentPrincipal);
   const saveProfileMutation = useSaveCurrentUserProfileWithChangeStatus();
   const saveImagesMutation = useSaveCurrentUserProfile();
   const { uploadFile, isUploading } = useFileUpload();
@@ -52248,18 +53906,10 @@ const ProfileView = ({
       console.error("Login failed:", error);
     }
   };
-  const getDefaultUsername = () => {
-    if (!identity || !isAuthenticated) return "Guest User";
-    const currentPrincipal = identity.getPrincipal().toString();
-    const idx = allUsers.findIndex(
-      (u) => u.principal.toString() === currentPrincipal
-    );
-    return idx >= 0 ? `Player #${idx + 1}` : "Player #1";
-  };
   const getDisplayUsername = () => {
     var _a3;
     if (!isAuthenticated) return "Guest User";
-    return ((_a3 = userProfile == null ? void 0 : userProfile.name) == null ? void 0 : _a3.trim()) || getDefaultUsername();
+    return ((_a3 = userProfile == null ? void 0 : userProfile.name) == null ? void 0 : _a3.trim()) || backendDisplayName || "Player #?";
   };
   const getDisplayBio = () => {
     var _a3;
@@ -52384,7 +54034,7 @@ const ProfileView = ({
     try {
       const isFirstChange = canEditUsername() && editedUsername.trim() !== ((userProfile == null ? void 0 : userProfile.name) ?? "");
       await saveProfileMutation.mutateAsync({
-        name: canEditUsername() ? editedUsername.trim() : (userProfile == null ? void 0 : userProfile.name) ?? getDefaultUsername(),
+        name: canEditUsername() ? editedUsername.trim() : (userProfile == null ? void 0 : userProfile.name) ?? backendDisplayName ?? "Player #?",
         bio: editedBio.trim(),
         hasChangedName: (userProfile == null ? void 0 : userProfile.hasChangedName) || isFirstChange,
         xUrl: editedXUrl.trim() || void 0,
@@ -52531,7 +54181,7 @@ const ProfileView = ({
     });
     if (headerFileInputRef.current) headerFileInputRef.current.value = "";
   };
-  const getProfileImageSrc = () => (profilePictureUrl == null ? void 0 : profilePictureUrl.trim()) ? profilePictureUrl : DEFAULT_AVATAR_SVG$1;
+  const getProfileImageSrc = () => (profilePictureUrl == null ? void 0 : profilePictureUrl.trim()) ? profilePictureUrl : DEFAULT_AVATAR_SVG;
   const getHeaderStyle = () => (headerImageUrl == null ? void 0 : headerImageUrl.trim()) ? {
     backgroundImage: `url(${headerImageUrl})`,
     backgroundSize: "cover",
@@ -52539,13 +54189,13 @@ const ProfileView = ({
     backgroundRepeat: "no-repeat"
   } : {};
   const handleImageError = (e) => {
-    e.currentTarget.src = DEFAULT_AVATAR_SVG$1;
+    e.currentTarget.src = DEFAULT_AVATAR_SVG;
   };
   const displayName = getDisplayUsername();
   const displayBio = getDisplayBio();
   const principalId = (identity == null ? void 0 : identity.getPrincipal().toString()) ?? "";
   const isLoggingIn = loginStatus === "logging-in";
-  const currentTitle = getPlayerTitle$1(playerData.level);
+  const currentTitle = getPlayerTitle(playerData.level);
   const profileSocialLinks = userProfile;
   if (!isAuthenticated) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-black overflow-y-auto pb-20", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "container mx-auto px-4 py-6", children: [
@@ -52558,7 +54208,7 @@ const ProfileView = ({
             children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute left-6 top-12 w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "img",
               {
-                src: DEFAULT_AVATAR_SVG$1,
+                src: DEFAULT_AVATAR_SVG,
                 alt: "Default Avatar",
                 className: "w-full h-full object-cover"
               }
@@ -53172,7 +54822,7 @@ const ProfileView = ({
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-5 h-5 mr-2 text-orange-500" }),
                 "Statistics Overview"
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 md:grid-cols-3 gap-4", children: STAT_ITEMS$1.map(({ key, label, icon: Icon2, format }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 md:grid-cols-3 gap-4", children: STAT_ITEMS.map(({ key, label, icon: Icon2, format }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "div",
                 {
                   className: "bg-gray-50 rounded-lg p-3 border border-gray-200",
@@ -54865,476 +56515,6 @@ const DirectMessageChatView = ({
     }
   );
 };
-const DEFAULT_AVATAR_SVG = `data:image/svg+xml,${encodeURIComponent(`
-  <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
-      </linearGradient>
-      <linearGradient id="bg2" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.95" />
-        <stop offset="100%" style="stop-color:#f3f4f6;stop-opacity:0.95" />
-      </linearGradient>
-    </defs>
-    <circle cx="40" cy="40" r="40" fill="url(#ag)"/>
-    <circle cx="40" cy="40" r="36" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-    <circle cx="40" cy="30" r="12" fill="url(#bg2)" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-    <path d="M22 62 Q22 50 40 50 Q58 50 58 62 Q58 66 40 66 Q22 66 22 62 Z" fill="url(#bg2)" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
-    <circle cx="40" cy="40" r="40" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
-  </svg>
-`)}`;
-const getPlayerTitle = (level) => {
-  if (level >= 95) return "Eggsplosion Master";
-  if (level >= 90) return "Hen House Hero";
-  if (level >= 85) return "Rooster Ruler";
-  if (level >= 80) return "Coop Conqueror";
-  if (level >= 75) return "Cluck Commander";
-  if (level >= 70) return "Ultimate Chicken Champion";
-  if (level >= 65) return "Chicken Dragon Tamer";
-  if (level >= 60) return "Master of Molt";
-  if (level >= 55) return "Feather Curse Slayer";
-  if (level >= 50) return "Galactic Rooster Hunter";
-  if (level >= 45) return "Egg Exterminator";
-  if (level >= 40) return "Poultry Destroyer";
-  if (level >= 35) return "King of Chickens";
-  if (level >= 30) return "Turbo Tractorman";
-  if (level >= 25) return "Wing Hunter";
-  if (level >= 20) return "Roasted Hen Tamer";
-  if (level >= 15) return "Corn Massacre";
-  if (level >= 10) return "Feather Catcher";
-  if (level >= 5) return "Egg Breaker";
-  return "Chick Warrior";
-};
-const formatPlayTime = (minutes) => {
-  if (minutes < 60) return `${minutes}m`;
-  const hours = Math.floor(minutes / 60);
-  const rem = minutes % 60;
-  return rem > 0 ? `${hours}h ${rem}m` : `${hours}h`;
-};
-const STAT_ITEMS = [
-  {
-    key: "totalChickensShot",
-    label: "Total Chickens",
-    icon: Target,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "highestScore",
-    label: "Best Score",
-    icon: Trophy,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "currentAccuracy",
-    label: "Accuracy",
-    icon: TrendingUp,
-    format: (v2) => `${v2.toFixed(1)}%`
-  },
-  {
-    key: "totalPlayTimeMinutes",
-    label: "Play Time",
-    icon: Clock,
-    format: (v2) => formatPlayTime(v2)
-  },
-  {
-    key: "totalMissedShots",
-    label: "Missed Shots",
-    icon: X,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "goldenChickensShot",
-    label: "Golden Chickens",
-    icon: Star,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "fastChickensShot",
-    label: "Fast Chickens",
-    icon: Zap,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "smallChickensShot",
-    label: "Small Chickens",
-    icon: Target,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "mediumChickensShot",
-    label: "Medium Chickens",
-    icon: Target,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "largeChickensShot",
-    label: "Large Chickens",
-    icon: Target,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "bestConsecutiveHits",
-    label: "Best Streak",
-    icon: TrendingUp,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "perfectAccuracySessions",
-    label: "Perfect Sessions",
-    icon: Award,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "totalScore",
-    label: "Total Score",
-    icon: Star,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "totalShotsFired",
-    label: "Total Shots",
-    icon: Target,
-    format: (v2) => v2.toLocaleString()
-  },
-  {
-    key: "bestSessionChickens",
-    label: "Best Session",
-    icon: Trophy,
-    format: (v2) => v2.toLocaleString()
-  }
-];
-const StatSkeleton = () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 md:grid-cols-3 gap-3", children: Array.from({ length: 6 }, (_2, i) => `skel-${i}`).map((id) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-  "div",
-  {
-    className: "h-16 rounded-lg bg-muted border border-border animate-pulse"
-  },
-  id
-)) });
-const PlayerProfileScreen = ({
-  principal,
-  fallbackName,
-  fallbackLevel = 1,
-  isOwnProfile = false,
-  onBack,
-  onOpenDM
-}) => {
-  var _a3, _b3;
-  const { data: profile, isLoading: profileLoading } = useGetUserProfile(principal);
-  const { data: gameStats, isLoading: statsLoading } = useGetUserGameStats(principal);
-  const { data: isFriend, isLoading: friendLoading } = useIsFriend(
-    isOwnProfile ? null : principal
-  );
-  const addFriend = useAddFriend();
-  const removeFriend = useRemoveFriend();
-  const profilePicturePath = (profile == null ? void 0 : profile.profilePictureUrl) ?? "";
-  const bannerImagePath = (profile == null ? void 0 : profile.bannerImageUrl) ?? "";
-  const { data: profilePictureUrl } = useFileUrl(profilePicturePath);
-  const { data: bannerImageUrl } = useFileUrl(bannerImagePath);
-  const socialProfile = profile;
-  const displayName = ((_a3 = profile == null ? void 0 : profile.name) == null ? void 0 : _a3.trim()) || (fallbackName == null ? void 0 : fallbackName.trim()) || `${principal.toText().slice(0, 10)}…`;
-  const level = gameStats ? Number(gameStats.level) : fallbackLevel;
-  const currentTitle = getPlayerTitle(level);
-  const highestScore = gameStats ? Number(gameStats.highestScore) : 0;
-  const xpForLevel = (lvl) => Math.floor(100 * lvl ** 1.5);
-  const currentXP = highestScore % Math.max(1, xpForLevel(level));
-  const requiredXP = xpForLevel(level);
-  const getAvatarSrc = () => (profilePictureUrl == null ? void 0 : profilePictureUrl.trim()) ? profilePictureUrl : DEFAULT_AVATAR_SVG;
-  const getBannerStyle = () => (bannerImageUrl == null ? void 0 : bannerImageUrl.trim()) ? {
-    backgroundImage: `url(${bannerImageUrl})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat"
-  } : {};
-  const handleImageError = (e) => {
-    e.currentTarget.src = DEFAULT_AVATAR_SVG;
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "div",
-    {
-      className: "flex flex-col overflow-hidden",
-      style: { height: "100%", width: "100%" },
-      "data-ocid": "player_profile.page",
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 px-4 pt-4 pb-3 border-b border-gray-800 shrink-0 bg-black", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              type: "button",
-              "data-ocid": "player_profile.back_button",
-              onClick: onBack,
-              className: "flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-gray-200 text-black hover:border-orange-400 transition-colors shadow-sm shrink-0",
-              "aria-label": "Back",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 18 })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg font-black text-white truncate flex-1", children: "Player Profile" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto bg-black pb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-4 mt-4 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              className: "h-28 relative bg-gradient-to-br from-orange-900 via-orange-700 to-black",
-              style: getBannerStyle(),
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute left-6 bottom-0 translate-y-1/2 w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg bg-orange-100", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "img",
-                {
-                  src: getAvatarSrc(),
-                  alt: `${displayName}'s avatar`,
-                  className: "w-full h-full object-cover",
-                  onError: handleImageError
-                }
-              ) })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-6 pt-14", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-2", children: profileLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-7 w-40 bg-gray-200 rounded animate-pulse mb-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center flex-wrap gap-2 mb-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-bold text-black", children: displayName }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 px-2 py-1 rounded-full shadow-sm", children: [
-                "Lv.",
-                level
-              ] })
-            ] }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4", children: profileLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-4 w-full bg-gray-100 rounded animate-pulse" }) : ((_b3 = profile == null ? void 0 : profile.bio) == null ? void 0 : _b3.trim()) ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-700 whitespace-pre-wrap break-words", children: profile.bio.trim() }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-gray-400 italic", children: "No bio set." }) }),
-            !profileLoading && ((socialProfile == null ? void 0 : socialProfile.xUrl) || (socialProfile == null ? void 0 : socialProfile.telegramUrl) || (socialProfile == null ? void 0 : socialProfile.youtubeUrl) || (socialProfile == null ? void 0 : socialProfile.githubUrl)) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "div",
-              {
-                className: "flex items-center gap-3 mb-4",
-                "data-ocid": "player_profile.social_links",
-                children: [
-                  (socialProfile == null ? void 0 : socialProfile.xUrl) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "a",
-                    {
-                      href: socialProfile.xUrl,
-                      target: "_blank",
-                      rel: "noopener noreferrer",
-                      className: "w-9 h-9 flex items-center justify-center rounded-xl bg-black hover:scale-110 hover:opacity-90 transition-all shadow-sm",
-                      "aria-label": "X profile",
-                      "data-ocid": "player_profile.x_link",
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "X profile" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "svg",
-                          {
-                            width: "16",
-                            height: "16",
-                            viewBox: "0 0 24 24",
-                            fill: "white",
-                            xmlns: "http://www.w3.org/2000/svg",
-                            "aria-hidden": "true",
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" })
-                          }
-                        )
-                      ]
-                    }
-                  ),
-                  (socialProfile == null ? void 0 : socialProfile.telegramUrl) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "a",
-                    {
-                      href: socialProfile.telegramUrl,
-                      target: "_blank",
-                      rel: "noopener noreferrer",
-                      className: "w-9 h-9 flex items-center justify-center rounded-xl hover:scale-110 hover:opacity-90 transition-all shadow-sm",
-                      style: { backgroundColor: "#229ED9" },
-                      "aria-label": "Telegram profile",
-                      "data-ocid": "player_profile.telegram_link",
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "Telegram profile" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "svg",
-                          {
-                            width: "16",
-                            height: "16",
-                            viewBox: "0 0 24 24",
-                            fill: "white",
-                            xmlns: "http://www.w3.org/2000/svg",
-                            "aria-hidden": "true",
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" })
-                          }
-                        )
-                      ]
-                    }
-                  ),
-                  (socialProfile == null ? void 0 : socialProfile.youtubeUrl) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "a",
-                    {
-                      href: socialProfile.youtubeUrl,
-                      target: "_blank",
-                      rel: "noopener noreferrer",
-                      className: "w-9 h-9 flex items-center justify-center rounded-xl hover:scale-110 hover:opacity-90 transition-all shadow-sm",
-                      style: { backgroundColor: "#FF0000" },
-                      "aria-label": "YouTube channel",
-                      "data-ocid": "player_profile.youtube_link",
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "YouTube channel" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "svg",
-                          {
-                            width: "16",
-                            height: "16",
-                            viewBox: "0 0 24 24",
-                            fill: "white",
-                            xmlns: "http://www.w3.org/2000/svg",
-                            "aria-hidden": "true",
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" })
-                          }
-                        )
-                      ]
-                    }
-                  ),
-                  (socialProfile == null ? void 0 : socialProfile.githubUrl) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "a",
-                    {
-                      href: socialProfile.githubUrl,
-                      target: "_blank",
-                      rel: "noopener noreferrer",
-                      className: "w-9 h-9 flex items-center justify-center rounded-xl hover:scale-110 hover:opacity-90 transition-all shadow-sm",
-                      style: { backgroundColor: "#181717" },
-                      "aria-label": "GitHub profile",
-                      "data-ocid": "player_profile.github_link",
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sr-only", children: "GitHub profile" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "svg",
-                          {
-                            width: "16",
-                            height: "16",
-                            viewBox: "0 0 24 24",
-                            fill: "white",
-                            xmlns: "http://www.w3.org/2000/svg",
-                            "aria-hidden": "true",
-                            children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" })
-                          }
-                        )
-                      ]
-                    }
-                  )
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center mb-5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg px-3 py-1.5 shadow-md", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-4 h-4 mr-2 text-yellow-300" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-sm", children: currentTitle })
-            ] }) }),
-            level < 100 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between text-xs font-medium text-gray-600 mb-1", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                  "Level ",
-                  level
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                  currentXP.toLocaleString(),
-                  " / ",
-                  requiredXP.toLocaleString(),
-                  " ",
-                  "XP"
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full bg-gray-200 rounded-full h-2 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "h-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full transition-all duration-500",
-                  style: {
-                    width: `${Math.min(100, currentXP / Math.max(1, requiredXP) * 100)}%`
-                  }
-                }
-              ) })
-            ] }),
-            !isOwnProfile && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-5", children: [
-              friendLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "w-full h-11 rounded-xl bg-gray-100 border border-gray-200 animate-pulse",
-                  "data-ocid": "player_profile.friend_button.loading_state"
-                }
-              ) : isFriend ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  type: "button",
-                  "data-ocid": "player_profile.remove_friend_button",
-                  disabled: removeFriend.isPending,
-                  onClick: () => removeFriend.mutate(principal),
-                  className: "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white border border-red-200 text-red-500 font-bold text-sm hover:bg-red-50 transition-colors disabled:opacity-40 shadow-sm",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(UserMinus, { size: 16 }),
-                    removeFriend.isPending ? "Removing…" : "Remove Friend"
-                  ]
-                }
-              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  type: "button",
-                  "data-ocid": "player_profile.add_friend_button",
-                  disabled: addFriend.isPending,
-                  onClick: () => addFriend.mutate(principal),
-                  className: "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 shadow-md",
-                  children: addFriend.isPending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-4 w-4 border-b-2 border-white" }),
-                    "Adding…"
-                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(UserPlus, { size: 16 }),
-                    "Add Friend"
-                  ] })
-                }
-              ),
-              addFriend.isSuccess && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-center gap-1.5 mt-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 14, className: "text-green-600" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-green-600 font-medium", children: "You are now friends!" })
-              ] }),
-              onOpenDM && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  type: "button",
-                  "data-ocid": "player_profile.chat_button",
-                  onClick: () => onOpenDM(principal, displayName),
-                  className: "w-full flex items-center justify-center gap-2 py-2.5 mt-2 rounded-xl bg-white border border-gray-200 hover:border-orange-400 hover:text-orange-600 text-gray-700 font-bold text-sm transition-all shadow-sm",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { size: 16 }),
-                    "Message"
-                  ]
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border-t border-gray-200 pt-5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-lg font-black text-black flex items-center mb-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Trophy, { className: "w-5 h-5 mr-2 text-orange-500" }),
-                "Statistics Overview"
-              ] }),
-              statsLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(StatSkeleton, {}) : !gameStats ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "text-center py-6 text-gray-400 text-sm",
-                  "data-ocid": "player_profile.stats.empty_state",
-                  children: "No statistics yet"
-                }
-              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "grid grid-cols-2 md:grid-cols-3 gap-4",
-                  "data-ocid": "player_profile.stats.list",
-                  children: STAT_ITEMS.map(({ key, label, icon: Icon2, format }) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "div",
-                    {
-                      className: "bg-gray-50 rounded-lg p-3 border border-gray-200",
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center mb-2", children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-4 h-4 text-orange-500 mr-2" }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-medium text-gray-600 truncate", children: label })
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-lg font-black text-gray-700", children: format(Number(gameStats[key] ?? 0)) })
-                      ]
-                    },
-                    key
-                  ))
-                }
-              )
-            ] })
-          ] })
-        ] }) })
-      ]
-    }
-  );
-};
 const IMG_PREFIX = "[img]";
 const MAX_IMG_DIMENSION = 1200;
 const IMG_QUALITY = 0.75;
@@ -56094,7 +57274,7 @@ const MyClanInlineDetails = ({
                       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-9 h-9 rounded-xl bg-orange-100 text-orange-600 font-black text-xs shrink-0 border border-orange-200", children: initials }),
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-black text-sm font-bold truncate", children: member.name || "Unknown" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-black text-sm font-bold truncate", children: member.name || "Player #?" }),
                           isOwnerRow && /* @__PURE__ */ jsxRuntimeExports.jsx(Crown$1, { size: 11, className: "text-orange-500 shrink-0" })
                         ] }),
                         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500", children: [
@@ -56676,7 +57856,7 @@ const MemberRow = ({
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-9 h-9 rounded-xl bg-orange-100 text-orange-600 font-black text-xs shrink-0 border border-orange-200", children: initials }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-black text-sm font-bold truncate", children: member.name || "Unknown" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-black text-sm font-bold truncate", children: member.name || "Player #?" }),
             isOwner && /* @__PURE__ */ jsxRuntimeExports.jsx(Crown$1, { size: 11, className: "text-orange-500 shrink-0" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs text-gray-500", children: [
@@ -56729,7 +57909,7 @@ const PendingRequestsView = ({
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center w-10 h-10 rounded-xl bg-orange-100 text-orange-600 font-black text-xs shrink-0 border border-orange-200", children: (user.name || "??").slice(0, 2).toUpperCase() }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-black text-sm font-bold truncate", children: user.name || "Unknown" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-black text-sm font-bold truncate", children: user.name || "Player #?" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-gray-500", children: [
                   "Level ",
                   user.level.toString()
@@ -56793,7 +57973,7 @@ const InlineClanChat = ({
     const found = members.find(
       (m2) => m2.principal.toText() === principal.toText()
     );
-    return (found == null ? void 0 : found.name) || `${principal.toText().slice(0, 12)}…`;
+    return (found == null ? void 0 : found.name) || "Player #?";
   };
   reactExports.useEffect(() => {
     var _a3;
@@ -57168,6 +58348,732 @@ const ScreenHeader = ({
   ),
   /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg font-black text-white truncate flex-1", children: title })
 ] });
+const WEATHER_CITIES = [
+  { name: "New York", lat: 40.71, lon: -74.01 },
+  { name: "London", lat: 51.51, lon: -0.13 },
+  { name: "Tokyo", lat: 35.68, lon: 139.69 },
+  { name: "Dubai", lat: 25.2, lon: 55.27 },
+  { name: "Sydney", lat: -33.87, lon: 151.21 }
+];
+async function fetchCityWeather(name, lat, lon) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,precipitation,weathercode,windspeed_10m,relativehumidity_2m&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=10`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(12e3) });
+  if (!res.ok) throw new Error(`Open-Meteo ${res.status} for ${name}`);
+  const data = await res.json();
+  return {
+    city: name,
+    lat,
+    lon,
+    current: {
+      temperature: Math.round(data.current.temperature_2m),
+      apparentTemperature: Math.round(data.current.apparent_temperature),
+      precipitation: data.current.precipitation,
+      weatherCode: data.current.weathercode,
+      windSpeed: Math.round(data.current.windspeed_10m),
+      humidity: Math.round(data.current.relativehumidity_2m)
+    },
+    daily: {
+      weatherCode: data.daily.weathercode,
+      tempMax: data.daily.temperature_2m_max.map(Math.round),
+      tempMin: data.daily.temperature_2m_min.map(Math.round),
+      precipitationProbability: data.daily.precipitation_probability_max,
+      time: data.daily.time
+    }
+  };
+}
+function useWeatherData() {
+  return useQuery({
+    queryKey: ["weatherData"],
+    queryFn: async () => {
+      const results = await Promise.allSettled(
+        WEATHER_CITIES.map((c2) => fetchCityWeather(c2.name, c2.lat, c2.lon))
+      );
+      const cities = results.filter(
+        (r2) => r2.status === "fulfilled"
+      ).map((r2) => r2.value);
+      if (cities.length === 0) return null;
+      return { cities, fetchedAt: Date.now() };
+    },
+    staleTime: 5 * 6e4,
+    refetchInterval: 10 * 6e4,
+    placeholderData: (prev) => prev ?? null
+  });
+}
+function getWeatherCondition(code) {
+  if (code === 0) return "Clear";
+  if (code <= 3) return "Partly Cloudy";
+  if (code <= 48) return "Foggy";
+  if (code <= 67) return "Rainy";
+  if (code <= 77) return "Snowy";
+  if (code <= 82) return "Showers";
+  if (code <= 86) return "Snow Showers";
+  return "Thunderstorm";
+}
+function getParticleType(code) {
+  if (code === 0) return "clear";
+  if (code <= 3) return "cloudy";
+  if (code <= 48) return "cloudy";
+  if (code <= 67) return "rain";
+  if (code <= 77) return "snow";
+  if (code <= 82) return "rain";
+  if (code <= 86) return "snow";
+  return "storm";
+}
+function getSkyGradient(code) {
+  if (code === 0)
+    return "linear-gradient(180deg, #1a6bce 0%, #3a8ee8 40%, #7bbff7 100%)";
+  if (code <= 3)
+    return "linear-gradient(180deg, #3a6080 0%, #5a82a8 40%, #8aafcc 100%)";
+  if (code <= 48)
+    return "linear-gradient(180deg, #2a3a48 0%, #4a5a68 40%, #6a7a88 100%)";
+  if (code <= 67)
+    return "linear-gradient(180deg, #1a2230 0%, #2a3448 40%, #3a4a58 100%)";
+  if (code <= 77)
+    return "linear-gradient(180deg, #2a3040 0%, #3a4258 40%, #5a6278 100%)";
+  if (code <= 82)
+    return "linear-gradient(180deg, #1a2835 0%, #2a3848 40%, #445060 100%)";
+  if (code <= 86)
+    return "linear-gradient(180deg, #252838 0%, #383d52 40%, #525870 100%)";
+  return "linear-gradient(180deg, #0a0a14 0%, #141428 40%, #202040 100%)";
+}
+const CITY_DURATION = 12e3;
+const FLIP_DURATION = 600;
+function WeatherIcon({
+  code,
+  size = 32
+}) {
+  if (code === 0) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "svg",
+      {
+        width: size,
+        height: size,
+        viewBox: "0 0 48 48",
+        role: "img",
+        "aria-label": "sunny",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "24", cy: "24", r: "9", fill: "#FFD700" }),
+          [0, 45, 90, 135, 180, 225, 270, 315].map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: "24",
+              y1: "24",
+              x2: 24 + 16 * Math.cos(a2 * Math.PI / 180),
+              y2: 24 + 16 * Math.sin(a2 * Math.PI / 180),
+              stroke: "#FFD700",
+              strokeWidth: "2.5",
+              strokeLinecap: "round"
+            },
+            a2
+          ))
+        ]
+      }
+    );
+  }
+  if (code <= 3) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "svg",
+      {
+        width: size,
+        height: size,
+        viewBox: "0 0 48 48",
+        role: "img",
+        "aria-label": "partly cloudy",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "18", cy: "20", r: "7", fill: "#FFD700", opacity: "0.9" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "28", cy: "30", rx: "12", ry: "8", fill: "#CBD5E1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "20", cy: "32", rx: "9", ry: "6", fill: "#E2E8F0" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "32", cy: "33", rx: "7", ry: "5", fill: "#E2E8F0" })
+        ]
+      }
+    );
+  }
+  if (code <= 48) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "svg",
+      {
+        width: size,
+        height: size,
+        viewBox: "0 0 48 48",
+        role: "img",
+        "aria-label": "foggy",
+        children: [14, 20, 26, 32].map((y2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "line",
+          {
+            x1: "8",
+            y1: y2,
+            x2: "40",
+            y2,
+            stroke: "#94A3B8",
+            strokeWidth: "3",
+            strokeLinecap: "round",
+            opacity: "0.7"
+          },
+          y2
+        ))
+      }
+    );
+  }
+  if (code <= 67) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "svg",
+      {
+        width: size,
+        height: size,
+        viewBox: "0 0 48 48",
+        role: "img",
+        "aria-label": "rainy",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "24", cy: "18", rx: "14", ry: "10", fill: "#64748B" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "16", cy: "20", rx: "10", ry: "7", fill: "#94A3B8" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "32", cy: "20", rx: "10", ry: "7", fill: "#94A3B8" }),
+          [16, 22, 28, 34].map((x2, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "line",
+            {
+              x1: x2,
+              y1: 30 + i * 1,
+              x2: x2 - 3,
+              y2: 42 + i * 1,
+              stroke: "#60A5FA",
+              strokeWidth: "2",
+              strokeLinecap: "round"
+            },
+            x2
+          ))
+        ]
+      }
+    );
+  }
+  if (code <= 86) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "svg",
+      {
+        width: size,
+        height: size,
+        viewBox: "0 0 48 48",
+        role: "img",
+        "aria-label": "snowy",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "24", cy: "18", rx: "14", ry: "10", fill: "#64748B" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "16", cy: "20", rx: "10", ry: "7", fill: "#94A3B8" }),
+          [14, 22, 30, 38].map((x2, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("text", { x: x2, y: 38 + i % 2 * 4, fontSize: "10", fill: "white", children: "*" }, x2))
+        ]
+      }
+    );
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "svg",
+    {
+      width: size,
+      height: size,
+      viewBox: "0 0 48 48",
+      role: "img",
+      "aria-label": "thunderstorm",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "24", cy: "14", rx: "14", ry: "9", fill: "#374151" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "16", cy: "16", rx: "10", ry: "7", fill: "#4B5563" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "26,22 18,34 24,34 22,46 32,30 26,30", fill: "#FDE047" })
+      ]
+    }
+  );
+}
+function SplitFlapChar({
+  char,
+  flipping
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `split-flap-char${flipping ? " flipping" : ""}`, children: char });
+}
+function SplitFlapText({
+  text,
+  className = "",
+  triggerKey
+}) {
+  const [displayText, setDisplayText] = reactExports.useState(text);
+  const [flippingChars, setFlippingChars] = reactExports.useState([]);
+  const prevKeyRef = reactExports.useRef(triggerKey);
+  reactExports.useEffect(() => {
+    if (prevKeyRef.current === triggerKey) return;
+    prevKeyRef.current = triggerKey;
+    setFlippingChars(Array(text.length).fill(true));
+    const t = setTimeout(() => {
+      setDisplayText(text);
+      setFlippingChars([]);
+    }, FLIP_DURATION);
+    return () => clearTimeout(t);
+  }, [triggerKey, text]);
+  const chars = displayText.padEnd(text.length, " ").split("");
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `split-flap-word ${className}`, children: chars.map((char, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    SplitFlapChar,
+    {
+      char,
+      flipping: flippingChars[i] ?? false
+    },
+    `${i}-${triggerKey}`
+  )) });
+}
+function makeParticle(id, pType) {
+  const t = pType === "rain" || pType === "storm" ? "rain" : pType === "snow" ? "snow" : pType === "cloudy" ? "cloud" : "sun";
+  return {
+    id,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: t === "cloud" ? 40 + Math.random() * 60 : 4 + Math.random() * 8,
+    speed: t === "rain" ? 1.5 + Math.random() : 0.3 + Math.random() * 0.3,
+    sway: t === "snow" || t === "cloud" ? 0.3 + Math.random() * 0.4 : 0.05,
+    swayPhase: Math.random() * Math.PI * 2,
+    opacity: t === "cloud" ? 0.12 + Math.random() * 0.1 : 0.5 + Math.random() * 0.4,
+    type: t
+  };
+}
+function ParticleOverlay({
+  particleType
+}) {
+  const canvasRef = reactExports.useRef(null);
+  const particlesRef = reactExports.useRef([]);
+  const rafRef = reactExports.useRef(0);
+  reactExports.useEffect(() => {
+    const count = particleType === "rain" || particleType === "storm" ? 60 : particleType === "snow" ? 40 : particleType === "cloudy" ? 8 : 20;
+    particlesRef.current = Array.from(
+      { length: count },
+      (_2, i) => makeParticle(i, particleType)
+    );
+  }, [particleType]);
+  reactExports.useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    let frame = 0;
+    const draw = () => {
+      frame++;
+      const w2 = canvas.width;
+      const h2 = canvas.height;
+      ctx.clearRect(0, 0, w2, h2);
+      for (const p2 of particlesRef.current) {
+        const px = p2.x / 100 * w2;
+        const py = p2.y / 100 * h2;
+        const swayX = Math.sin(frame * 0.02 + p2.swayPhase) * p2.sway * 20;
+        if (p2.type === "rain") {
+          ctx.save();
+          ctx.globalAlpha = p2.opacity;
+          ctx.strokeStyle = particleType === "storm" ? "#93C5FD" : "#60A5FA";
+          ctx.lineWidth = p2.size * 0.15;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(px + swayX, py);
+          ctx.lineTo(px + swayX - p2.size * 0.3, py + p2.size * 1.8);
+          ctx.stroke();
+          ctx.restore();
+        } else if (p2.type === "snow") {
+          ctx.save();
+          ctx.globalAlpha = p2.opacity;
+          ctx.fillStyle = "#E0F2FE";
+          ctx.beginPath();
+          ctx.arc(px + swayX, py, p2.size * 0.4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#BAE6FD";
+          ctx.lineWidth = p2.size * 0.1;
+          for (let a2 = 0; a2 < 3; a2++) {
+            const angle = a2 / 3 * Math.PI;
+            ctx.beginPath();
+            ctx.moveTo(
+              px + swayX - Math.cos(angle) * p2.size * 0.5,
+              py - Math.sin(angle) * p2.size * 0.5
+            );
+            ctx.lineTo(
+              px + swayX + Math.cos(angle) * p2.size * 0.5,
+              py + Math.sin(angle) * p2.size * 0.5
+            );
+            ctx.stroke();
+          }
+          ctx.restore();
+        } else if (p2.type === "sun") {
+          ctx.save();
+          ctx.globalAlpha = p2.opacity * (0.5 + 0.5 * Math.sin(frame * 0.03 + p2.swayPhase));
+          const grad = ctx.createRadialGradient(
+            px + swayX,
+            py,
+            0,
+            px + swayX,
+            py,
+            p2.size * 0.8
+          );
+          grad.addColorStop(0, "rgba(255,220,80,0.8)");
+          grad.addColorStop(1, "rgba(255,160,0,0)");
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(px + swayX, py, p2.size * 0.8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        } else if (p2.type === "cloud") {
+          ctx.save();
+          ctx.globalAlpha = p2.opacity;
+          ctx.fillStyle = "rgba(255,255,255,0.15)";
+          ctx.beginPath();
+          ctx.ellipse(
+            px + swayX * 2,
+            py,
+            p2.size,
+            p2.size * 0.55,
+            0,
+            0,
+            Math.PI * 2
+          );
+          ctx.fill();
+          ctx.restore();
+        }
+        p2.y += p2.speed * 0.08;
+        if (p2.type === "cloud") p2.x += p2.speed * 0.02;
+        if (p2.y > 105) {
+          p2.y = -5;
+          p2.x = Math.random() * 100;
+        }
+        if (p2.x > 115) p2.x = -10;
+      }
+      rafRef.current = requestAnimationFrame(draw);
+    };
+    rafRef.current = requestAnimationFrame(draw);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      ro.disconnect();
+    };
+  }, [particleType]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "canvas",
+    {
+      ref: canvasRef,
+      className: "absolute inset-0 w-full h-full pointer-events-none",
+      style: { zIndex: 2 }
+    }
+  );
+}
+function ForecastRow({
+  dayLabel,
+  code,
+  precipProb,
+  tempMin,
+  tempMax,
+  globalMin,
+  globalMax
+}) {
+  const range = globalMax - globalMin || 1;
+  const leftPct = (tempMin - globalMin) / range * 100;
+  const widthPct = (tempMax - tempMin) / range * 100;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "flex items-center gap-2 py-1.5 px-3",
+      style: { minHeight: 36 },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
+          {
+            className: "text-white font-semibold text-sm shrink-0",
+            style: { width: 34, fontVariantNumeric: "tabular-nums" },
+            children: dayLabel
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0", style: { width: 28 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(WeatherIcon, { code, size: 24 }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
+          {
+            className: "text-blue-300 text-xs font-medium shrink-0 tabular-nums",
+            style: { width: 30 },
+            children: precipProb > 0 ? `${precipProb}%` : ""
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "span",
+          {
+            className: "text-blue-200 text-sm font-medium tabular-nums shrink-0",
+            style: { width: 28 },
+            children: [
+              tempMin,
+              "°"
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "relative flex-1",
+            style: {
+              height: 6,
+              background: "rgba(255,255,255,0.1)",
+              borderRadius: 3
+            },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                style: {
+                  position: "absolute",
+                  left: `${leftPct}%`,
+                  width: `${Math.max(widthPct, 4)}%`,
+                  height: "100%",
+                  background: "linear-gradient(to right, #22d3ee, #34d399, #a3e635, #facc15, #f97316)",
+                  borderRadius: 3
+                }
+              }
+            )
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "span",
+          {
+            className: "text-orange-200 text-sm font-medium tabular-nums shrink-0",
+            style: { width: 28 },
+            children: [
+              tempMax,
+              "°"
+            ]
+          }
+        )
+      ]
+    }
+  );
+}
+const WeatherWorld = ({ isGameplay = false }) => {
+  const { data: weatherData } = useWeatherData();
+  const [cityIndex, setCityIndex] = reactExports.useState(0);
+  const [cycleKey, setCycleKey] = reactExports.useState(0);
+  const [timerProgress, setTimerProgress] = reactExports.useState(0);
+  const startTimeRef = reactExports.useRef(Date.now());
+  const intervalRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    startTimeRef.current = Date.now();
+    setTimerProgress(0);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTimeRef.current;
+      const pct = Math.min(elapsed / CITY_DURATION, 1);
+      setTimerProgress(pct);
+      if (pct >= 1) {
+        setCityIndex((prev) => {
+          const next = (prev + 1) % WEATHER_CITIES.length;
+          setCycleKey((k2) => k2 + 1);
+          startTimeRef.current = Date.now();
+          return next;
+        });
+      }
+    }, 50);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+  const cityData = (weatherData == null ? void 0 : weatherData.cities[cityIndex]) ?? null;
+  const currentCode = (cityData == null ? void 0 : cityData.current.weatherCode) ?? 0;
+  const particleType = getParticleType(currentCode);
+  const skyGradient = getSkyGradient(currentCode);
+  const cityName = WEATHER_CITIES[cityIndex].name;
+  const getDayLabel = (dateStr, i) => {
+    if (i === 0) return "Today";
+    const d2 = new Date(dateStr);
+    return d2.toLocaleDateString("en-US", { weekday: "short" });
+  };
+  const forecastCount = Math.min(
+    (cityData == null ? void 0 : cityData.daily.time.length) ?? 0,
+    isGameplay ? 8 : 10
+  );
+  const globalMin = cityData ? Math.min(...cityData.daily.tempMin.slice(0, forecastCount)) : 0;
+  const globalMax = cityData ? Math.max(...cityData.daily.tempMax.slice(0, forecastCount)) : 30;
+  const handleCityClick = (i) => {
+    setCityIndex(i);
+    setCycleKey((k2) => k2 + 1);
+    startTimeRef.current = Date.now();
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "absolute inset-0 overflow-hidden",
+      style: {
+        background: skyGradient,
+        transition: "background 1s ease",
+        zIndex: 10
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ParticleOverlay, { particleType }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "absolute top-0 left-0 right-0",
+            style: { height: 3, zIndex: 20, background: "rgba(255,255,255,0.1)" },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                style: {
+                  width: `${timerProgress * 100}%`,
+                  height: "100%",
+                  background: "rgba(255,255,255,0.7)",
+                  transition: "width 0.05s linear"
+                }
+              }
+            )
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "absolute inset-0 flex flex-col items-center justify-center px-4",
+            style: { zIndex: 15, paddingBottom: 80, gap: 4 },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "text-center",
+                  style: { textShadow: "0 2px 12px rgba(0,0,0,0.5)" },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    SplitFlapText,
+                    {
+                      text: cityName.toUpperCase(),
+                      className: "split-flap-city",
+                      triggerKey: cycleKey
+                    }
+                  )
+                }
+              ),
+              cityData ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-end gap-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    SplitFlapText,
+                    {
+                      text: `${cityData.current.temperature}°C`,
+                      className: "split-flap-temp",
+                      triggerKey: cycleKey
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginBottom: 8 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(WeatherIcon, { code: currentCode, size: 40 }) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "div",
+                  {
+                    className: "text-white/80 text-sm",
+                    style: { textShadow: "0 1px 6px rgba(0,0,0,0.5)" },
+                    children: [
+                      getWeatherCondition(currentCode),
+                      " · Feels like",
+                      " ",
+                      cityData.current.apparentTemperature,
+                      "°C"
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "div",
+                  {
+                    className: "flex gap-4 text-white/70 text-xs",
+                    style: { textShadow: "0 1px 4px rgba(0,0,0,0.4)" },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                        "💨 ",
+                        cityData.current.windSpeed,
+                        " km/h"
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                        "💧 ",
+                        cityData.current.humidity,
+                        "%"
+                      ] }),
+                      cityData.current.precipitation > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                        "🌧 ",
+                        cityData.current.precipitation,
+                        " mm"
+                      ] })
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "div",
+                  {
+                    className: "w-full max-w-sm rounded-2xl overflow-hidden",
+                    style: {
+                      background: "rgba(20,30,50,0.25)",
+                      backdropFilter: "blur(20px)",
+                      WebkitBackdropFilter: "blur(20px)",
+                      border: "1px solid rgba(255,255,255,0.15)",
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.3)"
+                    },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "div",
+                        {
+                          className: "flex border-b",
+                          style: { borderColor: "rgba(255,255,255,0.1)" },
+                          children: WEATHER_CITIES.map((c2, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "button",
+                            {
+                              type: "button",
+                              onClick: () => handleCityClick(i),
+                              className: "flex-1 py-1.5 text-xs font-semibold transition-colors",
+                              style: {
+                                color: i === cityIndex ? "#fff" : "rgba(255,255,255,0.45)",
+                                background: i === cityIndex ? "rgba(255,255,255,0.12)" : "transparent",
+                                borderBottom: i === cityIndex ? "2px solid rgba(255,255,255,0.6)" : "2px solid transparent"
+                              },
+                              "data-ocid": `weather.city_tab.${i + 1}`,
+                              children: c2.name.split(" ")[0]
+                            },
+                            c2.name
+                          ))
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "div",
+                        {
+                          className: "divide-y",
+                          style: { borderColor: "rgba(255,255,255,0.05)" },
+                          children: cityData.daily.time.slice(0, forecastCount).map((dateStr, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            ForecastRow,
+                            {
+                              dayLabel: getDayLabel(dateStr, i),
+                              code: cityData.daily.weatherCode[i],
+                              precipProb: cityData.daily.precipitationProbability[i] ?? 0,
+                              tempMin: cityData.daily.tempMin[i],
+                              tempMax: cityData.daily.tempMax[i],
+                              globalMin,
+                              globalMax
+                            },
+                            dateStr
+                          ))
+                        }
+                      )
+                    ]
+                  }
+                )
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "text-white/60 text-sm animate-pulse",
+                  style: { textShadow: "0 1px 6px rgba(0,0,0,0.5)" },
+                  children: "Loading weather data…"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-1.5 mt-1", children: WEATHER_CITIES.map((c2, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  style: {
+                    width: i === cityIndex ? 16 : 6,
+                    height: 6,
+                    borderRadius: 3,
+                    background: i === cityIndex ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.3)",
+                    transition: "all 0.3s ease"
+                  }
+                },
+                c2.name
+              )) })
+            ]
+          }
+        )
+      ]
+    }
+  );
+};
 const CHICKEN_COLORS$1 = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
 const FAST_CHICKEN_COLORS = [
   "#FF4500",
@@ -57246,6 +59152,7 @@ const GameScreen = ({
   } : null;
   const { data: brentOilData } = useBrentOilPrice();
   const brentOilPrice = selectedWorld === "hormuz" && brentOilData ? { price: brentOilData.price, change24h: brentOilData.change24h } : null;
+  const { count: cigarettesCount } = useCigarettesTodayCounter();
   const audioContextRef = reactExports.useRef(null);
   const backgroundMusicGainRef = reactExports.useRef(null);
   const rainSoundGainRef = reactExports.useRef(null);
@@ -57276,11 +59183,17 @@ const GameScreen = ({
     // Paper Hands Panic event (Dogecoin world only)
     paperHandsPanicActive: false,
     paperHandsPanicCount: 0,
-    paperHandsPanicStartTime: null
+    paperHandsPanicStartTime: null,
+    // Mid-round periodic event check timestamps (Dogecoin world only)
+    lastWhaleCheckTime: 0,
+    lastPanicCheckTime: 0
   });
   const [hitEffects, setHitEffects] = reactExports.useState([]);
   const [popWords, setPopWords] = reactExports.useState([]);
+  const [showPanicBanner, setShowPanicBanner] = reactExports.useState(false);
+  const [showWhaleBanner, setShowWhaleBanner] = reactExports.useState(false);
   const [currentView, setCurrentView] = reactExports.useState(initialView);
+  const [leaderboardViewingProfile, setLeaderboardViewingProfile] = reactExports.useState(null);
   const [timeRemaining, setTimeRemaining] = reactExports.useState(GAME_DURATION);
   const [gameEnded, setGameEnded] = reactExports.useState(false);
   const [scoreMultiplier, setScoreMultiplier] = reactExports.useState({
@@ -57300,7 +59213,8 @@ const GameScreen = ({
     hasMinimumShots: false,
     xpEarned: 0
   });
-  const { isAuthenticated } = useInternetIdentity();
+  const { isAuthenticated, identity } = useInternetIdentity();
+  const currentPrincipal = (identity == null ? void 0 : identity.getPrincipal()) ?? null;
   const saveGameStatsMutation = useSaveGameStatistics();
   reactExports.useEffect(() => {
     const loadSettings = () => {
@@ -59964,6 +61878,264 @@ const GameScreen = ({
     },
     [drawExplosion]
   );
+  const drawCigarette = reactExports.useCallback(
+    (ctx, chicken) => {
+      if (chicken.isExploding) {
+        drawExplosion(ctx, chicken);
+        return;
+      }
+      const { x: x2, y: y2, size, wingPhase, direction, type, isGolden } = chicken;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let cw;
+      let ch;
+      if (chicken.distance === "far") {
+        cw = 52;
+        ch = 10;
+      } else if (chicken.distance === "medium") {
+        cw = 80;
+        ch = 16;
+      } else {
+        cw = 112;
+        ch = 22;
+      }
+      const r2 = ch / 2;
+      const filterLen = cw * 0.22;
+      const t = Date.now();
+      const emberPulse = 0.75 + 0.25 * Math.sin(wingPhase * 1.8 + t * 4e-3);
+      ctx.save();
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      if (type === "fast" && !isGolden) {
+        ctx.shadowColor = "#FF6600";
+        ctx.shadowBlur = 10;
+      }
+      if (isGolden) {
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 14;
+      }
+      const wispAlpha = 0.22 + 0.1 * Math.sin(wingPhase + t * 3e-3);
+      ctx.save();
+      ctx.shadowBlur = 0;
+      for (let i = 0; i < 3; i++) {
+        const wx = -cw / 2 + (i - 1) * ch * 0.35;
+        const wyBase = -r2 - 3;
+        const waveX = Math.sin(wingPhase * 0.9 + i * 1.2) * ch * 0.6;
+        ctx.strokeStyle = `rgba(200,200,200,${wispAlpha * (1 - i * 0.2)})`;
+        ctx.lineWidth = Math.max(1, ch * 0.12);
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(wx, wyBase);
+        ctx.quadraticCurveTo(
+          wx + waveX,
+          wyBase - ch * 0.9,
+          wx - waveX * 0.5,
+          wyBase - ch * 1.8
+        );
+        ctx.stroke();
+      }
+      ctx.restore();
+      const paperGrad = ctx.createLinearGradient(0, -r2, 0, r2);
+      if (isGolden) {
+        paperGrad.addColorStop(0, "#FFF8E0");
+        paperGrad.addColorStop(0.5, "#FFE080");
+        paperGrad.addColorStop(1, "#FFF0C0");
+      } else {
+        paperGrad.addColorStop(0, "#F8F6F0");
+        paperGrad.addColorStop(0.35, "#EEECE4");
+        paperGrad.addColorStop(0.65, "#D8D4C8");
+        paperGrad.addColorStop(1, "#EDEAE0");
+      }
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-cw / 2 + filterLen, -r2, cw - filterLen, ch);
+      ctx.clip();
+      ctx.fillStyle = paperGrad;
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r2, cw, ch, r2);
+      ctx.fill();
+      ctx.restore();
+      ctx.strokeStyle = isGolden ? "rgba(180,140,20,0.35)" : "rgba(180,175,160,0.35)";
+      ctx.lineWidth = Math.max(0.5, ch * 0.04);
+      const bandStep = cw * 0.1;
+      for (let bx = -cw / 2 + filterLen + bandStep; bx < cw / 2 - r2; bx += bandStep) {
+        ctx.beginPath();
+        ctx.moveTo(bx, -r2 + ch * 0.15);
+        ctx.lineTo(bx, r2 - ch * 0.15);
+        ctx.stroke();
+      }
+      const filterGrad = ctx.createLinearGradient(0, -r2, 0, r2);
+      if (isGolden) {
+        filterGrad.addColorStop(0, "#FFD060");
+        filterGrad.addColorStop(0.5, "#C89020");
+        filterGrad.addColorStop(1, "#FFD060");
+      } else {
+        filterGrad.addColorStop(0, "#D4A96A");
+        filterGrad.addColorStop(0.4, "#C49058");
+        filterGrad.addColorStop(0.7, "#A87840");
+        filterGrad.addColorStop(1, "#C49058");
+      }
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(cw / 2 - filterLen, -r2, filterLen, ch);
+      ctx.clip();
+      ctx.fillStyle = filterGrad;
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r2, cw, ch, r2);
+      ctx.fill();
+      ctx.restore();
+      ctx.strokeStyle = isGolden ? "rgba(120,80,0,0.5)" : "rgba(90,60,30,0.4)";
+      ctx.lineWidth = Math.max(0.8, ch * 0.06);
+      ctx.beginPath();
+      ctx.moveTo(cw / 2 - filterLen, -r2 + 1);
+      ctx.lineTo(cw / 2 - filterLen, r2 - 1);
+      ctx.stroke();
+      ctx.strokeStyle = isGolden ? "rgba(140,100,0,0.6)" : "rgba(90,85,75,0.5)";
+      ctx.lineWidth = Math.max(0.8, ch * 0.07);
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r2, cw, ch, r2);
+      ctx.stroke();
+      const emberX = -cw / 2 + r2 * 0.5;
+      ctx.shadowColor = isGolden ? `rgba(255,220,60,${0.7 * emberPulse})` : `rgba(255,130,20,${0.7 * emberPulse})`;
+      ctx.shadowBlur = ch * 1.5 * emberPulse;
+      const emberGlow = ctx.createRadialGradient(
+        emberX,
+        0,
+        0,
+        emberX,
+        0,
+        r2 * 1.4 * emberPulse
+      );
+      emberGlow.addColorStop(0, `rgba(255,220,80,${0.85 * emberPulse})`);
+      emberGlow.addColorStop(0.4, `rgba(255,100,10,${0.55 * emberPulse})`);
+      emberGlow.addColorStop(1, "rgba(200,40,0,0)");
+      ctx.fillStyle = emberGlow;
+      ctx.beginPath();
+      ctx.arc(emberX, 0, r2 * 1.4 * emberPulse, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      const ashGrad = ctx.createRadialGradient(
+        emberX - r2 * 0.2,
+        -r2 * 0.1,
+        0,
+        emberX,
+        0,
+        r2
+      );
+      ashGrad.addColorStop(0, `rgba(255,230,100,${emberPulse})`);
+      ashGrad.addColorStop(0.35, `rgba(220,80,10,${0.9 * emberPulse})`);
+      ashGrad.addColorStop(0.7, "#8B3A00");
+      ashGrad.addColorStop(1, "#3A2010");
+      ctx.fillStyle = ashGrad;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-cw / 2, -r2, r2 * 1.5, ch);
+      ctx.clip();
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r2, cw, ch, r2);
+      ctx.fill();
+      ctx.restore();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    },
+    [drawExplosion]
+  );
+  const drawWeatherParticle = reactExports.useCallback(
+    (ctx, ch) => {
+      if (ch.isExploding) {
+        drawExplosion(ctx, ch);
+        return;
+      }
+      const { x: x2, y: y2, size, wingPhase, direction } = ch;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let r2;
+      if (size <= 25) r2 = 14;
+      else if (size <= 40) r2 = 22;
+      else r2 = 32;
+      const bob = Math.sin(wingPhase) * 2;
+      const pulse = 0.8 + 0.2 * Math.sin(wingPhase * 1.5);
+      ctx.save();
+      ctx.translate(cx, cy + bob);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      if (ch.isGolden) {
+        ctx.shadowColor = "rgba(255,220,50,0.7)";
+        ctx.shadowBlur = r2 * 0.8;
+        const sunGrad = ctx.createRadialGradient(
+          -r2 * 0.2,
+          -r2 * 0.2,
+          0,
+          0,
+          0,
+          r2
+        );
+        sunGrad.addColorStop(0, "#FFE066");
+        sunGrad.addColorStop(0.5, "#FFB800");
+        sunGrad.addColorStop(1, "#FF7700");
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, r2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,220,80,0.8)";
+        ctx.lineWidth = r2 * 0.12;
+        ctx.lineCap = "round";
+        for (let i = 0; i < 8; i++) {
+          const angle = i / 8 * Math.PI * 2 + wingPhase * 0.2;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(angle) * r2 * 1.1, Math.sin(angle) * r2 * 1.1);
+          ctx.lineTo(Math.cos(angle) * r2 * 1.6, Math.sin(angle) * r2 * 1.6);
+          ctx.stroke();
+        }
+        ctx.shadowBlur = 0;
+      } else if (ch.type === "fast") {
+        ctx.shadowColor = "rgba(96,165,250,0.6)";
+        ctx.shadowBlur = r2 * 0.5;
+        const dropGrad = ctx.createLinearGradient(0, -r2, 0, r2 * 0.8);
+        dropGrad.addColorStop(0, "#93C5FD");
+        dropGrad.addColorStop(0.5, "#3B82F6");
+        dropGrad.addColorStop(1, "#1D4ED8");
+        ctx.fillStyle = dropGrad;
+        ctx.beginPath();
+        ctx.moveTo(0, -r2 * 1.1);
+        ctx.bezierCurveTo(r2 * 0.5, -r2 * 0.3, r2 * 0.7, r2 * 0.3, 0, r2 * 0.8);
+        ctx.bezierCurveTo(-r2 * 0.7, r2 * 0.3, -r2 * 0.5, -r2 * 0.3, 0, -r2 * 1.1);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(147,197,253,0.5)";
+        ctx.lineWidth = r2 * 0.1;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      } else {
+        ctx.shadowColor = "rgba(200,220,255,0.4)";
+        ctx.shadowBlur = r2 * 0.6;
+        const cloudAlpha = 0.85 * pulse;
+        ctx.fillStyle = `rgba(226,232,240,${cloudAlpha})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, r2 * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = `rgba(241,245,249,${cloudAlpha})`;
+        ctx.beginPath();
+        ctx.arc(-r2 * 0.55, r2 * 0.1, r2 * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(r2 * 0.55, r2 * 0.1, r2 * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(r2 * 0, r2 * 0.35, r2 * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(-r2 * 1.1, r2 * 0.1, r2 * 2.2, r2 * 0.6);
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 0.4 * pulse;
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.arc(0, -r2 * 0.05, r2 * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+      ctx.restore();
+    },
+    [drawExplosion]
+  );
   const drawStopwatch = reactExports.useCallback(
     (ctx, sw) => {
       if (sw.isExploding) {
@@ -60457,6 +62629,20 @@ const GameScreen = ({
     },
     [processTap]
   );
+  const recordWorldPlayed = reactExports.useCallback(() => {
+    const userKey = isAuthenticated && identity ? identity.getPrincipal().toString() : "guest";
+    const storageKey = `woh_worlds_played_${userKey}`;
+    let played = [];
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) played = JSON.parse(saved);
+    } catch {
+    }
+    if (!played.includes(selectedWorld)) {
+      played = [...played, selectedWorld];
+      localStorage.setItem(storageKey, JSON.stringify(played));
+    }
+  }, [isAuthenticated, identity, selectedWorld]);
   const endGame = reactExports.useCallback(() => {
     gameStateRef.current.isRunning = false;
     gameStateRef.current.gameEnded = true;
@@ -60467,6 +62653,7 @@ const GameScreen = ({
     stopZombieSound();
     setScoreMultiplier({ isActive: false, endTime: 0 });
     touchTrackersRef.current.clear();
+    recordWorldPlayed();
     const durationMin = Math.round(
       (Date.now() - sessionStats.startTime) / 6e4
     );
@@ -60512,6 +62699,7 @@ const GameScreen = ({
     stopRainSound,
     stopAISound,
     stopZombieSound,
+    recordWorldPlayed,
     sessionStats,
     gameStatistics,
     updateStatistics,
@@ -60556,7 +62744,7 @@ const GameScreen = ({
             continue;
           }
         } else {
-          const speedMult = selectedWorld === "dogecoin" && gs.paperHandsPanicActive ? 2 : 1;
+          const speedMult = selectedWorld === "dogecoin" && gs.paperHandsPanicActive ? 3 : 1;
           ch.x += ch.speed * speedMult;
           ch.wingPhase += ch.type === "fast" ? 0.5 : 0.3;
           const offscreen = ch.direction === "left-to-right" ? ch.x > canvas.width + ch.size : ch.x < -ch.size;
@@ -60580,6 +62768,10 @@ const GameScreen = ({
           drawHormuzWarcraft(ctx, ch);
         } else if (selectedWorld === "alien") {
           drawAlienUFO(ctx, ch);
+        } else if (selectedWorld === "smoke") {
+          drawCigarette(ctx, ch);
+        } else if (selectedWorld === "weather") {
+          drawWeatherParticle(ctx, ch);
         } else {
           drawChicken(ctx, ch);
         }
@@ -60603,68 +62795,10 @@ const GameScreen = ({
               bobPhase: Math.random() * Math.PI * 2
             });
           }
+          setShowWhaleBanner(true);
+          setTimeout(() => setShowWhaleBanner(false), 2e3);
         }
         const elapsed = gs.whaleEventStartTime ? now2 - gs.whaleEventStartTime : 0;
-        if (elapsed < 2e3) {
-          const bannerAlpha = elapsed < 300 ? elapsed / 300 : elapsed > 1600 ? Math.max(0, 1 - (elapsed - 1600) / 400) : 1;
-          ctx.save();
-          ctx.globalAlpha = bannerAlpha;
-          const bannerText = "🐳 Whale Buy Incoming!";
-          const bannerFontSize = Math.min(canvas.width * 0.065, 28);
-          ctx.font = `bold ${bannerFontSize}px sans-serif`;
-          const textMetrics = ctx.measureText(bannerText);
-          const tw = textMetrics.width;
-          const th = bannerFontSize;
-          const bx = canvas.width / 2;
-          const by = canvas.height * 0.22;
-          const padX = 22;
-          const padY = 12;
-          const bw = tw + padX * 2;
-          const bh = th + padY * 2;
-          const brad = bh / 2;
-          ctx.fillStyle = "rgba(0,0,0,0.65)";
-          ctx.beginPath();
-          ctx.moveTo(bx - bw / 2 + brad, by - bh / 2);
-          ctx.lineTo(bx + bw / 2 - brad, by - bh / 2);
-          ctx.arcTo(
-            bx + bw / 2,
-            by - bh / 2,
-            bx + bw / 2,
-            by - bh / 2 + brad,
-            brad
-          );
-          ctx.lineTo(bx + bw / 2, by + bh / 2 - brad);
-          ctx.arcTo(
-            bx + bw / 2,
-            by + bh / 2,
-            bx + bw / 2 - brad,
-            by + bh / 2,
-            brad
-          );
-          ctx.lineTo(bx - bw / 2 + brad, by + bh / 2);
-          ctx.arcTo(
-            bx - bw / 2,
-            by + bh / 2,
-            bx - bw / 2,
-            by + bh / 2 - brad,
-            brad
-          );
-          ctx.lineTo(bx - bw / 2, by - bh / 2 + brad);
-          ctx.arcTo(
-            bx - bw / 2,
-            by - bh / 2,
-            bx - bw / 2 + brad,
-            by - bh / 2,
-            brad
-          );
-          ctx.closePath();
-          ctx.fill();
-          ctx.fillStyle = "#FFFFFF";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(bannerText, bx, by);
-          ctx.restore();
-        }
         const img = dogeCoinImgRef.current;
         for (let wi = gs.whaleCoins.length - 1; wi >= 0; wi--) {
           const wc = gs.whaleCoins[wi];
@@ -60672,7 +62806,7 @@ const GameScreen = ({
             gs.whaleCoins.splice(wi, 1);
             continue;
           }
-          wc.y += wc.speed * (gs.paperHandsPanicActive ? 2 : 1);
+          wc.y += wc.speed * (gs.paperHandsPanicActive ? 3 : 1);
           wc.bobPhase += 0.05;
           if (wc.y > canvas.height + wc.size) {
             gs.whaleCoins.splice(wi, 1);
@@ -60721,66 +62855,32 @@ const GameScreen = ({
           gs.whaleEventStartTime = null;
         }
       }
-      if (selectedWorld === "dogecoin" && gs.paperHandsPanicActive && gs.paperHandsPanicStartTime) {
-        const panicElapsed = Date.now() - gs.paperHandsPanicStartTime;
-        const bannerAlpha = panicElapsed < 300 ? panicElapsed / 300 : panicElapsed > 3400 ? Math.max(0, 1 - (panicElapsed - 3400) / 600) : 1;
-        ctx.save();
-        ctx.globalAlpha = bannerAlpha;
-        const panicText = "📉 Paper Hands Panic!";
-        const panicFontSize = Math.min(canvas.width * 0.065, 28);
-        ctx.font = `bold ${panicFontSize}px sans-serif`;
-        const pTextMetrics = ctx.measureText(panicText);
-        const ptw = pTextMetrics.width;
-        const pth = panicFontSize;
-        const pbx = canvas.width / 2;
-        const pby = canvas.height * 0.33;
-        const ppadX = 22;
-        const ppadY = 12;
-        const pbw = ptw + ppadX * 2;
-        const pbh = pth + ppadY * 2;
-        const pbrad = pbh / 2;
-        ctx.fillStyle = "rgba(180,20,20,0.75)";
-        ctx.beginPath();
-        ctx.moveTo(pbx - pbw / 2 + pbrad, pby - pbh / 2);
-        ctx.lineTo(pbx + pbw / 2 - pbrad, pby - pbh / 2);
-        ctx.arcTo(
-          pbx + pbw / 2,
-          pby - pbh / 2,
-          pbx + pbw / 2,
-          pby - pbh / 2 + pbrad,
-          pbrad
-        );
-        ctx.lineTo(pbx + pbw / 2, pby + pbh / 2 - pbrad);
-        ctx.arcTo(
-          pbx + pbw / 2,
-          pby + pbh / 2,
-          pbx + pbw / 2 - pbrad,
-          pby + pbh / 2,
-          pbrad
-        );
-        ctx.lineTo(pbx - pbw / 2 + pbrad, pby + pbh / 2);
-        ctx.arcTo(
-          pbx - pbw / 2,
-          pby + pbh / 2,
-          pbx - pbw / 2,
-          pby + pbh / 2 - pbrad,
-          pbrad
-        );
-        ctx.lineTo(pbx - pbw / 2, pby - pbh / 2 + pbrad);
-        ctx.arcTo(
-          pbx - pbw / 2,
-          pby - pbh / 2,
-          pbx - pbw / 2 + pbrad,
-          pby - pbh / 2,
-          pbrad
-        );
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = "#FFFFFF";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(panicText, pbx, pby);
-        ctx.restore();
+      if (selectedWorld === "dogecoin" && gs.isRunning && !gs.gameEnded) {
+        const nowCheck = Date.now();
+        if (nowCheck - gs.lastWhaleCheckTime >= 1e4 && !gs.whaleEventActive && !gs.whaleEventTriggered && Math.random() < 0.01) {
+          gs.whaleEventActive = true;
+        }
+        if (nowCheck - gs.lastWhaleCheckTime >= 1e4) {
+          gs.lastWhaleCheckTime = nowCheck;
+        }
+        if (nowCheck - gs.lastPanicCheckTime >= 8e3 && !gs.paperHandsPanicActive && gs.paperHandsPanicCount < 2 && Math.random() < 0.2) {
+          gs.paperHandsPanicActive = true;
+          gs.paperHandsPanicCount += 1;
+          gs.paperHandsPanicStartTime = nowCheck;
+          setShowPanicBanner(true);
+          setTimeout(() => setShowPanicBanner(false), 2e3);
+          const currentCount = gs.paperHandsPanicCount;
+          setTimeout(() => {
+            const gsc = gameStateRef.current;
+            if (gsc.paperHandsPanicCount === currentCount) {
+              gsc.paperHandsPanicActive = false;
+              gsc.paperHandsPanicStartTime = null;
+            }
+          }, 7e3);
+        }
+        if (nowCheck - gs.lastPanicCheckTime >= 8e3) {
+          gs.lastPanicCheckTime = nowCheck;
+        }
       }
       gs.animationId = requestAnimationFrame(gameLoop);
     },
@@ -60795,6 +62895,8 @@ const GameScreen = ({
       drawCoronaVirus,
       drawHormuzWarcraft,
       drawAlienUFO,
+      drawCigarette,
+      drawWeatherParticle,
       drawStopwatch,
       selectedWorld,
       shouldSpawnStopwatch
@@ -60820,6 +62922,8 @@ const GameScreen = ({
     gs.paperHandsPanicActive = false;
     gs.paperHandsPanicCount = 0;
     gs.paperHandsPanicStartTime = null;
+    gs.lastWhaleCheckTime = Date.now();
+    gs.lastPanicCheckTime = Date.now();
     if (selectedWorld === "dogecoin" && Math.random() < 0.2) {
       const delay = 2e3 + Math.random() * 6e3;
       setTimeout(() => {
@@ -60828,6 +62932,8 @@ const GameScreen = ({
           gsCurrent.paperHandsPanicActive = true;
           gsCurrent.paperHandsPanicCount = 1;
           gsCurrent.paperHandsPanicStartTime = Date.now();
+          setShowPanicBanner(true);
+          setTimeout(() => setShowPanicBanner(false), 2e3);
           setTimeout(() => {
             gsCurrent.paperHandsPanicActive = false;
             gsCurrent.paperHandsPanicStartTime = null;
@@ -60837,14 +62943,16 @@ const GameScreen = ({
                   gsCurrent.paperHandsPanicActive = true;
                   gsCurrent.paperHandsPanicCount = 2;
                   gsCurrent.paperHandsPanicStartTime = Date.now();
+                  setShowPanicBanner(true);
+                  setTimeout(() => setShowPanicBanner(false), 2e3);
                   setTimeout(() => {
                     gsCurrent.paperHandsPanicActive = false;
                     gsCurrent.paperHandsPanicStartTime = null;
-                  }, 4e3);
+                  }, 7e3);
                 }
               }, 500);
             }
-          }, 4e3);
+          }, 7e3);
         }
       }, delay);
     }
@@ -61055,6 +63163,98 @@ const GameScreen = ({
         .doge-shake-active {
           animation: doge-shake var(--shake-speed) ease-in-out infinite;
         }
+
+        /* ── Panic Banner ───────────────────────────────────────── */
+        @keyframes panic-explode {
+          0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.05); letter-spacing: -0.05em; }
+          18%  { opacity: 1; transform: translate(-50%, -50%) scale(1.18); letter-spacing: 0.04em; }
+          30%  { transform: translate(-50%, -50%) scale(0.96); }
+          42%  { transform: translate(-50%, -50%) scale(1.06); }
+          55%  { transform: translate(-50%, -50%) scale(1.0); }
+          75%  { opacity: 1; transform: translate(-50%, -50%) scale(1.0); letter-spacing: 0.04em; }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(0.85); letter-spacing: 0; }
+        }
+        @keyframes panic-glow-pulse {
+          0%, 100% { text-shadow:
+            0 0 12px #ff4400,
+            0 0 28px #ff2200,
+            0 0 52px rgba(255,60,0,0.6),
+            2px 2px 0 rgba(0,0,0,0.8); }
+          50% { text-shadow:
+            0 0 20px #ff6600,
+            0 0 40px #ff3300,
+            0 0 80px rgba(255,80,0,0.9),
+            2px 2px 0 rgba(0,0,0,0.8); }
+        }
+        .panic-banner {
+          position: absolute;
+          top: 38%;
+          left: 50%;
+          z-index: 60;
+          pointer-events: none;
+          white-space: nowrap;
+          font-family: 'Arial Black', 'Arial Bold', Impact, sans-serif;
+          font-weight: 900;
+          font-size: clamp(22px, 6.5vw, 36px);
+          color: #ff4400;
+          animation:
+            panic-explode 2s cubic-bezier(0.22, 1.2, 0.36, 1) forwards,
+            panic-glow-pulse 0.4s ease-in-out 0.3s 4 alternate;
+          -webkit-text-stroke: 1.5px rgba(0,0,0,0.6);
+          text-transform: uppercase;
+          transform-origin: center center;
+        }
+
+        /* ── Whale Banner ───────────────────────────────────────── */
+        @keyframes whale-explode {
+          0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.05) rotate(-4deg); }
+          18%  { opacity: 1; transform: translate(-50%, -50%) scale(1.22) rotate(2deg); }
+          30%  { transform: translate(-50%, -50%) scale(0.94) rotate(-1deg); }
+          44%  { transform: translate(-50%, -50%) scale(1.08) rotate(1deg); }
+          56%  { transform: translate(-50%, -50%) scale(1.0) rotate(0deg); }
+          75%  { opacity: 1; transform: translate(-50%, -50%) scale(1.0) rotate(0deg); }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(0.88) rotate(0deg); }
+        }
+        @keyframes whale-shimmer {
+          0%   { text-shadow:
+            0 0 14px #00cfff,
+            0 0 30px #0080ff,
+            0 0 55px rgba(0,180,255,0.6),
+            2px 2px 0 rgba(0,0,0,0.8); }
+          33%  { text-shadow:
+            0 0 22px #ffe066,
+            0 0 44px #ffc200,
+            0 0 80px rgba(255,200,0,0.8),
+            2px 2px 0 rgba(0,0,0,0.8); }
+          66%  { text-shadow:
+            0 0 18px #00e5ff,
+            0 0 36px #00b0d8,
+            0 0 65px rgba(0,200,230,0.7),
+            2px 2px 0 rgba(0,0,0,0.8); }
+          100% { text-shadow:
+            0 0 14px #00cfff,
+            0 0 30px #0080ff,
+            0 0 55px rgba(0,180,255,0.6),
+            2px 2px 0 rgba(0,0,0,0.8); }
+        }
+        .whale-banner {
+          position: absolute;
+          top: 25%;
+          left: 50%;
+          z-index: 60;
+          pointer-events: none;
+          white-space: nowrap;
+          font-family: 'Arial Black', 'Arial Bold', Impact, sans-serif;
+          font-weight: 900;
+          font-size: clamp(20px, 6vw, 34px);
+          color: #00e0ff;
+          animation:
+            whale-explode 2s cubic-bezier(0.22, 1.2, 0.36, 1) forwards,
+            whale-shimmer 0.5s ease-in-out 0.3s 3 alternate;
+          -webkit-text-stroke: 1.5px rgba(0,0,0,0.6);
+          text-transform: uppercase;
+          transform-origin: center center;
+        }
       ` }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           BackgroundRenderer,
@@ -61063,9 +63263,11 @@ const GameScreen = ({
             pumpFunPrice,
             btcPrice,
             brentOilPrice,
-            dogePrice
+            dogePrice,
+            cigarettesCount: selectedWorld === "smoke" ? cigarettesCount : null
           }
         ),
+        selectedWorld === "weather" && /* @__PURE__ */ jsxRuntimeExports.jsx(WeatherWorld, { isGameplay: true }),
         currentView === "game" && !gameEnded && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-4 left-4 z-10", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "score-container-left-aligned-compact bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5 relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-white font-bold text-lg", children: [
@@ -61162,6 +63364,8 @@ const GameScreen = ({
           },
           pw.id
         )),
+        selectedWorld === "dogecoin" && showPanicBanner && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "panic-banner", children: "📉 Paper Hands Panic!" }, `panic-${Date.now()}`),
+        selectedWorld === "dogecoin" && showWhaleBanner && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "whale-banner", children: "🐳 Whale Buy Incoming!" }, `whale-${Date.now()}`),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "canvas",
           {
@@ -61201,7 +63405,17 @@ const GameScreen = ({
           LeaderboardView,
           {
             currentPlayerScore: gameStatistics.highestScore,
-            isAuthenticated
+            isAuthenticated,
+            onOpenProfile: (principal, name) => setLeaderboardViewingProfile({ principal, name })
+          }
+        ) }),
+        leaderboardViewingProfile && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-[60]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          PlayerProfileScreen,
+          {
+            principal: leaderboardViewingProfile.principal,
+            fallbackName: leaderboardViewingProfile.name,
+            isOwnProfile: !!currentPrincipal && leaderboardViewingProfile.principal.toText() === currentPrincipal.toText(),
+            onBack: () => setLeaderboardViewingProfile(null)
           }
         ) }),
         currentView === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsView, { onClose: () => setCurrentView("game") }) }),
@@ -61675,7 +63889,9 @@ const WORLDS = [
   { id: "corona", name: "Corona" },
   { id: "hormuz", name: "Hormuz" },
   { id: "alien", name: "Alien" },
-  { id: "dogecoin", name: "Dogecoin" }
+  { id: "dogecoin", name: "Dogecoin" },
+  { id: "smoke", name: "Smoke" },
+  { id: "weather", name: "Weather" }
 ];
 const CHICKEN_COLORS = ["#8B4513", "#D2691E", "#F4A460", "#DEB887", "#CD853F"];
 const START_BUTTON_CLASSES = {
@@ -61700,7 +63916,9 @@ const START_BUTTON_CLASSES = {
   corona: "start-game-button-corona",
   hormuz: "start-game-button-hormuz",
   alien: "start-game-button-alien",
-  dogecoin: "start-game-button-dogecoin"
+  dogecoin: "start-game-button-dogecoin",
+  smoke: "start-game-button-smoke",
+  weather: "start-game-button-weather"
 };
 const StartScreen = ({
   onStartGame,
@@ -61710,17 +63928,22 @@ const StartScreen = ({
   gameStatistics,
   addXP
 }) => {
-  const { isAuthenticated } = useInternetIdentity();
+  const { isAuthenticated, identity } = useInternetIdentity();
+  const currentPrincipal = (identity == null ? void 0 : identity.getPrincipal()) ?? null;
   const [overlayView, setOverlayView] = reactExports.useState(null);
+  const [leaderboardViewingProfile, setLeaderboardViewingProfile] = reactExports.useState(null);
   const isPumpFunSelected = selectedWorld === "pumpfun";
   const isBitcoinSelected = selectedWorld === "bitcoin";
   const isHormuzSelected = selectedWorld === "hormuz";
   const isDogecoinSelected = selectedWorld === "dogecoin";
   const isCaffeineSelected = selectedWorld === "caffeineai";
+  const isSmokeSelected = selectedWorld === "smoke";
+  const isWeatherSelected = selectedWorld === "weather";
   const { data: pumpPriceData } = usePumpFunPrice();
   const { data: btcPriceData } = useBitcoinPrice();
   const { data: brentPriceData } = useBrentOilPrice();
   const { data: dogePriceData } = useDogecoinPrice();
+  const { count: cigarettesCount } = useCigarettesTodayCounter();
   const [worldIndex, setWorldIndex] = reactExports.useState(() => {
     const idx = WORLDS.findIndex((w2) => w2.id === selectedWorld);
     return idx >= 0 ? idx : 0;
@@ -61743,7 +63966,7 @@ const StartScreen = ({
     if (idx >= 0) setWorldIndex(idx);
   }, [selectedWorld]);
   reactExports.useEffect(() => {
-    const nextType = selectedWorld === "pumpfun" ? "pumpfun" : selectedWorld === "bitcoin" ? "bitcoin" : selectedWorld === "ocean" ? "fish" : selectedWorld === "corona" ? "virus" : selectedWorld === "hormuz" ? "warcraft" : selectedWorld === "alien" ? "ufo" : selectedWorld === "dogecoin" ? "dogecoin" : "chicken";
+    const nextType = selectedWorld === "pumpfun" ? "pumpfun" : selectedWorld === "bitcoin" ? "bitcoin" : selectedWorld === "ocean" ? "fish" : selectedWorld === "corona" ? "virus" : selectedWorld === "hormuz" ? "warcraft" : selectedWorld === "alien" ? "ufo" : selectedWorld === "dogecoin" ? "dogecoin" : selectedWorld === "smoke" ? "cigarette" : selectedWorld === "weather" ? "weather" : "chicken";
     if (nextType === activeEntityTypeRef.current) return;
     pendingEntityTypeRef.current = nextType;
     pendingIsPumpFunRef.current = nextType === "pumpfun";
@@ -63412,6 +65635,209 @@ const StartScreen = ({
     },
     []
   );
+  const drawCigarette = reactExports.useCallback(
+    (ctx, c2) => {
+      const { x: x2, y: y2, size, wingPhase, direction } = c2;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let cw;
+      let ch;
+      if (size <= 25) {
+        cw = 52;
+        ch = 10;
+      } else if (size <= 40) {
+        cw = 80;
+        ch = 16;
+      } else {
+        cw = 112;
+        ch = 22;
+      }
+      const r2 = ch / 2;
+      const filterLen = cw * 0.22;
+      const alpha = entityAlphaRef.current;
+      const t = Date.now();
+      const emberPulse = 0.75 + 0.25 * Math.sin(wingPhase * 1.8 + t * 4e-3);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy);
+      if (direction === "left-to-right") ctx.scale(-1, 1);
+      const wispAlpha = 0.22 + 0.1 * Math.sin(wingPhase + t * 3e-3);
+      ctx.save();
+      for (let i = 0; i < 3; i++) {
+        const wx = -cw / 2 + (i - 1) * ch * 0.35;
+        const wyBase = -r2 - 3;
+        const waveX = Math.sin(wingPhase * 0.9 + i * 1.2) * ch * 0.6;
+        ctx.strokeStyle = `rgba(200,200,200,${wispAlpha * (1 - i * 0.2)})`;
+        ctx.lineWidth = Math.max(1, ch * 0.12);
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(wx, wyBase);
+        ctx.quadraticCurveTo(
+          wx + waveX,
+          wyBase - ch * 0.9,
+          wx - waveX * 0.5,
+          wyBase - ch * 1.8
+        );
+        ctx.stroke();
+      }
+      ctx.restore();
+      const paperGrad = ctx.createLinearGradient(0, -r2, 0, r2);
+      paperGrad.addColorStop(0, "#F8F6F0");
+      paperGrad.addColorStop(0.35, "#EEECE4");
+      paperGrad.addColorStop(0.65, "#D8D4C8");
+      paperGrad.addColorStop(1, "#EDEAE0");
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-cw / 2 + filterLen, -r2, cw - filterLen, ch);
+      ctx.clip();
+      ctx.fillStyle = paperGrad;
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r2, cw, ch, r2);
+      ctx.fill();
+      ctx.restore();
+      ctx.strokeStyle = "rgba(180,175,160,0.35)";
+      ctx.lineWidth = Math.max(0.5, ch * 0.04);
+      const bandStep = cw * 0.1;
+      for (let bx = -cw / 2 + filterLen + bandStep; bx < cw / 2 - r2; bx += bandStep) {
+        ctx.beginPath();
+        ctx.moveTo(bx, -r2 + ch * 0.15);
+        ctx.lineTo(bx, r2 - ch * 0.15);
+        ctx.stroke();
+      }
+      const filterGrad = ctx.createLinearGradient(0, -r2, 0, r2);
+      filterGrad.addColorStop(0, "#D4A96A");
+      filterGrad.addColorStop(0.4, "#C49058");
+      filterGrad.addColorStop(0.7, "#A87840");
+      filterGrad.addColorStop(1, "#C49058");
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(cw / 2 - filterLen, -r2, filterLen, ch);
+      ctx.clip();
+      ctx.fillStyle = filterGrad;
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r2, cw, ch, r2);
+      ctx.fill();
+      ctx.restore();
+      ctx.strokeStyle = "rgba(90,60,30,0.4)";
+      ctx.lineWidth = Math.max(0.8, ch * 0.06);
+      ctx.beginPath();
+      ctx.moveTo(cw / 2 - filterLen, -r2 + 1);
+      ctx.lineTo(cw / 2 - filterLen, r2 - 1);
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(90,85,75,0.5)";
+      ctx.lineWidth = Math.max(0.8, ch * 0.07);
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r2, cw, ch, r2);
+      ctx.stroke();
+      const emberX = -cw / 2 + r2 * 0.5;
+      ctx.shadowColor = `rgba(255,130,20,${0.7 * emberPulse})`;
+      ctx.shadowBlur = ch * 1.5 * emberPulse;
+      const emberGlow = ctx.createRadialGradient(
+        emberX,
+        0,
+        0,
+        emberX,
+        0,
+        r2 * 1.4 * emberPulse
+      );
+      emberGlow.addColorStop(0, `rgba(255,220,80,${0.85 * emberPulse})`);
+      emberGlow.addColorStop(0.4, `rgba(255,100,10,${0.55 * emberPulse})`);
+      emberGlow.addColorStop(1, "rgba(200,40,0,0)");
+      ctx.fillStyle = emberGlow;
+      ctx.beginPath();
+      ctx.arc(emberX, 0, r2 * 1.4 * emberPulse, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      const ashGrad = ctx.createRadialGradient(
+        emberX - r2 * 0.2,
+        -r2 * 0.1,
+        0,
+        emberX,
+        0,
+        r2
+      );
+      ashGrad.addColorStop(0, `rgba(255,230,100,${emberPulse})`);
+      ashGrad.addColorStop(0.35, `rgba(220,80,10,${0.9 * emberPulse})`);
+      ashGrad.addColorStop(0.7, "#8B3A00");
+      ashGrad.addColorStop(1, "#3A2010");
+      ctx.fillStyle = ashGrad;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-cw / 2, -r2, r2 * 1.5, ch);
+      ctx.clip();
+      ctx.beginPath();
+      ctx.roundRect(-cw / 2, -r2, cw, ch, r2);
+      ctx.fill();
+      ctx.restore();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    },
+    []
+  );
+  const drawWeatherParticle = reactExports.useCallback(
+    (ctx, c2) => {
+      const { x: x2, y: y2, size, wingPhase } = c2;
+      const cx = x2 + size / 2;
+      const cy = y2 + size / 2;
+      let r2;
+      if (size <= 25) r2 = 14;
+      else if (size <= 40) r2 = 22;
+      else r2 = 32;
+      const bob = Math.sin(wingPhase) * 2;
+      const pulse = 0.8 + 0.2 * Math.sin(wingPhase * 1.5);
+      const alpha = entityAlphaRef.current;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(cx, cy + bob);
+      const isRaindrop = Math.floor(c2.id) % 2 === 0;
+      if (isRaindrop) {
+        ctx.shadowColor = "rgba(96,165,250,0.6)";
+        ctx.shadowBlur = r2 * 0.5;
+        const dropGrad = ctx.createLinearGradient(0, -r2, 0, r2 * 0.8);
+        dropGrad.addColorStop(0, "#93C5FD");
+        dropGrad.addColorStop(0.5, "#3B82F6");
+        dropGrad.addColorStop(1, "#1D4ED8");
+        ctx.fillStyle = dropGrad;
+        ctx.beginPath();
+        ctx.moveTo(0, -r2 * 1.1);
+        ctx.bezierCurveTo(r2 * 0.5, -r2 * 0.3, r2 * 0.7, r2 * 0.3, 0, r2 * 0.8);
+        ctx.bezierCurveTo(-r2 * 0.7, r2 * 0.3, -r2 * 0.5, -r2 * 0.3, 0, -r2 * 1.1);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(147,197,253,0.5)";
+        ctx.lineWidth = r2 * 0.1;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      } else {
+        ctx.shadowColor = "rgba(200,220,255,0.4)";
+        ctx.shadowBlur = r2 * 0.6;
+        const cloudAlpha = 0.85 * pulse;
+        ctx.fillStyle = `rgba(226,232,240,${cloudAlpha})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, r2 * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = `rgba(241,245,249,${cloudAlpha})`;
+        ctx.beginPath();
+        ctx.arc(-r2 * 0.55, r2 * 0.1, r2 * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(r2 * 0.55, r2 * 0.1, r2 * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(0, r2 * 0.35, r2 * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(-r2 * 1.1, r2 * 0.1, r2 * 2.2, r2 * 0.6);
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 0.4 * pulse * alpha;
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.arc(0, -r2 * 0.05, r2 * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = alpha;
+      }
+      ctx.restore();
+    },
+    []
+  );
   const animateChickens = reactExports.useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas == null ? void 0 : canvas.getContext("2d");
@@ -63434,7 +65860,7 @@ const StartScreen = ({
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const activeType = activeEntityTypeRef.current;
-    const drawFn = activeType === "pumpfun" ? drawPumpFunPill : activeType === "bitcoin" ? drawBitcoinCoin : activeType === "dogecoin" ? drawDogecoinCoin : activeType === "fish" ? drawOceanFish : activeType === "virus" ? drawCoronaVirus : activeType === "warcraft" ? drawHormuzWarcraft : activeType === "ufo" ? drawAlienUFO : drawChicken;
+    const drawFn = activeType === "pumpfun" ? drawPumpFunPill : activeType === "bitcoin" ? drawBitcoinCoin : activeType === "dogecoin" ? drawDogecoinCoin : activeType === "fish" ? drawOceanFish : activeType === "virus" ? drawCoronaVirus : activeType === "warcraft" ? drawHormuzWarcraft : activeType === "ufo" ? drawAlienUFO : activeType === "cigarette" ? drawCigarette : activeType === "weather" ? drawWeatherParticle : drawChicken;
     for (let i = chickensRef.current.length - 1; i >= 0; i--) {
       const ch = chickensRef.current[i];
       ch.x += ch.speed;
@@ -63467,13 +65893,15 @@ const StartScreen = ({
     drawOceanFish,
     drawCoronaVirus,
     drawHormuzWarcraft,
-    drawAlienUFO
+    drawAlienUFO,
+    drawCigarette,
+    drawWeatherParticle
   ]);
   const initialWorldRef = reactExports.useRef(selectedWorld);
   reactExports.useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const initType = initialWorldRef.current === "pumpfun" ? "pumpfun" : initialWorldRef.current === "bitcoin" ? "bitcoin" : initialWorldRef.current === "ocean" ? "fish" : initialWorldRef.current === "corona" ? "virus" : initialWorldRef.current === "hormuz" ? "warcraft" : initialWorldRef.current === "alien" ? "ufo" : initialWorldRef.current === "dogecoin" ? "dogecoin" : "chicken";
+    const initType = initialWorldRef.current === "pumpfun" ? "pumpfun" : initialWorldRef.current === "bitcoin" ? "bitcoin" : initialWorldRef.current === "ocean" ? "fish" : initialWorldRef.current === "corona" ? "virus" : initialWorldRef.current === "hormuz" ? "warcraft" : initialWorldRef.current === "alien" ? "ufo" : initialWorldRef.current === "dogecoin" ? "dogecoin" : initialWorldRef.current === "smoke" ? "cigarette" : initialWorldRef.current === "weather" ? "weather" : "chicken";
     activeEntityTypeRef.current = initType;
     activeIsPumpFunRef.current = initType === "pumpfun";
     entityAlphaRef.current = 1;
@@ -63505,6 +65933,7 @@ const StartScreen = ({
       "data-ocid": "start.page",
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(BackgroundRenderer, { world: selectedWorld }),
+        isWeatherSelected && /* @__PURE__ */ jsxRuntimeExports.jsx(WeatherWorld, { isGameplay: false }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "canvas",
           {
@@ -63717,6 +66146,28 @@ const StartScreen = ({
                 }
               )
             ] })
+          ] }),
+          isSmokeSelected && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 inline-flex flex-col items-center gap-0.5 px-4 py-2 rounded-md bg-black/70 backdrop-blur-sm border border-amber-900/40", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                style: {
+                  fontFamily: "'Courier New', Courier, monospace",
+                  color: "#9a7040",
+                  opacity: 0.9
+                },
+                className: "text-xs tracking-widest leading-none",
+                children: "🚬 Cigarettes smoked today"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                style: { fontFamily: "'Courier New', Courier, monospace" },
+                className: "text-white font-bold text-base tracking-wide leading-none tabular-nums",
+                children: cigarettesCount.toLocaleString()
+              }
+            )
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -63813,7 +66264,17 @@ const StartScreen = ({
           LeaderboardView,
           {
             currentPlayerScore: gameStatistics.highestScore,
-            isAuthenticated
+            isAuthenticated,
+            onOpenProfile: (principal, name) => setLeaderboardViewingProfile({ principal, name })
+          }
+        ) }),
+        leaderboardViewingProfile && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-[60]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          PlayerProfileScreen,
+          {
+            principal: leaderboardViewingProfile.principal,
+            fallbackName: leaderboardViewingProfile.name,
+            isOwnProfile: !!currentPrincipal && leaderboardViewingProfile.principal.toText() === currentPrincipal.toText(),
+            onBack: () => setLeaderboardViewingProfile(null)
           }
         ) }),
         overlayView === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", style: { paddingBottom: "60px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsView, { onClose: () => setOverlayView(null) }) }),
@@ -63961,7 +66422,9 @@ const VALID_WORLDS = [
   "corona",
   "hormuz",
   "alien",
-  "dogecoin"
+  "dogecoin",
+  "smoke",
+  "weather"
 ];
 const DEFAULT_PLAYER_DATA = {
   level: 1,

@@ -17,6 +17,7 @@ interface BackgroundRendererProps {
   btcPrice?: PriceDisplay | null;
   brentOilPrice?: BrentOilPriceDisplay | null;
   dogePrice?: PriceDisplay | null;
+  cigarettesCount?: number | null;
 }
 
 const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
@@ -25,6 +26,7 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
   btcPrice,
   brentOilPrice,
   dogePrice,
+  cigarettesCount,
 }) => {
   const renderOriginalWorld = () => (
     <svg
@@ -19572,123 +19574,6 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
               very doge
             </text>
           </g>
-          {/* "to the moon" bubble */}
-          <g transform="translate(430, 60)">
-            <rect
-              x="-82"
-              y="-22"
-              width="164"
-              height="44"
-              rx="22"
-              fill="#FFFDE7"
-              stroke="#FFD700"
-              strokeWidth="2.5"
-              opacity="0.95"
-            />
-            <polygon
-              points="-5,22 -15,36 12,22"
-              fill="#FFFDE7"
-              stroke="#FFD700"
-              strokeWidth="2"
-            />
-            <text
-              x="0"
-              y="8"
-              textAnchor="middle"
-              fontFamily="'Comic Sans MS', cursive"
-              fontSize="18"
-              fontWeight="bold"
-              fill="#B8860B"
-            >
-              to the moon 🚀
-            </text>
-          </g>
-
-          {/* === "Wow. Such wow." animated bubble from Doge dog === */}
-          <defs>
-            <style>{`
-              @keyframes dogeWowPopIn {
-                0%   { transform: scale(0); opacity: 0; }
-                60%  { transform: scale(1.12); opacity: 1; }
-                80%  { transform: scale(0.94); }
-                100% { transform: scale(1); opacity: 1; }
-              }
-              @keyframes dogeWowFloat {
-                0%   { transform: scale(1) translateY(0px); }
-                50%  { transform: scale(1.04) translateY(-4px); }
-                100% { transform: scale(1) translateY(0px); }
-              }
-              .doge-wow-bubble {
-                transform-origin: 105px 78px;
-                animation:
-                  dogeWowPopIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both,
-                  dogeWowFloat 2s ease-in-out 0.85s infinite;
-              }
-              @media (prefers-reduced-motion: reduce) {
-                .doge-wow-bubble {
-                  animation: none;
-                  opacity: 1;
-                }
-              }
-            `}</style>
-          </defs>
-          {/* Bubble origin offset: tail tip at (105,78) pointing down-right toward dog face */}
-          <g transform="translate(740, 340)" className="doge-wow-bubble">
-            {/* Rounded rect body */}
-            <rect
-              x="-8"
-              y="-56"
-              width="180"
-              height="60"
-              rx="24"
-              fill="#FFFDE7"
-              stroke="#FFD700"
-              strokeWidth="3"
-              opacity="0.97"
-            />
-            {/* Tail pointing down-right toward dog's face */}
-            <polygon
-              points="90,-2 105,18 70,-2"
-              fill="#FFFDE7"
-              stroke="#FFD700"
-              strokeWidth="2.5"
-              strokeLinejoin="round"
-            />
-            {/* Cover the stroke seam between rect and tail */}
-            <line
-              x1="71"
-              y1="-2"
-              x2="109"
-              y2="-2"
-              stroke="#FFFDE7"
-              strokeWidth="3"
-            />
-            {/* "Wow." — line 1 */}
-            <text
-              x="82"
-              y="-30"
-              textAnchor="middle"
-              fontFamily="'Comic Sans MS', cursive"
-              fontSize="20"
-              fontWeight="bold"
-              fill="#8B6914"
-            >
-              Wow.
-            </text>
-            {/* "Such wow." — line 2 */}
-            <text
-              x="82"
-              y="-8"
-              textAnchor="middle"
-              fontFamily="'Comic Sans MS', cursive"
-              fontSize="18"
-              fontWeight="bold"
-              fill="#8B6914"
-            >
-              Such wow.
-            </text>
-          </g>
-
           {/* === LIVE DOGE / USD PRICE OVERLAY === */}
           <g transform="translate(600, 590)">
             <rect
@@ -19756,6 +19641,1018 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
     );
   };
 
+  const renderSmokeWorld = () => (
+    <svg
+      role="img"
+      aria-label="Smoke world background"
+      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <defs>
+        {/* Dark room background gradient */}
+        <linearGradient id="smokeBg" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#0d0505" />
+          <stop offset="40%" stopColor="#110808" />
+          <stop offset="100%" stopColor="#1a0a0a" />
+        </linearGradient>
+        {/* Amber ambient light from above */}
+        <radialGradient id="amberLight1" cx="30%" cy="15%" r="40%">
+          <stop offset="0%" stopColor="#60300a" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#60300a" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="amberLight2" cx="75%" cy="10%" r="35%">
+          <stop offset="0%" stopColor="#50280a" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="#50280a" stopOpacity="0" />
+        </radialGradient>
+        {/* Smoke haze overlay */}
+        <linearGradient id="smokeHaze" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.03" />
+          <stop offset="50%" stopColor="#ffffff" stopOpacity="0.06" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0.02" />
+        </linearGradient>
+        {/* Bar counter gradient */}
+        <linearGradient id="barGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#3a1f0a" />
+          <stop offset="30%" stopColor="#2a1408" />
+          <stop offset="100%" stopColor="#1a0c05" />
+        </linearGradient>
+        <linearGradient id="barTopGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#6a3a15" />
+          <stop offset="100%" stopColor="#3a1f0a" />
+        </linearGradient>
+        {/* Neon sign glow filter */}
+        <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="3" result="blur1" />
+          <feGaussianBlur stdDeviation="8" result="blur2" />
+          <feMerge>
+            <feMergeNode in="blur2" />
+            <feMergeNode in="blur1" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="4" result="blurred" />
+          <feMerge>
+            <feMergeNode in="blurred" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        {/* Window glass gradient */}
+        <linearGradient id="windowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#0a1530" stopOpacity="0.9" />
+          <stop offset="50%" stopColor="#0d1a3a" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#060e20" stopOpacity="0.95" />
+        </linearGradient>
+        {/* City light dots */}
+        <radialGradient id="cityGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ffdd99" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#ffaa44" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+
+      {/* === BACKGROUND === */}
+      <rect width="1200" height="800" fill="url(#smokeBg)" />
+
+      {/* Ambient amber lighting from ceiling lamps */}
+      <ellipse cx="360" cy="0" rx="340" ry="260" fill="url(#amberLight1)" />
+      <ellipse cx="900" cy="0" rx="290" ry="220" fill="url(#amberLight2)" />
+
+      {/* Smoke haze layers */}
+      <ellipse
+        cx="400"
+        cy="320"
+        rx="380"
+        ry="160"
+        fill="#c8c0b0"
+        opacity="0.045"
+      />
+      <ellipse
+        cx="850"
+        cy="200"
+        rx="300"
+        ry="120"
+        fill="#d0c8b8"
+        opacity="0.038"
+      />
+      <ellipse
+        cx="600"
+        cy="450"
+        rx="480"
+        ry="100"
+        fill="#b8b0a0"
+        opacity="0.05"
+      />
+      <rect width="1200" height="800" fill="url(#smokeHaze)" />
+
+      {/* === BACK WALL WITH PANELING === */}
+      {/* Wall base */}
+      <rect
+        x="0"
+        y="0"
+        width="1200"
+        height="570"
+        fill="#140808"
+        opacity="0.6"
+      />
+      {/* Dark wood wainscoting strips */}
+      {[0, 120, 240, 360, 480, 600, 720, 840, 960, 1080].map((x) => (
+        <rect
+          key={x}
+          x={x}
+          y="320"
+          width="2"
+          height="250"
+          fill="#2a1208"
+          opacity="0.5"
+        />
+      ))}
+      <rect
+        x="0"
+        y="318"
+        width="1200"
+        height="4"
+        fill="#3a1a08"
+        opacity="0.6"
+      />
+
+      {/* === LEFT WINDOW — city at night === */}
+      <g transform="translate(60, 80)">
+        {/* Window frame outer */}
+        <rect x="0" y="0" width="220" height="260" rx="4" fill="#3a1f0a" />
+        {/* Glass */}
+        <rect x="8" y="8" width="204" height="244" fill="url(#windowGrad)" />
+        {/* City lights — distant buildings */}
+        {/* Building silhouettes */}
+        <rect
+          x="10"
+          y="120"
+          width="30"
+          height="130"
+          fill="#05080f"
+          opacity="0.95"
+        />
+        <rect
+          x="45"
+          y="90"
+          width="22"
+          height="162"
+          fill="#04070e"
+          opacity="0.95"
+        />
+        <rect
+          x="72"
+          y="140"
+          width="35"
+          height="112"
+          fill="#050810"
+          opacity="0.95"
+        />
+        <rect
+          x="112"
+          y="100"
+          width="28"
+          height="152"
+          fill="#04070e"
+          opacity="0.95"
+        />
+        <rect
+          x="145"
+          y="125"
+          width="40"
+          height="127"
+          fill="#060911"
+          opacity="0.95"
+        />
+        <rect
+          x="190"
+          y="108"
+          width="22"
+          height="144"
+          fill="#04070e"
+          opacity="0.95"
+        />
+        {/* City light dots on buildings */}
+        {(
+          [
+            [22, 128],
+            [26, 140],
+            [32, 155],
+            [48, 98],
+            [54, 115],
+            [60, 130],
+            [75, 148],
+            [80, 162],
+            [115, 110],
+            [120, 128],
+            [135, 142],
+            [150, 133],
+            [158, 148],
+            [170, 163],
+            [195, 120],
+            [200, 138],
+          ] as [number, number][]
+        ).map(([cx, cy], i) => (
+          <circle
+            key={`l-dot-${cx}-${cy}`}
+            cx={cx}
+            cy={cy}
+            r="1.5"
+            fill="#ffdd88"
+            opacity={0.4 + (i % 3) * 0.12}
+          />
+        ))}
+        {/* Distant lit windows */}
+        {(
+          [
+            [12, 130],
+            [18, 142],
+            [12, 154],
+            [18, 165],
+            [50, 95],
+            [56, 107],
+            [50, 120],
+            [116, 108],
+            [128, 108],
+            [116, 122],
+            [152, 130],
+            [164, 130],
+            [152, 144],
+            [196, 115],
+            [196, 130],
+          ] as [number, number][]
+        ).map(([x, y], i) => (
+          <rect
+            key={`l-win-${x}-${y}`}
+            x={x}
+            y={y}
+            width="4"
+            height="6"
+            fill="#ffee99"
+            opacity={0.35 + (i % 3) * 0.15}
+          />
+        ))}
+        {/* Moon reflection */}
+        <circle cx="178" cy="38" r="16" fill="#e8e0cc" opacity="0.18" />
+        <circle cx="178" cy="38" r="13" fill="#f0e8d8" opacity="0.12" />
+        {/* Window frame dividers */}
+        <rect x="8" y="128" width="204" height="3" fill="#3a1f0a" />
+        <rect x="110" y="8" width="3" height="244" fill="#3a1f0a" />
+        {/* Window glow */}
+        <rect
+          x="8"
+          y="8"
+          width="204"
+          height="244"
+          fill="#0d1830"
+          opacity="0.15"
+        />
+      </g>
+
+      {/* === NEON "NO SMOKING" SIGN — but styled as glowing cigarette neon art === */}
+      <g transform="translate(350, 50)" filter="url(#neonGlow)">
+        {/* Sign backing plate */}
+        <rect
+          x="-10"
+          y="-10"
+          width="500"
+          height="90"
+          rx="8"
+          fill="#0a0404"
+          opacity="0.85"
+        />
+        <rect
+          x="-10"
+          y="-10"
+          width="500"
+          height="90"
+          rx="8"
+          fill="none"
+          stroke="#2a1010"
+          strokeWidth="2"
+        />
+
+        {/* Neon text "SMOKE" in warm amber/red neon */}
+        {/* S */}
+        <path
+          d="M10,20 Q10,10 20,10 L45,10 Q55,10 55,20 Q55,30 30,35 Q5,40 5,50 Q5,60 15,60 L50,60 Q60,60 60,50"
+          fill="none"
+          stroke="#ff4400"
+          strokeWidth="4"
+          strokeLinecap="round"
+          opacity="0.95"
+        />
+        {/* M */}
+        <path
+          d="M75,60 L75,10 L95,40 L115,10 L115,60"
+          fill="none"
+          stroke="#ff4400"
+          strokeWidth="4"
+          strokeLinecap="round"
+          opacity="0.95"
+        />
+        {/* O */}
+        <rect
+          x="130"
+          y="10"
+          width="40"
+          height="50"
+          rx="20"
+          fill="none"
+          stroke="#ff4400"
+          strokeWidth="4"
+          opacity="0.95"
+        />
+        {/* K */}
+        <path
+          d="M185,10 L185,60 M185,35 L215,10 M185,35 L215,60"
+          fill="none"
+          stroke="#ff4400"
+          strokeWidth="4"
+          strokeLinecap="round"
+          opacity="0.95"
+        />
+        {/* E */}
+        <path
+          d="M230,10 L230,60 M230,10 L265,10 M230,35 L258,35 M230,60 L265,60"
+          fill="none"
+          stroke="#ff4400"
+          strokeWidth="4"
+          strokeLinecap="round"
+          opacity="0.95"
+        />
+
+        {/* Decorative cigarette silhouette next to text */}
+        <g transform="translate(290, 25)">
+          {/* Paper */}
+          <rect
+            x="0"
+            y="12"
+            width="120"
+            height="16"
+            rx="8"
+            fill="none"
+            stroke="#ffcc44"
+            strokeWidth="3"
+            opacity="0.9"
+          />
+          {/* Filter (tan) */}
+          <rect
+            x="94"
+            y="13"
+            width="28"
+            height="14"
+            rx="5"
+            fill="none"
+            stroke="#cc8822"
+            strokeWidth="3"
+            opacity="0.85"
+          />
+          {/* Ember glow */}
+          <circle
+            cx="5"
+            cy="20"
+            r="6"
+            fill="none"
+            stroke="#ff6600"
+            strokeWidth="3"
+            opacity="0.9"
+          />
+          {/* Smoke wisp */}
+          <path
+            d="M5,14 Q8,6 4,0"
+            fill="none"
+            stroke="#aaaaaa"
+            strokeWidth="2"
+            strokeLinecap="round"
+            opacity="0.5"
+          />
+        </g>
+      </g>
+
+      {/* === AMBIENT CEILING PENDANT LAMPS === */}
+      {/* Left lamp */}
+      <g transform="translate(300, 0)">
+        <line x1="0" y1="0" x2="0" y2="60" stroke="#2a1408" strokeWidth="3" />
+        <ellipse cx="0" cy="72" rx="28" ry="16" fill="#3a1f0a" />
+        <ellipse cx="0" cy="66" rx="22" ry="12" fill="#50280c" />
+        {/* Lamp glow cone */}
+        <path
+          d="M-50,80 L-80,220 L80,220 L50,80 Z"
+          fill="#60300a"
+          opacity="0.12"
+        />
+        <ellipse
+          cx="0"
+          cy="72"
+          rx="18"
+          ry="9"
+          fill="#ffcc66"
+          opacity="0.22"
+          filter="url(#softGlow)"
+        />
+      </g>
+      {/* Right lamp */}
+      <g transform="translate(900, 0)">
+        <line x1="0" y1="0" x2="0" y2="50" stroke="#2a1408" strokeWidth="3" />
+        <ellipse cx="0" cy="62" rx="28" ry="16" fill="#3a1f0a" />
+        <ellipse cx="0" cy="56" rx="22" ry="12" fill="#50280c" />
+        <path
+          d="M-50,70 L-80,200 L80,200 L50,70 Z"
+          fill="#60300a"
+          opacity="0.10"
+        />
+        <ellipse
+          cx="0"
+          cy="62"
+          rx="18"
+          ry="9"
+          fill="#ffcc66"
+          opacity="0.2"
+          filter="url(#softGlow)"
+        />
+      </g>
+
+      {/* === BACK SHELF WITH BOTTLES === */}
+      <g transform="translate(520, 90)">
+        {/* Shelf board */}
+        <rect x="0" y="180" width="280" height="10" rx="3" fill="#3a1f0a" />
+        <rect x="0" y="240" width="280" height="10" rx="3" fill="#2e1808" />
+        {/* Bottle 1 — tall whiskey */}
+        <g transform="translate(20, 100)">
+          <rect
+            x="-8"
+            y="0"
+            width="16"
+            height="80"
+            rx="3"
+            fill="#704010"
+            opacity="0.85"
+          />
+          <rect
+            x="-5"
+            y="-15"
+            width="10"
+            height="18"
+            rx="2"
+            fill="#60380a"
+            opacity="0.9"
+          />
+          <rect
+            x="-3"
+            y="-18"
+            width="6"
+            height="6"
+            rx="1"
+            fill="#3a2008"
+            opacity="0.9"
+          />
+          <rect
+            x="-7"
+            y="18"
+            width="14"
+            height="4"
+            fill="#ffcc44"
+            opacity="0.3"
+          />
+        </g>
+        {/* Bottle 2 — round brandy */}
+        <g transform="translate(55, 120)">
+          <ellipse
+            cx="0"
+            cy="45"
+            rx="13"
+            ry="28"
+            fill="#8B4513"
+            opacity="0.8"
+          />
+          <rect
+            x="-5"
+            y="-8"
+            width="10"
+            height="20"
+            rx="3"
+            fill="#6a3010"
+            opacity="0.9"
+          />
+          <rect
+            x="-3"
+            y="-12"
+            width="6"
+            height="7"
+            rx="1"
+            fill="#3a1a08"
+            opacity="0.9"
+          />
+        </g>
+        {/* Bottle 3 — green gin */}
+        <g transform="translate(95, 105)">
+          <rect
+            x="-7"
+            y="0"
+            width="14"
+            height="75"
+            rx="4"
+            fill="#2a5a18"
+            opacity="0.8"
+          />
+          <rect
+            x="-4"
+            y="-14"
+            width="8"
+            height="17"
+            rx="2"
+            fill="#1a4010"
+            opacity="0.9"
+          />
+          <rect x="-3" y="-17" width="6" height="6" rx="1" fill="#0e2808" />
+          <rect
+            x="-6"
+            y="25"
+            width="12"
+            height="3"
+            fill="#88cc44"
+            opacity="0.35"
+          />
+        </g>
+        {/* Bottle 4 — clear vodka */}
+        <g transform="translate(132, 112)">
+          <rect
+            x="-7"
+            y="0"
+            width="14"
+            height="68"
+            rx="3"
+            fill="#c8c8d8"
+            opacity="0.4"
+            stroke="#8090a0"
+            strokeWidth="1"
+          />
+          <rect
+            x="-4"
+            y="-13"
+            width="8"
+            height="16"
+            rx="2"
+            fill="#9090a0"
+            opacity="0.6"
+          />
+          <rect
+            x="-3"
+            y="-16"
+            width="6"
+            height="6"
+            rx="1"
+            fill="#606070"
+            opacity="0.8"
+          />
+        </g>
+        {/* Bottle 5 — dark rum */}
+        <g transform="translate(168, 108)">
+          <rect
+            x="-7"
+            y="0"
+            width="14"
+            height="72"
+            rx="3"
+            fill="#2a1004"
+            opacity="0.9"
+          />
+          <rect
+            x="-5"
+            y="-12"
+            width="10"
+            height="15"
+            rx="2"
+            fill="#1a0803"
+            opacity="0.9"
+          />
+          <rect x="-3" y="-15" width="6" height="6" rx="1" fill="#0a0402" />
+          <rect
+            x="-6"
+            y="20"
+            width="12"
+            height="3"
+            fill="#ff8800"
+            opacity="0.25"
+          />
+        </g>
+        {/* Bottle 6 — blue curacao */}
+        <g transform="translate(204, 115)">
+          <rect
+            x="-7"
+            y="0"
+            width="14"
+            height="65"
+            rx="4"
+            fill="#0a3068"
+            opacity="0.7"
+          />
+          <rect
+            x="-4"
+            y="-11"
+            width="8"
+            height="14"
+            rx="2"
+            fill="#082050"
+            opacity="0.9"
+          />
+          <rect x="-3" y="-14" width="6" height="6" rx="1" fill="#041030" />
+        </g>
+        {/* Bottle 7 — tequila */}
+        <g transform="translate(240, 100)">
+          <rect
+            x="-8"
+            y="0"
+            width="16"
+            height="80"
+            rx="3"
+            fill="#c8a840"
+            opacity="0.55"
+            stroke="#a08828"
+            strokeWidth="1"
+          />
+          <rect
+            x="-5"
+            y="-14"
+            width="10"
+            height="17"
+            rx="2"
+            fill="#a08020"
+            opacity="0.7"
+          />
+          <rect x="-3" y="-17" width="6" height="6" rx="1" fill="#705a10" />
+          <rect
+            x="-7"
+            y="20"
+            width="14"
+            height="3"
+            fill="#ffee88"
+            opacity="0.3"
+          />
+        </g>
+      </g>
+
+      {/* === BAR COUNTER along bottom === */}
+      {/* Counter body */}
+      <rect x="0" y="560" width="1200" height="240" fill="url(#barGrad)" />
+      {/* Counter top surface */}
+      <rect x="0" y="558" width="1200" height="22" fill="url(#barTopGrad)" />
+      {/* Counter edge highlight */}
+      <rect
+        x="0"
+        y="558"
+        width="1200"
+        height="2"
+        fill="#9a5820"
+        opacity="0.55"
+      />
+      <rect
+        x="0"
+        y="578"
+        width="1200"
+        height="2"
+        fill="#1a0c04"
+        opacity="0.7"
+      />
+      {/* Wood grain lines on counter top */}
+      {[30, 90, 150, 250, 380, 520, 680, 820, 960, 1080].map((x) => (
+        <line
+          key={`grain-${x}`}
+          x1={x}
+          y1="560"
+          x2={x + 160}
+          y2="578"
+          stroke="#2a1008"
+          strokeWidth="1.5"
+          opacity="0.3"
+        />
+      ))}
+      {/* Bar stool silhouettes */}
+      {[120, 300, 500, 720, 940, 1100].map((x) => (
+        <g key={`stool-${x}`} transform={`translate(${x}, 558)`}>
+          {/* Stool top */}
+          <ellipse cx="0" cy="-5" rx="28" ry="8" fill="#2a1008" opacity="0.8" />
+          {/* Stool legs */}
+          <rect
+            x="-3"
+            y="-2"
+            width="6"
+            height="120"
+            fill="#1e0e06"
+            opacity="0.7"
+          />
+          <line
+            x1="-25"
+            y1="100"
+            x2="25"
+            y2="100"
+            stroke="#1e0e06"
+            strokeWidth="4"
+            strokeLinecap="round"
+            opacity="0.7"
+          />
+        </g>
+      ))}
+
+      {/* === ASHTRAY on bar counter === */}
+      <g transform="translate(590, 560)">
+        {/* Ashtray dish */}
+        <ellipse cx="0" cy="0" rx="38" ry="12" fill="#252020" />
+        <ellipse cx="0" cy="-3" rx="28" ry="7" fill="#1a1515" />
+        {/* Notches */}
+        <rect x="-30" y="-8" width="8" height="5" rx="2" fill="#252020" />
+        <rect x="22" y="-8" width="8" height="5" rx="2" fill="#252020" />
+        {/* Cigarette stub resting in ashtray */}
+        <g transform="translate(-8, -2) rotate(-15)">
+          <rect
+            x="0"
+            y="-3"
+            width="28"
+            height="6"
+            rx="3"
+            fill="#f0ede0"
+            opacity="0.85"
+          />
+          <rect
+            x="22"
+            y="-2.5"
+            width="7"
+            height="5"
+            rx="2.5"
+            fill="#c49058"
+            opacity="0.9"
+          />
+          <circle
+            cx="1"
+            cy="0"
+            r="3"
+            fill="#ff4400"
+            opacity="0.7"
+            filter="url(#softGlow)"
+          />
+        </g>
+        {/* Ash deposits */}
+        <ellipse cx="5" cy="-1" rx="10" ry="4" fill="#888070" opacity="0.45" />
+      </g>
+
+      {/* === DRINKS on bar counter === */}
+      {/* Glass with amber drink */}
+      <g transform="translate(180, 555)">
+        <path
+          d="M-14,0 L-10,-42 L10,-42 L14,0 Z"
+          fill="#9a5010"
+          opacity="0.55"
+        />
+        <path
+          d="M-14,0 L-10,-42 L10,-42 L14,0 Z"
+          fill="none"
+          stroke="#7a3a08"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M-13,-2 L-10,-30 L10,-30 L13,-2 Z"
+          fill="#c06810"
+          opacity="0.4"
+        />
+        <ellipse cx="0" cy="-30" rx="10" ry="3" fill="#e08020" opacity="0.3" />
+        {/* Ice cube */}
+        <rect
+          x="-4"
+          y="-28"
+          width="8"
+          height="8"
+          rx="1"
+          fill="#b8d8f0"
+          opacity="0.35"
+        />
+      </g>
+      {/* Whiskey glass */}
+      <g transform="translate(420, 560)">
+        <path d="M-12,0 L-9,-35 L9,-35 L12,0 Z" fill="#8a4008" opacity="0.55" />
+        <path
+          d="M-12,0 L-9,-35 L9,-35 L12,0 Z"
+          fill="none"
+          stroke="#6a2808"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M-11,-2 L-9,-25 L9,-25 L11,-2 Z"
+          fill="#b05810"
+          opacity="0.4"
+        />
+      </g>
+
+      {/* === SUBTLE SMOKE CLOUDS drifting up === */}
+      <ellipse
+        cx="200"
+        cy="260"
+        rx="60"
+        ry="30"
+        fill="#c0b8aa"
+        opacity="0.025"
+      />
+      <ellipse
+        cx="650"
+        cy="180"
+        rx="90"
+        ry="40"
+        fill="#c8c0b0"
+        opacity="0.03"
+      />
+      <ellipse
+        cx="1050"
+        cy="300"
+        rx="70"
+        ry="28"
+        fill="#b8b0a0"
+        opacity="0.028"
+      />
+
+      {/* === RIGHT WINDOW === */}
+      <g transform="translate(940, 95)">
+        <rect x="0" y="0" width="210" height="250" rx="4" fill="#3a1f0a" />
+        <rect x="8" y="8" width="194" height="234" fill="url(#windowGrad)" />
+        {/* Building silhouettes */}
+        <rect
+          x="10"
+          y="110"
+          width="25"
+          height="120"
+          fill="#040710"
+          opacity="0.95"
+        />
+        <rect
+          x="40"
+          y="80"
+          width="30"
+          height="154"
+          fill="#030610"
+          opacity="0.95"
+        />
+        <rect
+          x="76"
+          y="130"
+          width="35"
+          height="104"
+          fill="#050810"
+          opacity="0.95"
+        />
+        <rect
+          x="116"
+          y="95"
+          width="28"
+          height="139"
+          fill="#04070e"
+          opacity="0.95"
+        />
+        <rect
+          x="150"
+          y="115"
+          width="45"
+          height="119"
+          fill="#060911"
+          opacity="0.95"
+        />
+        {/* City lights */}
+        {(
+          [
+            [12, 130],
+            [18, 145],
+            [24, 158],
+            [43, 88],
+            [52, 100],
+            [60, 118],
+            [78, 138],
+            [88, 153],
+            [118, 103],
+            [128, 118],
+            [135, 135],
+            [154, 122],
+            [162, 140],
+            [170, 156],
+            [198, 118],
+          ] as [number, number][]
+        ).map(([cx, cy]) => (
+          <circle
+            key={`r-light-${cx}-${cy}`}
+            cx={cx}
+            cy={cy}
+            r="1.5"
+            fill="#ffdd88"
+            opacity="0.4"
+          />
+        ))}
+        {/* Moon */}
+        <circle cx="170" cy="40" r="14" fill="#f0e8d8" opacity="0.16" />
+        {/* Frame dividers */}
+        <rect x="8" y="124" width="194" height="3" fill="#3a1f0a" />
+        <rect x="105" y="8" width="3" height="234" fill="#3a1f0a" />
+      </g>
+
+      {/* === CEILING texture === */}
+      <rect x="0" y="0" width="1200" height="40" fill="#0a0404" opacity="0.5" />
+      {/* Crown molding */}
+      <rect x="0" y="38" width="1200" height="6" fill="#2a1208" opacity="0.6" />
+
+      {/* === FLOOR reflection === */}
+      <rect
+        x="0"
+        y="690"
+        width="1200"
+        height="110"
+        fill="#100606"
+        opacity="0.65"
+      />
+      <rect
+        x="0"
+        y="690"
+        width="1200"
+        height="2"
+        fill="#2a1008"
+        opacity="0.4"
+      />
+
+      {/* Overall dark vignette */}
+      <defs>
+        <radialGradient id="vignette" cx="50%" cy="50%" r="75%">
+          <stop offset="0%" stopColor="transparent" />
+          <stop offset="100%" stopColor="#000000" stopOpacity="0.65" />
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="800" fill="url(#vignette)" />
+
+      {/* Cigarettes counter overlay — shown when count is provided (gameplay) */}
+      {cigarettesCount != null && (
+        <g transform="translate(600, 28)">
+          <rect
+            x="-130"
+            y="-18"
+            width="260"
+            height="44"
+            rx="8"
+            fill="#0a0404"
+            opacity="0.78"
+          />
+          <rect
+            x="-130"
+            y="-18"
+            width="260"
+            height="44"
+            rx="8"
+            fill="none"
+            stroke="rgba(180,120,40,0.35)"
+            strokeWidth="1.5"
+          />
+          <text
+            x="0"
+            y="-3"
+            textAnchor="middle"
+            fontFamily="'Courier New', Courier, monospace"
+            fontSize="10"
+            fill="#9a7040"
+            opacity="0.9"
+            letterSpacing="1.2"
+          >
+            🚬 CIGARETTES SMOKED TODAY
+          </text>
+          <text
+            x="0"
+            y="16"
+            textAnchor="middle"
+            fontFamily="'Courier New', Courier, monospace"
+            fontSize="16"
+            fontWeight="bold"
+            fill="#ffffff"
+            letterSpacing="0.5"
+          >
+            {cigarettesCount.toLocaleString()}
+          </text>
+        </g>
+      )}
+    </svg>
+  );
+
+  // Weather world — minimal sky background (WeatherWorld.tsx handles full display)
+  const renderWeatherWorld = () => (
+    <svg
+      role="img"
+      aria-label="Weather world background"
+      className="absolute inset-0 w-full h-full object-cover"
+      viewBox="0 0 1200 800"
+      preserveAspectRatio="xMidYMid slice"
+    >
+      <defs>
+        <linearGradient id="weatherSky" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#1a6bce" />
+          <stop offset="50%" stopColor="#3a8ee8" />
+          <stop offset="100%" stopColor="#7bbff7" />
+        </linearGradient>
+      </defs>
+      <rect width="1200" height="800" fill="url(#weatherSky)" />
+    </svg>
+  );
+
   const renderWorld = () => {
     switch (world) {
       case "volcano":
@@ -19800,6 +20697,10 @@ const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({
         return renderAlienWorld();
       case "dogecoin":
         return renderDogeWorld();
+      case "weather":
+        return renderWeatherWorld();
+      case "smoke":
+        return renderSmokeWorld();
       default:
         return renderOriginalWorld();
     }

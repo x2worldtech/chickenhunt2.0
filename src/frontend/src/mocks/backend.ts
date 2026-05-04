@@ -1,4 +1,5 @@
-import type {
+import { JoinMode } from "../backend";
+import type { 
   ApprovalStatus,
   ClanDetails,
   ClanMessage,
@@ -14,8 +15,8 @@ import type {
   UserProfileWithChangeStatus,
   UserRole,
   backendInterface,
-} from "../backend";
-import { JoinMode } from "../backend";
+ } from "../backend";
+import { Principal } from "@icp-sdk/core/principal";
 
 const ok = <T>(value: T) => ({ __kind__: "ok" as const, ok: value });
 const err = (msg: string) => ({ __kind__: "err" as const, err: msg });
@@ -46,10 +47,10 @@ export const mockBackend: backendInterface = {
   }),
   getCurrentUserRole: async () => "user" as unknown as UserRole,
   getFriends: async (): Promise<PrincipalInfo[]> => [],
-  getLeaderboard: async (): Promise<Array<[string, bigint, bigint]>> => [
-    ["Jäger", BigInt(5000), BigInt(1)],
-    ["Meisterschütze", BigInt(4200), BigInt(2)],
-    ["Hühnerjäger", BigInt(3800), BigInt(3)],
+  getLeaderboard: async (): Promise<Array<[Principal, string, bigint, bigint]>> => [
+    [Principal.anonymous(), "Jäger", BigInt(5000), BigInt(1)],
+    [Principal.anonymous(), "Meisterschütze", BigInt(4200), BigInt(2)],
+    [Principal.anonymous(), "Hühnerjäger", BigInt(3800), BigInt(3)],
   ],
   getPendingJoinRequests: async () => ok([] as PrincipalInfo[]),
   getUserGameStats: async (): Promise<GameStatistics | null> => null,
@@ -85,6 +86,8 @@ export const mockBackend: backendInterface = {
   sendClanMessage: async () => err("not implemented"),
   sendDirectMessage: async () => err("not implemented"),
   getDirectMessages: async (): Promise<{ __kind__: "ok"; ok: DirectMessage[] } | { __kind__: "err"; err: string }> => ({ __kind__: "ok", ok: [] }),
+  getPlayerDisplayName: async () => "Player #1",
+  getPlayerNumber: async () => BigInt(1),
   setApproval: async () => undefined,
   updateClan: async () => err("not implemented"),
   getCachedPumpFunPrice: async () => ({ price: 0, change24h: 0, lastUpdated: BigInt(0) }),

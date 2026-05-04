@@ -51,6 +51,14 @@ persistent actor {
         MultiUserSystem.listUsers(multiUserState, caller);
     };
 
+    // ── Player number counter ─────────────────────────────────────────────────
+    // Atomically incremented; assigned once per new profile, never reassigned.
+    var nextPlayerNumber : Nat = 1;
+
+    // Separate map for player numbers so lazy migration can assign them
+    // without touching immutable UserProfile records.
+    let playerNumbers = Map.empty<Principal, Nat>();
+
     // ── User profiles ────────────────────────────────────────────────────────
     public type UserProfile = {
         name : Text;
@@ -73,10 +81,36 @@ persistent actor {
         userProfiles.get(user);
     };
 
+    // Assign a player number the first time a principal gets a profile.
+    func ensurePlayerNumber(principal : Principal) {
+        switch (playerNumbers.get(principal)) {
+            case (?_) {}; // already assigned
+            case null {
+                playerNumbers.add(principal, nextPlayerNumber);
+                nextPlayerNumber += 1;
+            };
+        };
+    };
+
+    // Build the display name for a principal: custom name if non-empty, else "Player #N".
+    // Read-only — never assigns a new number (safe for queries).
+    func buildDisplayName(principal : Principal, name : Text) : Text {
+        if (name.size() > 0) {
+            name
+        } else {
+            let n = switch (playerNumbers.get(principal)) {
+                case (?num) num;
+                case null 0; // unregistered principal — shown as generic fallback
+            };
+            if (n == 0) "Player #?" else "Player #" # n.toText()
+        }
+    };
+
     public shared ({ caller }) func saveCurrentUserProfile(profile : UserProfile) : async () {
         if (profile.name.size() > 15) {
             Runtime.trap("Name too long. Maximum 15 characters allowed.");
         };
+        ensurePlayerNumber(caller);
         userProfiles.add(caller, profile);
     };
 
@@ -105,7 +139,25 @@ persistent actor {
         if (profile.name.size() > 15) {
             Runtime.trap("Name too long. Maximum 15 characters allowed.");
         };
+        ensurePlayerNumber(caller);
         userProfilesWithChangeStatus.add(caller, profile);
+    };
+
+    // ── Player number queries ─────────────────────────────────────────────────
+
+    public query func getPlayerNumber(user : Principal) : async ?Nat {
+        playerNumbers.get(user)
+    };
+
+    public query func getPlayerDisplayName(user : Principal) : async Text {
+        let name = switch (userProfilesWithChangeStatus.get(user)) {
+            case (?p) p.name;
+            case null switch (userProfiles.get(user)) {
+                case (?p) p.name;
+                case null "";
+            };
+        };
+        buildDisplayName(user, name)
     };
 
     // ── Game statistics ──────────────────────────────────────────────────────
@@ -134,6 +186,8 @@ persistent actor {
         if (caller.isAnonymous()) {
             Runtime.trap("Anonymous callers cannot save game statistics.");
         };
+        // Ensure player number is assigned on first stat save (covers users without a profile)
+        ensurePlayerNumber(caller);
         let existing = gameStatistics.get(caller);
         let updatedHighScore = switch (existing) {
             case null stats.highestScore;
@@ -152,7 +206,7 @@ persistent actor {
     // ── Leaderboard ───────────────────────────────────────────────────────────
     // Returns [(name, score, level)] sorted descending by highestScore.
     // Name is taken from UserProfileWithChangeStatus; falls back to principal text.
-    public query func getLeaderboard() : async [(Text, Nat, Nat)] {
+    public query func getLeaderboard() : async [(Principal, Text, Nat, Nat)] {
         let entries : [(Principal, GameStatistics)] = gameStatistics.entries().toArray();
         // Filter out anonymous principals — only authenticated players appear on the leaderboard
         let authenticated = entries.filter(
@@ -170,13 +224,17 @@ persistent actor {
                 else #equal;
             }
         );
-        sorted.map<(Principal, GameStatistics), (Text, Nat, Nat)>(
-            func((principal, stats) : (Principal, GameStatistics)) : (Text, Nat, Nat) {
-                let name = switch (userProfilesWithChangeStatus.get(principal)) {
+        sorted.map<(Principal, GameStatistics), (Principal, Text, Nat, Nat)>(
+            func((principal, stats) : (Principal, GameStatistics)) : (Principal, Text, Nat, Nat) {
+                let rawName = switch (userProfilesWithChangeStatus.get(principal)) {
                     case (?p) p.name;
-                    case null principal.toText();
+                    case null switch (userProfiles.get(principal)) {
+                        case (?p) p.name;
+                        case null "";
+                    };
                 };
-                (name, stats.highestScore, stats.level);
+                let name = buildDisplayName(principal, rawName);
+                (principal, name, stats.highestScore, stats.level);
             }
         );
     };
@@ -206,14 +264,16 @@ persistent actor {
 
     // ── Socials mixin ─────────────────────────────────────────────────────────
     // Resolver helpers that bridge socials domain with user profile / stats state
+    // Returns the resolved display name (Player #N fallback) for socials context.
     func _getName(p : Principal) : ?Text {
-        switch (userProfilesWithChangeStatus.get(p)) {
-            case (?prof) ?prof.name;
+        let rawName = switch (userProfilesWithChangeStatus.get(p)) {
+            case (?prof) prof.name;
             case null switch (userProfiles.get(p)) {
-                case (?prof) ?prof.name;
-                case null null;
+                case (?prof) prof.name;
+                case null "";
             };
         };
+        ?buildDisplayName(p, rawName)
     };
 
     func _getAvatarUrl(p : Principal) : ?Text {

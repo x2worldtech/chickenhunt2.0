@@ -135,6 +135,9 @@ actor {
         Map__605269027<Principal, ApprovalStatus__1030066916>;
       var userRoles : Map__605269027<Principal, UserRole__465239019>
     };
+  stable var nextPlayerNumber : Nat;
+  stable playerNumbers :
+    {var root : Node__46230540<Principal, Nat>; var size : Nat__490723111};
   stable pumpPriceState :
     {var change24h : Float; var lastUpdated : Int; var price : Float};
   stable socialsState :

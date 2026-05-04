@@ -7,6 +7,7 @@ import {
   Crown,
   Eye,
   Gift,
+  Globe,
   LogIn,
   Medal,
   Star,
@@ -119,6 +120,33 @@ const getMilestoneIcon = (level: string) => {
   }
 };
 
+const WORLD_NAMES: { id: string; label: string }[] = [
+  { id: "original", label: "Meadow" },
+  { id: "volcano", label: "Volcano" },
+  { id: "space", label: "Space" },
+  { id: "desert", label: "Desert" },
+  { id: "jungle", label: "Jungle" },
+  { id: "snowy", label: "Snowy" },
+  { id: "sky", label: "Heaven" },
+  { id: "cyberpunk", label: "Cyberpunk" },
+  { id: "caffeineai", label: "Caffeine" },
+  { id: "zombietown", label: "Zombietown" },
+  { id: "halloween", label: "Halloween" },
+  { id: "tokyo", label: "Tokyo" },
+  { id: "windows", label: "Windows XP" },
+  { id: "bitcoin", label: "Bitcoin" },
+  { id: "matrix", label: "Matrix" },
+  { id: "ocean", label: "Ocean" },
+  { id: "minecraft", label: "Minecraft" },
+  { id: "pumpfun", label: "pump.fun" },
+  { id: "corona", label: "Corona" },
+  { id: "hormuz", label: "Hormuz" },
+  { id: "alien", label: "Alien" },
+  { id: "dogecoin", label: "Dogecoin" },
+  { id: "smoke", label: "Smoke" },
+  { id: "weather", label: "Weather" },
+];
+
 const AchievementsView: React.FC<AchievementsViewProps> = ({
   gameStatistics,
   isAuthenticated,
@@ -130,6 +158,7 @@ const AchievementsView: React.FC<AchievementsViewProps> = ({
   const [collectedMilestones, setCollectedMilestones] = useState<Set<string>>(
     new Set(),
   );
+  const [worldsPlayed, setWorldsPlayed] = useState<string[]>([]);
   const audioContextRef = useRef<AudioContext | null>(null);
 
   const handleLogin = async () => {
@@ -218,6 +247,14 @@ const AchievementsView: React.FC<AchievementsViewProps> = ({
     return "achievementMilestones_guest";
   }, [isAuthenticated, identity]);
 
+  const getWorldsPlayedKey = useCallback(() => {
+    const userKey =
+      isAuthenticated && identity
+        ? identity.getPrincipal().toString()
+        : "guest";
+    return `woh_worlds_played_${userKey}`;
+  }, [isAuthenticated, identity]);
+
   useEffect(() => {
     const key = getStorageKey();
     const saved = localStorage.getItem(key);
@@ -230,6 +267,35 @@ const AchievementsView: React.FC<AchievementsViewProps> = ({
       }
     }
   }, [getStorageKey]);
+
+  // Load worlds played state
+  useEffect(() => {
+    const wpKey = getWorldsPlayedKey();
+    const saved = localStorage.getItem(wpKey);
+    if (saved) {
+      try {
+        setWorldsPlayed(JSON.parse(saved) as string[]);
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [getWorldsPlayedKey]);
+
+  // Poll for worlds played updates (in case a round just finished)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const wpKey = getWorldsPlayedKey();
+      const saved = localStorage.getItem(wpKey);
+      if (saved) {
+        try {
+          setWorldsPlayed(JSON.parse(saved) as string[]);
+        } catch {
+          /* ignore */
+        }
+      }
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [getWorldsPlayedKey]);
 
   const saveCollectedMilestones = useCallback(
     (milestones: Set<string>) => {
@@ -359,6 +425,15 @@ const AchievementsView: React.FC<AchievementsViewProps> = ({
       currentProgress: playerLevel,
       category: "Progress",
     },
+    {
+      id: "world-explorer",
+      title: "World Explorer",
+      description: "Worlds explored (complete games played)",
+      icon: <Globe className="w-5 h-5" />,
+      milestones: createMilestones([5, 10, 15, 19, 24]),
+      currentProgress: worldsPlayed.length,
+      category: "Explorer",
+    },
   ];
 
   // Update milestone unlock and collection status
@@ -412,7 +487,7 @@ const AchievementsView: React.FC<AchievementsViewProps> = ({
                 </h1>
                 <div className="flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg shadow-md">
                   <Trophy className="w-4 h-4 mr-2" />
-                  <span className="font-bold text-sm">0/65</span>
+                  <span className="font-bold text-sm">0/70</span>
                 </div>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden">
@@ -682,6 +757,29 @@ const AchievementsView: React.FC<AchievementsViewProps> = ({
                     </div>
                   ))}
                 </div>
+
+                {/* World Explorer: world grid detail */}
+                {achievement.id === "world-explorer" && (
+                  <div className="grid grid-cols-4 gap-1 mb-4">
+                    {WORLD_NAMES.map((w) => {
+                      const played = worldsPlayed.includes(w.id);
+                      return (
+                        <div
+                          key={w.id}
+                          className={`rounded-md px-1 py-0.5 text-center text-xs font-bold truncate transition-all duration-200 ${
+                            played
+                              ? "bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-sm"
+                              : "bg-gray-100 text-gray-400 border border-gray-200"
+                          }`}
+                          title={w.label}
+                        >
+                          {played ? "✓ " : ""}
+                          {w.label}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {/* Progress Bar */}
                 <div className="mb-3">

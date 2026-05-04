@@ -963,7 +963,7 @@ const MyClanInlineDetails: React.FC<MyClanInlineDetailsProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="text-black text-sm font-bold truncate">
-                      {member.name || "Unknown"}
+                      {member.name || "Player #?"}
                     </span>
                     {isOwnerRow && (
                       <Crown size={11} className="text-orange-500 shrink-0" />
@@ -1654,7 +1654,7 @@ const MemberRow: React.FC<MemberRowProps> = ({
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
           <span className="text-black text-sm font-bold truncate">
-            {member.name || "Unknown"}
+            {member.name || "Player #?"}
           </span>
           {isOwner && <Crown size={11} className="text-orange-500 shrink-0" />}
         </div>
@@ -1715,7 +1715,7 @@ const PendingRequestsView: React.FC<{ clanId: bigint; onBack: () => void }> = ({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-black text-sm font-bold truncate">
-                    {user.name || "Unknown"}
+                    {user.name || "Player #?"}
                   </div>
                   <div className="text-xs text-gray-500">
                     Level {user.level.toString()}
@@ -1795,7 +1795,7 @@ const InlineClanChat: React.FC<InlineClanChatProps> = ({
     const found = members.find(
       (m) => m.principal.toText() === principal.toText(),
     );
-    return found?.name || `${principal.toText().slice(0, 12)}…`;
+    return found?.name || "Player #?";
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentional scroll-on-messages
